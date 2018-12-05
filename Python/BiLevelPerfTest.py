@@ -1,0 +1,930 @@
+#!python
+# set PYSPARK_DRIVER_PYTHON=python
+# set PYSPARK_DRIVER_PYTHON_OPTS=
+# spark-submit --master local[7] --deploy-mode client BiLevelPerfTest.py
+import gc
+import scipy.stats, numpy
+import time
+from LinearRegression import linear_regression
+from pyspark.sql import SparkSession
+
+spark = None
+sc = None
+log = None
+
+def createSparkContext():
+    global spark
+    spark = SparkSession \
+        .builder \
+        .appName("BiLevelPerfTest") \
+        .config("spark.sql.shuffle.partitions", 7) \
+        .config("spark.ui.enabled", "false") \
+        .config("spark.rdd.compress", "false") \
+        .config("spark.driver.memory", "2g") \
+        .config("spark.executor.memory", "3g") \
+        .config("spark.executor.memoryOverhead", "1g") \
+        .config("spark.sql.execution.arrow.enabled", "true") \
+        .getOrCreate()
+    return spark
+def setupSparkContext(in_spark):
+    global spark, sc, log
+    spark = in_spark
+    sc = spark.sparkContext
+    log4jLogger = sc._jvm.org.apache.log4j
+    log = log4jLogger.LogManager.getLogger(__name__)
+    log.info("script initialized")
+    return sc, log
+
+import math
+import random
+import collections
+import pyspark.sql.functions as func
+import pyspark.sql.types as DataTypes
+from pyspark.sql.window import Window
+from pyspark.sql import Row
+from pyspark.sql.functions import pandas_udf, PandasUDFType
+import pandas as pd
+import numpy as np
+from numba import vectorize, jit, njit, prange, cuda
+from numba import float64 as numba_float64
+
+DataPoint = collections.namedtuple("DataPoint", 
+    ["id", "grp", "subgrp", "A", "B", "C", "D", "E", "F"])
+DataPointSchema = DataTypes.StructType([
+    DataTypes.StructField('id',DataTypes.LongType(),False),
+    DataTypes.StructField('grp',DataTypes.LongType(),False),
+    DataTypes.StructField('subgrp',DataTypes.LongType(),False),
+    DataTypes.StructField('A',DataTypes.LongType(),False),
+    DataTypes.StructField('B',DataTypes.LongType(),False),
+    DataTypes.StructField('C',DataTypes.DoubleType(),False),
+    DataTypes.StructField('D',DataTypes.DoubleType(),False),
+    DataTypes.StructField('E',DataTypes.DoubleType(),False),
+    DataTypes.StructField('F',DataTypes.DoubleType(),False)])
+def generateData(numGrp1=3, numGrp2=3, repetition=1000):
+    return [
+        DataPoint(
+            id=i, 
+            grp=(i // numGrp2) % numGrp1,
+            subgrp=i % numGrp2,
+            A=random.randint(1, repetition),
+            B=random.randint(1, repetition),
+            C=random.uniform(1, 10),
+            D=random.uniform(1, 10),
+            E=random.normalvariate(0, 10),
+            F=random.normalvariate(1, 10))
+        for i in range(0, numGrp1 * numGrp2 * repetition)]
+pyData_3_3_10 = generateData(3,3,10)
+pyData_3_3_100 = generateData(3,3,100)
+pyData_3_3_1k = generateData(3,3,1000)
+pyData_3_3_10k = generateData(3,3,10000)
+pyData_3_3_100k = generateData(3,3,100000)
+pyData_3_30_10k = generateData(3,30,10000)
+pyData_3_300_1k = generateData(3,300,1000)
+pyData_3_3k_100 = generateData(3,3000,100)
+
+CondMethod = collections.namedtuple("CondMethod", 
+    ["name", "interface", "delegate"])
+implementation_list = []
+def count_iter(iterator):
+    count = 0
+    for obj in iterator:
+        count += 1
+    return count
+
+#region join aggregation
+def bi_sql_join(pyData):
+    dfData = spark.createDataFrame(pyData)
+    spark.catalog.dropTempView("exampledata")
+    dfData.createTempView("exampledata")
+    spark.sql('''
+    SELECT 
+        level1.grp, 
+        LAST(level1.mean_of_C) mean_of_C, 
+        LAST(level1.max_of_D) max_of_D, 
+        AVG(level2.var_of_E) avg_var_of_E,
+        AVG(level2.var_of_E2) avg_var_of_E2
+    FROM
+        (SELECT
+            grp, AVG(C) mean_of_C, MAX(D) max_of_D
+        FROM
+            exampledata
+        GROUP BY grp) AS level1
+            LEFT JOIN
+        (SELECT 
+                grp,
+                subgrp,
+                VARIANCE(E) var_of_E,
+                (SUM(E * E) - 
+                SUM(E)*AVG(E))/(COUNT(E)-1) var_of_E2
+            FROM
+                exampledata
+            GROUP BY grp , subgrp
+        ) AS level2    
+            ON level1.grp = level2.grp
+    GROUP BY level1.grp
+    ORDER BY level1.grp
+    ''')\
+        .collect()
+
+implementation_list.append(CondMethod(
+    name='bi_sql_join', 
+    interface='sql', 
+    delegate=bi_sql_join))
+
+def bi_fluent_join(pyData):
+    df = spark.createDataFrame(pyData)
+    level1 = df \
+        .groupBy(df.grp) \
+        .agg(
+            func.mean(df.C).alias("mean_of_C"),
+            func.max(df.D).alias("max_of_D"))
+    level2 = df \
+        .groupBy(df.grp, df.subgrp) \
+        .agg(
+            func.variance(df.E).alias("var_of_E"),
+            ((func.sum(df.E * df.E)-
+              func.sum(df.E) * func.avg(df.E))
+             /(func.count(df.E)-1)).alias("var_of_E2")
+        )
+    level3 = level2 \
+        .join(level1, "grp") \
+        .groupBy(level1.grp) \
+        .agg(
+            func.last(level1.mean_of_C).alias("mean_of_C"),
+            func.last(level1.max_of_D).alias("max_of_D"),
+            func.avg(level2.var_of_E).alias("avg_var_of_E"),
+            func.avg(level2.var_of_E2).alias("avg_var_of_E2")
+        ) \
+        .orderBy(level1.grp)
+        # .collect()
+    return level3, None
+
+implementation_list.append(CondMethod(
+    name='bi_fluent_join', 
+    interface='fluent', 
+    delegate=bi_fluent_join))
+
+#endregion
+
+#region pandas
+def bi_pandas(pyData):
+    groupby_columns = ['grp']
+    agg_columns = ['mean_of_C','max_of_D', 'avg_var_of_E', 'avg_var_of_E2']
+    df = spark.createDataFrame(pyData)
+    postAggSchema = DataTypes.StructType(
+        [x for x in DataPointSchema.fields if x.name in groupby_columns] + 
+        [DataTypes.StructField(name, DataTypes.DoubleType(), False) for name in agg_columns])
+    #
+    @pandas_udf(postAggSchema, PandasUDFType.GROUPED_MAP)
+    def inner_agg_method(dfPartition):
+        group_key = dfPartition['grp'].iloc[0]
+        C = dfPartition['C']
+        D = dfPartition['D']
+        E = dfPartition['E']
+        subgroupedE = dfPartition.groupby('subgrp')['E']
+        return pd.DataFrame([[
+            group_key, 
+            C.mean(),
+            D.max(),
+            subgroupedE.var().mean(),
+            subgroupedE \
+                .agg(lambda E: \
+                    ((E * E).sum() - 
+                    E.sum()**2/E.count())/(E.count()-1)) \
+                .mean(),
+            ]], columns=groupby_columns + agg_columns)
+    #
+    aggregates = df.groupby(df.grp).apply(inner_agg_method)
+    return aggregates, None
+
+implementation_list.append(CondMethod(
+    name='bi_pandas', 
+    interface='pandas', 
+    delegate=lambda pyData: bi_pandas(pyData)))
+
+def bi_pandas_numba(pyData):
+    groupby_columns = ['grp']
+    agg_columns = ['mean_of_C','max_of_D', 'avg_var_of_E', 'avg_var_of_E2']
+    df = spark.createDataFrame(pyData)
+    postAggSchema = DataTypes.StructType(
+        [x for x in DataPointSchema.fields if x.name in groupby_columns] + 
+        [DataTypes.StructField(name, DataTypes.DoubleType(), False) for name in agg_columns])
+    #
+    @jit(numba_float64(numba_float64[:]), nopython=True)
+    def my_numba_mean(C):
+        return np.mean(C)
+    #
+    @jit(numba_float64(numba_float64[:]), nopython=True)
+    def my_numba_max(C):
+        return np.max(C)
+    #
+    @jit(numba_float64(numba_float64[:]), nopython=True)
+    def my_numba_var(C):
+        return np.var(C)
+    #
+    @jit(numba_float64(numba_float64[:]), parallel=True, nopython=True)
+    def my_looplift_var(E):
+        n = len(E)
+        accE2 = 0.
+        for i in prange(n):
+            accE2 += E[i] ** 2
+        accE = 0.
+        for i in prange(n):
+            accE += E[i]
+        return (accE2 - accE**2/n)/(n-1)
+    #
+    @pandas_udf(postAggSchema, PandasUDFType.GROUPED_MAP)
+    def inner_agg_method(dfPartition):
+        group_key = dfPartition['grp'].iloc[0]
+        C = np.array(dfPartition['C'])
+        D = np.array(dfPartition['D'])
+        subgroupedE = dfPartition.groupby('subgrp')['E']
+        return pd.DataFrame([[
+            group_key, 
+            my_numba_mean(C),
+            my_numba_max(D),
+            subgroupedE.apply(lambda x: my_numba_var(np.array(x))).mean(),
+            subgroupedE.apply(lambda x: my_looplift_var(np.array(x))).mean(),
+            ]], columns=groupby_columns + agg_columns)
+    #
+    aggregates = df.groupby(df.grp).apply(inner_agg_method)
+    return aggregates, None
+
+implementation_list.append(CondMethod(
+    name='bi_pandas_numba', 
+    interface='pandas', 
+    delegate=lambda pyData: bi_pandas_numba(pyData)))
+
+#endregion
+
+#region bi nested
+def bi_sql_nested(pyData):
+    dfData = spark.createDataFrame(pyData)
+    spark.catalog.dropTempView("exampledata")
+    dfData.createTempView("exampledata")
+    spark.sql('''
+    SELECT 
+            grp,
+            SUM(sub_sum_of_C) / SUM(sub_count) as mean_of_C,
+            MAX(sub_max_of_D) as max_of_D,
+            AVG(sub_var_of_E) as avg_var_of_E,
+            AVG(
+                (
+                    sub_sum_of_E_squared - 
+                    sub_sum_of_E * sub_sum_of_E / sub_count
+                ) / (sub_count - 1)
+               ) as avg_var_of_E2
+    FROM
+        (SELECT 
+                grp, subgrp, 
+                count(C) as sub_count, 
+                sum(C) as sub_sum_of_C, 
+                max(D) as sub_max_of_D, 
+                variance(E) as sub_var_of_E,
+                sum(E * E) as sub_sum_of_E_squared, 
+                sum(E) as sub_sum_of_E
+            FROM
+                exampledata
+            GROUP BY grp, subgrp) level2
+    GROUP BY grp
+    ORDER BY grp
+    ''')\
+        .collect()
+
+implementation_list.append(CondMethod(
+    name='bi_sql_nested', 
+    interface='sql', 
+    delegate=bi_sql_nested))
+
+def bi_fluent_nested(pyData):
+    df = spark.createDataFrame(pyData)
+    df = df.groupBy(df.grp, df.subgrp)\
+        .agg(func.mean(df.C).alias("sub_mean_of_C"), 
+            func.count(df.C).alias("sub_count"), 
+            func.sum(df.C).alias("sub_sum_of_C"), 
+            func.max(df.D).alias("sub_max_of_D"), 
+            func.variance(df.E).alias("sub_var_of_E"), 
+            func.sum(df.E * df.E).alias("sub_sum_of_E_squared"), 
+            func.sum(df.E).alias("sub_sum_of_E"))
+    df = df.groupBy(df.grp) \
+        .agg(
+            (
+                func.sum(df.sub_mean_of_C * df.sub_count)
+                / func.sum(df.sub_count)
+            ).alias("mean_of_C"), 
+            func.max(df.sub_max_of_D).alias("max_of_D"), 
+            func.avg(df.sub_var_of_E).alias("cond_var_of_E1"),
+            func.avg(
+                (df.sub_sum_of_E_squared -
+                df.sub_sum_of_E * df.sub_sum_of_E 
+                 / df.sub_count)).alias("cond_var_of_E2"))
+    df.select('grp', 'mean_of_C', 'max_of_D', 
+                   'cond_var_of_E1', 'cond_var_of_E2')\
+        .orderBy(df.grp)\
+        .collect()
+
+implementation_list.append(CondMethod(
+    name='bi_fluent_nested', 
+    interface='fluent', 
+    delegate=bi_fluent_nested))
+
+#endregion
+
+#region bi Window
+def bi_fluent_window(pyData):
+    df = spark.createDataFrame(pyData)
+    window = Window \
+        .partitionBy(df.grp, df.subgrp) \
+        .orderBy(df.id)
+    df = df \
+        .orderBy(df.grp, df.subgrp, df.id)\
+        .withColumn("sub_var_of_E", 
+                    func.variance(df.E)\
+                              .over(window))
+    df = df \
+        .groupBy(df.grp, df.subgrp)\
+        .agg(func.sum(df.C).alias("sub_sum_of_C"), 
+            func.count(df.C).alias("sub_count"), 
+            func.max(df.D).alias("sub_max_of_D"),
+            func.last(df.sub_var_of_E).alias("sub_var_of_E1"), 
+            func.variance(df.E).alias("sub_var_of_E2"))
+    df \
+        .groupBy(df.grp)\
+        .agg(
+            (func.sum(df.sub_sum_of_C)/
+             func.sum(df.sub_count)).alias("mean_of_C"), 
+            func.max(df.sub_max_of_D).alias("max_of_D"),
+            func.avg(df.sub_var_of_E1).alias("avg_var_of_E1"), 
+            func.avg(df.sub_var_of_E2).alias("avg_var_of_E2"))\
+        .orderBy(df.grp)\
+        .collect()
+
+implementation_list.append(CondMethod(
+    name='bi_fluent_window', 
+    interface='fluent', 
+    delegate=bi_fluent_window))
+
+#endregion
+
+#region bi rdd grpMap
+def bi_rdd_grpmap(pyData):
+    class MutableRunningTotal:
+        def __init__(self, grp):
+            self.grp = grp
+            self.running_sub_sum_of_E_squared = 0
+            self.running_sub_sum_of_E = 0
+            self.running_sub_count = 0
+
+    rddData = sc.parallelize(pyData)
+    def processData1(grp, iterator):
+        import math, statistics
+        running_sum_of_C = 0
+        running_grp_count = 0
+        running_max_of_D = None
+        running_subs_of_E = {}
+    
+        for item in iterator:
+            running_sum_of_C += item.C
+            running_grp_count += 1
+            running_max_of_D = item.D \
+                if running_max_of_D is None or \
+                    running_max_of_D < item.D \
+                else running_max_of_D
+            if item.subgrp not in running_subs_of_E:
+                running_subs_of_E[item.subgrp] = MutableRunningTotal(grp)
+            running_sub = running_subs_of_E[item.subgrp]
+            running_sub.running_sub_sum_of_E_squared += \
+                 item.E * item.E
+            running_sub.running_sub_sum_of_E += item.E
+            running_sub.running_sub_count += 1
+        mean_of_C = running_sum_of_C / running_grp_count \
+            if running_grp_count > 0 else math.nan
+        ar = [math.nan if 
+              x.running_sub_count < 2 else
+              (
+                x.running_sub_sum_of_E_squared
+                - x.running_sub_sum_of_E * \
+                x.running_sub_sum_of_E / \
+                x.running_sub_count
+              )  / (x.running_sub_count - 1)
+              for x in running_subs_of_E.values()]
+        avg_var_of_E = statistics.mean(ar)
+        return (grp, 
+                Row(grp=grp, 
+                    mean_of_C=mean_of_C, 
+                    max_of_D=running_max_of_D, 
+                    avg_var_of_E=avg_var_of_E))
+
+    rddResult = rddData\
+        .groupBy(lambda x: (x.grp))\
+        .map(lambda pair: processData1(pair[0], pair[1]))\
+        .repartition(1)\
+        .sortByKey().values()
+    spark.createDataFrame(rddResult)\
+        .select('grp', 'mean_of_C', 'max_of_D', 'avg_var_of_E')\
+        .collect()
+
+implementation_list.append(CondMethod(
+    name='bi_rdd_grpmap', 
+    interface='rdd', 
+    delegate=bi_rdd_grpmap))
+
+#endregion
+
+#region bi rdd reduce1
+def bi_rdd_reduce1(pyData):
+    rddData = sc.parallelize(pyData)
+    SubTotal1 = collections.namedtuple("SubTotal1", 
+        ["running_sum_of_C", "running_max_of_D", 
+         "subgrp_running_totals"])
+    SubTotal2 = collections.namedtuple("SubTotal2", 
+        ["running_sum_of_E_squared", 
+         "running_sum_of_E", "running_count"])
+
+    def mergeValue(pre, v):
+        subgrp_running_totals = pre.subgrp_running_totals.copy()
+        if v.subgrp not in subgrp_running_totals:
+            subgrp_running_totals[v.subgrp] = \
+                SubTotal2(
+                    running_sum_of_E_squared=0,
+                    running_sum_of_E=0,
+                    running_count=0
+                )
+        subsub = subgrp_running_totals[v.subgrp]
+        subgrp_running_totals[v.subgrp] = SubTotal2(
+            subsub.running_sum_of_E_squared + v.E * v.E,
+            subsub.running_sum_of_E + v.E,
+            subsub.running_count + 1)
+        return SubTotal1(
+            running_sum_of_C=pre.running_sum_of_C + v.C,
+            running_max_of_D=pre.running_max_of_D \
+                if pre.running_max_of_D is not None and \
+                    pre.running_max_of_D > v.D \
+                else v.D, 
+            subgrp_running_totals=subgrp_running_totals)
+    def createCombiner(v):
+        return mergeValue(SubTotal1(
+            running_sum_of_C=0, 
+            running_max_of_D=None, 
+            subgrp_running_totals={}), v)
+    def mergeCombiners(lsub, rsub):
+        subgrp_running_totals = {}
+        all_subgrp = set(lsub.subgrp_running_totals.keys()|
+                         rsub.subgrp_running_totals.keys())
+        for subgrp in all_subgrp:
+            l = []
+            if subgrp in lsub.subgrp_running_totals:
+                l.append(lsub.subgrp_running_totals[subgrp])
+            if subgrp in rsub.subgrp_running_totals:
+                l.append(rsub.subgrp_running_totals[subgrp])
+            if len(l) == 1:
+                result = l[0]
+            else:
+                result = SubTotal2(
+                    running_sum_of_E_squared = 
+                        sum(x.running_sum_of_E_squared for x in l),
+                    running_sum_of_E = 
+                        sum(x.running_sum_of_E for x in l),
+                    running_count = 
+                        sum(x.running_count for x in l))
+            subgrp_running_totals[subgrp] = result
+        return SubTotal1(
+            running_sum_of_C=
+                lsub.running_sum_of_C + rsub.running_sum_of_C, 
+            running_max_of_D=lsub.running_max_of_D \
+                if lsub.running_max_of_D is not None and \
+                    lsub.running_max_of_D > rsub.running_max_of_D \
+                else rsub.running_max_of_D, 
+            subgrp_running_totals=subgrp_running_totals)
+    def finalAnalytics(grp, level1):
+        import statistics
+        running_grp_count = 0
+        list_of_var_of_E = []
+        for sub in level1.subgrp_running_totals.values():
+            count = sub.running_count
+            running_grp_count += count
+            var_of_E = math.nan \
+                if count < 2 else \
+                (
+                    sub.running_sum_of_E_squared - 
+                    sub.running_sum_of_E * 
+                    sub.running_sum_of_E / count
+                )  / (count - 1)
+            list_of_var_of_E.append(var_of_E)
+    
+        return Row(
+            grp=grp,
+            mean_of_C= math.nan
+                if running_grp_count < 1 else
+                level1.running_sum_of_C/running_grp_count,
+            max_of_D=level1.running_max_of_D, 
+            avg_var_of_E = statistics.mean(list_of_var_of_E))
+    
+    rddResult = rddData \
+        .map(lambda x: (x.grp, x))\
+        .combineByKey(createCombiner,
+                      mergeValue,
+                      mergeCombiners)\
+        .sortByKey()\
+        .map(lambda x: finalAnalytics(x[0],x[1]))
+    spark.createDataFrame(rddResult)\
+        .select('grp', 'mean_of_C', 'max_of_D', 'avg_var_of_E')\
+        .collect()
+
+implementation_list.append(CondMethod(
+    name='bi_rdd_reduce1', 
+    interface='rdd', 
+    delegate=bi_rdd_reduce1))
+
+#endregion
+
+#region bi rdd reduce2
+def bi_rdd_reduce2(pyData):
+    rddData = sc.parallelize(pyData)
+    SubTotal = collections.namedtuple("SubTotal", 
+        ["running_sum_of_C", "running_count", "running_max_of_D", 
+         "running_sum_of_E_squared", "running_sum_of_E"])
+
+    def mergeValue(pre, v):
+        return SubTotal(
+            running_sum_of_C=pre.running_sum_of_C + v.C,
+            running_count=pre.running_count + 1, 
+            running_max_of_D=pre.running_max_of_D \
+                if pre.running_max_of_D is not None and \
+                    pre.running_max_of_D > v.D \
+                else v.D, 
+            running_sum_of_E_squared=
+                pre.running_sum_of_E_squared +
+                v.E * v.E, 
+            running_sum_of_E=
+                pre.running_sum_of_E + v.E)
+    def createCombiner(v):
+        return mergeValue(SubTotal(
+            running_sum_of_C=0, 
+            running_count=0,
+            running_max_of_D=None, 
+            running_sum_of_E_squared=0, 
+            running_sum_of_E=0), v)
+    def mergeCombiners(lsub, rsub):
+        return SubTotal(
+            running_sum_of_C=
+                lsub.running_sum_of_C + rsub.running_sum_of_C, 
+            running_count=
+                lsub.running_count + rsub.running_count, 
+            running_max_of_D=lsub.running_max_of_D \
+                if lsub.running_max_of_D is not None and \
+                    lsub.running_max_of_D > rsub.running_max_of_D \
+                else rsub.running_max_of_D, 
+            running_sum_of_E_squared=
+                lsub.running_sum_of_E_squared + 
+                rsub.running_sum_of_E_squared, 
+            running_sum_of_E = 
+                lsub.running_sum_of_E + rsub.running_sum_of_E)
+    def finalAnalytics(grp, iterator):
+        running_sum_of_C = 0
+        running_grp_count = 0
+        running_max_of_D = None
+        running_subs_of_E = {}
+        running_sum_of_var_of_E = 0
+        running_count_of_subgrp = 0
+    
+        for sub in iterator:
+            count = sub.running_count
+            running_sum_of_C += sub.running_sum_of_C
+            running_grp_count += count
+            running_max_of_D = sub.running_max_of_D \
+                if running_max_of_D is None or \
+                    running_max_of_D < sub.running_max_of_D \
+                else running_max_of_D
+            var_of_E = math.nan \
+                if count < 2 else \
+                (
+                    sub.running_sum_of_E_squared - 
+                    sub.running_sum_of_E * 
+                    sub.running_sum_of_E / count
+                )  / (count - 1)
+            running_sum_of_var_of_E += var_of_E
+            running_count_of_subgrp += 1
+    
+        return Row(
+            grp=grp,
+            mean_of_C= math.nan
+                if running_grp_count < 1 else
+                running_sum_of_C/running_grp_count,
+            max_of_D=running_max_of_D, 
+            avg_var_of_E = math.nan
+                if running_count_of_subgrp < 1 else
+                running_sum_of_var_of_E  / 
+                running_count_of_subgrp)
+    
+    rddResult = rddData \
+        .map(lambda x: ((x.grp, x.subgrp), x))\
+        .combineByKey(createCombiner,
+                      mergeValue,
+                      mergeCombiners)\
+        .map(lambda x: (x[0][0],x[1]))\
+        .groupByKey(numPartitions=1)\
+        .map(lambda x: (x[0],finalAnalytics(x[0],x[1])))\
+        .sortByKey().values()
+    spark.createDataFrame(rddResult)\
+        .select('grp', 'mean_of_C', 'max_of_D', 'avg_var_of_E')\
+        .collect()
+
+implementation_list.append(CondMethod(
+    name='bi_rdd_reduce2', 
+    interface='rdd', 
+    delegate=bi_rdd_reduce2))
+
+#endregion
+
+#region bi rdd mapPartitions
+def bi_rdd_mappart(pyData):
+    rddData = sc.parallelize(pyData)
+    SubTotal1 = collections.namedtuple("SubTotal1", 
+        ["running_sum_of_C", "running_max_of_D", 
+         "subgrp_totals"])
+    SubTotal2 = collections.namedtuple("SubTotal2", 
+        ["running_sum_of_E_squared", "running_sum_of_E", "running_count"])
+    class MutableGrpTotal:
+        def __init__(self):
+            self.running_sum_of_C = 0
+            self.running_max_of_D=None
+            self.running_subgrp_totals={}
+    class MutableSubGrpTotal:
+        def __init__(self):
+            self.running_count=0
+            self.running_sum_of_E_squared=0
+            self.running_sum_of_E=0
+
+    def partitionTriage(iterator):
+        running_grp_totals = {}
+        for v in iterator:
+            k1 = v.grp
+            if k1 not in running_grp_totals:
+                running_grp_totals[k1]=MutableGrpTotal()
+            r1 = running_grp_totals[k1]
+            r1.running_sum_of_C += v.C
+            r1.running_max_of_D = \
+                r1.running_max_of_D \
+                if r1.running_max_of_D is not None and \
+                    r1.running_max_of_D > v.D \
+                else v.D
+            k2 = v.grp
+            if k2 not in r1.running_subgrp_totals:
+                r1.running_subgrp_totals[k2]=MutableSubGrpTotal()
+            r2 = r1.running_subgrp_totals[k2]
+            r2.running_sum_of_E_squared += v.E * v.E
+            r2.running_sum_of_E += v.E
+            r2.running_count += 1
+        for k in running_grp_totals:
+            r1 = running_grp_totals[k]
+            yield (
+                k, 
+                SubTotal1(
+                    running_sum_of_C=r1.running_sum_of_C, 
+                    running_max_of_D=r1.running_max_of_D, 
+                    subgrp_totals={k2:
+                        SubTotal2(
+                        running_sum_of_E_squared=r2.running_sum_of_E_squared, 
+                        running_sum_of_E=r2.running_sum_of_E, 
+                        running_count=r2.running_count)
+                        for k2,r2 in r1.running_subgrp_totals.items()}))
+
+    def mergeCombiners3(grp, iterable):
+        import statistics
+        lsub = MutableGrpTotal()
+        for rsub1 in iterable:
+            lsub.running_sum_of_C += rsub1.running_sum_of_C
+            lsub.running_max_of_D=lsub.running_max_of_D \
+                if lsub.running_max_of_D is not None and \
+                    lsub.running_max_of_D > rsub1.running_max_of_D \
+                else rsub1.running_max_of_D
+            for subgrp,rsub2 in rsub1.subgrp_totals.items():
+                k2 = subgrp
+                if k2 not in lsub.running_subgrp_totals:
+                    lsub.running_subgrp_totals[k2]=MutableSubGrpTotal()
+                lsub2 = lsub.running_subgrp_totals[k2]
+                lsub2.running_sum_of_E_squared += \
+                    rsub2.running_sum_of_E_squared
+                lsub2.running_sum_of_E += rsub2.running_sum_of_E
+                lsub2.running_count += rsub2.running_count
+        running_count = 0
+        vars_of_E = []
+        for subgrp, lsub2 in lsub.running_subgrp_totals.items():
+            var_of_E = \
+                (
+                    lsub2.running_sum_of_E_squared -
+                    lsub2.running_sum_of_E * lsub2.running_sum_of_E /
+                    lsub2.running_count
+                ) / (lsub2.running_count-1)
+            vars_of_E.append(var_of_E)
+            running_count += lsub2.running_count
+        return Row(
+            grp=grp,
+            mean_of_C=lsub.running_sum_of_C / running_count, 
+            max_of_D=lsub.running_max_of_D, 
+            avg_var_of_E=statistics.mean(vars_of_E))
+
+    rddResult = rddData \
+        .mapPartitions(partitionTriage) \
+        .groupByKey() \
+        .map(lambda kv: (kv[0], mergeCombiners3(kv[0], kv[1]))) \
+        .sortByKey().values()
+    spark.createDataFrame(rddResult)\
+        .select('grp', 'mean_of_C', 'max_of_D', 'avg_var_of_E')\
+        .collect()
+
+implementation_list.append(CondMethod(
+    name='bi_rdd_mappart', 
+    interface='rdd', 
+    delegate=bi_rdd_mappart))
+
+#endregion
+
+RunResult = collections.namedtuple("RunResult", ["dataSize", "relCard", "elapsedTime", "recordCount"])
+def DoTesting():
+    NumRunsPer = 23 # 100
+    # datasets = [(1,pyData_3_3_10k), (10,pyData_3_30_1k), (100,pyData_3_300_100), (1000,pyData_3_3k_10)]
+    # datasets = [(1,pyData_3_3_10k)]
+    datasets = [(1,pyData_3_3_100k), (10,pyData_3_30_10k), (100,pyData_3_300_1k), (1000,pyData_3_3k_100)]
+
+    cond_run_itinerary = []
+    for cond_method in implementation_list:
+        if cond_method.name not in ['bi_pandas', 'bi_pandas_numba']:
+            continue
+        for datatuple in datasets:
+            cond_run_itinerary.extend((cond_method, datatuple) for i in range(0, NumRunsPer))
+    random.shuffle(cond_run_itinerary)
+    with open('Results/bi_runs_4.csv', 'at') as f:
+        for index, (cond_method, (relCard, data)) in enumerate(cond_run_itinerary):
+            log.info("Working on %d of %d"%(index, len(cond_run_itinerary)))
+            startedTime = time.time()
+            df, rdd = cond_method.delegate(data)
+            if df is not None:
+                rdd = df.rdd
+            recordCount = count_iter(rdd.toLocalIterator())
+            finishedTime = time.time()
+            result = RunResult(
+                dataSize=len(data),
+                relCard=relCard,
+                elapsedTime=finishedTime-startedTime,
+                recordCount=recordCount)
+            f.write("%s,%s,%d,%d,%f,%d\n"%(cond_method.name, cond_method.interface, result.dataSize, result.relCard, result.elapsedTime, result.recordCount))
+            gc.collect()
+            time.sleep(10)
+
+def DoPostProcess_Unknown_skipped():
+    cond_runs = {}
+    if False:
+        with open('Results/bi_runs_4.csv', 'at') as f:
+            for index, (cond_method, (relCard, data)) in enumerate(cond_run_itinerary):
+                log.info("Working on %d of %d"%(index, len(cond_run_itinerary)))
+                startedTime = time.time()
+                cond_method.delegate(data)
+                finishedTime = time.time()
+                if cond_method.name not in cond_runs:
+                    cond_runs[cond_method.name] = []
+                result = RunResult(
+                    dataSize=len(data),
+                    relCard=relCard,
+                    elapsedTime=finishedTime-startedTime)
+                cond_runs[cond_method.name].append(result)
+                f.write("%s,%s,%d,%d,%f\n"%(cond_method.name, cond_method.interface, result.dataSize, result.relCard, result.elapsedTime))
+                gc.collect()
+                time.sleep(10)
+    else:
+        with open('Results/bi_runs_4_cleaned.csv', 'r', encoding='utf-8-sig') as f, \
+            open('Results/temp.csv', 'w') as fout:
+            for textline in f:
+                fields = tuple(textline.rstrip().split(','))
+                cond_method_name, cond_method_interface, result_dataSize, result_relCard, result_elapsedTime = fields
+                result = RunResult(
+                    dataSize=int(result_dataSize),
+                    relCard=int(result_relCard),
+                    elapsedTime=float(result_elapsedTime))
+                if cond_method_name not in cond_runs:
+                    cond_runs[cond_method_name] = []
+                cond_runs[cond_method_name].append(result)
+                fout.write("%s,%s,%d,%d,%f\n"%(cond_method_name, cond_method_interface, result.dataSize, result.relCard, result.elapsedTime))
+
+def DoAnalysis():
+    cond_runs = {}
+    with open('Results/bi_runs_4.csv', 'r', encoding='utf-8-sig') as f, \
+        open('Results/temp.csv', 'w') as fout:
+        for textline in f:
+            if textline.startswith('#'):
+                print("Excluding line: "+textline)
+                continue
+            if textline.find(',') < 0:
+                print("Excluding line: "+textline)
+                continue
+            fields = textline.rstrip().split(',')
+            if len(fields) < 6:
+                fields.append('3')
+            cond_method_name, cond_method_interface, result_dataSize, result_relCard, result_elapsedTime, result_recordCount = fields
+            if result_recordCount != '3':
+                print("Excluding line: "+textline)
+                continue
+            result = RunResult(
+                dataSize=int(result_dataSize),
+                relCard=int(result_relCard),
+                elapsedTime=float(result_elapsedTime),
+                recordCount=int(result_recordCount))
+            if cond_method_name not in cond_runs:
+                cond_runs[cond_method_name] = []
+            cond_runs[cond_method_name].append(result)
+            fout.write("%s,%s,%d,%d,%f,%d\n"%(cond_method_name, cond_method_interface, result.dataSize, result.relCard, result.elapsedTime, result.recordCount))
+    CondResult = collections.namedtuple("CondResult", 
+        ["name", "interface", "run_count",
+        "b0", "b0_low", "b0_high",
+        "b1", "b1_low", "b1_high",
+        "s2", "s2_low", "s2_high"])
+    summary_status = ''
+    regression_status = ''
+    if True:
+        cond_results = []
+        confidence = 0.95
+        summary_status += "%s,%s,%s,%s,%s,%s,%s,%s\n"% (
+            'Method', 'Interface',
+            'NumRuns', 'relCard', 'Elapsed Time', 'stdev', 'rl', 'rh'
+        )
+        regression_status += '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n'%(
+            'Method', 'Interface',
+            'b0_low', 'b0', 'b0_high',
+            'b1_low', 'b1', 'b1_high',
+            's2_low', 's2', 's2_high')
+        # f.write(("%s,%s,%s,"+"%s,%s,%s,"+"%s,%s,%s,"+"%s,%s,%s\n")%(
+        #     'RawMethod', 'interface', 'run_count',
+        #     'b0', 'b0 lo', 'b0 hi',
+        #     'b1M', 'b1M lo', 'b1M hi',
+        #     's2', 's2 lo', 's2 hi'))
+        # f.write(("%s,%s,%s,"+"%s,%s,%s,"+"%s,%s\n")% (
+        #     'RawMethod', 'interface', 'run_count',
+        #     'relCard', 'mean', 'stdev', 
+        #     'rl', 'rh'
+        # ))
+        for name in cond_runs:
+            print("Looking to analyze %s"%name)
+            cond_method = [x for x in implementation_list if x.name == name][0]
+            times = cond_runs[name]
+            size_values = set(x.relCard for x in times)
+            for relCard in size_values:
+                ar = [x.elapsedTime for x in times if x.relCard == relCard]
+                numRuns = len(ar)
+                mean = numpy.mean(ar)
+                stdev = numpy.std(ar, ddof=1)
+                rl, rh = scipy.stats.norm.interval(confidence, loc=mean, scale=stdev/math.sqrt(len(ar)))
+                # f.write(("%s,%s,"+"%d,%d,"+"%f,%f,%f,%f\n")%(
+                #     name, cond_method.interface, 
+                #     numRuns, relCard, 
+                #     mean, stdev, rl, rh
+                # ))
+                summary_status += "%s,%s,%d,%d,%f,%f,%f,%f\n"% (
+                    name, cond_method.interface,
+                    numRuns, relCard, mean, stdev, rl, rh
+                )
+            x_values = [float(x.relCard) for x in times]
+            y_values = [float(x.elapsedTime) for x in times]
+            (b0, (b0_low, b0_high)), (b1, (b1_low,b1_high)), (s2, (s2_low,s2_high)) = \
+                linear_regression(x_values, y_values, confidence)
+            result = CondResult(
+                name=cond_method.name,
+                interface=cond_method.interface,
+                run_count=len(times),
+                b0=b0,
+                b0_low=b0_low,
+                b0_high=b0_high,
+                b1=b1,
+                b1_low=b1_low,
+                b1_high=b1_high,
+                s2=s2,
+                s2_low=s2_low,
+                s2_high=s2_high
+                )
+            cond_results.append(result)
+            # f.write(("%s,%s,%d,"+"%f,%f,%f,"+"%f,%f,%f,"+"%f,%f,%f\n")%(
+            #     cond_method.name, cond_method.interface, result.run_count,
+            #     result.b0, result.b0_low, result.b0_high,
+            #     result.b1*1e+6, result.b1_low*1e+6, result.b1_high*1e+6,
+            #     result.s2, result.s2_low, result.s2_high))
+            regression_status += '%s,%s,%f,%f,%f,%f,%f,%f,%f,%f,%f\n'%(
+                cond_method.name, cond_method.interface,
+                result.b0_low, result.b0, result.b0_high,
+                result.b1_low, result.b1, result.b1_high,
+                result.s2_low, result.s2, result.s2_high)
+    with open('Results/bi_results_5.csv', 'w') as f:
+        f.write(summary_status)
+        f.write("\n")
+        f.write(regression_status)
+        f.write("\n")
+
+# with 
+# for result in cond_results:
+#     line = "%s,%s,%f,%f,%f,%f" % (result.name, result.interface, result.avg, result.stderr, result.rangelow, result.rangehigh)
+#     print(line)
+if __name__ == "__main__":
+    spark = createSparkContext()
+    sc, log = setupSparkContext(spark)
+    # DoTesting()
+    # DoPostProcess_Unknown_skipped()
+    DoAnalysis()

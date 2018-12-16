@@ -102,8 +102,6 @@ case class Runner(IsCloudMode: Boolean, OverrideCanAssumeNoDupesPerPartition: Bo
       MathHelper.pow(10, 2),
       MathHelper.pow(10, 3),
       MathHelper.pow(10, 4))
-    //    if (Debugging)
-    srcDfListListSize = srcDfListListSize(2) :: Nil
     val srcDfListList =
       srcDfListListSize
         .map(n => SampleDataCache.readTestDataSet(
@@ -135,7 +133,7 @@ case class Runner(IsCloudMode: Boolean, OverrideCanAssumeNoDupesPerPartition: Bo
         "Results/dedupe_runs_scala_w_cloud.csv"
       else
         "Results/dedupe_runs_scala.csv")
-    pw.println(s" outcome,rawmethod,interface,expectedSize,returnedSize,elapsedTime")
+    pw.println(s" outcome,rawmethod,interface,expectedSize,returnedSize,elapsedTime,IsCloudMode,CanAssumeNoDupesPerPartition")
     try {
       for ((itineraryStop, index) <- itinerary.view.zipWithIndex) {
         val method = itineraryStop.compMethod

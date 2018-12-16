@@ -12,10 +12,10 @@ import Common.ZipWithIndex
 
 object dedupe_fluent_windows {
   def run(
-    generatedDataSet: GeneratedDataSet,
-    NumExecutors:     Int,
+    generatedDataSet:             GeneratedDataSet,
+    NumExecutors:                 Int,
     canAssumeNoDupesPerPartition: Boolean,
-    spark:            SparkSession): (RDD[Record], DataFrame, Dataset[Record]) = {
+    spark:                        SparkSession): (RDD[Record], DataFrame, Dataset[Record]) = {
     import spark.implicits._
     val numPartitions = 4 * NumExecutors // cross product
     def addIndex(row: RecordWSrc, rowId: Long): RecordWSrcWRowId = {
@@ -37,7 +37,8 @@ object dedupe_fluent_windows {
     }
 
     var dfWRowId = ZipWithIndex.dfZipWithIndex(
-      generatedDataSet.dfWSrc, offset = 1, colName = "RowId")
+      generatedDataSet.dfWSrc, offset = 1,
+      colName = "RowId")
 
     var dfBlocked: DataFrame = null;
     { // block data
@@ -56,18 +57,26 @@ object dedupe_fluent_windows {
     var dfWImmediateGroupId: DataFrame = null;
     { // construct ImmediateGroupId
       val df1 = dfBlocked.alias("df1")
-      val df2 = dfBlocked.select("RowId", "FirstName", "LastName",
-        "BlockingKey", "SecretKey").alias("df2")
+      val df2 = dfBlocked
+        .select("RowId", "FirstName",
+          "LastName", "BlockingKey", "SecretKey")
+        .alias("df2")
       val udfMatchSingleName_1 = func.udf(
-        Matching.MatchSingleName _, Matching.MatchSingleName_Returns)
+        Matching.MatchSingleName _,
+        Matching.MatchSingleName_Returns)
       val udfMatchSingleName = func.udf(
         Matching.MatchSingleName _)
 
       var df = df1
-        .join(df2, $"df1.BlockingKey" === $"df2.BlockingKey", "inner")
+        .join(
+          df2,
+          $"df1.BlockingKey" === $"df2.BlockingKey",
+          "inner")
       df = df
         .drop($"df2.BlockingKey")
-        .withColumnRenamed("df1.BlockingKey", "BlockingKey")
+        .withColumnRenamed(
+          "df1.BlockingKey",
+          "BlockingKey")
       df = df
         .filter(($"df1.RowId" === $"df2.RowId").or(
           udfMatchSingleName(
@@ -79,7 +88,9 @@ object dedupe_fluent_windows {
       df = df
         .withColumn(
           "ImmediateGroupId",
-          func.least(col("df1.RowId"), col("df2.RowId")))
+          func.least(
+            col("df1.RowId"),
+            col("df2.RowId")))
       df = df
         .select(
           $"df1.BlockingKey".alias("BlockingKey"),
@@ -104,21 +115,25 @@ object dedupe_fluent_windows {
     var dfWGroupId: DataFrame = null;
     { // assign GroupId from ImmediateGroupId
 
-      // The following causes a StackOverflowError no matter how large I set the stack
-      //      df = df
-      //        .withColumn(
-      //          "GroupId",
-      //          func.min($"ImmediateGroupId".over(Window
-      //            .partitionBy($"BlockingKey", $"RowId1"))))
-      // so I am using SQL as a workaround
-      dfWImmediateGroupId.createTempView("dfWImmediateGroupId")
+      // The following causes a StackOverflowError
+      // no matter how large I set the stack
+      // df.withColumn(
+      //   "GroupId",
+      //   func.min(
+      //     $"ImmediateGroupId".over(Window
+      //     .partitionBy(
+      //       $"BlockingKey",
+      //       $"RowId1"))))
+      // so I am using SQL as a workaround for Scala
+      dfWImmediateGroupId.createTempView(
+        "dfWImmediateGroupId")
       var df = spark.sql("""
-        SELECT *, 
-          MIN(ImmediateGroupId) 
-            OVER (PARTITION BY RowId) 
-            as GroupId 
-        FROM dfWImmediateGroupId
-        """)
+      SELECT *, 
+        MIN(ImmediateGroupId) 
+          OVER (PARTITION BY RowId) 
+          as GroupId 
+      FROM dfWImmediateGroupId
+      """)
       spark.catalog.dropTempView("dfWImmediateGroupId")
 
       df = df
@@ -139,7 +154,7 @@ object dedupe_fluent_windows {
             .when(func.length($"FirstName") > 0, 1)
             .otherwise(0) +
             when($"LastName".isNull, 0)
-            .when(func.length($"LastName") > 0, 2) // precedence
+            .when(func.length($"LastName") > 0, 2)
             .otherwise(0))
         .withColumn(
           "NumAddressParts",
@@ -153,15 +168,23 @@ object dedupe_fluent_windows {
             .when(func.length($"ZipCode") > 0, 1)
             .otherwise(0))
       df = df
-        .withColumn("RowIdBestName", func.first($"RowId").over(
-          Window
-            .partitionBy($"GroupId")
-            .orderBy($"NumNames".desc, $"LastName".asc, $"FirstName".asc)))
+        .withColumn(
+          "RowIdBestName",
+          func.first($"RowId").over(
+            Window
+              .partitionBy($"GroupId")
+              .orderBy(
+                $"NumNames".desc,
+                $"LastName".asc,
+                $"FirstName".asc)))
       df = df
         .withColumn("RowIdBestAddr", func.first($"RowId").over(
           Window
             .partitionBy($"GroupId")
-            .orderBy($"NumAddressParts".desc, $"LastName".asc, $"FirstName".asc)))
+            .orderBy(
+              $"NumAddressParts".desc,
+              $"LastName".asc,
+              $"FirstName".asc)))
       dfBestAddress = df
     }
     var dfSelected: DataFrame = null;
@@ -170,11 +193,21 @@ object dedupe_fluent_windows {
       df = df
         .groupBy($"GroupId")
         .agg(
-          func.max(when($"RowId" === $"RowIdBestName", $"FirstName")).alias("FirstName"),
-          func.max(when($"RowId" === $"RowIdBestName", $"LastName")).alias("LastName"),
-          func.max(when($"RowId" === $"RowIdBestAddr", $"StreetAddress")).alias("StreetAddress"),
-          func.max(when($"RowId" === $"RowIdBestAddr", $"City")).alias("City"),
-          func.max(when($"RowId" === $"RowIdBestAddr", $"ZipCode")).alias("ZipCode"),
+          func.max(
+            when($"RowId" === $"RowIdBestName", $"FirstName"))
+            .alias("FirstName"),
+          func.max(
+            when($"RowId" === $"RowIdBestName", $"LastName"))
+            .alias("LastName"),
+          func.max(
+            when($"RowId" === $"RowIdBestAddr", $"StreetAddress"))
+            .alias("StreetAddress"),
+          func.max(
+            when($"RowId" === $"RowIdBestAddr", $"City"))
+            .alias("City"),
+          func.max(
+            when($"RowId" === $"RowIdBestAddr", $"ZipCode"))
+            .alias("ZipCode"),
           func.max($"SecretKey").alias("SecretKey"),
           func.min($"FieldA").alias("FieldA"),
           func.min($"FieldB").alias("FieldB"),

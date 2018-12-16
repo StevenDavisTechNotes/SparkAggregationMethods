@@ -11,13 +11,20 @@ object method_fluent_nested_singleudf {
     generatedDataSet: GeneratedDataSet,
     NumExecutors:     Int,
     canAssumeNoDupesPerPartition: Boolean,
-    spark:            SparkSession): (RDD[Record], DataFrame, Dataset[Record]) = {
+    spark:            SparkSession): 
+    (RDD[Record], DataFrame, 
+        Dataset[Record]) = {
     import spark.implicits._
-    val fncSingle: (mutable.WrappedArray[Row]) => List[Record] =
-      (blockedDataAsRows: mutable.WrappedArray[Row]) => {
-        var srcRecordData = blockedDataAsRows.map(RecordMethods.rowToRecordWSrc)
+    val fncSingle: 
+      (mutable.WrappedArray[Row]) 
+      => List[Record] =
+      (blockedDataAsRows: 
+          mutable.WrappedArray[Row]) => {
+        var srcRecordData = 
+          blockedDataAsRows
+            .map(RecordMethods.rowToRecordWSrc)
         Matching.ProcessBlock(srcRecordData)
-      };
+      }
     val udfSingle = udf(fncSingle)
     var df = generatedDataSet.dfWSrc
     df = Blocking.NestBlocksDataframe(df)

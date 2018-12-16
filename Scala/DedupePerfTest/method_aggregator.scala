@@ -24,7 +24,6 @@ object method_aggregator {
             lrow.SecretKey, rrow.SecretKey)) {
             lrows(lindex) =
               Matching.CombineRowList(Seq(lrow, rrow))
-            val x = lrows(lindex)
             found = true
           }
         }

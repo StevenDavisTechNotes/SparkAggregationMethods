@@ -656,11 +656,21 @@ def method_fluent_windows(dataSize, dfSrc):
     df = df \
         .groupBy(df.GroupId) \
         .agg(
-            func.max(func.when(df.RowId == df.RowIdBestName, df.FirstName)).alias("FirstName"),
-            func.max(func.when(df.RowId == df.RowIdBestName, df.LastName)).alias("LastName"),
-            func.max(func.when(df.RowId == df.RowIdBestAddr, df.StreetAddress)).alias("StreetAddress"),
-            func.max(func.when(df.RowId == df.RowIdBestAddr, df.City)).alias("City"),
-            func.max(func.when(df.RowId == df.RowIdBestAddr, df.ZipCode)).alias("ZipCode"),
+            func.max(func.when(
+                df.RowId == df.RowIdBestName, df.FirstName)) \
+                .alias("FirstName"),
+            func.max(func.when(
+                df.RowId == df.RowIdBestName, df.LastName)) \
+                .alias("LastName"),
+            func.max(func.when(
+                df.RowId == df.RowIdBestAddr, df.StreetAddress)) \
+                .alias("StreetAddress"),
+            func.max(func.when(
+                df.RowId == df.RowIdBestAddr, df.City)) \
+                .alias("City"),
+            func.max(func.when(
+                df.RowId == df.RowIdBestAddr, df.ZipCode)) \
+                .alias("ZipCode"),
             func.max(df.SecretKey).alias("SecretKey"),
             func.min(df.FieldA).alias("FieldA"),
             func.min(df.FieldB).alias("FieldB"),
@@ -950,8 +960,7 @@ def method_rdd_mappart(dataSize, dfSrc):
     def core_mappart(iterator):
         store = {}
         for kv in iterator:
-            key = kv[0]
-            row = kv[1]
+            key, row = kv
             bucket = store[key] if key in store else []
             store[key] = AddRowToRowList(bucket, row)
         for bucket in store.values():

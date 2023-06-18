@@ -1,0 +1,19 @@
+# gc requirements_driver.txt | sort > c:\temp\t.txt
+# pip install -r requirements_driver.txt
+autopep8
+findspark
+# flake8
+# jupyterlab 
+numba
+numpy>=1.14
+pandas>=0.23.2
+psutil 
+pyarrow>=1.0.0
+Py4J>=0.10.9.3
+pyspark==3.2.1
+# pytest
+pytz 
+# rope
+scipy
+snappy 
+statsmodels 

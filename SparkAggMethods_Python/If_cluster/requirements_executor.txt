@@ -1,0 +1,13 @@
+# gc requirements_executor.txt | sort > c:\temp\t.txt
+# pip install -r requirements_executor.txt
+numba
+numpy>=1.14
+pandas>=0.23.2
+psutil 
+pyarrow>=1.0.0
+Py4J>=0.10.9.3
+pyspark==3.2.1
+pytz 
+scipy
+snappy 
+statsmodels 

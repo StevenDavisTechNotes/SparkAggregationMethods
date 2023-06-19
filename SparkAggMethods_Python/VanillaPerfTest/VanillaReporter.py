@@ -7,7 +7,7 @@ from scipy.stats import norm as scipy_stats_norm  # type: ignore
 
 
 from PerfTestCommon import FullCondMethod
-from .Directory import (
+from .Strategy.Directory import (
     implementation_list, scala_implementation_list)
 from .RunResult import RunResult
 

@@ -16,7 +16,7 @@ flake8
 numba
 numpy>=1.14
 pandas>=0.23.2
-# psutil 
+psutil 
 pyarrow>=1.0.0
 Py4J>=0.10.9.3
 pyspark==3.2.1

@@ -4,11 +4,12 @@ from pyspark import RDD, Row
 from pyspark.sql import SparkSession, DataFrame as spark_DataFrame
 
 from Utils.SparkUtils import cast_no_arg_sort_by_key
-from .VanillaTestData import DataPoint
+
+from ..VanillaTestData import DataPointAsTuple
 
 
 def vanilla_rdd_grpmap(
-    spark: SparkSession, pyData: List[DataPoint]
+    spark: SparkSession, pyData: List[DataPointAsTuple]
 ) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
     sc = spark.sparkContext
     rddData = sc.parallelize(pyData)

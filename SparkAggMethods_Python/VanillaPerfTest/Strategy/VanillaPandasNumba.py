@@ -11,18 +11,13 @@ import pyspark.sql.types as DataTypes
 
 from Utils.SparkUtils import cast_from_pd_dataframe
 
-from .VanillaTestData import (
-    DataPoint, DataPointSchema,
-    cast_data_points_to_tuples,
-)
+from ..VanillaTestData import DataPointAsTuple, DataPointSchema
 
 
 def vanilla_pandas_numba(
-    spark: SparkSession, pyData: List[DataPoint]
+    spark: SparkSession, pyData: List[DataPointAsTuple]
 ) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
-    df = spark.createDataFrame(
-        cast_data_points_to_tuples(pyData),
-        schema=DataPointSchema)
+    df = spark.createDataFrame(pyData,        schema=DataPointSchema)
 
     groupby_columns = ['grp', 'subgrp']
     agg_columns = ['mean_of_C', 'max_of_D', 'var_of_E', 'var_of_E2']

@@ -3,13 +3,13 @@ from typing import List
 from PerfTestCommon import (
     PythonTestMethod, ExternalTestMethod
 )
-from VanillaPerfTest.VanillaSql import vanilla_sql
-from VanillaPerfTest.VanillaFluent import vanilla_fluent
-from VanillaPerfTest.VanillaPandas import vanilla_pandas
-from VanillaPerfTest.VanillaPandasNumpy import vanilla_pandas_numpy
-from VanillaPerfTest.VanillaRddGrpmap import vanilla_rdd_grpmap
-from VanillaPerfTest.VanillaRddReduce import vanilla_rdd_reduce
-from VanillaPerfTest.VanillaRddMappart import vanilla_rdd_mappart
+from VanillaPerfTest.Strategy.VanillaSql import vanilla_sql
+from VanillaPerfTest.Strategy.VanillaFluent import vanilla_fluent
+from VanillaPerfTest.Strategy.VanillaPandas import vanilla_pandas
+from VanillaPerfTest.Strategy.VanillaPandasNumpy import vanilla_pandas_numpy
+from VanillaPerfTest.Strategy.VanillaRddGrpmap import vanilla_rdd_grpmap
+from VanillaPerfTest.Strategy.VanillaRddReduce import vanilla_rdd_reduce
+from VanillaPerfTest.Strategy.VanillaRddMappart import vanilla_rdd_mappart
 
 implementation_list: List[PythonTestMethod] = [
     PythonTestMethod(

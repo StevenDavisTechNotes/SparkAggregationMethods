@@ -3,18 +3,13 @@ from typing import List, Tuple, Optional
 from pyspark import RDD
 from pyspark.sql import SparkSession, DataFrame as spark_DataFrame
 
-from .VanillaTestData import (
-    DataPoint, DataPointSchema,
-    cast_data_points_to_tuples,
-)
+from ..VanillaTestData import DataPointAsTuple, DataPointSchema
 
 
 def vanilla_sql(
-        spark: SparkSession, pyData: List[DataPoint]
+        spark: SparkSession, pyData: List[DataPointAsTuple]
 ) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
-    df = spark.createDataFrame(
-        cast_data_points_to_tuples(pyData),
-        schema=DataPointSchema)
+    df = spark.createDataFrame(pyData,        schema=DataPointSchema)
     spark.catalog.dropTempView("exampledata")
     df.createTempView("exampledata")
     df = spark.sql('''

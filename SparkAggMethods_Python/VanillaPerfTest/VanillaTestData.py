@@ -1,6 +1,6 @@
 from typing import List, cast
 
-from dataclasses import dataclass
+from dataclasses import dataclass, astuple
 import random
 import collections
 
@@ -25,10 +25,6 @@ DataPointAsTuple = collections.namedtuple("DataPoint",
                                           ["id", "grp", "subgrp", "A", "B", "C", "D", "E", "F"])
 
 
-def cast_data_points_to_tuples(src: List[DataPoint]) -> List[DataPointAsTuple]:
-    return cast(List[DataPointAsTuple], src)
-
-
 # DataPoint = collections.namedtuple("DataPoint",
 #                                    ["id", "grp", "subgrp", "A", "B", "C", "D", "E", "F"])
 DataPointSchema = DataTypes.StructType([
@@ -43,9 +39,9 @@ DataPointSchema = DataTypes.StructType([
     DataTypes.StructField('F', DataTypes.DoubleType(), False)])
 
 
-def generateData(numGrp1=3, numGrp2=3, repetition=1000):
+def generateData(numGrp1=3, numGrp2=3, repetition=1000) -> List[DataPointAsTuple]:
     return [
-        DataPoint(
+        DataPointAsTuple(
             id=i,
             grp=(i // numGrp2) % numGrp1,
             subgrp=i % numGrp2,

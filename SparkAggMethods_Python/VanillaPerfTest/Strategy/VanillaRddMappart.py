@@ -6,31 +6,30 @@ import math
 from pyspark import RDD, Row
 from pyspark.sql import SparkSession, DataFrame as spark_DataFrame
 
-from .VanillaTestData import DataPoint
+from ..VanillaTestData import DataPointAsTuple
+
+
+@dataclass(frozen=True)
+class SubTotal:
+    running_sum_of_C: float
+    running_count: int
+    running_max_of_D: Optional[float]
+    running_sum_of_E_squared: float
+    running_sum_of_E: float
+
+
+class MutableRunningTotal:
+    def __init__(self):
+        self.running_sum_of_C = 0
+        self.running_count = 0
+        self.running_max_of_D = None
+        self.running_sum_of_E_squared = 0
+        self.running_sum_of_E = 0
 
 
 def vanilla_rdd_mappart(
-    spark: SparkSession, pyData: List[DataPoint]
+    spark: SparkSession, pyData: List[DataPointAsTuple]
 ) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
-    sc = spark.sparkContext
-
-    @dataclass(frozen=True)
-    class SubTotal:
-        running_sum_of_C: float
-        running_count: int
-        running_max_of_D: Optional[float]
-        running_sum_of_E_squared: float
-        running_sum_of_E: float
-
-    rddData = sc.parallelize(pyData)
-
-    class MutableRunningTotal:
-        def __init__(self):
-            self.running_sum_of_C = 0
-            self.running_count = 0
-            self.running_max_of_D = None
-            self.running_sum_of_E_squared = 0
-            self.running_sum_of_E = 0
 
     def partitionTriage(iterator):
         running_subtotals = {}
@@ -95,6 +94,8 @@ def vanilla_rdd_mappart(
                 sum_of_E * sum_of_E / count
             ) / (count - 1))
 
+    sc = spark.sparkContext
+    rddData = sc.parallelize(pyData)
     sumCount = rddData \
         .mapPartitions(partitionTriage) \
         .groupByKey() \

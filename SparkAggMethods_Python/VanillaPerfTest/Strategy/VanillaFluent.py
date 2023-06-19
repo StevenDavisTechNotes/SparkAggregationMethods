@@ -3,15 +3,11 @@ from typing import List
 from pyspark.sql import SparkSession
 import pyspark.sql.functions as func
 
-from .VanillaTestData import (
-    DataPoint, DataPointSchema, 
-    cast_data_points_to_tuples,
-)
+from ..VanillaTestData import DataPointAsTuple, DataPointSchema
 
-def vanilla_fluent(spark: SparkSession, pyData: List[DataPoint]):
-    df = spark.createDataFrame(
-        cast_data_points_to_tuples(pyData), 
-        schema=DataPointSchema)
+
+def vanilla_fluent(spark: SparkSession, pyData: List[DataPointAsTuple]):
+    df = spark.createDataFrame(pyData, schema=DataPointSchema)
     df = df \
         .groupBy(df.grp, df.subgrp) \
         .agg(
@@ -25,4 +21,3 @@ def vanilla_fluent(spark: SparkSession, pyData: List[DataPoint]):
         )\
         .orderBy(df.grp, df.subgrp)
     return None, df
-

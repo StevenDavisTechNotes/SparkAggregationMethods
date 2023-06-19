@@ -1,26 +1,21 @@
 from typing import List, Tuple, Optional
 
+from dataclasses import astuple
+
+import numpy
 import pandas as pd
 
 from pyspark import RDD
-from pyspark.sql import SparkSession, DataFrame as spark_DataFrame
-import pyspark.sql.types as DataTypes
+from pyspark.sql import DataFrame as spark_DataFrame
 
-from Utils.SparkUtils import cast_from_pd_dataframe
+from Utils.SparkUtils import cast_from_pd_dataframe, TidySparkSession
 
-from ..VanillaTestData import DataPointAsTuple, DataPointSchema
+from ..VanillaTestData import DataPoint, DataPointSchema, groupby_columns, agg_columns, postAggSchema
 
 
 def vanilla_pandas(
-    spark: SparkSession, pyData: List[DataPointAsTuple]
+    spark_session: TidySparkSession, pyData: List[DataPoint]
 ) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
-    df = spark.createDataFrame(pyData, schema=DataPointSchema)
-
-    groupby_columns = ['grp', 'subgrp']
-    agg_columns = ['mean_of_C', 'max_of_D', 'var_of_E', 'var_of_E2']
-    postAggSchema = DataTypes.StructType(
-        [x for x in DataPointSchema.fields if x.name in groupby_columns] +
-        [DataTypes.StructField(name, DataTypes.DoubleType(), False) for name in agg_columns])
 
     def inner_agg_method(dfPartition: pd.DataFrame) -> pd.DataFrame:
         group_key = dfPartition['grp'].iloc[0]
@@ -28,17 +23,22 @@ def vanilla_pandas(
         C = dfPartition['C']
         D = dfPartition['D']
         E = dfPartition['E']
+        var_of_E2 = (
+            ((E * E).sum() - E.sum()**2/E.count())/(E.count()-1)
+            if E.count() > 1 else numpy.nan)
         return pd.DataFrame([[
             group_key,
             subgroup_key,
             C.mean(),
             D.max(),
             E.var(),
-            ((E * E).sum() - E.sum()**2/E.count())/(E.count()-1),
+            var_of_E2,
         ]], columns=groupby_columns + agg_columns)
 
+    df = spark_session.spark.createDataFrame(
+        map(lambda x: astuple(x), pyData), schema=DataPointSchema)
     aggregates = (
         cast_from_pd_dataframe(
             df.groupby(df.grp, df.subgrp)
-        )        .applyInPandas(inner_agg_method, postAggSchema))
+        ).applyInPandas(inner_agg_method, postAggSchema))
     return None, aggregates

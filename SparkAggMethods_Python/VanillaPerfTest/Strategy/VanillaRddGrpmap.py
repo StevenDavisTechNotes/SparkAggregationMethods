@@ -1,17 +1,17 @@
 from typing import List, Tuple, Optional, Iterable
 
 from pyspark import RDD, Row
-from pyspark.sql import SparkSession, DataFrame as spark_DataFrame
+from pyspark.sql import DataFrame as spark_DataFrame
 
-from Utils.SparkUtils import cast_no_arg_sort_by_key
+from Utils.SparkUtils import cast_no_arg_sort_by_key, TidySparkSession
 
-from ..VanillaTestData import DataPointAsTuple
+from ..VanillaTestData import DataPoint
 
 
 def vanilla_rdd_grpmap(
-    spark: SparkSession, pyData: List[DataPointAsTuple]
+    spark_session: TidySparkSession, pyData: List[DataPoint]
 ) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
-    sc = spark.sparkContext
+    sc = spark_session.spark_context
     rddData = sc.parallelize(pyData)
 
     def processData1(key, iterator) -> Tuple[Tuple[int, int], Row]:
@@ -31,13 +31,8 @@ def vanilla_rdd_grpmap(
             sum_of_E += item.E
         mean_of_C = sum_of_C / count \
             if count > 0 else math.nan
-        var_of_E = math.nan
-        if count >= 2:
-            var_of_E = \
-                (
-                    sum_of_E_squared
-                    - sum_of_E * sum_of_E / count
-                ) / (count - 1)
+        var_of_E = ((sum_of_E_squared - sum_of_E * sum_of_E /
+                    count) / (count - 1) if count >= 2 else math.nan)
         return (key,
                 Row(grp=key[0],
                     subgrp=key[1],

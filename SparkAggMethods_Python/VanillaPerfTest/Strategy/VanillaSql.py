@@ -1,15 +1,21 @@
 from typing import List, Tuple, Optional
 
-from pyspark import RDD
-from pyspark.sql import SparkSession, DataFrame as spark_DataFrame
+from dataclasses import astuple
 
-from ..VanillaTestData import DataPointAsTuple, DataPointSchema
+from pyspark import RDD
+from pyspark.sql import DataFrame as spark_DataFrame
+
+from Utils.SparkUtils import TidySparkSession
+
+from ..VanillaTestData import DataPoint, DataPointSchema
 
 
 def vanilla_sql(
-        spark: SparkSession, pyData: List[DataPointAsTuple]
+    spark_session: TidySparkSession, pyData: List[DataPoint]
 ) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
-    df = spark.createDataFrame(pyData, schema=DataPointSchema)
+    spark = spark_session.spark
+    df = spark.createDataFrame(
+        map(lambda x: astuple(x), pyData), schema=DataPointSchema)
     spark.catalog.dropTempView("exampledata")
     df.createTempView("exampledata")
     df = spark.sql('''

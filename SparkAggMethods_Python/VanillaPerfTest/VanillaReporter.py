@@ -21,16 +21,16 @@ def parse_results() -> Dict[str, List[RunResult]]:
         with open(PYTHON_RESULT_FILE_PATH, 'r') as f:
             for textline in f:
                 if textline.startswith('#'):
-                    # print("Excluding line: "+textline)
+                    print("Excluding line: "+textline.rstrip())
                     continue
                 if textline.find(',') < 0:
-                    print("Excluding line: "+textline)
+                    print("Excluding line: "+textline.rstrip())
                     continue
                 fields = textline.rstrip().split(',')
-                if len(fields) < 5:
-                    fields.append('9')
-                cond_method_name, cond_method_interface, result_dataSize, result_elapsedTime, result_recordCount = tuple(
-                    fields)
+                cond_method_name, cond_method_interface, result_dataSize, \
+                    result_elapsedTime, result_recordCount, \
+                         result_datetime, result_blank  \
+                            = tuple(fields)
                 if result_recordCount != '9':
                     print("Excluding line: "+textline)
                     continue
@@ -75,9 +75,6 @@ def parse_results() -> Dict[str, List[RunResult]]:
 
 def do_regression(python_implementation_list, scala_implementation_list, cond_runs):
     summary_status = ''
-    regression_status = ''
-    # FullCondMethod = collections.namedtuple("FullCondMethod",
-    #                                             ["data_name", "raw_method_name", "language", "interface"])
     confidence = 0.95
     sorted_implementation_list = sorted(
         [FullCondMethod(

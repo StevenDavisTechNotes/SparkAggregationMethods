@@ -1,15 +1,14 @@
-from typing import List, cast
+from typing import List
 
-from dataclasses import dataclass, astuple
+from dataclasses import dataclass
 import random
-import collections
 
 
 import pyspark.sql.types as DataTypes
 
 
 @dataclass(frozen=True)
-class DataPoint:
+class DataPoint():
     id: int
     grp: int
     subgrp: int
@@ -21,12 +20,6 @@ class DataPoint:
     F: float
 
 
-DataPointAsTuple = collections.namedtuple("DataPoint",
-                                          ["id", "grp", "subgrp", "A", "B", "C", "D", "E", "F"])
-
-
-# DataPoint = collections.namedtuple("DataPoint",
-#                                    ["id", "grp", "subgrp", "A", "B", "C", "D", "E", "F"])
 DataPointSchema = DataTypes.StructType([
     DataTypes.StructField('id', DataTypes.LongType(), False),
     DataTypes.StructField('grp', DataTypes.LongType(), False),
@@ -39,9 +32,20 @@ DataPointSchema = DataTypes.StructType([
     DataTypes.StructField('F', DataTypes.DoubleType(), False)])
 
 
-def generateData(numGrp1=3, numGrp2=3, repetition=1000) -> List[DataPointAsTuple]:
+groupby_columns = ['grp', 'subgrp']
+agg_columns_non_null = ['mean_of_C', 'max_of_D']
+agg_columns_nullable = ['var_of_E', 'var_of_E2']
+agg_columns = agg_columns_non_null+agg_columns_nullable
+postAggSchema = DataTypes.StructType(
+    [x for x in DataPointSchema.fields if x.name in groupby_columns]
+    + [DataTypes.StructField(name, DataTypes.DoubleType(), False)
+        for name in agg_columns_non_null]
+    + [DataTypes.StructField(name, DataTypes.DoubleType(), True)
+        for name in agg_columns_nullable])
+
+def generateData(numGrp1=3, numGrp2=3, repetition=1000) -> List[DataPoint]:
     return [
-        DataPointAsTuple(
+        DataPoint(
             id=i,
             grp=(i // numGrp2) % numGrp1,
             subgrp=i % numGrp2,

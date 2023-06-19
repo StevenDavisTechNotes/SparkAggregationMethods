@@ -1,13 +1,18 @@
 from typing import List
 
+from dataclasses import astuple
+
 from pyspark.sql import SparkSession
 import pyspark.sql.functions as func
 
-from ..VanillaTestData import DataPointAsTuple, DataPointSchema
+from Utils.SparkUtils import TidySparkSession
+
+from ..VanillaTestData import DataPoint, DataPointSchema
 
 
-def vanilla_fluent(spark: SparkSession, pyData: List[DataPointAsTuple]):
-    df = spark.createDataFrame(pyData, schema=DataPointSchema)
+def vanilla_fluent(spark_session: TidySparkSession, pyData: List[DataPoint]):
+    df = spark_session.spark.createDataFrame(
+        map(lambda x: astuple(x), pyData), schema=DataPointSchema)
     df = df \
         .groupBy(df.grp, df.subgrp) \
         .agg(

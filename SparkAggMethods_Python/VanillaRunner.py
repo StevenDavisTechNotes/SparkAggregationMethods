@@ -1,5 +1,5 @@
 #!python
-# python -m VanillaPerfTest.VanillaRunner
+# python -m VanillaRunner
 from typing import List, Tuple
 
 import argparse
@@ -8,20 +8,21 @@ import gc
 import random
 import time
 
-from pyspark import SparkContext
-from pyspark.sql import SparkSession
-
 from PerfTestCommon import PythonTestMethod, count_iter
-from Utils.SparkUtils import createSparkContext, setupSparkContext
+from Utils.SparkUtils import TidySparkSession
 from Utils.Utils import always_true
 
-from .Strategy.Directory import implementation_list
-from .Strategy.VanillaPandasCuda import vanilla_panda_cupy
-from .RunResult import RunResult, write_run_result
-from .VanillaTestData import DataPointAsTuple, generateData
+from VanillaPerfTest.Strategy.Directory import implementation_list
+from VanillaPerfTest.Strategy.VanillaPandasCuda import vanilla_panda_cupy
+from VanillaPerfTest.RunResult import RunResult, write_run_result
+from VanillaPerfTest.VanillaTestData import DataPoint, generateData
 
 DEBUG_ARGS = None if False else (
-    '--size 10 100'.split()
+    []
+    + '--size 1 10'.split()
+    + '--runs 1'.split()
+    + ['--no-shuffle']
+    # +'--strategy vanilla_pandas'.split()
 )
 RESULT_FILE_PATH = 'Results/vanilla_runs.csv'
 
@@ -29,7 +30,7 @@ RESULT_FILE_PATH = 'Results/vanilla_runs.csv'
 @dataclass
 class Arguments:
     num_runs: int
-    scramble: bool
+    shuffle: bool
     sizes: List[str]
     strategies: List[str]
 
@@ -39,10 +40,11 @@ def parse_args() -> Arguments:
     parser.add_argument('--runs', type=int, default=30)
     parser.add_argument(
         '--size',
-        choices=['10', '100', '1k', '10k', '100k', '1m'],
+        choices=['1', '10', '100', '1k', '10k', '100k', '1m'],
+        default=['10', '100', '1k', '10k', '100k'],
         nargs="+")
     parser.add_argument(
-        '--scramble', default=True,
+        '--shuffle', default=True,
         action=argparse.BooleanOptionalAction)
     parser.add_argument(
         '--strategy',
@@ -57,14 +59,15 @@ def parse_args() -> Arguments:
         args = parser.parse_args(DEBUG_ARGS)
     return Arguments(
         num_runs=args.runs,
-        scramble=args.scramble,
+        shuffle=args.shuffle,
         sizes=args.size,
         strategies=args.strategy
     )
 
 
-def DoTesting(args: Arguments, spark: SparkSession, sc: SparkContext, log):
+def DoTesting(args: Arguments, spark_session: TidySparkSession):
     data_sets = [x for x in [
+        generateData(3, 3, 10**0) if '1' in args.sizes else None,
         generateData(3, 3, 10**1) if '10' in args.sizes else None,
         generateData(3, 3, 10**2) if '100' in args.sizes else None,
         generateData(3, 3, 10**3) if '1k' in args.sizes else None,
@@ -74,24 +77,24 @@ def DoTesting(args: Arguments, spark: SparkSession, sc: SparkContext, log):
     ] if x is not None]
     keyed_implementation_list = {x.name: x for x in implementation_list}
     cond_run_itinerary: List[
-        Tuple[PythonTestMethod, List[DataPointAsTuple]]
+        Tuple[PythonTestMethod, List[DataPoint]]
     ] = [
         (cond_method, data)
         for strategy in args.strategies
-        if always_true(cond_method := keyed_implementation_list[strategy])        
+        if always_true(cond_method := keyed_implementation_list[strategy])
         for data in data_sets
         for _ in range(0, args.num_runs)
     ]
-    if args.scramble:
+    if args.shuffle:
         random.shuffle(cond_run_itinerary)
     if 'vanilla_panda_cupy' in args.strategies:
         # for code generation warming
-        vanilla_panda_cupy(spark, generateData(3, 3, 10**0))
+        vanilla_panda_cupy(spark_session, generateData(3, 3, 10**0))
     with open(RESULT_FILE_PATH, 'a') as file:
         for index, (cond_method, data) in enumerate(cond_run_itinerary):
-            log.info("Working on %d of %d" % (index, len(cond_run_itinerary)))
+            spark_session.log.info("Working on %d of %d" % (index, len(cond_run_itinerary)))
             startedTime = time.time()
-            rdd, df = cond_method.delegate(spark, data)
+            rdd, df = cond_method.delegate(spark_session, data)
             if df is not None:
                 rdd = df.rdd
             assert rdd is not None
@@ -109,13 +112,13 @@ def DoTesting(args: Arguments, spark: SparkSession, sc: SparkContext, log):
 
 if __name__ == "__main__":
     args = parse_args()
-    spark = createSparkContext({
+    config = {
         "spark.sql.shuffle.partitions": 7,
         "spark.ui.enabled": "false",
         "spark.rdd.compress": "false",
         "spark.driver.memory": "2g",
         "spark.executor.memory": "3g",
         "spark.executor.memoryOverhead": "1g",
-    })
-    sc, log = setupSparkContext(spark)
-    DoTesting(args, spark, sc, log)
+    }
+    with TidySparkSession(config) as spark_session:
+        DoTesting(args, spark_session)

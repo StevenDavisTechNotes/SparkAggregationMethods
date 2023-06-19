@@ -1,17 +1,16 @@
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, NamedTuple
 
-from collections import namedtuple
-from dataclasses import dataclass, astuple
 import math
 
 from pyspark import RDD, Row
-from pyspark.sql import SparkSession, DataFrame as spark_DataFrame
+from pyspark.sql import DataFrame as spark_DataFrame
 
-from ..VanillaTestData import DataPointAsTuple, DataPointAsTuple
+from Utils.SparkUtils import TidySparkSession
+
+from ..VanillaTestData import DataPoint
 
 
-@dataclass(frozen=True)
-class SubTotalDC:
+class SubTotalDC(NamedTuple):
     running_sum_of_C: float
     running_count: int
     running_max_of_D: Optional[float]
@@ -19,63 +18,50 @@ class SubTotalDC:
     running_sum_of_E: float
 
 
-SubTotalTuple = namedtuple(
-    "SubTotal",
-    ["running_sum_of_C", "running_count", "running_max_of_D",
-     "running_sum_of_E_squared", "running_sum_of_E"])
-
-
 def vanilla_rdd_reduce(
-    spark: SparkSession, pyData: List[DataPointAsTuple]
+    spark_session: TidySparkSession, pyData: List[DataPoint]
 ) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
+    def max(lhs: Optional[float], rhs: Optional[float]) -> Optional[float]:
+        if lhs is None:
+            return rhs
+        if rhs is None:
+            return lhs
+        if lhs > rhs:
+            return lhs
+        return rhs
 
-    def mergeValue2DC(sub: SubTotalDC, v: DataPointAsTuple)->SubTotalDC:
-        running_sum_of_C = sub.running_sum_of_C + v.C
-        running_count = sub.running_count + 1
-        running_max_of_D = sub.running_max_of_D \
-            if sub.running_max_of_D is not None and \
-            sub.running_max_of_D > v.D \
-            else v.D
-        running_sum_of_E_squared = sub.running_sum_of_E_squared
-        running_sum_of_E = sub.running_sum_of_E
-        running_sum_of_E_squared += v.E * v.E
-        running_sum_of_E += v.E
+    def createAccumulator() -> SubTotalDC:
         return SubTotalDC(
-            running_sum_of_C,
-            running_count,
-            running_max_of_D,
-            running_sum_of_E_squared,
-            running_sum_of_E)
-
-    def mergeValue2(sub_in: Tuple, v: DataPointAsTuple) -> SubTotalTuple:
-        return SubTotalTuple(*astuple(mergeValue2DC(
-            SubTotalDC(*sub_in), v
-        )))
-
-    def createCombiner2(v: DataPointAsTuple)->SubTotalTuple:
-        return SubTotalTuple(*astuple(
-            mergeValue2DC(SubTotalDC(
             running_sum_of_C=0,
             running_count=0,
             running_max_of_D=None,
             running_sum_of_E_squared=0,
-            running_sum_of_E=0), 
-            v)))
+            running_sum_of_E=0)
 
-    def mergeCombiners2(lsub: SubTotalTuple, rsub: SubTotalTuple) -> SubTotalTuple:
-        return SubTotalTuple(*astuple(SubTotalDC(
+    def mergeValue2(sub: SubTotalDC, v: DataPoint) -> SubTotalDC:
+        running_sum_of_E_squared = sub.running_sum_of_E_squared + v.E * v.E
+        running_sum_of_E = sub.running_sum_of_E + v.E
+        return SubTotalDC(
+            running_sum_of_C=sub.running_sum_of_C + v.C,
+            running_count=sub.running_count + 1,
+            running_max_of_D=max(sub.running_max_of_D, v.D),
+            running_sum_of_E_squared=running_sum_of_E_squared,
+            running_sum_of_E=running_sum_of_E)
+
+    def createCombiner2(v: DataPoint) -> SubTotalDC:
+        return mergeValue2(createAccumulator(), v)
+
+    def mergeCombiners2(lsub: SubTotalDC, rsub: SubTotalDC) -> SubTotalDC:
+        return SubTotalDC(
             running_sum_of_C=lsub.running_sum_of_C + rsub.running_sum_of_C,
             running_count=lsub.running_count + rsub.running_count,
-            running_max_of_D=lsub.running_max_of_D
-            if lsub.running_max_of_D is not None and
-            lsub.running_max_of_D > rsub.running_max_of_D
-            else rsub.running_max_of_D,
+            running_max_of_D=max(lsub.running_max_of_D, rsub.running_max_of_D),
             running_sum_of_E_squared=lsub.running_sum_of_E_squared +
             rsub.running_sum_of_E_squared,
             running_sum_of_E=lsub.running_sum_of_E + rsub.running_sum_of_E
-        )))
+        )
 
-    def finalAnalytics2(key: Tuple[int, int], total: SubTotalTuple):
+    def finalAnalytics2(key: Tuple[int, int], total: SubTotalDC):
         sum_of_C = total.running_sum_of_C
         count = total.running_count
         max_of_D = total.running_max_of_D
@@ -87,13 +73,12 @@ def vanilla_rdd_reduce(
             if count < 1 else sum_of_C / count,
             max_of_D=max_of_D,
             var_of_E=math.nan
-            if count < 2 else
-            (
+            if count < 2 else (
                 sum_of_E_squared -
                 sum_of_E * sum_of_E / count
             ) / (count - 1))
 
-    sc = spark.sparkContext
+    sc = spark_session.spark_context
     rddData = sc.parallelize(pyData)
     sumCount: RDD[Row] = (
         rddData

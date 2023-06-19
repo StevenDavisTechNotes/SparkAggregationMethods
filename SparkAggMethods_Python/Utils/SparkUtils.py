@@ -88,10 +88,9 @@ class TidySparkSession:
     def __init__(self, config_dict: Dict[str, Any]):
         createScratchFolder()
         self.spark = createSparkContext(config_dict)
-        self.spark_context = self.spark.sparkContext
-        log4jLogger = self.spark_context._jvm.org.apache.log4j # type: ignore
-        self.log = log4jLogger.LogManager.getLogger(__name__)
-        self.log.info("script initialized")
+        sc, log = setupSparkContext(self.spark)
+        self.spark_context = sc
+        self.log = log
     
     def __enter__(self):
         return self

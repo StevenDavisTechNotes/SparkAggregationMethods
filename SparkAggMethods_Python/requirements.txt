@@ -19,7 +19,7 @@ pandas>=0.23.2
 psutil 
 pyarrow>=1.0.0
 Py4J>=0.10.9.3
-pyspark==3.2.1
+pyspark==3.3.2
 pytest
 pytz 
 rope

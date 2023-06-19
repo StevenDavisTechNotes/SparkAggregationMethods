@@ -1,11 +1,10 @@
 from typing import List, Callable, Tuple, Any, cast, Optional, Iterable
 from dataclasses import dataclass
 
-from pyspark.sql import SparkSession
-
 from pyspark import RDD
-from pyspark.sql import SparkSession, DataFrame as spark_DataFrame
+from pyspark.sql import DataFrame as spark_DataFrame
 
+from Utils.SparkUtils import TidySparkSession
 
 @dataclass(frozen=True)
 class PythonTestMethod:
@@ -13,7 +12,7 @@ class PythonTestMethod:
     language: str
     interface: str
     delegate: Callable[
-        [SparkSession, List],
+        [TidySparkSession, List],
         Tuple[Optional[RDD], Optional[spark_DataFrame]]]
 
 

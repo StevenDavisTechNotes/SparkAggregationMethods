@@ -19,11 +19,6 @@ class CondResult:
     b0: RegressionRange
     b1: RegressionRange
     s2: RegressionRange
-# CondResult = collections.namedtuple("CondResult",
-#                                     ["name", "interface",
-#                                      "b0", "b0_low", "b0_high",
-#                                      "b1", "b1_low", "b1_high",
-#                                      "s2", "s2_low", "s2_high"])
 
 
 # based on https://gist.github.com/riccardoscalco/5356167

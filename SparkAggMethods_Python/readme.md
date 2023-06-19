@@ -15,6 +15,7 @@ py -0  # to see what version is default
 python --version # to double confirm
 
 rm venv -r # to remove the venv folder
+rm -r *.pyc
 py -3.10 -m venv venv
 .\venv\Scripts\Activate.ps1
 .\venv\Scripts\python.exe -m pip install --upgrade pip

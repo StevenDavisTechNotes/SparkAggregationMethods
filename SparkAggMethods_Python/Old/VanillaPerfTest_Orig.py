@@ -28,7 +28,6 @@ from pyspark.rdd import PythonEvalType
 from pyspark.sql import Row, SparkSession
 from pyspark.sql.dataframe import DataFrame as spark_DataFrame
 import pyspark.sql.functions as func
-from pyspark.sql.functions import pandas_udf, PandasUDFType
 import pyspark.sql.types as DataTypes
 from pyspark.sql.window import Window
 
@@ -142,17 +141,6 @@ def count_iter(iterator):
     for _ in iterator:
         count += 1
     return count
-
-
-def pandas_udf_df_to_df(
-    returnType: DataTypes.StructType | str,
-) -> Callable[[Callable[[pd.DataFrame], pd.DataFrame]], Callable]:
-    def _(work_func):
-        transform = pandas_udf(
-            f=returnType,
-            returnType=PythonEvalType.SQL_COGROUPED_MAP_PANDAS_UDF)
-        return transform(work_func)
-    return _
 # endregion
 # region vanilla aggregation
 

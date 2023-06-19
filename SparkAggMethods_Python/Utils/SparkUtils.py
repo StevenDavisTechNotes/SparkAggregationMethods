@@ -8,25 +8,11 @@ import pandas as pd
 
 import findspark
 from pyspark import RDD, SparkContext
-from pyspark.rdd import PythonEvalType
 from pyspark.sql import GroupedData, SparkSession
 from pyspark.sql.dataframe import DataFrame as spark_DataFrame
-from pyspark.sql.functions import pandas_udf
-import pyspark.sql.types as DataTypes
 from pyspark.sql.types import StructType
 
 SPARK_SRATCH_FOLDER = "C:\\temp\\spark_scratch"
-
-
-def pandas_udf_df_to_df(
-    returnType: DataTypes.StructType | str,
-) -> Callable[[Callable[[pd.DataFrame], pd.DataFrame]], Callable]:
-    def _(work_func):
-        transform = pandas_udf(
-            f=returnType,
-            returnType=PythonEvalType.SQL_COGROUPED_MAP_PANDAS_UDF)
-        return transform(work_func)
-    return _
 
 
 class GroupedDataWithPdDataFrame:

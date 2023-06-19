@@ -2,8 +2,8 @@ from typing import List, Tuple, Optional, NamedTuple
 
 import math
 
-from pyspark import RDD, Row
-from pyspark.sql import DataFrame as spark_DataFrame
+from pyspark import RDD
+from pyspark.sql import Row, DataFrame as spark_DataFrame
 
 from Utils.SparkUtils import TidySparkSession
 

@@ -1,7 +1,7 @@
 from typing import List, Tuple, Optional, Iterable
 
-from pyspark import RDD, Row
-from pyspark.sql import DataFrame as spark_DataFrame
+from pyspark import RDD
+from pyspark.sql import Row, DataFrame as spark_DataFrame
 
 from Utils.SparkUtils import cast_no_arg_sort_by_key, TidySparkSession
 

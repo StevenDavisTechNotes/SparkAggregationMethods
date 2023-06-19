@@ -1,9 +1,15 @@
-# def vanilla_panda_cupy(
-#     spark: SparkSession, pyData: List[DataPoint]
-# ) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
-#     df = spark.createDataFrame(
-#         cast_data_points_to_tuples(pyData), 
-#         schema=DataPointSchema)
+from typing import List, Tuple, Optional
+
+from pyspark import RDD
+from pyspark.sql import SparkSession, DataFrame as spark_DataFrame
+
+from ..VanillaTestData import DataPointAsTuple
+
+
+def vanilla_panda_cupy(
+    _spark: SparkSession, _pyData: List[DataPointAsTuple]
+) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
+    # df = spark.createDataFrame(pyData, schema=DataPointSchema)
 
 #     groupby_columns = ['grp', 'subgrp']
 #     agg_columns = ['mean_of_C','max_of_D', 'var_of_E', 'var_of_E2']
@@ -32,3 +38,4 @@
 #         df.groupby(df.grp, df.subgrp)
 #        ).applyInPandas(inner_agg_method)
 #     return None, aggregates
+    raise NotImplementedError()

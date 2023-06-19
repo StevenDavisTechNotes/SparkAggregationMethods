@@ -15,7 +15,7 @@ from ..VanillaTestData import DataPointAsTuple, DataPointSchema
 def vanilla_pandas_numpy(
     spark: SparkSession, pyData: List[DataPointAsTuple]
 ) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
-    df = spark.createDataFrame(pyData,        schema=DataPointSchema)
+    df = spark.createDataFrame(pyData, schema=DataPointSchema)
 
     groupby_columns = ['grp', 'subgrp']
     agg_columns = ['mean_of_C', 'max_of_D', 'var_of_E', 'var_of_E2']

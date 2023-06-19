@@ -7,6 +7,8 @@ from VanillaPerfTest.Strategy.VanillaSql import vanilla_sql
 from VanillaPerfTest.Strategy.VanillaFluent import vanilla_fluent
 from VanillaPerfTest.Strategy.VanillaPandas import vanilla_pandas
 from VanillaPerfTest.Strategy.VanillaPandasNumpy import vanilla_pandas_numpy
+from VanillaPerfTest.Strategy.VanillaPandasCuda import vanilla_panda_cupy
+from VanillaPerfTest.Strategy.VanillaPandasNumba import vanilla_pandas_numba
 from VanillaPerfTest.Strategy.VanillaRddGrpmap import vanilla_rdd_grpmap
 from VanillaPerfTest.Strategy.VanillaRddReduce import vanilla_rdd_reduce
 from VanillaPerfTest.Strategy.VanillaRddMappart import vanilla_rdd_mappart
@@ -35,16 +37,17 @@ implementation_list: List[PythonTestMethod] = [
         interface='pandas',
         delegate=lambda spark, pyData: vanilla_pandas_numpy(spark, pyData)
     ),
-    # (PythonTestMethod
-    #     name='vanilla_panda_cupy',
-    #     language='python',
-    #     interface='panda',
-    #     delegate=lambda pyData: vanilla_panda_cupy(pyData))),
-    # PythonTestMethod(
-    #     name='vanilla_pandas_numba',
-    #     language='python',
-    #     interface='pandas',
-    #     delegate=lambda spark, pyData: vanilla_pandas_numba(spark, pyData))),
+    PythonTestMethod(
+        name='vanilla_panda_cupy',
+        language='python',
+        interface='panda',
+        delegate=lambda spark, pyData: vanilla_panda_cupy(spark, pyData)),
+    PythonTestMethod(
+        name='vanilla_pandas_numba',
+        language='python',
+        interface='pandas',
+        delegate=lambda spark, pyData: vanilla_pandas_numba(spark, pyData)
+    ),
     PythonTestMethod(
         name='vanilla_rdd_grpmap',
         language='python',

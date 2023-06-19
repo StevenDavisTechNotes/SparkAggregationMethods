@@ -9,7 +9,7 @@ from ..VanillaTestData import DataPointAsTuple, DataPointSchema
 def vanilla_sql(
         spark: SparkSession, pyData: List[DataPointAsTuple]
 ) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
-    df = spark.createDataFrame(pyData,        schema=DataPointSchema)
+    df = spark.createDataFrame(pyData, schema=DataPointSchema)
     spark.catalog.dropTempView("exampledata")
     df.createTempView("exampledata")
     df = spark.sql('''

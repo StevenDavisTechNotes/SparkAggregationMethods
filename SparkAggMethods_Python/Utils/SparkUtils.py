@@ -24,6 +24,7 @@ def createSparkContext(config_dict: Dict[str, Any]) -> SparkSession:
         SparkSession
         .builder
         .appName("PerfTestApp")
+        .master("local[8]")
         .config("spark.pyspark.python", full_path_to_python)
     )
     for key, value in config_dict.items():

@@ -1,70 +1,87 @@
-from typing import List
+from typing import List, Callable, Tuple, Optional
+from dataclasses import dataclass
 
-from PerfTestCommon import (
-    PythonTestMethod, ExternalTestMethod
-)
-from VanillaPerfTest.Strategy.VanillaSql import vanilla_sql
-from VanillaPerfTest.Strategy.VanillaFluent import vanilla_fluent
-from VanillaPerfTest.Strategy.VanillaPandas import vanilla_pandas
-from VanillaPerfTest.Strategy.VanillaPandasNumpy import vanilla_pandas_numpy
-from VanillaPerfTest.Strategy.VanillaPandasCuda import vanilla_panda_cupy
-from VanillaPerfTest.Strategy.VanillaPandasNumba import vanilla_pandas_numba
-from VanillaPerfTest.Strategy.VanillaRddGrpmap import vanilla_rdd_grpmap
-from VanillaPerfTest.Strategy.VanillaRddReduce import vanilla_rdd_reduce
-from VanillaPerfTest.Strategy.VanillaRddMappart import vanilla_rdd_mappart
+from pyspark import RDD
+from pyspark.sql import DataFrame as spark_DataFrame
+
+from PerfTestCommon import ExternalTestMethod
+from Utils.SparkUtils import TidySparkSession
+
+from .VanillaTestData import DataPoint
+from .Strategy.VanillaSql import vanilla_sql
+from .Strategy.VanillaFluent import vanilla_fluent
+from .Strategy.VanillaPandas import vanilla_pandas
+from .Strategy.VanillaPandasNumpy import vanilla_pandas_numpy
+from .Strategy.VanillaPandasCuda import vanilla_panda_cupy
+from .Strategy.VanillaPandasNumba import vanilla_pandas_numba
+from .Strategy.VanillaRddGrpmap import vanilla_rdd_grpmap
+from .Strategy.VanillaRddReduce import vanilla_rdd_reduce
+from .Strategy.VanillaRddMappart import vanilla_rdd_mappart
+
+
+@dataclass(frozen=True)
+class PythonTestMethod:
+    name: str
+    language: str
+    interface: str
+    delegate: Callable[
+        [TidySparkSession, List[DataPoint]],
+        Tuple[Optional[RDD], Optional[spark_DataFrame]]]
+
 
 implementation_list: List[PythonTestMethod] = [
     PythonTestMethod(
         name='vanilla_sql',
         language='python',
         interface='sql',
-        delegate=lambda spark, pyData: vanilla_sql(spark, pyData)),
+        delegate=vanilla_sql
+    ),
     PythonTestMethod(
         name='vanilla_fluent',
         language='python',
         interface='sql',
-        delegate=lambda spark, pyData: vanilla_fluent(spark, pyData)
+        delegate=vanilla_fluent,
     ),
     PythonTestMethod(
         name='vanilla_pandas',
         language='python',
         interface='pandas',
-        delegate=lambda spark, pyData: vanilla_pandas(spark, pyData)
+        delegate=vanilla_pandas,
     ),
     PythonTestMethod(
         name='vanilla_pandas_numpy',
         language='python',
         interface='pandas',
-        delegate=lambda spark, pyData: vanilla_pandas_numpy(spark, pyData)
+        delegate=vanilla_pandas_numpy,
     ),
     PythonTestMethod(
         name='vanilla_panda_cupy',
         language='python',
         interface='panda',
-        delegate=lambda spark, pyData: vanilla_panda_cupy(spark, pyData)),
+        delegate=vanilla_panda_cupy,),
     PythonTestMethod(
         name='vanilla_pandas_numba',
         language='python',
         interface='pandas',
-        delegate=lambda spark, pyData: vanilla_pandas_numba(spark, pyData)
+        delegate=vanilla_pandas_numba,
     ),
     PythonTestMethod(
         name='vanilla_rdd_grpmap',
         language='python',
         interface='rdd',
-        delegate=lambda spark, pyData: vanilla_rdd_grpmap(spark, pyData)
+        delegate=vanilla_rdd_grpmap,
     ),
     PythonTestMethod(
         name='vanilla_rdd_reduce',
         language='python',
         interface='rdd',
-        delegate=lambda spark, pyData: vanilla_rdd_reduce(spark, pyData)
+        delegate=vanilla_rdd_reduce,
     ),
     PythonTestMethod(
         name='vanilla_rdd_mappart',
         language='python',
         interface='rdd',
-        delegate=lambda spark, pyData: vanilla_rdd_mappart(spark, pyData)
+        delegate=vanilla_rdd_mappart,
     ),
 ]
 scala_implementation_list = [

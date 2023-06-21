@@ -6,15 +6,6 @@ from pyspark.sql import DataFrame as spark_DataFrame
 
 from Utils.SparkUtils import TidySparkSession
 
-@dataclass(frozen=True)
-class PythonTestMethod:
-    name: str
-    language: str
-    interface: str
-    delegate: Callable[
-        [TidySparkSession, List],
-        Tuple[Optional[RDD], Optional[spark_DataFrame]]]
-
 
 @dataclass(frozen=True)
 class ExternalTestMethod:
@@ -24,7 +15,7 @@ class ExternalTestMethod:
 
 
 @dataclass(frozen=True)
-class FullCondMethod:
+class TestMethodDescription:
     data_name: str
     raw_method_name: str
     language: str

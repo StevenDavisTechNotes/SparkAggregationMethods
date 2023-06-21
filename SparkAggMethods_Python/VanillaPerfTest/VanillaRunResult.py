@@ -2,8 +2,7 @@ from typing import TextIO
 from dataclasses import dataclass
 import datetime
 
-from PerfTestCommon import PythonTestMethod
-
+from VanillaPerfTest.VanillaDirectory import PythonTestMethod
 
 @dataclass(frozen=True)
 class RunResult:

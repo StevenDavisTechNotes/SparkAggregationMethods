@@ -6,10 +6,10 @@ import numpy
 from scipy.stats import norm as scipy_stats_norm  # type: ignore
 
 
-from PerfTestCommon import FullCondMethod
-from .Strategy.Directory import (
+from PerfTestCommon import TestMethodDescription
+from .VanillaDirectory import (
     implementation_list, scala_implementation_list)
-from .RunResult import RunResult
+from .VanillaRunResult import RunResult
 
 SCALA_RESULT_FILE_PATH = '../Results/Scala/vanilla_runs_scala.csv'
 PYTHON_RESULT_FILE_PATH = 'Results/vanilla_runs.csv'
@@ -77,7 +77,7 @@ def do_regression(python_implementation_list, scala_implementation_list, cond_ru
     summary_status = ''
     confidence = 0.95
     sorted_implementation_list = sorted(
-        [FullCondMethod(
+        [TestMethodDescription(
             data_name=f"{x.name}_{x.language}", raw_method_name=x.name,
             language=x.language, interface=x.interface)
             for x in python_implementation_list + scala_implementation_list],

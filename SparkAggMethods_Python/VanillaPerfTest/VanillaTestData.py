@@ -1,8 +1,7 @@
 from typing import List
 
-from dataclasses import dataclass
 import random
-
+from dataclasses import dataclass
 
 import pyspark.sql.types as DataTypes
 

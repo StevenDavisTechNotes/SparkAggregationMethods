@@ -1,6 +1,6 @@
 #!python
-# python -m VanillaRunner
-from typing import List, Tuple
+# python -m Runner_Vanilla
+from typing import List, Tuple, Optional
 
 import argparse
 from dataclasses import dataclass
@@ -8,19 +8,20 @@ import gc
 import random
 import time
 
-from PerfTestCommon import PythonTestMethod, count_iter
+from PerfTestCommon import count_iter
 from Utils.SparkUtils import TidySparkSession
 from Utils.Utils import always_true
 
-from VanillaPerfTest.Strategy.Directory import implementation_list
+from VanillaPerfTest.VanillaDirectory import implementation_list, PythonTestMethod
 from VanillaPerfTest.Strategy.VanillaPandasCuda import vanilla_panda_cupy
-from VanillaPerfTest.RunResult import RunResult, write_run_result
+from VanillaPerfTest.VanillaRunResult import RunResult, write_run_result
 from VanillaPerfTest.VanillaTestData import DataPoint, generateData
 
 DEBUG_ARGS = None if False else (
     []
     + '--size 1 10'.split()
     + '--runs 1'.split()
+    + '--random-seed 1234'.split()
     + ['--no-shuffle']
     # +'--strategy vanilla_pandas'.split()
 )
@@ -30,6 +31,7 @@ RESULT_FILE_PATH = 'Results/vanilla_runs.csv'
 @dataclass
 class Arguments:
     num_runs: int
+    random_seed: Optional[int]
     shuffle: bool
     sizes: List[str]
     strategies: List[str]
@@ -37,6 +39,7 @@ class Arguments:
 
 def parse_args() -> Arguments:
     parser = argparse.ArgumentParser()
+    parser.add_argument('--random-seed', type=int)
     parser.add_argument('--runs', type=int, default=30)
     parser.add_argument(
         '--size',
@@ -59,9 +62,10 @@ def parse_args() -> Arguments:
         args = parser.parse_args(DEBUG_ARGS)
     return Arguments(
         num_runs=args.runs,
+        random_seed=args.random_seed,
         shuffle=args.shuffle,
         sizes=args.size,
-        strategies=args.strategy
+        strategies=args.strategy,
     )
 
 
@@ -85,6 +89,8 @@ def DoTesting(args: Arguments, spark_session: TidySparkSession):
         for data in data_sets
         for _ in range(0, args.num_runs)
     ]
+    if args.random_seed is not None:
+        random.seed(args.random_seed)
     if args.shuffle:
         random.shuffle(cond_run_itinerary)
     if 'vanilla_panda_cupy' in args.strategies:
@@ -92,7 +98,8 @@ def DoTesting(args: Arguments, spark_session: TidySparkSession):
         vanilla_panda_cupy(spark_session, generateData(3, 3, 10**0))
     with open(RESULT_FILE_PATH, 'a') as file:
         for index, (cond_method, data) in enumerate(cond_run_itinerary):
-            spark_session.log.info("Working on %d of %d" % (index, len(cond_run_itinerary)))
+            spark_session.log.info(
+                "Working on %d of %d" % (index, len(cond_run_itinerary)))
             startedTime = time.time()
             rdd, df = cond_method.delegate(spark_session, data)
             if df is not None:
@@ -108,17 +115,20 @@ def DoTesting(args: Arguments, spark_session: TidySparkSession):
             del df
             del rdd
             gc.collect()
+            time.sleep(1)
 
 
 if __name__ == "__main__":
     args = parse_args()
     config = {
         "spark.sql.shuffle.partitions": 7,
-        "spark.ui.enabled": "false",
         "spark.rdd.compress": "false",
         "spark.driver.memory": "2g",
         "spark.executor.memory": "3g",
         "spark.executor.memoryOverhead": "1g",
     }
-    with TidySparkSession(config) as spark_session:
+    with TidySparkSession(
+        config,
+        enable_hive_support=False
+    ) as spark_session:
         DoTesting(args, spark_session)

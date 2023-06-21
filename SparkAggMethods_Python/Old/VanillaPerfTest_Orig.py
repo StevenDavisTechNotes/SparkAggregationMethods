@@ -261,7 +261,7 @@ def vanilla_pandas_numpy(pyData):
     #
     aggregates = cast_from_pd_dataframe(
         df.groupby(df.grp, df.subgrp)
-        ).applyInPandas(        inner_agg_method, postAggSchema)
+        ).applyInPandas(inner_agg_method, postAggSchema)
     return None, aggregates
 
 

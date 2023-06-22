@@ -11,6 +11,8 @@ from Utils.SparkUtils import TidySparkSession
 
 from .DedupeTestData import RecordSparseStruct, nameHash
 
+RESULT_FILE_PATH = 'Results/dedupe_runs.csv'
+FINAL_REPORT_FILE_PATH='../Results/python/dedupe_results_20230618.csv'
 
 @dataclass(frozen=True)
 class RunResult:

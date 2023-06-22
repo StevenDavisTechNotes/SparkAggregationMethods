@@ -1,30 +1,29 @@
 #!python
-# python -m Runner_Vanilla
-from typing import List, Tuple, Optional
-
+# python -m Runner_BiLevel
 import argparse
-from dataclasses import dataclass
 import gc
 import random
 import time
+from dataclasses import dataclass
+from typing import List, Optional, Tuple
 
+from BiLevelPerfTest.BiLevelDirectory import (PythonTestMethod,
+                                              implementation_list)
+from BiLevelPerfTest.BiLevelRunResult import RunResult, write_run_result
+from BiLevelPerfTest.BiLevelTestData import DataTuple, generateData
 from PerfTestCommon import count_iter
 from Utils.SparkUtils import TidySparkSession
 from Utils.Utils import always_true
 
-from VanillaPerfTest.VanillaDirectory import implementation_list, PythonTestMethod, strategy_name_list
-from VanillaPerfTest.Strategy.VanillaPandasCuda import vanilla_panda_cupy
-from VanillaPerfTest.VanillaRunResult import RunResult, write_run_result, PYTHON_RESULT_FILE_PATH
-from VanillaPerfTest.VanillaTestData import DataPoint, generateData
-
 DEBUG_ARGS = None if False else (
     []
-    + '--size 1 10'.split()
+    + '--size 3_3_10'.split()
     + '--runs 1'.split()
     + '--random-seed 1234'.split()
     + ['--no-shuffle']
     # +'--strategy vanilla_pandas'.split()
 )
+RESULT_FILE_PATH = 'Results/bi_level_runs.csv'
 
 
 @dataclass
@@ -42,17 +41,16 @@ def parse_args() -> Arguments:
     parser.add_argument('--runs', type=int, default=30)
     parser.add_argument(
         '--size',
-        choices=['1', '10', '100', '1k', '10k', '100k', '1m'],
-        default=['10', '100', '1k', '10k', '100k'],
+        choices=['3_3_10', '3_3_100k', '3_30_10k', '3_300_1k', '3_3k_100'],
+        default=['3_3_100k', '3_30_10k', '3_300_1k', '3_3k_100'],
         nargs="+")
     parser.add_argument(
         '--shuffle', default=True,
         action=argparse.BooleanOptionalAction)
     parser.add_argument(
         '--strategy',
-        choices=strategy_name_list,
-        default='vanilla_sql vanilla_fluent vanilla_pandas vanilla_pandas_numpy'.split()
-        + 'vanilla_rdd_grpmap vanilla_rdd_reduce vanilla_rdd_mappart'.split(),
+        choices=[],
+        default=[],
         nargs="+")
     if DEBUG_ARGS is None:
         args = parser.parse_args()
@@ -69,17 +67,18 @@ def parse_args() -> Arguments:
 
 def DoTesting(args: Arguments, spark_session: TidySparkSession):
     data_sets = [x for x in [
-        generateData(3, 3, 10**0) if '1' in args.sizes else None,
-        generateData(3, 3, 10**1) if '10' in args.sizes else None,
-        generateData(3, 3, 10**2) if '100' in args.sizes else None,
-        generateData(3, 3, 10**3) if '1k' in args.sizes else None,
-        generateData(3, 3, 10**4) if '10k' in args.sizes else None,
-        generateData(3, 3, 10**5) if '100k' in args.sizes else None,
-        generateData(3, 3, 10**6) if '1m' in args.sizes else None,
+        generateData(3, 3, 10**1) if '3_3_10' in args.sizes else None,
+        # generateData(3, 3, 10**2) if '3_3_100' in args.sizes else None,
+        # generateData(3, 3, 10**3) if '3_3_1k' in args.sizes else None,
+        # generateData(3, 3, 10**4) if '3_3_10k' in args.sizes else None,
+        generateData(3, 3, 10**5) if '3_3_100k' in args.sizes else None,
+        generateData(3, 30, 10**4) if '3_30_10k' in args.sizes else None,
+        generateData(3, 300, 10**3) if '3_300_1k' in args.sizes else None,
+        generateData(3, 3000, 10**2) if '3_3k_100' in args.sizes else None,
     ] if x is not None]
     keyed_implementation_list = {x.name: x for x in implementation_list}
     cond_run_itinerary: List[
-        Tuple[PythonTestMethod, List[DataPoint]]
+        Tuple[PythonTestMethod, DataTuple]
     ] = [
         (cond_method, data)
         for strategy in args.strategies
@@ -91,29 +90,27 @@ def DoTesting(args: Arguments, spark_session: TidySparkSession):
         random.seed(args.random_seed)
     if args.shuffle:
         random.shuffle(cond_run_itinerary)
-    if 'vanilla_panda_cupy' in args.strategies:
-        # for code generation warming
-        vanilla_panda_cupy(spark_session, generateData(3, 3, 10**0))
-    with open(PYTHON_RESULT_FILE_PATH, 'a') as file:
-        for index, (cond_method, data) in enumerate(cond_run_itinerary):
-            spark_session.log.info(
-                "Working on %d of %d" % (index, len(cond_run_itinerary)))
+    with open(RESULT_FILE_PATH, 'at') as f:
+        for index, (cond_method, datatuple) in enumerate(cond_run_itinerary):
+            spark_session.log.info("Working on %d of %d" %
+                                   (index, len(cond_run_itinerary)))
             startedTime = time.time()
-            rdd, df = cond_method.delegate(spark_session, data)
+            rdd, df = cond_method.delegate(spark_session, datatuple.data)
             if df is not None:
                 rdd = df.rdd
             assert rdd is not None
             recordCount = count_iter(rdd.toLocalIterator())
             finishedTime = time.time()
             result = RunResult(
-                dataSize=len(data),
+                dataSize=len(datatuple.data),
+                relCard=datatuple.relCard,
                 elapsedTime=finishedTime-startedTime,
                 recordCount=recordCount)
-            write_run_result(cond_method, result, file)
+            write_run_result(cond_method, result, f)
             del df
             del rdd
             gc.collect()
-            time.sleep(1)
+            time.sleep(10)
 
 
 if __name__ == "__main__":
@@ -124,6 +121,7 @@ if __name__ == "__main__":
         "spark.driver.memory": "2g",
         "spark.executor.memory": "3g",
         "spark.executor.memoryOverhead": "1g",
+        "spark.sql.execution.arrow.pyspark.enabled": "true",
     }
     with TidySparkSession(
         config,

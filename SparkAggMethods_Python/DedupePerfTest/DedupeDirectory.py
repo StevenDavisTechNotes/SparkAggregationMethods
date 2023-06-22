@@ -70,4 +70,5 @@ implementation_list: List[PythonTestMethod] = [
         delegate=method_rdd_reduce,
     ),
 ]
+
 strategy_name_list = [x.name for x in implementation_list]

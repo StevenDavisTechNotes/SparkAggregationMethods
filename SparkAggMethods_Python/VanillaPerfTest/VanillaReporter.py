@@ -1,19 +1,16 @@
-from typing import Dict, List
 import math
 import os
+from typing import Dict, List
 
 import numpy
 from scipy.stats import norm as scipy_stats_norm  # type: ignore
 
-
 from PerfTestCommon import TestMethodDescription
-from .VanillaDirectory import (
-    implementation_list, scala_implementation_list)
-from .VanillaRunResult import RunResult
 
-SCALA_RESULT_FILE_PATH = '../Results/Scala/vanilla_runs_scala.csv'
-PYTHON_RESULT_FILE_PATH = 'Results/vanilla_runs.csv'
-REPORT_FILE_PATH='../Results/python/vanilla_results_20230618.csv'
+from .VanillaDirectory import implementation_list, scala_implementation_list
+from .VanillaRunResult import (FINAL_REPORT_FILE_PATH, PYTHON_RESULT_FILE_PATH,
+                               SCALA_RESULT_FILE_PATH, RunResult)
+
 
 def parse_results() -> Dict[str, List[RunResult]]:
     cond_runs = {}
@@ -109,7 +106,7 @@ def DoAnalysis():
     cond_runs = parse_results()
     summary_status = do_regression(implementation_list, scala_implementation_list, cond_runs)
         
-    with open(REPORT_FILE_PATH, 'wt') as f:
+    with open(FINAL_REPORT_FILE_PATH, 'wt') as f:
         f.write(summary_status)
         f.write("\n")
 

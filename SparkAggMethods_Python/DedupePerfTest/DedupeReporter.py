@@ -4,16 +4,17 @@ import math
 import numpy
 
 from .DedupeDirectory import implementation_list
-from .DedupeRunResult import RunResult
+from .DedupeRunResult import RunResult, RESULT_FILE_PATH, FINAL_REPORT_FILE_PATH
 
+TEMP_RESULT_FILE_PATH = "d:/temp/SparkPerfTesting/temp.csv"
 
 def DoAnalysis():
     import scipy.stats
 
     from LinearRegression import linear_regression
     test_runs = {}
-    with open('Results/dedupe_runs_tail.csv', 'r') as f, \
-            open('Results/temp.csv', 'w') as fout:
+    with open(RESULT_FILE_PATH, 'r') as f, \
+            open(TEMP_RESULT_FILE_PATH, 'w') as fout:
         for textline in f:
             if textline.startswith("Working"):
                 print("Excluding line: "+textline)
@@ -128,7 +129,7 @@ def DoAnalysis():
                 result.b0, result.b0_low, result.b0_high,
                 result.b1*1e+6, result.b1_low*1e+6, result.b1_high*1e+6,
                 result.s2, result.s2_low, result.s2_high)
-    with open('Results/dedupe_results.csv', 'w') as f:
+    with open(FINAL_REPORT_FILE_PATH, 'w') as f:
         f.write(summary_status)
         f.write("\n")
         f.write(regression_status)

@@ -14,7 +14,7 @@ from DedupePerfTest.DedupeRunResult import (ItineraryItem, RunResult,
                                             verifyCorrectnessDf,
                                             verifyCorrectnessRdd,
                                             write_failed_run, write_header,
-                                            write_run_result)
+                                            write_run_result, RESULT_FILE_PATH)
 from DedupePerfTest.DedupeTestData import (DedupeDataParameters, DoGenData,
                                            GenDataSets)
 from PerfTestCommon import count_iter
@@ -29,7 +29,6 @@ DEBUG_ARGS = None if False else (
     + ['--no-shuffle']
     # + '--strategy method_rdd_reduce'.split()
 )
-RESULT_FILE_PATH = 'Results/dedupe_runs.csv'
 LOCAL_TEST_DATA_FILE_LOCATION = "d:/temp/SparkPerfTesting"
 REMOTE_TEST_DATA_LOCATION = "wasb:///sparkperftesting"
 MaximumProcessableSegment = pow(10, 5)

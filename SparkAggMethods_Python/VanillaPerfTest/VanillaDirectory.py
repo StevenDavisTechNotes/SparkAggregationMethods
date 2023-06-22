@@ -110,3 +110,5 @@ scala_implementation_list = [
         language='scala',
         interface='rdd'),
 ]
+
+strategy_name_list = [x.name for x in implementation_list]

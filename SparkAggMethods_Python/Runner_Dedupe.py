@@ -190,7 +190,7 @@ def runtests(srcDfListList: List[GenDataSets],
             del rddout
             del dfout
             gc.collect()
-            time.sleep(1)
+            time.sleep(0.1)
             print("")
 
 

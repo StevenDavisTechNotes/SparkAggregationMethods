@@ -115,7 +115,7 @@ def do_test_runs(args: Arguments, spark_session: TidySparkSession):
             del df
             del rdd
             gc.collect()
-            time.sleep(10)
+            time.sleep(0.1)
 
 
 if __name__ == "__main__":

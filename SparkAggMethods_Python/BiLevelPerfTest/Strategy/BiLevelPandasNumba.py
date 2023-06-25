@@ -7,7 +7,6 @@ from numba import float64 as numba_float64
 from numba import jit, prange
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
-from pyspark.sql.pandas.functions import PandasUDFType, pandas_udf
 
 from Utils.SparkUtils import TidySparkSession
 
@@ -18,8 +17,7 @@ def bi_pandas_numba(
     spark_session: TidySparkSession, pyData: List[DataPoint]
 ) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
     spark = spark_session.spark
-    # df = spark.createDataFrame(
-    #     map(lambda x: astuple(x), pyData), schema=DataPointSchema)
+    df = spark.createDataFrame(pyData)
     groupby_columns = ['grp']
     agg_columns = ['mean_of_C', 'max_of_D', 'avg_var_of_E', 'avg_var_of_E2']
     df = spark.createDataFrame(pyData)
@@ -50,7 +48,6 @@ def bi_pandas_numba(
             accE += E[i]
         return (accE2 - accE**2/n)/(n-1)
 
-    @pandas_udf(postAggSchema, PandasUDFType.GROUPED_MAP)
     def inner_agg_method(dfPartition):
         group_key = dfPartition['grp'].iloc[0]
         C = np.array(dfPartition['C'])
@@ -64,5 +61,5 @@ def bi_pandas_numba(
             subgroupedE.apply(lambda x: my_looplift_var(np.array(x))).mean(),
         ]], columns=groupby_columns + agg_columns)
 
-    aggregates = df.groupby(df.grp).apply(inner_agg_method)
+    aggregates = df.groupby(df.grp).applyInPandas(inner_agg_method, postAggSchema)
     return None, aggregates

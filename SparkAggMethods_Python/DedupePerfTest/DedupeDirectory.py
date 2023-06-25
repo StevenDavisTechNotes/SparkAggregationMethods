@@ -18,7 +18,7 @@ from .Strategy.DedupeRddReduce import method_rdd_reduce
 
 @dataclass(frozen=True)
 class PythonTestMethod:
-    name: str
+    strategy_name: str
     language: str
     interface: str
     delegate: Callable[
@@ -28,47 +28,47 @@ class PythonTestMethod:
 
 implementation_list: List[PythonTestMethod] = [
     PythonTestMethod(
-        name='method_pandas',
+        strategy_name='method_pandas',
         language='python',
         interface='pandas',
         delegate=method_pandas,
     ),
     PythonTestMethod(
-        name='method_fluent_nested_python',
+        strategy_name='method_fluent_nested_python',
         language='python',
         interface='fluent',
         delegate=method_fluent_nested_python,
     ),
     PythonTestMethod(
-        name='method_fluent_nested_withCol',
+        strategy_name='method_fluent_nested_withCol',
         language='python',
         interface='fluent',
         delegate=method_fluent_nested_withCol,
     ),
     PythonTestMethod(
-        name='method_fluent_windows',
+        strategy_name='method_fluent_windows',
         language='python',
         interface='fluent',
         delegate=method_fluent_windows,
     ),
     PythonTestMethod(
-        name='method_rdd_groupby',
+        strategy_name='method_rdd_groupby',
         language='python',
         interface='rdd',
         delegate=method_rdd_groupby,
     ),
     PythonTestMethod(
-        name='method_rdd_mappart',
+        strategy_name='method_rdd_mappart',
         language='python',
         interface='rdd',
         delegate=method_rdd_mappart,
     ),
     PythonTestMethod(
-        name='method_rdd_reduce',
+        strategy_name='method_rdd_reduce',
         language='python',
         interface='rdd',
         delegate=method_rdd_reduce,
     ),
 ]
 
-strategy_name_list = [x.name for x in implementation_list]
+strategy_name_list = [x.strategy_name for x in implementation_list]

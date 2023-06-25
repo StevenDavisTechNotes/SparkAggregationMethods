@@ -1,4 +1,4 @@
- result,method,interface,numSources,dataSize,dataSizeExp,actualNumPeople,elapsedTime,foundNumPeople,IsCloudMode,CanAssumeNoDupesPerPartition
+ result,strategy,interface,numSources,dataSize,dataSizeExp,actualNumPeople,elapsedTime,foundNumPeople,IsCloudMode,CanAssumeNoDupesPerPartition
 success,method_rdd_reduce,rdd,2,2,0,1,4.150373,1,FALSE,TRUE
 success,method_rdd_reduce,rdd,3,3,0,1,4.293423,1,FALSE,TRUE
 success,method_rdd_reduce,rdd,6,6,1,1,5.368138,1,FALSE,TRUE

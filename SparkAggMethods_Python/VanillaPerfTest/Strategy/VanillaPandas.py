@@ -8,7 +8,7 @@ import pandas as pd
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 
-from Utils.SparkUtils import cast_from_pd_dataframe, TidySparkSession
+from Utils.SparkUtils import TidySparkSession
 
 from ..VanillaTestData import DataPoint, DataPointSchema, groupby_columns, agg_columns, postAggSchema
 
@@ -24,7 +24,7 @@ def vanilla_pandas(
         D = dfPartition['D']
         E = dfPartition['E']
         var_of_E2 = (
-            ((E * E).sum() - E.sum()**2/E.count())/(E.count()-1)
+            ((E * E).sum() - E.sum()**2 / E.count()) / (E.count() - 1)
             if E.count() > 1 else numpy.nan)
         return pd.DataFrame([[
             group_key,
@@ -38,7 +38,8 @@ def vanilla_pandas(
     df = spark_session.spark.createDataFrame(
         map(lambda x: astuple(x), pyData), schema=DataPointSchema)
     aggregates = (
-        cast_from_pd_dataframe(
-            df.groupby(df.grp, df.subgrp)
-        ).applyInPandas(inner_agg_method, postAggSchema))
+        df
+        .groupby(df.grp, df.subgrp)
+        .applyInPandas(inner_agg_method, postAggSchema)
+    )
     return None, aggregates

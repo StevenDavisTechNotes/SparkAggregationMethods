@@ -10,8 +10,6 @@ import numpy
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 
-from Utils.SparkUtils import cast_from_pd_dataframe
-
 from Utils.SparkUtils import TidySparkSession
 
 from ..VanillaTestData import DataPoint, DataPointSchema, groupby_columns, agg_columns, postAggSchema
@@ -42,7 +40,7 @@ def vanilla_pandas_numba(
         accE = 0.
         for i in prange(n):
             accE += E[i]
-        return (accE2 - accE**2/n)/(n-1)
+        return (accE2 - accE**2 / n) / (n - 1)
 
     def inner_agg_method(dfPartition):
         group_key = dfPartition['grp'].iloc[0]
@@ -62,8 +60,7 @@ def vanilla_pandas_numba(
     df = spark_session.spark.createDataFrame(
         map(lambda x: astuple(x), pyData), schema=DataPointSchema)
     aggregates = (
-        cast_from_pd_dataframe(
-            df.groupby(df.grp, df.subgrp))
+        df.groupby(df.grp, df.subgrp)
         .applyInPandas(inner_agg_method, postAggSchema)
     )
     return None, aggregates

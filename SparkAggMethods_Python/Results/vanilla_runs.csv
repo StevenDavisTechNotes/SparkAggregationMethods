@@ -1,3 +1,4 @@
+ strategy,interface,dataSize,elapsedTime,recordCount,finishedAt,
 # 2023-06-18
 vanilla_pandas,pandas,90,6.471310615539551,9,2023-06-18T22:57:53.805658,
 vanilla_sql,sql,90,3.4189696311950684,9,2023-06-18T22:57:57.242643,

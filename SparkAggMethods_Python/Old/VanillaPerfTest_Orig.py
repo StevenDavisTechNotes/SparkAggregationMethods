@@ -5,7 +5,8 @@
 # prompt $g
 # spark-submit --master local[8] --driver-memory 1g --deploy-mode client --conf spark.pyspark.virtualenv.enabled=true  --conf spark.pyspark.virtualenv.type=native --conf spark.pyspark.virtualenv.requirements=requirements.txt --conf spark.pyspark.virtualenv.bin.path=venv --conf spark.pyspark.python="$pwd\venv\scripts\python.exe" 'VanillaPerfTest.py'
 # spark-submit --master local[8] --deploy-mode client 'VanillaPerfTest.py'
-# spark-submit --master 'local[8]' --deploy-mode 'cluster'  --archives 'pyspark_venv.tar.gz#environment' 'VanillaPerfTest.py'
+# spark-submit --master 'local[8]' --deploy-mode 'cluster'  --archives
+# 'pyspark_venv.tar.gz#environment' 'VanillaPerfTest.py'
 from typing import List, Callable, Tuple, Any, cast, Optional, Iterable
 
 from dataclasses import dataclass
@@ -33,8 +34,8 @@ from pyspark.sql.window import Window
 
 from scipy.stats import norm as scipy_stats_norm  # type: ignore
 
-from Utils.SparkUtils import cast_from_pd_dataframe
 from LinearRegression import linear_regression
+
 
 def createSparkContext() -> SparkSession:
     findspark.init()
@@ -150,11 +151,11 @@ def vanilla_sql(pyData):
     spark.catalog.dropTempView("exampledata")
     df.createTempView("exampledata")
     df = spark.sql('''
-    SELECT 
-        grp, subgrp, AVG(C) mean_of_C, MAX(D) max_of_D, 
+    SELECT
+        grp, subgrp, AVG(C) mean_of_C, MAX(D) max_of_D,
         VAR_SAMP(E) var_of_E,
         (
-            SUM(E*E) - 
+            SUM(E*E) -
             SUM(E) * SUM(E) / COUNT(E)
         ) / (COUNT(E) - 1) var_of_E2
     FROM
@@ -182,8 +183,8 @@ def vanilla_fluent(pyData):
             func.variance(df.E).alias("var_of_E"),
             ((
                 func.sum(df.E * df.E)
-                - func.pow(func.sum(df.E), 2)/func.count(df.E)
-            )/(func.count(df.E)-1)).alias("var_of_E2")
+                - func.pow(func.sum(df.E), 2) / func.count(df.E)
+            ) / (func.count(df.E) - 1)).alias("var_of_E2")
         )\
         .orderBy(df.grp, df.subgrp)
     return None, df
@@ -218,13 +219,13 @@ def vanilla_pandas(pyData) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
             C.mean(),
             D.max(),
             E.var(),
-            ((E * E).sum() - E.sum()**2/E.count())/(E.count()-1),
+            ((E * E).sum() - E.sum()**2 / E.count()) / (E.count() - 1),
         ]], columns=groupby_columns + agg_columns)
     #
     aggregates = (
-        cast_from_pd_dataframe(
-            df.groupby(df.grp, df.subgrp))
-        .applyInPandas(inner_agg_method, postAggSchema))
+        df.groupby(df.grp, df.subgrp)
+        .applyInPandas(inner_agg_method, postAggSchema)
+    )
     return None, aggregates
 
 
@@ -256,12 +257,13 @@ def vanilla_pandas_numpy(pyData):
             numpy.mean(C),
             numpy.max(D),
             numpy.var(E),
-            (numpy.inner(E, E) - numpy.sum(E)**2/E.count())/(E.count()-1),
+            (numpy.inner(E, E) - numpy.sum(E)**2 / E.count()) / (E.count() - 1),
         ]], columns=groupby_columns + agg_columns)
     #
-    aggregates = cast_from_pd_dataframe(
+    aggregates = (
         df.groupby(df.grp, df.subgrp)
-        ).applyInPandas(inner_agg_method, postAggSchema)
+        .applyInPandas(inner_agg_method, postAggSchema)
+    )
     return None, aggregates
 
 
@@ -340,7 +342,7 @@ def vanilla_pandas_numba(pyData):
         accE = 0.
         for i in prange(n):
             accE += E[i]
-        return (accE2 - accE**2/n)/(n-1)
+        return (accE2 - accE**2 / n) / (n - 1)
     #
 
     # @pandas_udf(postAggSchema, PandasUDFType.GROUPED_MAP)
@@ -359,10 +361,10 @@ def vanilla_pandas_numba(pyData):
             my_looplift_var(E),
         ]], columns=groupby_columns + agg_columns)
     #
-    aggregates = cast_from_pd_dataframe(
+    aggregates = (
         df.groupby(df.grp, df.subgrp)
-                                        ).applyInPandas(
-        inner_agg_method, postAggSchema)
+        .applyInPandas(inner_agg_method, postAggSchema)
+    )
     return None, aggregates
 
 
@@ -603,7 +605,7 @@ def vanilla_rdd_mappart(pyData):
             grp=key[0], subgrp=key[1],
             mean_of_C=math.nan
             if count < 1 else
-            sum_of_C/count,
+            sum_of_C / count,
             max_of_D=max_of_D,
             var_of_E=math.nan
             if count < 2 else
@@ -652,7 +654,8 @@ def DoTesting(spark: SparkSession, sc: SparkContext, log):
     NumRunsPer = 30  # 100
     cond_run_itinerary = []
     for cond_method in implementation_list:
-        for data in [pyData_3_3_10, pyData_3_3_100, pyData_3_3_1k, pyData_3_3_10k, pyData_3_3_100k]:
+        for data in [pyData_3_3_10, pyData_3_3_100,
+                     pyData_3_3_1k, pyData_3_3_10k, pyData_3_3_100k]:
             cond_run_itinerary.extend((cond_method, data)
                                       for _i in range(0, NumRunsPer))
     # random.shuffle(cond_run_itinerary)
@@ -669,7 +672,7 @@ def DoTesting(spark: SparkSession, sc: SparkContext, log):
             finishedTime = time.time()
             result = RunResult(
                 dataSize=len(data),
-                elapsedTime=finishedTime-startedTime,
+                elapsedTime=finishedTime - startedTime,
                 recordCount=recordCount)
             f.write("%s,%s,%d,%f,%d\n" % (cond_method.name, cond_method.interface,
                     result.dataSize, result.elapsedTime, result.recordCount))
@@ -689,7 +692,7 @@ def DoAnalysis(python_implementation_list):
                 # print("Excluding line: "+textline)
                 continue
             if textline.find(',') < 0:
-                print("Excluding line: "+textline)
+                print("Excluding line: " + textline)
                 continue
             fields = textline.rstrip().split(',')
             if len(fields) < 5:
@@ -697,7 +700,7 @@ def DoAnalysis(python_implementation_list):
             cond_method_name, cond_method_interface, result_dataSize, result_elapsedTime, result_recordCount = tuple(
                 fields)
             if result_recordCount != '9':
-                print("Excluding line: "+textline)
+                print("Excluding line: " + textline)
                 continue
             typed_method_name = f"{cond_method_name}_python"
             if typed_method_name not in cond_runs:
@@ -736,22 +739,22 @@ def DoAnalysis(python_implementation_list):
     with open('../Results/Scala/vanilla_runs_scala.csv', 'r') as f:
         for textline in f:
             if textline.startswith('#'):
-                print("Excluding line: "+textline)
+                print("Excluding line: " + textline)
                 continue
             if textline.startswith(' '):
-                print("Excluding line: "+textline)
+                print("Excluding line: " + textline)
                 continue
             if textline.find(',') < 0:
-                print("Excluding line: "+textline)
+                print("Excluding line: " + textline)
                 continue
             fields = textline.rstrip().split(',')
             outcome, rawmethod, interface, expectedSize, returnedSize, elapsedTime = tuple(
                 fields)
             if outcome != 'success':
-                print("Excluding line: "+textline)
+                print("Excluding line: " + textline)
                 continue
             if returnedSize != '9':
-                print("Excluding line: "+textline)
+                print("Excluding line: " + textline)
                 continue
             typed_method_name = f"{rawmethod}_scala"
             if typed_method_name not in cond_runs:
@@ -782,7 +785,7 @@ def DoAnalysis(python_implementation_list):
             key=lambda x: (x.language, x.interface, x.raw_method_name))
         summary_status += ",".join([
             'RunName', 'RawMethod', 'Method', 'Language', 'Interface',
-            'DataSize', 'NumRuns', 'Elapsed Time', 'stdev', 'rl', 'rh'])+"\n"
+            'DataSize', 'NumRuns', 'Elapsed Time', 'stdev', 'rl', 'rh']) + "\n"
         for method in sorted_implementation_list:
             times = cond_runs[method.data_name]
             size_values = set(x.dataSize for x in times)
@@ -792,7 +795,7 @@ def DoAnalysis(python_implementation_list):
                 mean = numpy.mean(ar)
                 stdev = numpy.std(ar, ddof=1)
                 rl, rh = scipy_stats_norm.interval(
-                    confidence, loc=mean, scale=stdev/math.sqrt(len(ar)))
+                    confidence, loc=mean, scale=stdev / math.sqrt(len(ar)))
                 summary_status += "%s,%s,%s,%s,%s,%d,%d,%f,%f,%f,%f\n" % (
                     method.data_name,
                     method.raw_method_name,

@@ -8,7 +8,7 @@ import numpy
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 
-from Utils.SparkUtils import cast_from_pd_dataframe, TidySparkSession
+from Utils.SparkUtils import TidySparkSession
 
 from ..VanillaTestData import DataPoint, DataPointSchema, groupby_columns, agg_columns, postAggSchema
 
@@ -29,16 +29,14 @@ def vanilla_pandas_numpy(
             numpy.mean(C),
             numpy.max(D),
             numpy.var(E),
-            (numpy.inner(E, E) - numpy.sum(E)**2/E.count())/(E.count()-1)
+            (numpy.inner(E, E) - numpy.sum(E)**2 / E.count()) / (E.count() - 1)
             if E.count() > 1 else numpy.nan,
         ]], columns=groupby_columns + agg_columns)
 
     df = spark_session.spark.createDataFrame(
         map(lambda x: astuple(x), pyData), schema=DataPointSchema)
     aggregates = (
-        cast_from_pd_dataframe(
-            df.groupby(df.grp, df.subgrp))
-        .applyInPandas(
-            inner_agg_method, postAggSchema)
+        df.groupby(df.grp, df.subgrp)
+        .applyInPandas(inner_agg_method, postAggSchema)
     )
     return None, aggregates

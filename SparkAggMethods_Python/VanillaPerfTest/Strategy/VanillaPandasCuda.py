@@ -26,14 +26,16 @@ def vanilla_panda_cupy(
     #         np.float(cupy.asnumpy(cupy.mean(C))),
     #         np.float(cupy.asnumpy(cupy.max(D))),
     #         np.float(cupy.asnumpy(cupy.var(E))),
-    #         np.float(cupy.asnumpy((cupy.inner(E, E) - cupy.sum(E)**2/nE)/(nE-1))),
+    #         np.float(cupy.asnumpy(
+    #             (cupy.inner(E, E) - cupy.sum(E)**2 / nE) / (nE - 1))),
     #     ]], columns=groupby_columns + agg_columns)
 
     # df = spark_session.spark.createDataFrame(
     #     map(lambda x: astuple(x), pyData), schema=DataPointSchema)
     # aggregates = (
-    #     cast_from_pd_dataframe(
-    #         df.groupby(df.grp, df.subgrp)
-    #     ).applyInPandas(inner_agg_method, postAggSchema))
+    #     df
+    #     .groupby(df.grp, df.subgrp)
+    #     .applyInPandas(inner_agg_method, postAggSchema)
+    # )
     # return None, aggregates
     raise NotImplementedError()

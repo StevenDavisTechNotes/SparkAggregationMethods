@@ -14,7 +14,7 @@ from Utils.Utils import always_true
 
 from VanillaPerfTest.VanillaDirectory import implementation_list, PythonTestMethod, strategy_name_list
 from VanillaPerfTest.Strategy.VanillaPandasCuda import vanilla_panda_cupy
-from VanillaPerfTest.VanillaRunResult import RunResult, write_run_result, PYTHON_RESULT_FILE_PATH
+from VanillaPerfTest.VanillaRunResult import RunResult, write_header, write_run_result, PYTHON_RESULT_FILE_PATH
 from VanillaPerfTest.VanillaTestData import DataPoint, generateData
 
 DEBUG_ARGS = None if False else (
@@ -67,7 +67,7 @@ def parse_args() -> Arguments:
     )
 
 
-def DoTesting(args: Arguments, spark_session: TidySparkSession):
+def do_test_runs(args: Arguments, spark_session: TidySparkSession):
     data_sets = [x for x in [
         generateData(3, 3, 10**0) if '1' in args.sizes else None,
         generateData(3, 3, 10**1) if '10' in args.sizes else None,
@@ -77,7 +77,7 @@ def DoTesting(args: Arguments, spark_session: TidySparkSession):
         generateData(3, 3, 10**5) if '100k' in args.sizes else None,
         generateData(3, 3, 10**6) if '1m' in args.sizes else None,
     ] if x is not None]
-    keyed_implementation_list = {x.name: x for x in implementation_list}
+    keyed_implementation_list = {x.strategy_name: x for x in implementation_list}
     cond_run_itinerary: List[
         Tuple[PythonTestMethod, List[DataPoint]]
     ] = [
@@ -95,6 +95,7 @@ def DoTesting(args: Arguments, spark_session: TidySparkSession):
         # for code generation warming
         vanilla_panda_cupy(spark_session, generateData(3, 3, 10**0))
     with open(PYTHON_RESULT_FILE_PATH, 'a') as file:
+        write_header(file)
         for index, (cond_method, data) in enumerate(cond_run_itinerary):
             spark_session.log.info(
                 "Working on %d of %d" % (index, len(cond_run_itinerary)))
@@ -129,4 +130,4 @@ if __name__ == "__main__":
         config,
         enable_hive_support=False
     ) as spark_session:
-        DoTesting(args, spark_session)
+        do_test_runs(args, spark_session)

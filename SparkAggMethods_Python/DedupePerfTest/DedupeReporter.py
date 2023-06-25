@@ -8,7 +8,7 @@ from .DedupeRunResult import RunResult, RESULT_FILE_PATH, FINAL_REPORT_FILE_PATH
 
 TEMP_RESULT_FILE_PATH = "d:/temp/SparkPerfTesting/temp.csv"
 
-def DoAnalysis():
+def analyze_run_results():
     import scipy.stats
 
     from LinearRegression import linear_regression
@@ -91,7 +91,7 @@ def DoAnalysis():
             'rl', 'rh')
         for name in test_runs:
             print("Looking to analyze %s" % name)
-            test_method = [x for x in implementation_list if x.name == name][0]
+            test_method = [x for x in implementation_list if x.strategy_name == name][0]
             times = test_runs[name]
             size_values = set(x.dataSize for x in times)
             for dataSize in size_values:
@@ -110,7 +110,7 @@ def DoAnalysis():
             (b0, (b0_low, b0_high)), (b1, (b1_low, b1_high)), (s2, (s2_low, s2_high)) = \
                 linear_regression(x_values, y_values, confidence)
             result = TestRegression(
-                name=test_method.name,
+                name=test_method.strategy_name,
                 interface=test_method.interface,
                 run_count=len(times),
                 b0=b0,
@@ -125,7 +125,7 @@ def DoAnalysis():
             )
             test_results.append(result)
             regression_status += ("%s,%s,%d,"+"%f,%f,%f,"+"%f,%f,%f,"+"%f,%f,%f\n") % (
-                test_method.name, test_method.interface, result.run_count,
+                test_method.strategy_name, test_method.interface, result.run_count,
                 result.b0, result.b0_low, result.b0_high,
                 result.b1*1e+6, result.b1_low*1e+6, result.b1_high*1e+6,
                 result.s2, result.s2_low, result.s2_high)

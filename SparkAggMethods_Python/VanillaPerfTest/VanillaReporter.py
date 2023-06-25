@@ -102,7 +102,7 @@ def do_regression(python_implementation_list, scala_implementation_list, cond_ru
             )
     return summary_status
 
-def DoAnalysis():
+def analyze_run_results():
     cond_runs = parse_results()
     summary_status = do_regression(implementation_list, scala_implementation_list, cond_runs)
         
@@ -111,4 +111,4 @@ def DoAnalysis():
         f.write("\n")
 
 if __name__ == "__main__":
-    DoAnalysis()
+    analyze_run_results()

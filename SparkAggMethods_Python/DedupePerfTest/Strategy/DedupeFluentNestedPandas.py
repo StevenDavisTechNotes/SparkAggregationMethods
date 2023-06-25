@@ -1,3 +1,4 @@
+from typing import List, Tuple, Dict, Any, Optional, Callable
 
 import pandas as pd
 import pyspark.sql.functions as func
@@ -12,8 +13,9 @@ from ..DedupeTestData import DedupeDataParameters, RecordSparseStruct
 # region method_pandas
 
 
-def method_pandas(spark_session: TidySparkSession, data_params: DedupeDataParameters, dataSize: int, dfSrc: spark_DataFrame):
-    def findMatches(df):
+def method_pandas(spark_session: TidySparkSession,
+                  data_params: DedupeDataParameters, _dataSize: int, dfSrc: spark_DataFrame):
+    def findMatches(df: pd.DataFrame) -> pd.DataFrame:
         toMatch = df[['RowId', 'SourceId', 'FirstName',
                       'LastName', 'ZipCode', 'SecretKey']]
         toMatchLeft = toMatch \
@@ -36,11 +38,12 @@ def method_pandas(spark_session: TidySparkSession, data_params: DedupeDataParame
         matched = toMatchLeft.assign(key=0).merge(
             toMatchRight.assign(key=0), on="key").drop("key", axis=1)
         toMatchLeft = toMatchRight = None
-        matched = matched[matched.apply(lambda x: ((x.RowIdL == x.RowIdR) or (
-            (x.SourceIdL != x.SourceIdR) and
-            (x.ZipCodeL == x.ZipCodeR) and
-            MatchSingleName(x.FirstNameL, x.FirstNameR, x.SecretKeyL, x.SecretKeyR) and
-            MatchSingleName(x.LastNameL, x.LastNameR, x.SecretKeyL, x.SecretKeyR))), axis=1)]
+        matched = matched[
+            matched.apply(lambda x: ((x.RowIdL == x.RowIdR) or (
+                (x.SourceIdL != x.SourceIdR) and
+                (x.ZipCodeL == x.ZipCodeR) and
+                MatchSingleName(x.FirstNameL, x.FirstNameR, x.SecretKeyL, x.SecretKeyR) and
+                MatchSingleName(x.LastNameL, x.LastNameR, x.SecretKeyL, x.SecretKeyR))), axis=1)]
         badMatches = matched[matched.SecretKeyL != matched.SecretKeyR]
         if badMatches.size != 0:
             raise Exception(
@@ -48,16 +51,14 @@ def method_pandas(spark_session: TidySparkSession, data_params: DedupeDataParame
         matched = matched[['RowIdL', 'RowIdR']]
         return matched
 
-
-    def findComponents(matched):
+    def findComponents(matched: pd.DataFrame) -> List[str]:
         import networkx
         G1 = networkx.Graph()
         G1.add_edges_from([(x[0], x[1]) for x in matched.values])
-        return networkx.connected_components(G1)
+        return list(networkx.connected_components(G1))
 
-
-    def combineComponents(df, connectedComponents):
-        def convertStrIntToMin(column):
+    def combineComponents(df: pd.DataFrame, connectedComponents: List[str]):
+        def convertStrIntToMin(column: pd.Series) -> str | None:
             lst = column.values.tolist()
             lst = [int(x) for x in lst if x is not None]
             value = MinNotNull(lst)
@@ -115,22 +116,26 @@ def method_pandas(spark_session: TidySparkSession, data_params: DedupeDataParame
     spark = spark_session.spark
     numPartitions = data_params.NumExecutors
     df: spark_DataFrame = dfZipWithIndex(dfSrc, spark=spark, colName="RowId")
-    df = df \
-        .withColumn("BlockingKey",
-                    func.hash(
-                        df.ZipCode.cast(DataTypes.IntegerType()),
-                        func.substring(df.FirstName, 1, 1),
-                        func.substring(df.LastName, 1, 1)))
-    df = df \
-        .repartition(numPartitions, df.BlockingKey)
+    df = (
+        df
+        .withColumn(
+            "BlockingKey",
+            func.hash(
+                df.ZipCode.cast(DataTypes.IntegerType()),
+                func.substring(df.FirstName, 1, 1),
+                func.substring(df.LastName, 1, 1)))
+        .repartition(numPartitions, df.BlockingKey))
 
-    def inner_agg_method(dfGroup):
+    def inner_agg_method(dfGroup: pd.DataFrame) -> pd.DataFrame:
         matched = findMatches(dfGroup)
         connectedComponents = findComponents(matched)
         mergedValue = combineComponents(dfGroup, connectedComponents)
         return mergedValue
-    df = df \
-        .groupby(df.BlockingKey).applyInPandas(inner_agg_method, RecordSparseStruct)
+    df = (
+        df
+        .groupby(df.BlockingKey)
+        .applyInPandas(inner_agg_method, RecordSparseStruct)
+    )
     return None, df
 
 

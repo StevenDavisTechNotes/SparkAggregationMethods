@@ -21,7 +21,7 @@ from .Strategy.VanillaRddMappart import vanilla_rdd_mappart
 
 @dataclass(frozen=True)
 class PythonTestMethod:
-    name: str
+    strategy_name: str
     language: str
     interface: str
     delegate: Callable[
@@ -31,54 +31,54 @@ class PythonTestMethod:
 
 implementation_list: List[PythonTestMethod] = [
     PythonTestMethod(
-        name='vanilla_sql',
+        strategy_name='vanilla_sql',
         language='python',
         interface='sql',
         delegate=vanilla_sql
     ),
     PythonTestMethod(
-        name='vanilla_fluent',
+        strategy_name='vanilla_fluent',
         language='python',
         interface='sql',
         delegate=vanilla_fluent,
     ),
     PythonTestMethod(
-        name='vanilla_pandas',
+        strategy_name='vanilla_pandas',
         language='python',
         interface='pandas',
         delegate=vanilla_pandas,
     ),
     PythonTestMethod(
-        name='vanilla_pandas_numpy',
+        strategy_name='vanilla_pandas_numpy',
         language='python',
         interface='pandas',
         delegate=vanilla_pandas_numpy,
     ),
     PythonTestMethod(
-        name='vanilla_panda_cupy',
+        strategy_name='vanilla_panda_cupy',
         language='python',
         interface='panda',
         delegate=vanilla_panda_cupy,),
     PythonTestMethod(
-        name='vanilla_pandas_numba',
+        strategy_name='vanilla_pandas_numba',
         language='python',
         interface='pandas',
         delegate=vanilla_pandas_numba,
     ),
     PythonTestMethod(
-        name='vanilla_rdd_grpmap',
+        strategy_name='vanilla_rdd_grpmap',
         language='python',
         interface='rdd',
         delegate=vanilla_rdd_grpmap,
     ),
     PythonTestMethod(
-        name='vanilla_rdd_reduce',
+        strategy_name='vanilla_rdd_reduce',
         language='python',
         interface='rdd',
         delegate=vanilla_rdd_reduce,
     ),
     PythonTestMethod(
-        name='vanilla_rdd_mappart',
+        strategy_name='vanilla_rdd_mappart',
         language='python',
         interface='rdd',
         delegate=vanilla_rdd_mappart,
@@ -111,4 +111,4 @@ scala_implementation_list = [
         interface='rdd'),
 ]
 
-strategy_name_list = [x.name for x in implementation_list]
+strategy_name_list = [x.strategy_name for x in implementation_list]

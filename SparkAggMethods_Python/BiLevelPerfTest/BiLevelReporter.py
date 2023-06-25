@@ -13,7 +13,7 @@ from .BiLevelRunResult import (FINAL_REPORT_FILE_PATH, RESULT_FILE_PATH,
 
 TEMP_RESULT_FILE_PATH = "d:/temp/SparkPerfTesting/temp.csv"
 
-def DoAnalysis():
+def analyze_run_results():
     cond_runs = {}
     with open(RESULT_FILE_PATH, 'r', encoding='utf-8-sig') as f, \
             open(TEMP_RESULT_FILE_PATH, 'w') as fout:
@@ -72,7 +72,7 @@ def DoAnalysis():
         # ))
         for name in cond_runs:
             print("Looking to analyze %s" % name)
-            cond_method = [x for x in implementation_list if x.name == name][0]
+            cond_method = [x for x in implementation_list if x.strategy_name == name][0]
             times = cond_runs[name]
             size_values = set(x.relCard for x in times)
             for relCard in size_values:
@@ -96,7 +96,7 @@ def DoAnalysis():
             (b0, (b0_low, b0_high)), (b1, (b1_low, b1_high)), (s2, (s2_low, s2_high)) = \
                 linear_regression(x_values, y_values, confidence)
             result = CondResult(
-                name=cond_method.name,
+                name=cond_method.strategy_name,
                 interface=cond_method.interface,
                 run_count=len(times),
                 b0=b0,
@@ -116,7 +116,7 @@ def DoAnalysis():
             #     result.b1*1e+6, result.b1_low*1e+6, result.b1_high*1e+6,
             #     result.s2, result.s2_low, result.s2_high))
             regression_status += '%s,%s,%f,%f,%f,%f,%f,%f,%f,%f,%f\n' % (
-                cond_method.name, cond_method.interface,
+                cond_method.strategy_name, cond_method.interface,
                 result.b0_low, result.b0, result.b0_high,
                 result.b1_low, result.b1, result.b1_high,
                 result.s2_low, result.s2, result.s2_high)
@@ -129,4 +129,4 @@ def DoAnalysis():
 
 if __name__ == "__main__":
     # DoPostProcess_Unknown_skipped()
-    DoAnalysis()
+    analyze_run_results()

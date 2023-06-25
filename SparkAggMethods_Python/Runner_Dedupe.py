@@ -9,14 +9,23 @@ import random
 import time
 from dataclasses import dataclass
 
-from DedupePerfTest.DedupeDirectory import implementation_list, strategy_name_list
-from DedupePerfTest.DedupeRunResult import (ItineraryItem, RunResult,
-                                            verifyCorrectnessDf,
-                                            verifyCorrectnessRdd,
-                                            write_failed_run, write_header,
-                                            write_run_result, RESULT_FILE_PATH)
-from DedupePerfTest.DedupeTestData import (DedupeDataParameters, DoGenData,
-                                           GenDataSets)
+from DedupePerfTest.DedupeDirectory import (
+    implementation_list,
+    strategy_name_list,
+)
+from DedupePerfTest.DedupeExpected import (
+    ItineraryItem, verifyCorrectnessDf,
+    verifyCorrectnessRdd,
+)
+from DedupePerfTest.DedupeRunResult import (
+    RESULT_FILE_PATH, RunResult,
+    write_failed_run, write_header,
+    write_run_result,
+)
+from DedupePerfTest.DedupeTestData import (
+    DedupeDataParameters, DoGenData,
+    GenDataSets,
+)
 from PerfTestCommon import count_iter
 from Utils.SparkUtils import TidySparkSession
 from Utils.Utils import always_true
@@ -102,10 +111,12 @@ def parse_args() -> Arguments:
         ))
 
 
-def runtests(srcDfListList: List[GenDataSets], args: Arguments, spark_session: TidySparkSession):
+def runtests(srcDfListList: List[GenDataSets],
+             args: Arguments, spark_session: TidySparkSession):
     data_params = args.ideosyncracies
 
-    keyed_implementation_list = {x.name: x for x in implementation_list}
+    keyed_implementation_list = {
+        x.strategy_name: x for x in implementation_list}
     test_run_itinerary: List[ItineraryItem] = [
         ItineraryItem(
             testMethod=test_method,
@@ -133,7 +144,7 @@ def runtests(srcDfListList: List[GenDataSets], args: Arguments, spark_session: T
             log.info("Working on %d of %d" % (index, len(test_run_itinerary)))
             startedTime = time.time()
             print("Working on %s %d %d" %
-                  (test_method.name, itinerary_item.numPeople, itinerary_item.dataSize))
+                  (test_method.strategy_name, itinerary_item.numPeople, itinerary_item.dataSize))
             try:
                 rddout, dfout = test_method.delegate(
                     spark_session, data_params, itinerary_item.dataSize, itinerary_item.df)
@@ -149,7 +160,7 @@ def runtests(srcDfListList: List[GenDataSets], args: Arguments, spark_session: T
                 rddout = dfout = None
                 log.exception(exception)
                 foundNumPeople = -1
-            elapsedTime = time.time()-startedTime
+            elapsedTime = time.time() - startedTime
             result = RunResult(
                 numSources=itinerary_item.NumSources,
                 actualNumPeople=itinerary_item.numPeople,
@@ -171,9 +182,9 @@ def runtests(srcDfListList: List[GenDataSets], args: Arguments, spark_session: T
                     spark_session, itinerary_item, dfout)
             else:
                 success = False
-            if test_method.name not in test_runs:
-                test_runs[test_method.name] = []
-            test_runs[test_method.name].append(result)
+            if test_method.strategy_name not in test_runs:
+                test_runs[test_method.strategy_name] = []
+            test_runs[test_method.strategy_name].append(result)
             write_run_result(success, test_method, result, result_log_file)
             print("Took %f secs" % elapsedTime)
             del rddout
@@ -183,7 +194,7 @@ def runtests(srcDfListList: List[GenDataSets], args: Arguments, spark_session: T
             print("")
 
 
-def DoTesting(args: Arguments, spark_session: TidySparkSession):
+def do_test_runs(args: Arguments, spark_session: TidySparkSession):
     testDataSizes = [x for x in [
         10**0 if '1' in args.sizes else None,
         10**1 if '10' in args.sizes else None,
@@ -214,4 +225,4 @@ if __name__ == "__main__":
     }
     enable_hive_support = args.ideosyncracies.in_cloud_mode
     with TidySparkSession(config, enable_hive_support) as spark_session:
-        DoTesting(args, spark_session)
+        do_test_runs(args, spark_session)

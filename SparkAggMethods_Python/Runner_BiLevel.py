@@ -7,9 +7,12 @@ import time
 from dataclasses import dataclass
 from typing import List, Optional, Tuple
 
-from BiLevelPerfTest.BiLevelDirectory import (PythonTestMethod,
-                                              implementation_list)
-from BiLevelPerfTest.BiLevelRunResult import RunResult, write_run_result
+from BiLevelPerfTest.BiLevelDirectory import (
+    PythonTestMethod,
+    implementation_list,
+    strategy_name_list,
+)
+from BiLevelPerfTest.BiLevelRunResult import RunResult, write_header, write_run_result
 from BiLevelPerfTest.BiLevelTestData import DataTuple, generateData
 from PerfTestCommon import count_iter
 from Utils.SparkUtils import TidySparkSession
@@ -21,7 +24,7 @@ DEBUG_ARGS = None if False else (
     + '--runs 1'.split()
     + '--random-seed 1234'.split()
     + ['--no-shuffle']
-    # +'--strategy vanilla_pandas'.split()
+    # +'--strategy bi_pandas'.split()
 )
 RESULT_FILE_PATH = 'Results/bi_level_runs.csv'
 
@@ -49,8 +52,8 @@ def parse_args() -> Arguments:
         action=argparse.BooleanOptionalAction)
     parser.add_argument(
         '--strategy',
-        choices=[],
-        default=[],
+        choices=strategy_name_list,
+        default=strategy_name_list,
         nargs="+")
     if DEBUG_ARGS is None:
         args = parser.parse_args()
@@ -65,7 +68,7 @@ def parse_args() -> Arguments:
     )
 
 
-def DoTesting(args: Arguments, spark_session: TidySparkSession):
+def do_test_runs(args: Arguments, spark_session: TidySparkSession):
     data_sets = [x for x in [
         generateData(3, 3, 10**1) if '3_3_10' in args.sizes else None,
         # generateData(3, 3, 10**2) if '3_3_100' in args.sizes else None,
@@ -76,7 +79,8 @@ def DoTesting(args: Arguments, spark_session: TidySparkSession):
         generateData(3, 300, 10**3) if '3_300_1k' in args.sizes else None,
         generateData(3, 3000, 10**2) if '3_3k_100' in args.sizes else None,
     ] if x is not None]
-    keyed_implementation_list = {x.name: x for x in implementation_list}
+    keyed_implementation_list = {
+        x.strategy_name: x for x in implementation_list}
     cond_run_itinerary: List[
         Tuple[PythonTestMethod, DataTuple]
     ] = [
@@ -90,7 +94,8 @@ def DoTesting(args: Arguments, spark_session: TidySparkSession):
         random.seed(args.random_seed)
     if args.shuffle:
         random.shuffle(cond_run_itinerary)
-    with open(RESULT_FILE_PATH, 'at') as f:
+    with open(RESULT_FILE_PATH, 'at') as file:
+        write_header(file)
         for index, (cond_method, datatuple) in enumerate(cond_run_itinerary):
             spark_session.log.info("Working on %d of %d" %
                                    (index, len(cond_run_itinerary)))
@@ -104,9 +109,9 @@ def DoTesting(args: Arguments, spark_session: TidySparkSession):
             result = RunResult(
                 dataSize=len(datatuple.data),
                 relCard=datatuple.relCard,
-                elapsedTime=finishedTime-startedTime,
+                elapsedTime=finishedTime - startedTime,
                 recordCount=recordCount)
-            write_run_result(cond_method, result, f)
+            write_run_result(cond_method, result, file)
             del df
             del rdd
             gc.collect()
@@ -127,4 +132,4 @@ if __name__ == "__main__":
         config,
         enable_hive_support=False
     ) as spark_session:
-        DoTesting(args, spark_session)
+        do_test_runs(args, spark_session)

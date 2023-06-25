@@ -1,0 +1,23 @@
+RunName,RawMethod,Method,Language,Interface,DataSize,NumRuns,Elapsed Time,stdev,rl,rh
+vanilla_pandas_python,vanilla_pandas,pandas,python,pandas,9,2,4.289298,0.337693,3.821288,4.757308
+vanilla_pandas_python,vanilla_pandas,pandas,python,pandas,90,32,3.742170,0.579900,3.541248,3.943091
+vanilla_pandas_python,vanilla_pandas,pandas,python,pandas,900,30,3.636357,0.134315,3.588294,3.684420
+vanilla_pandas_numpy_python,vanilla_pandas_numpy,pandas_numpy,python,pandas,9,2,3.709886,0.045567,3.646734,3.773038
+vanilla_pandas_numpy_python,vanilla_pandas_numpy,pandas_numpy,python,pandas,90,32,3.631303,0.133457,3.585063,3.677543
+vanilla_pandas_numpy_python,vanilla_pandas_numpy,pandas_numpy,python,pandas,900,30,3.588584,0.083166,3.558824,3.618344
+vanilla_rdd_grpmap_python,vanilla_rdd_grpmap,rdd_grpmap,python,rdd,9,2,6.288298,0.518329,5.569944,7.006651
+vanilla_rdd_grpmap_python,vanilla_rdd_grpmap,rdd_grpmap,python,rdd,90,32,6.058782,0.278580,5.962260,6.155303
+vanilla_rdd_grpmap_python,vanilla_rdd_grpmap,rdd_grpmap,python,rdd,900,30,6.063787,0.190662,5.995560,6.132013
+vanilla_rdd_mappart_python,vanilla_rdd_mappart,rdd_mappart,python,rdd,9,2,16.616837,0.976493,15.263512,17.970163
+vanilla_rdd_mappart_python,vanilla_rdd_mappart,rdd_mappart,python,rdd,90,32,14.117694,0.616321,13.904154,14.331235
+vanilla_rdd_mappart_python,vanilla_rdd_mappart,rdd_mappart,python,rdd,900,30,14.185865,0.464316,14.019715,14.352016
+vanilla_rdd_reduce_python,vanilla_rdd_reduce,rdd_reduce,python,rdd,9,2,16.423204,1.556567,14.265952,18.580455
+vanilla_rdd_reduce_python,vanilla_rdd_reduce,rdd_reduce,python,rdd,90,32,14.265853,0.649043,14.040975,14.490731
+vanilla_rdd_reduce_python,vanilla_rdd_reduce,rdd_reduce,python,rdd,900,30,13.969100,0.438372,13.812234,14.125967
+vanilla_fluent_python,vanilla_fluent,fluent,python,sql,9,2,3.286832,0.049040,3.218867,3.354797
+vanilla_fluent_python,vanilla_fluent,fluent,python,sql,90,32,2.952199,0.162658,2.895842,3.008556
+vanilla_fluent_python,vanilla_fluent,fluent,python,sql,900,30,2.877276,0.078384,2.849228,2.905325
+vanilla_sql_python,vanilla_sql,sql,python,sql,9,2,6.482221,0.594191,5.658730,7.305712
+vanilla_sql_python,vanilla_sql,sql,python,sql,90,32,2.892619,0.134784,2.845920,2.939319
+vanilla_sql_python,vanilla_sql,sql,python,sql,900,30,2.852360,0.092752,2.819170,2.885551
+

@@ -16,21 +16,6 @@ import pyspark.sql.types as DataTypes
 SPARK_SRATCH_FOLDER = "C:\\temp\\spark_scratch"
 
 
-class GroupedDataWithPdDataFrame:
-    def __init__(self, src: GroupedData) -> None:
-        self.src = src
-
-    def applyInPandas(
-            self,
-            func: Callable[[pd.DataFrame], pd.DataFrame],
-            schema: StructType
-    ) -> spark_DataFrame:
-        return self.src.applyInPandas(func, schema)  # type: ignore
-
-
-def cast_from_pd_dataframe(src: GroupedData) -> GroupedDataWithPdDataFrame:
-    return GroupedDataWithPdDataFrame(src)
-
 
 class RddWithNoArgSortByKey:
     def __init__(self, src: RDD) -> None:

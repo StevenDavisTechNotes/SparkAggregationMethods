@@ -29,7 +29,7 @@ DEBUG_ARGS = None if False else (
 RESULT_FILE_PATH = 'Results/bi_level_runs.csv'
 
 
-@dataclass
+@dataclass(frozen=True)
 class Arguments:
     num_runs: int
     random_seed: Optional[int]
@@ -94,7 +94,7 @@ def do_test_runs(args: Arguments, spark_session: TidySparkSession):
         random.seed(args.random_seed)
     if args.shuffle:
         random.shuffle(cond_run_itinerary)
-    with open(RESULT_FILE_PATH, 'at') as file:
+    with open(RESULT_FILE_PATH, 'at+') as file:
         write_header(file)
         for index, (cond_method, datatuple) in enumerate(cond_run_itinerary):
             spark_session.log.info("Working on %d of %d" %

@@ -1,11 +1,7 @@
+from dataclasses import dataclass
 from typing import TextIO
 
-from dataclasses import dataclass
-
-from pyspark.sql import DataFrame as spark_DataFrame
-
-from DedupePerfTest.DedupeDirectory import PythonTestMethod
-
+from .DedupeDirectory import PythonTestMethod
 
 RESULT_FILE_PATH = 'Results/dedupe_runs.csv'
 FINAL_REPORT_FILE_PATH = '../Results/python/dedupe_results_20230618.csv'

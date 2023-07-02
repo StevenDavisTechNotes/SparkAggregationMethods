@@ -1,6 +1,7 @@
 import collections
 import math
 
+import scipy.stats
 import numpy
 
 from .DedupeDirectory import implementation_list
@@ -9,7 +10,6 @@ from .DedupeRunResult import RunResult, RESULT_FILE_PATH, FINAL_REPORT_FILE_PATH
 TEMP_RESULT_FILE_PATH = "d:/temp/SparkPerfTesting/temp.csv"
 
 def analyze_run_results():
-    import scipy.stats
 
     from LinearRegression import linear_regression
     test_runs = {}

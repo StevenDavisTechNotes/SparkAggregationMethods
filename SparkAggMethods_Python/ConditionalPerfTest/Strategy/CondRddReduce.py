@@ -31,7 +31,7 @@ SubTotal = collections.namedtuple("SubTotal",
                                    "running_cond_count"])
 
 
-@dataclass
+@dataclass(frozen=True)
 class GrpTotal:
     grp: int
     subgrp: int

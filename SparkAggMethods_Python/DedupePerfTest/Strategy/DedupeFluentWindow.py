@@ -3,9 +3,10 @@ import pyspark.sql.types as DataTypes
 from pyspark.sql import DataFrame as spark_DataFrame
 from pyspark.sql import Window
 
-from DedupePerfTest.DedupeDomain import udfMatchSingleName
-from DedupePerfTest.DedupeTestData import DedupeDataParameters
 from Utils.SparkUtils import TidySparkSession, dfZipWithIndex
+
+from ..DedupeDomain import udfMatchSingleName
+from ..DedupeTestData import DedupeDataParameters
 
 # region method_fluent_windows
 

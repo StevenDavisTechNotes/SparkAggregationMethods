@@ -1,9 +1,9 @@
 from pyspark.sql import DataFrame as spark_DataFrame
 
-from DedupePerfTest.DedupeDomain import (
-    BlockingFunction, SinglePass_RecList)
-from DedupePerfTest.DedupeTestData import DedupeDataParameters
 from Utils.SparkUtils import TidySparkSession
+
+from ..DedupeDomain import BlockingFunction, SinglePass_RecList
+from ..DedupeTestData import DedupeDataParameters
 
 # region method_rdd_groupby
 

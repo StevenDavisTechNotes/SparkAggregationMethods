@@ -19,7 +19,7 @@ class SubTotal(NamedTuple):
     running_sum_of_E: float
 
 
-@dataclass
+@dataclass(frozen=False)
 class MutableRunningTotal:
     running_sum_of_C: float
     running_count: int

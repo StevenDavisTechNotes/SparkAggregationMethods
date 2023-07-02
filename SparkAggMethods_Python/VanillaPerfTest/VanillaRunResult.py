@@ -2,7 +2,7 @@ from typing import TextIO
 from dataclasses import dataclass
 import datetime
 
-from VanillaPerfTest.VanillaDirectory import PythonTestMethod
+from .VanillaDirectory import PythonTestMethod
 
 PYTHON_RESULT_FILE_PATH = 'Results/vanilla_runs.csv'
 SCALA_RESULT_FILE_PATH = '../Results/Scala/vanilla_runs_scala.csv'

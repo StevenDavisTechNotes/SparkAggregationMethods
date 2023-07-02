@@ -1,28 +1,14 @@
- strategy,interface,dataSize,relCard,elapsedTime,recordCount,finishedAt,
- strategy,interface,dataSize,relCard,elapsedTime,recordCount,finishedAt,
+ strategy,interface,dataSize,elapsedTime,recordCount,finishedAt,
 cond_sql_join,sql,90,10.069955,9,2023-06-25T10:25:26.856981
-
 cond_fluent_join,fluent,90,7.156535,9,2023-06-25T10:25:35.037886
-
 cond_sql_null,sql,90,3.705562,9,2023-06-25T10:25:39.773469
-
 cond_fluent_null,fluent,90,3.342353,9,2023-06-25T10:25:44.150105
-
 cond_fluent_zero,fluent,90,3.713298,9,2023-06-25T10:25:48.890598
-
 cond_pandas,pandas,90,6.284097,9,2023-06-25T10:25:56.203653
-
 cond_pandas_numba,pandas,90,10.916624,9,2023-06-25T10:26:08.151737
-
 cond_sql_nested,sql,90,3.446754,9,2023-06-25T10:26:12.663698
-
 cond_fluent_nested,fluent,90,3.638105,9,2023-06-25T10:26:17.340682
-
 cond_fluent_window,fluent,90,7.196439,9,2023-06-25T10:26:25.578670
-
 cond_rdd_grpmap,rdd,90,9.621280,9,2023-06-25T10:26:36.232329
-
 cond_rdd_reduce,rdd,90,27.386389,9,2023-06-25T10:27:04.677803
-
 cond_rdd_mappart,rdd,90,21.137330,9,2023-06-25T10:27:26.873070
-

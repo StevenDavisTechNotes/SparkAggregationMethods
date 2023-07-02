@@ -5,13 +5,13 @@ from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 from pyspark.sql import Row
 
-from DedupePerfTest.DedupeDirectory import PythonTestMethod
 from Utils.SparkUtils import TidySparkSession
 
+from .DedupeDirectory import PythonTestMethod
 from .DedupeTestData import RecordSparseStruct, nameHash
 
 
-@dataclass
+@dataclass(frozen=True)
 class ItineraryItem:
     testMethod: PythonTestMethod
     NumSources: int

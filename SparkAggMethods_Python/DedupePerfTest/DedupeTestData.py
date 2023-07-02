@@ -9,7 +9,7 @@ import pyspark.sql.types as DataTypes
 from pyspark.sql import SparkSession
 
 
-@dataclass
+@dataclass(frozen=True)
 class DedupeDataParameters:
     in_cloud_mode: bool
     NumExecutors: int

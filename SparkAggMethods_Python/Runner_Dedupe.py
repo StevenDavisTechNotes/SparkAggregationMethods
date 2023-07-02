@@ -43,7 +43,7 @@ REMOTE_TEST_DATA_LOCATION = "wasb:///sparkperftesting"
 MaximumProcessableSegment = pow(10, 5)
 
 
-@dataclass
+@dataclass(frozen=True)
 class Arguments:
     num_runs: int
     random_seed: Optional[int]
@@ -137,7 +137,7 @@ def runtests(srcDfListList: List[GenDataSets],
         random.shuffle(test_run_itinerary)
 
     test_runs = {}
-    with open(RESULT_FILE_PATH, 'a+') as result_log_file:
+    with open(RESULT_FILE_PATH, 'at+') as result_log_file:
         log = spark_session.log
         write_header(result_log_file)
         for index, itinerary_item in enumerate(test_run_itinerary):

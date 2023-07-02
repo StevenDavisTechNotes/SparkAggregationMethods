@@ -4,9 +4,9 @@ from typing import Callable, List, Optional, Tuple
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 
-from DedupePerfTest.DedupeTestData import DedupeDataParameters
 from Utils.SparkUtils import TidySparkSession
 
+from .DedupeTestData import DedupeDataParameters
 from .Strategy.DedupeFluentNestedPandas import method_pandas
 from .Strategy.DedupeFluentNestedPython import method_fluent_nested_python
 from .Strategy.DedupeFluentNestedWCol import method_fluent_nested_withCol

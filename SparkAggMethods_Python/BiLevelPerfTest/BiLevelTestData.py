@@ -23,7 +23,7 @@ DataPointSchema = DataTypes.StructType([
     DataTypes.StructField('E', DataTypes.DoubleType(), False),
     DataTypes.StructField('F', DataTypes.DoubleType(), False)])
 
-@dataclass
+@dataclass(frozen=True)
 class DataTuple:
     relCard: int
     data: List[DataPoint]

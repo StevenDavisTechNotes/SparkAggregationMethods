@@ -1,21 +1,7 @@
-import math
-from numba import float64 as numba_float64
-from numba import vectorize, jit, njit, prange, cuda
-import numpy as np
-import pandas as pd
-from pyspark.sql.pandas.functions import pandas_udf
-from pyspark.sql import Row
-from pyspark.sql.window import Window
-import pyspark.sql.types as DataTypes
-import pyspark.sql.functions as func
 import collections
 import random
-import gc
-import scipy.stats
-import numpy
-import time
-from LinearRegression import linear_regression
-from pyspark.sql import SparkSession
+
+import pyspark.sql.types as DataTypes
 
 
 DataPoint = collections.namedtuple("DataPoint",

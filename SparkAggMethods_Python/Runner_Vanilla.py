@@ -27,7 +27,7 @@ DEBUG_ARGS = None if False else (
 )
 
 
-@dataclass
+@dataclass(frozen=True)
 class Arguments:
     num_runs: int
     random_seed: Optional[int]
@@ -94,7 +94,7 @@ def do_test_runs(args: Arguments, spark_session: TidySparkSession):
     if 'vanilla_panda_cupy' in args.strategies:
         # for code generation warming
         vanilla_panda_cupy(spark_session, generateData(3, 3, 10**0))
-    with open(PYTHON_RESULT_FILE_PATH, 'a') as file:
+    with open(PYTHON_RESULT_FILE_PATH, 'at+') as file:
         write_header(file)
         for index, (cond_method, data) in enumerate(cond_run_itinerary):
             spark_session.log.info(

@@ -3,12 +3,18 @@ from pyspark.sql import DataFrame as spark_DataFrame
 from Utils.SparkUtils import TidySparkSession
 
 from ..DedupeDomain import BlockingFunction, CombineRowList, IsMatch
-from ..DedupeTestData import DedupeDataParameters
+from ..DedupeDataTypes import DataSetOfSizeOfSources, ExecutionParameters, RecordSparseStruct
 
 # region method_rdd_mappart
 
 
-def method_rdd_mappart(_spark_session: TidySparkSession, data_params: DedupeDataParameters, _dataSize: int, dfSrc: spark_DataFrame):
+def method_rdd_mappart(
+    spark_session: TidySparkSession,
+    data_params: ExecutionParameters,
+    data_set: DataSetOfSizeOfSources,
+):
+    dfSrc = data_set.df
+
     def AddRowToRowList(rows, jrow):
         found = False
         for index, irow in enumerate(rows):

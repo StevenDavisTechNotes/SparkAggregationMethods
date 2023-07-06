@@ -1,33 +1,17 @@
-from typing import List, Callable, Tuple, Optional
-from dataclasses import dataclass
+from typing import List
 
-from pyspark import RDD
-from pyspark.sql import DataFrame as spark_DataFrame
-
+from SixFieldTestData import PythonTestMethod
 from PerfTestCommon import ExternalTestMethod
-from Utils.SparkUtils import TidySparkSession
 
-from .VanillaTestData import DataPoint
-from .Strategy.VanillaSql import vanilla_sql
 from .Strategy.VanillaFluent import vanilla_fluent
 from .Strategy.VanillaPandas import vanilla_pandas
-from .Strategy.VanillaPandasNumpy import vanilla_pandas_numpy
 from .Strategy.VanillaPandasCuda import vanilla_panda_cupy
 from .Strategy.VanillaPandasNumba import vanilla_pandas_numba
+from .Strategy.VanillaPandasNumpy import vanilla_pandas_numpy
 from .Strategy.VanillaRddGrpmap import vanilla_rdd_grpmap
-from .Strategy.VanillaRddReduce import vanilla_rdd_reduce
 from .Strategy.VanillaRddMappart import vanilla_rdd_mappart
-
-
-@dataclass(frozen=True)
-class PythonTestMethod:
-    strategy_name: str
-    language: str
-    interface: str
-    delegate: Callable[
-        [TidySparkSession, List[DataPoint]],
-        Tuple[Optional[RDD], Optional[spark_DataFrame]]]
-
+from .Strategy.VanillaRddReduce import vanilla_rdd_reduce
+from .Strategy.VanillaSql import vanilla_sql
 
 implementation_list: List[PythonTestMethod] = [
     PythonTestMethod(

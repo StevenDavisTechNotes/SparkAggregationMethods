@@ -3,7 +3,7 @@ import pyspark.sql.functions as func
 import pyspark.sql.types as DataTypes
 from pyspark.sql import Row
 
-from .DedupeTestData import RecordSparseStruct
+from .DedupeDataTypes import RecordSparseStruct
 
 MatchThreshold = 0.9
 # must be 0.4316546762589928 < threshold < 0.9927007299270073 @ 10k

@@ -1,18 +1,18 @@
-from typing import List
+from typing import Optional, Tuple
 
-from dataclasses import astuple
-
-from pyspark.sql import SparkSession
 import pyspark.sql.functions as func
+from pyspark import RDD
+from pyspark.sql import DataFrame as spark_DataFrame
+from SixFieldTestData import DataSet, ExecutionParameters
 
 from Utils.SparkUtils import TidySparkSession
 
-from ..VanillaTestData import DataPoint, DataPointSchema
-
-
-def vanilla_fluent(spark_session: TidySparkSession, pyData: List[DataPoint]):
-    df = spark_session.spark.createDataFrame(
-        map(lambda x: astuple(x), pyData), schema=DataPointSchema)
+def vanilla_fluent(
+    spark_session: TidySparkSession,
+    _exec_params: ExecutionParameters,
+    data_set: DataSet
+) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
+    df = data_set.dfSrc
     df = df \
         .groupBy(df.grp, df.subgrp) \
         .agg(
@@ -21,8 +21,8 @@ def vanilla_fluent(spark_session: TidySparkSession, pyData: List[DataPoint]):
             func.variance(df.E).alias("var_of_E"),
             ((
                 func.sum(df.E * df.E)
-                - func.pow(func.sum(df.E), 2)/func.count(df.E)
-            )/(func.count(df.E)-1)).alias("var_of_E2")
+                - func.pow(func.sum(df.E), 2) / func.count(df.E)
+            ) / (func.count(df.E) - 1)).alias("var_of_E2")
         )\
         .orderBy(df.grp, df.subgrp)
     return None, df

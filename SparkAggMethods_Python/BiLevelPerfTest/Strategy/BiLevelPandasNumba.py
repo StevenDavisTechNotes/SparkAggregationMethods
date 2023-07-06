@@ -1,29 +1,24 @@
-from typing import List, Optional, Tuple
+from typing import Optional, Tuple
 
 import numpy as np
 import pandas as pd
-import pyspark.sql.types as DataTypes
 from numba import float64 as numba_float64
 from numba import jit, prange
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 
+from SixFieldTestData import DataSet, ExecutionParameters
 from Utils.SparkUtils import TidySparkSession
 
-from ..BiLevelTestData import DataPoint, DataPointSchema
+from ..BiLevelDataTypes import agg_columns, groupby_columns, postAggSchema
 
 
 def bi_pandas_numba(
-    spark_session: TidySparkSession, pyData: List[DataPoint]
+    spark_session: TidySparkSession,
+    _exec_params: ExecutionParameters,
+    data_set: DataSet
 ) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
-    spark = spark_session.spark
-    df = spark.createDataFrame(pyData)
-    groupby_columns = ['grp']
-    agg_columns = ['mean_of_C', 'max_of_D', 'avg_var_of_E', 'avg_var_of_E2']
-    df = spark.createDataFrame(pyData)
-    postAggSchema = DataTypes.StructType(
-        [x for x in DataPointSchema.fields if x.name in groupby_columns] +
-        [DataTypes.StructField(name, DataTypes.DoubleType(), False) for name in agg_columns])
+    df = data_set.dfSrc
 
     @jit(numba_float64(numba_float64[:]), nopython=True)
     def my_numba_mean(C):

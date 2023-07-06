@@ -1,13 +1,12 @@
-from typing import List, Tuple, Optional, NamedTuple
-
 import math
+from typing import NamedTuple, Optional, Tuple
 
 from pyspark import RDD
-from pyspark.sql import Row, DataFrame as spark_DataFrame
+from pyspark.sql import DataFrame as spark_DataFrame
+from pyspark.sql import Row
 
+from SixFieldTestData import DataPoint, DataSet, ExecutionParameters
 from Utils.SparkUtils import TidySparkSession
-
-from ..VanillaTestData import DataPoint
 
 
 class SubTotalDC(NamedTuple):
@@ -19,8 +18,12 @@ class SubTotalDC(NamedTuple):
 
 
 def vanilla_rdd_reduce(
-    spark_session: TidySparkSession, pyData: List[DataPoint]
+    spark_session: TidySparkSession,
+    _exec_params: ExecutionParameters,
+    data_set: DataSet
 ) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
+    rddSrc = data_set.rddSrc
+
     def max(lhs: Optional[float], rhs: Optional[float]) -> Optional[float]:
         if lhs is None:
             return rhs
@@ -78,10 +81,8 @@ def vanilla_rdd_reduce(
                 sum_of_E * sum_of_E / count
             ) / (count - 1))
 
-    sc = spark_session.spark_context
-    rddData = sc.parallelize(pyData)
     sumCount: RDD[Row] = (
-        rddData
+        rddSrc
         .map(lambda x: ((x.grp, x.subgrp), x))
         .combineByKey(createCombiner2,
                       mergeValue2,

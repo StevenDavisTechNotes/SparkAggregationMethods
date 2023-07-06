@@ -1,17 +1,18 @@
-from typing import List, Tuple, Optional
+from typing import Optional, Tuple
 
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 
+from SixFieldTestData import DataSet, ExecutionParameters
 from Utils.SparkUtils import TidySparkSession
-
-from ..VanillaTestData import DataPoint
 
 
 def vanilla_panda_cupy(
-    _spark_session: TidySparkSession, _pyData: List[DataPoint]
+    spark_session: TidySparkSession,
+    _exec_params: ExecutionParameters,
+    data_set: DataSet
 ) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
-
+    
     # def inner_agg_method(dfPartition):
     #     group_key = dfPartition['grp'].iloc[0]
     #     subgroup_key = dfPartition['subgrp'].iloc[0]

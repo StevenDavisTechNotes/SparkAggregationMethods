@@ -5,16 +5,17 @@ from Utils.SparkUtils import TidySparkSession
 
 from ..DedupeDomain import (
     NestBlocksDataframe, SinglePass_RecList, SinglePass_RecList_DF_Returns, UnnestBlocksDataframe)
-from ..DedupeTestData import DedupeDataParameters
+from ..DedupeDataTypes import DataSetOfSizeOfSources, ExecutionParameters, RecordSparseStruct
 
 # region method_fluent_nested_python
 
 
 def method_fluent_nested_python(
-    _spark_session: TidySparkSession,
-    _data_params: DedupeDataParameters,
-    _dataSize: int, dfSrc: spark_DataFrame
+    spark_session: TidySparkSession,
+    data_params: ExecutionParameters,
+    data_set: DataSetOfSizeOfSources,
 ):
+    dfSrc = data_set.df
     df = NestBlocksDataframe(dfSrc)
     df = df \
         .withColumn("MergedItems",

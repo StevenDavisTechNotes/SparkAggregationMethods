@@ -8,10 +8,13 @@ import scipy
 from LinearRegression import linear_regression
 
 from .BiLevelDirectory import implementation_list
-from .BiLevelRunResult import (FINAL_REPORT_FILE_PATH, RESULT_FILE_PATH,
-                               RunResult)
+from .BiLevelRunResult import (
+    FINAL_REPORT_FILE_PATH,
+    RESULT_FILE_PATH,
+    RunResult)
 
 TEMP_RESULT_FILE_PATH = "d:/temp/SparkPerfTesting/temp.csv"
+
 
 def analyze_run_results():
     cond_runs = {}
@@ -19,17 +22,17 @@ def analyze_run_results():
             open(TEMP_RESULT_FILE_PATH, 'w') as fout:
         for textline in f:
             if textline.startswith('#'):
-                print("Excluding line: "+textline)
+                print("Excluding line: " + textline)
                 continue
             if textline.find(',') < 0:
-                print("Excluding line: "+textline)
+                print("Excluding line: " + textline)
                 continue
             fields = textline.rstrip().split(',')
             if len(fields) < 6:
                 fields.append('3')
             cond_method_name, cond_method_interface, result_dataSize, result_relCard, result_elapsedTime, result_recordCount = fields
             if result_recordCount != '3':
-                print("Excluding line: "+textline)
+                print("Excluding line: " + textline)
                 continue
             result = RunResult(
                 dataSize=int(result_dataSize),
@@ -72,7 +75,8 @@ def analyze_run_results():
         # ))
         for name in cond_runs:
             print("Looking to analyze %s" % name)
-            cond_method = [x for x in implementation_list if x.strategy_name == name][0]
+            cond_method = [
+                x for x in implementation_list if x.strategy_name == name][0]
             times = cond_runs[name]
             size_values = set(x.relCard for x in times)
             for relCard in size_values:
@@ -80,8 +84,8 @@ def analyze_run_results():
                 numRuns = len(ar)
                 mean = numpy.mean(ar)
                 stdev = numpy.std(ar, ddof=1)
-                rl, rh = scipy.stats.norm.interval( # type: ignore
-                    confidence, loc=mean, scale=stdev/math.sqrt(len(ar)))
+                rl, rh = scipy.stats.norm.interval(  # type: ignore
+                    confidence, loc=mean, scale=stdev / math.sqrt(len(ar)))
                 # f.write(("%s,%s,"+"%d,%d,"+"%f,%f,%f,%f\n")%(
                 #     name, cond_method.interface,
                 #     numRuns, relCard,

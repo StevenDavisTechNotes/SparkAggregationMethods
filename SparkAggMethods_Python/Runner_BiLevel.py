@@ -13,18 +13,18 @@ from BiLevelPerfTest.BiLevelDirectory import (
     strategy_name_list,
 )
 from BiLevelPerfTest.BiLevelRunResult import RunResult, write_header, write_run_result
-from BiLevelPerfTest.BiLevelTestData import DataTuple, generateData
+from SixFieldTestData import DataSet, ExecutionParameters, generateData
 from PerfTestCommon import count_iter
-from Utils.SparkUtils import TidySparkSession
+from Utils.SparkUtils import NUM_EXECUTORS, TidySparkSession
 from Utils.Utils import always_true
 
 DEBUG_ARGS = None if False else (
     []
-    + '--size 3_3_10'.split()
+    # + '--size 3_3_10'.split()
     + '--runs 1'.split()
-    + '--random-seed 1234'.split()
+    # + '--random-seed 1234'.split()
     + ['--no-shuffle']
-    # +'--strategy bi_pandas'.split()
+    # + '--strategy bi_rdd_reduce1'.split()
 )
 RESULT_FILE_PATH = 'Results/bi_level_runs.csv'
 
@@ -70,45 +70,62 @@ def parse_args() -> Arguments:
 
 def do_test_runs(args: Arguments, spark_session: TidySparkSession):
     data_sets = [x for x in [
-        generateData(3, 3, 10**1) if '3_3_10' in args.sizes else None,
+        generateData('3_3_10', spark_session,
+                     3, 3, 10 ** 1) if '3_3_10' in args.sizes else None,
         # generateData(3, 3, 10**2) if '3_3_100' in args.sizes else None,
         # generateData(3, 3, 10**3) if '3_3_1k' in args.sizes else None,
         # generateData(3, 3, 10**4) if '3_3_10k' in args.sizes else None,
-        generateData(3, 3, 10**5) if '3_3_100k' in args.sizes else None,
-        generateData(3, 30, 10**4) if '3_30_10k' in args.sizes else None,
-        generateData(3, 300, 10**3) if '3_300_1k' in args.sizes else None,
-        generateData(3, 3000, 10**2) if '3_3k_100' in args.sizes else None,
+        generateData('3_3_100k', spark_session,
+                     3, 3, 10 ** 5) if '3_3_100k' in args.sizes else None,
+        generateData('3_30_10k', spark_session,
+                     3, 30, 10 ** 4) if '3_30_10k' in args.sizes else None,
+        generateData('3_300_1k', spark_session,
+                     3, 300, 10 ** 3) if '3_300_1k' in args.sizes else None,
+        generateData('3_3k_100', spark_session,
+                     3, 3000, 10 ** 2) if '3_3k_100' in args.sizes else None,
     ] if x is not None]
     keyed_implementation_list = {
         x.strategy_name: x for x in implementation_list}
     cond_run_itinerary: List[
-        Tuple[PythonTestMethod, DataTuple]
+        Tuple[PythonTestMethod, DataSet]
     ] = [
-        (cond_method, data)
+        (cond_method, data_set)
         for strategy in args.strategies
         if always_true(cond_method := keyed_implementation_list[strategy])
-        for data in data_sets
+        for data_set in data_sets
         for _ in range(0, args.num_runs)
     ]
     if args.random_seed is not None:
         random.seed(args.random_seed)
     if args.shuffle:
         random.shuffle(cond_run_itinerary)
+    exec_params = ExecutionParameters(
+        NumExecutors=NUM_EXECUTORS,
+    )
     with open(RESULT_FILE_PATH, 'at+') as file:
         write_header(file)
-        for index, (cond_method, datatuple) in enumerate(cond_run_itinerary):
+        for index, (cond_method, data_set) in enumerate(cond_run_itinerary):
+            print(
+                f"Working on {cond_method.strategy_name} for {data_set.SizeCode}")
             spark_session.log.info("Working on %d of %d" %
                                    (index, len(cond_run_itinerary)))
             startedTime = time.time()
-            rdd, df = cond_method.delegate(spark_session, datatuple.data)
+            rdd, df = cond_method.delegate(
+                spark_session, exec_params, data_set)
             if df is not None:
                 rdd = df.rdd
             assert rdd is not None
-            recordCount = count_iter(rdd.toLocalIterator())
-            finishedTime = time.time()
-            result = RunResult(
-                dataSize=len(datatuple.data),
-                relCard=datatuple.relCard,
+            if rdd.getNumPartitions() != data_set.AggTgtNumPartitions:
+                print(
+                    f"{cond_method.strategy_name} output rdd has {rdd.getNumPartitions()} partitions")
+                findings=rdd.collect()
+                print(f"size={len(findings)}, ", findings)
+                exit(1)
+            recordCount=count_iter(rdd.toLocalIterator())
+            finishedTime=time.time()
+            result=RunResult(
+                dataSize=data_set.NumDataPoints,
+                relCard=data_set.RelativeCardinalityBetweenGroupings,
                 elapsedTime=finishedTime - startedTime,
                 recordCount=recordCount)
             write_run_result(cond_method, result, file)

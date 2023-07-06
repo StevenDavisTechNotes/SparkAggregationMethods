@@ -19,16 +19,17 @@ from SectionPerfTest.SectionTestData import populateDatasets, available_data_siz
 
 DEBUG_ARGS = None if False else (
     []
-    + '--size 1 10'.split()
+    # + '--size 1 10'.split()
     + '--runs 1'.split()
-    + '--random-seed 1234'.split()
+    # + '--random-seed 1234'.split()
     + ['--no-shuffle']
-    # +'--strategy vanilla_pandas'.split()
+    # +'--strategy method_prepcsv_groupby'.split()
 )
 
 
 @dataclass(frozen=True)
 class Arguments:
+    make_new_data_files: bool
     num_runs: int
     random_seed: Optional[int]
     shuffle: bool
@@ -40,6 +41,7 @@ def parse_args() -> Arguments:
     parser = argparse.ArgumentParser()
     parser.add_argument('--random-seed', type=int)
     parser.add_argument('--runs', type=int, default=30)
+    parser.add_argument('--new-files', default=False, action=argparse.BooleanOptionalAction)
     parser.add_argument(
         '--size',
         choices=available_data_sizes,
@@ -58,6 +60,7 @@ def parse_args() -> Arguments:
     else:
         args = parser.parse_args(DEBUG_ARGS)
     return Arguments(
+        make_new_data_files=args.new_files,
         num_runs=args.runs,
         random_seed=args.random_seed,
         shuffle=args.shuffle,
@@ -90,7 +93,7 @@ def infeasible(strategy: str, data_set: DataSetDescription) -> bool:
         case 'method_prepcsv_groupby':
             return dataNumStudents >= pow(10, 8)  # times out
         case 'method_prep_groupby':
-            return False
+            return dataNumStudents >= pow(10, 8)  # times out
         case 'method_prepcsv_groupby':
             return False
         case _:
@@ -98,7 +101,7 @@ def infeasible(strategy: str, data_set: DataSetDescription) -> bool:
 
 
 def do_test_runs(args: Arguments, spark_session: TidySparkSession):
-    data_sets = {str(x.NumStudents): x for x in populateDatasets()}
+    data_sets = {str(x.NumStudents): x for x in populateDatasets(args.make_new_data_files)}
     data_sets = {k: v for k, v in data_sets.items() if k in args.sizes}
     keyed_implementation_list = {
         x.strategy_name: x for x in implementation_list}
@@ -127,8 +130,10 @@ def do_test_runs(args: Arguments, spark_session: TidySparkSession):
             if lst is not None:
                 foundNumStudents = len(lst)
             elif rdd is not None:
+                print(f"output rdd has {rdd.getNumPartitions()} partitions")
                 foundNumStudents = count_iter(rdd.toLocalIterator())
             elif df is not None:
+                print(f"output rdd has {df.rdd.getNumPartitions()} partitions")
                 foundNumStudents = count_iter(df.rdd.toLocalIterator())
             else:
                 raise ValueError("Not data returned")

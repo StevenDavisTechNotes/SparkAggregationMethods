@@ -1,25 +1,26 @@
 import collections
 import math
-from typing import List, Optional, Tuple
+from typing import Optional, Tuple
 
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 from pyspark.sql import Row
 
+from SixFieldTestData import DataSet, ExecutionParameters
 from Utils.SparkUtils import TidySparkSession
 
-from ..BiLevelTestData import DataPoint
+SubTotal = collections.namedtuple(
+    "SubTotal",
+    ["running_sum_of_C", "running_count", "running_max_of_D",
+     "running_sum_of_E_squared", "running_sum_of_E"])
 
 
 def bi_rdd_reduce2(
-    spark_session: TidySparkSession, pyData: List[DataPoint]
+    spark_session: TidySparkSession,
+    _exec_params: ExecutionParameters,
+    data_set: DataSet
 ) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
-    spark = spark_session.spark
-    sc = spark_session.spark_context
-    rddData = sc.parallelize(pyData)
-    SubTotal = collections.namedtuple("SubTotal",
-                                      ["running_sum_of_C", "running_count", "running_max_of_D",
-                                       "running_sum_of_E_squared", "running_sum_of_E"])
+    rddSrc = data_set.rddSrc
 
     def mergeValue(pre, v):
         return SubTotal(
@@ -83,23 +84,21 @@ def bi_rdd_reduce2(
             grp=grp,
             mean_of_C=math.nan
             if running_grp_count < 1 else
-            running_sum_of_C/running_grp_count,
+            running_sum_of_C / running_grp_count,
             max_of_D=running_max_of_D,
             avg_var_of_E=math.nan
             if running_count_of_subgrp < 1 else
             running_sum_of_var_of_E /
             running_count_of_subgrp)
 
-    rddResult = rddData \
+    rddResult = rddSrc \
         .map(lambda x: ((x.grp, x.subgrp), x))\
         .combineByKey(createCombiner,
                       mergeValue,
-                      mergeCombiners)\
+                      mergeCombiners,
+                      numPartitions=data_set.AggTgtNumPartitions)\
         .map(lambda x: (x[0][0], x[1]))\
         .groupByKey(numPartitions=1)\
         .map(lambda x: (x[0], finalAnalytics(x[0], x[1])))\
         .sortByKey().values()
-    df = spark.createDataFrame(rddResult)\
-        .select('grp', 'mean_of_C', 'max_of_D', 'avg_var_of_E')
-    return None, df
-
+    return rddResult, None

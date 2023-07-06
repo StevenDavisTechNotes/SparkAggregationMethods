@@ -3,12 +3,18 @@ from pyspark.sql import DataFrame as spark_DataFrame
 from Utils.SparkUtils import TidySparkSession
 
 from ..DedupeDomain import BlockingFunction, SinglePass_RecList
-from ..DedupeTestData import DedupeDataParameters
+from ..DedupeDataTypes import DataSetOfSizeOfSources, ExecutionParameters, RecordSparseStruct
 
 # region method_rdd_groupby
 
 
-def method_rdd_groupby(_spark_session: TidySparkSession, data_params: DedupeDataParameters, _dataSize: int, dfSrc: spark_DataFrame):
+def method_rdd_groupby(
+    spark_session: TidySparkSession,
+    data_params: ExecutionParameters,
+    data_set: DataSetOfSizeOfSources,
+):
+    dfSrc = data_set.df
+
     numPartitions = data_params.NumExecutors
     rdd = dfSrc.rdd \
         .groupBy(BlockingFunction, numPartitions) \

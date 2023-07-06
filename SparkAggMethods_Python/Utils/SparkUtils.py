@@ -12,7 +12,7 @@ from pyspark.sql.dataframe import DataFrame as spark_DataFrame
 import pyspark.sql.types as DataTypes
 
 SPARK_SRATCH_FOLDER = "C:\\temp\\spark_scratch"
-
+NUM_EXECUTORS = 8
 
 class RddWithNoArgSortByKey:
     def __init__(self, src: RDD) -> None:
@@ -65,10 +65,9 @@ class TidySparkSession:
             SparkSession
             .builder
             .appName("PerfTestApp")
-            .master("local[8]")
+            .master(f"local[{NUM_EXECUTORS}]")
             .config("spark.pyspark.python", full_path_to_python)
             .config("spark.ui.enabled", "false")
-            # .config("spark.worker.cleanup.enabled", "true")
         )
         for key, value in config_dict.items():
             spark = spark.config(key, value)
@@ -103,7 +102,7 @@ class TidySparkSession:
 
 def dfZipWithIndex(
     df, spark: SparkSession, offset: int = 1,
-        colName: str = "rowId"
+    colName: str = "rowId"
 ) -> spark_DataFrame:
     '''
         Enumerates dataframe rows is native order, like rdd.ZipWithIndex(), but on a dataframe

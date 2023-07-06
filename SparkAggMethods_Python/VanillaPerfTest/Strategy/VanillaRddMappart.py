@@ -1,14 +1,13 @@
-from typing import List, Tuple, Optional, NamedTuple, cast
-
-from dataclasses import dataclass
 import math
+from dataclasses import dataclass
+from typing import NamedTuple, Optional, Tuple
 
 from pyspark import RDD
-from pyspark.sql import Row, DataFrame as spark_DataFrame
+from pyspark.sql import DataFrame as spark_DataFrame
+from pyspark.sql import Row
 
+from SixFieldTestData import DataSet, ExecutionParameters
 from Utils.SparkUtils import TidySparkSession
-
-from ..VanillaTestData import DataPoint
 
 
 class SubTotal(NamedTuple):
@@ -38,8 +37,12 @@ class MutableRunningTotal:
 
 
 def vanilla_rdd_mappart(
-    spark_session: TidySparkSession, pyData: List[DataPoint]
+    spark_session: TidySparkSession,
+    _exec_params: ExecutionParameters,
+    data_set: DataSet
 ) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
+    rddSrc = data_set.rddSrc
+    
     def max(lhs: Optional[float], rhs: Optional[float]) -> Optional[float]:
         if lhs is None:
             return rhs
@@ -108,9 +111,7 @@ def vanilla_rdd_mappart(
                 sum_of_E * sum_of_E / count
             ) / (count - 1))
 
-    sc = spark_session.spark_context
-    rddData = sc.parallelize(pyData)
-    sumCount = rddData \
+    sumCount = rddSrc \
         .mapPartitions(partitionTriage) \
         .groupByKey() \
         .map(lambda kv: (kv[0], mergeCombiners3(kv[0], kv[1]))) \

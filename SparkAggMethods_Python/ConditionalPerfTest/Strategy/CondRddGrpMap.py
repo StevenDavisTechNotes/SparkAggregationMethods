@@ -1,37 +1,18 @@
-import collections
-import gc
-import math
-import random
-import time
-from dataclasses import dataclass
-from typing import Callable, List, Optional, Tuple
+from typing import Tuple
 
-import numpy
-import numpy as np
-import pandas as pd
-import pyspark.sql.functions as func
-import pyspark.sql.types as DataTypes
-import scipy.stats
-from numba import cuda
-from numba import float64 as numba_float64
-from numba import jit, njit, prange, vectorize
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
-from pyspark.sql import Row, SparkSession
-from pyspark.sql.pandas.functions import pandas_udf
-from pyspark.sql.window import Window
-from ..CondTestData import DataPoint, DataPointSchema
+from pyspark.sql import Row
 
-from LinearRegression import linear_regression
+from SixFieldTestData import DataSet, ExecutionParameters
 from Utils.SparkUtils import TidySparkSession, cast_no_arg_sort_by_key
 
 
 def cond_rdd_grpmap(
     spark_session: TidySparkSession,
-    pyData: List[DataPoint],
+    _exec_params: ExecutionParameters,
+    data_set: DataSet,    
 ) -> Tuple[RDD | None, spark_DataFrame | None]:
-    spark = spark_session.spark
-    sc = spark_session.spark_context
 
     def processData1(key, iterator):
         import math
@@ -68,16 +49,13 @@ def cond_rdd_grpmap(
                     max_of_D=max_of_D,
                     cond_var_of_E=cond_var_of_E))
 
-    rddData = sc.parallelize(pyData)
     rddResult = (
         cast_no_arg_sort_by_key(
-            rddData
+            data_set.rddSrc
             .groupBy(lambda x: (x.grp, x.subgrp))
             .map(lambda pair: processData1(pair[0], pair[1]))
             .repartition(1)
         )
         .sortByKey().values()
     )
-    df = spark.createDataFrame(rddResult)\
-        .select('grp', 'subgrp', 'mean_of_C', 'max_of_D', 'cond_var_of_E')
-    return None, df
+    return rddResult, None

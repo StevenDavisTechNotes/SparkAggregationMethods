@@ -1,21 +1,22 @@
-from typing import List, Tuple, Optional
-
-from dataclasses import astuple
+from typing import Optional, Tuple
 
 import numpy
 import pandas as pd
-
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 
+from SixFieldTestData import DataSet, ExecutionParameters
 from Utils.SparkUtils import TidySparkSession
 
-from ..VanillaTestData import DataPoint, DataPointSchema, groupby_columns, agg_columns, postAggSchema
+from ..VanillaDataTypes import agg_columns, groupby_columns, postAggSchema
 
 
 def vanilla_pandas(
-    spark_session: TidySparkSession, pyData: List[DataPoint]
+    spark_session: TidySparkSession,
+    _exec_params: ExecutionParameters,
+    data_set: DataSet
 ) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
+    df = data_set.dfSrc
 
     def inner_agg_method(dfPartition: pd.DataFrame) -> pd.DataFrame:
         group_key = dfPartition['grp'].iloc[0]
@@ -35,8 +36,6 @@ def vanilla_pandas(
             var_of_E2,
         ]], columns=groupby_columns + agg_columns)
 
-    df = spark_session.spark.createDataFrame(
-        map(lambda x: astuple(x), pyData), schema=DataPointSchema)
     aggregates = (
         df
         .groupby(df.grp, df.subgrp)

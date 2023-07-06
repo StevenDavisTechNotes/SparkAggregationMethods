@@ -1,24 +1,20 @@
-from typing import List, Tuple, Optional
-
-from dataclasses import astuple
+from typing import Optional, Tuple
 
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
+from SixFieldTestData import DataSet, ExecutionParameters
 
 from Utils.SparkUtils import TidySparkSession
 
-from ..VanillaTestData import DataPoint, DataPointSchema
-
-
 def vanilla_sql(
-    spark_session: TidySparkSession, pyData: List[DataPoint]
+    spark_session: TidySparkSession,
+    _exec_params: ExecutionParameters,
+    data_set: DataSet
 ) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
-    spark = spark_session.spark
-    df = spark.createDataFrame(
-        map(lambda x: astuple(x), pyData), schema=DataPointSchema)
-    spark.catalog.dropTempView("exampledata")
+    df = data_set.dfSrc
+    spark_session.spark.catalog.dropTempView("exampledata")
     df.createTempView("exampledata")
-    df = spark.sql('''
+    df = spark_session.spark.sql('''
     SELECT 
         grp, subgrp, AVG(C) mean_of_C, MAX(D) max_of_D, 
         VAR_SAMP(E) var_of_E,

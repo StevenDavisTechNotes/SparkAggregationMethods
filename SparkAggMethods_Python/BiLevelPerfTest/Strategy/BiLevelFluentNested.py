@@ -1,26 +1,19 @@
-from typing import List, Tuple, Optional
-
-
-from Utils.SparkUtils import TidySparkSession
+from typing import Optional, Tuple
 
 import pyspark.sql.functions as func
-from typing import List, Optional, Tuple
-
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 
+from SixFieldTestData import DataSet, ExecutionParameters
 from Utils.SparkUtils import TidySparkSession
-
-from ..BiLevelTestData import DataPoint
 
 
 def bi_fluent_nested(
-    spark_session: TidySparkSession, pyData: List[DataPoint]
+    _spark_session: TidySparkSession,
+    _exec_params: ExecutionParameters,
+    data_set: DataSet
 ) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
-    spark = spark_session.spark
-    # df = spark.createDataFrame(
-    #     map(lambda x: astuple(x), pyData), schema=DataPointSchema)
-    df = spark.createDataFrame(pyData)
+    df = data_set.dfSrc
     df = df.groupBy(df.grp, df.subgrp)\
         .agg(func.mean(df.C).alias("sub_mean_of_C"),
              func.count(df.C).alias("sub_count"),

@@ -1,40 +1,30 @@
 #!python
 # python -m Runner_DeDupe
-from typing import List, Optional
-
 import argparse
 import gc
 import math
 import random
 import time
 from dataclasses import dataclass
+from typing import List, Optional
 
+from DedupePerfTest.DedupeDataTypes import DataSetsOfSize, ExecutionParameters
 from DedupePerfTest.DedupeDirectory import (
-    implementation_list,
-    strategy_name_list,
-)
+    implementation_list, strategy_name_list)
 from DedupePerfTest.DedupeExpected import (
-    ItineraryItem, verifyCorrectnessDf,
-    verifyCorrectnessRdd,
-)
+    ItineraryItem, verifyCorrectnessDf, verifyCorrectnessRdd)
 from DedupePerfTest.DedupeRunResult import (
-    RESULT_FILE_PATH, RunResult,
-    write_failed_run, write_header,
-    write_run_result,
-)
-from DedupePerfTest.DedupeTestData import (
-    DedupeDataParameters, DoGenData,
-    GenDataSets,
-)
+    RESULT_FILE_PATH, RunResult, write_failed_run, write_header, write_run_result)
+from DedupePerfTest.DedupeTestData import DoGenData
 from PerfTestCommon import count_iter
 from Utils.SparkUtils import TidySparkSession
 from Utils.Utils import always_true
 
 DEBUG_ARGS = None if False else (
     []
-    + '--size 1 10'.split()
+    # + '--size 1 10'.split()
     + '--runs 1'.split()
-    + '--random-seed 1234'.split()
+    # + '--random-seed 1234'.split()
     + ['--no-shuffle']
     # + '--strategy method_rdd_reduce'.split()
 )
@@ -50,7 +40,7 @@ class Arguments:
     shuffle: bool
     sizes: List[str]
     strategies: List[str]
-    ideosyncracies: DedupeDataParameters
+    ideosyncracies: ExecutionParameters
 
 
 def parse_args() -> Arguments:
@@ -101,7 +91,7 @@ def parse_args() -> Arguments:
         shuffle=args.shuffle,
         sizes=args.size,
         strategies=args.strategy,
-        ideosyncracies=DedupeDataParameters(
+        ideosyncracies=ExecutionParameters(
             in_cloud_mode=IsCloudMode,
             NumExecutors=NumExecutors,
             CanAssumeNoDupesPerPartition=CanAssumeNoDupesPerPartition,
@@ -111,24 +101,22 @@ def parse_args() -> Arguments:
         ))
 
 
-def runtests(srcDfListList: List[GenDataSets],
+def runtests(DataSetsBySize: List[DataSetsOfSize],
              args: Arguments, spark_session: TidySparkSession):
-    data_params = args.ideosyncracies
+    exec_params = args.ideosyncracies
 
     keyed_implementation_list = {
         x.strategy_name: x for x in implementation_list}
     test_run_itinerary: List[ItineraryItem] = [
         ItineraryItem(
             testMethod=test_method,
-            NumSources=sizeObj.NumSources,
-            numPeople=srcDfList.NumPeople,
-            dataSize=sizeObj.DataSize,
-            df=sizeObj.dfSrc,
+            data_set=data_set,
+            data_sets_of_size=data_sets_of_size,
         )
         for strategy in args.strategies
         if always_true(test_method := keyed_implementation_list[strategy])
-        for srcDfList in srcDfListList
-        for sizeObj in srcDfList.DataSets
+        for data_sets_of_size in DataSetsBySize
+        for data_set in data_sets_of_size.data_sets
         for _ in range(args.num_runs)
     ]
     if args.random_seed is not None:
@@ -144,10 +132,10 @@ def runtests(srcDfListList: List[GenDataSets],
             log.info("Working on %d of %d" % (index, len(test_run_itinerary)))
             startedTime = time.time()
             print("Working on %s %d %d" %
-                  (test_method.strategy_name, itinerary_item.numPeople, itinerary_item.dataSize))
+                  (test_method.strategy_name, itinerary_item.data_sets_of_size.num_people, itinerary_item.data_set.data_size))
             try:
                 rddout, dfout = test_method.delegate(
-                    spark_session, data_params, itinerary_item.dataSize, itinerary_item.df)
+                    spark_session, exec_params, itinerary_item.data_set)
                 if rddout is not None:
                     print(f"NumPartitions={rddout.getNumPartitions()}")
                     foundNumPeople = count_iter(rddout.toLocalIterator())
@@ -162,22 +150,27 @@ def runtests(srcDfListList: List[GenDataSets],
                 foundNumPeople = -1
             elapsedTime = time.time() - startedTime
             result = RunResult(
-                numSources=itinerary_item.NumSources,
-                actualNumPeople=itinerary_item.numPeople,
-                dataSize=itinerary_item.dataSize,
-                dataSizeExp=round(math.log10(itinerary_item.dataSize)),
+                numSources=itinerary_item.data_set.num_sources,
+                actualNumPeople=itinerary_item.data_sets_of_size.num_people,
+                dataSize=itinerary_item.data_set.data_size,
+                dataSizeExp=round(
+                    math.log10(
+                        itinerary_item.data_set.data_size)),
                 elapsedTime=elapsedTime,
                 foundNumPeople=foundNumPeople,
-                IsCloudMode=data_params.in_cloud_mode,
-                CanAssumeNoDupesPerPartition=data_params.CanAssumeNoDupesPerPartition)
+                IsCloudMode=exec_params.in_cloud_mode,
+                CanAssumeNoDupesPerPartition=exec_params.CanAssumeNoDupesPerPartition)
             success = True
-            if foundNumPeople != itinerary_item.numPeople:
+            if foundNumPeople != itinerary_item.data_sets_of_size.num_people:
                 write_failed_run(test_method, result, result_log_file)
                 continue
             if rddout is not None:
+                print(f"output rdd has {rddout.getNumPartitions()} partitions")
                 success = verifyCorrectnessRdd(
                     spark_session, itinerary_item, rddout)
             elif dfout is not None:
+                print(
+                    f"output rdd has {dfout.rdd.getNumPartitions()} partitions")
                 success = verifyCorrectnessDf(
                     spark_session, itinerary_item, dfout)
             else:

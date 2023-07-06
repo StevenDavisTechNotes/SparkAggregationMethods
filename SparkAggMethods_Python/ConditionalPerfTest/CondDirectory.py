@@ -1,12 +1,7 @@
-from dataclasses import dataclass
-from typing import Callable, List, Tuple
+from typing import List
 
-from pyspark import RDD
-from pyspark.sql import DataFrame as spark_DataFrame
+from SixFieldTestData import PythonTestMethod
 
-from Utils.SparkUtils import TidySparkSession
-
-from .CondTestData import DataPoint
 from .Strategy.CondFluentJoin import cond_fluent_join
 from .Strategy.CondFluentNested import cond_fluent_nested
 from .Strategy.CondFluentNull import cond_fluent_null
@@ -20,20 +15,6 @@ from .Strategy.CondRddReduce import cond_rdd_reduce
 from .Strategy.CondSqlJoin import cond_sql_join
 from .Strategy.CondSqlNested import cond_sql_nested
 from .Strategy.CondSqlNull import cond_sql_null
-
-
-@dataclass(frozen=True)
-class PythonTestMethod:
-    strategy_name: str
-    language: str
-    interface: str
-    delegate: Callable[
-        [TidySparkSession, List[DataPoint]],
-        Tuple[RDD | None, spark_DataFrame | None]]
-
-# CondMethod = collections.namedtuple("CondMethod",
-#                                     ["name", "interface", "delegate"])
-
 
 implementation_list: List[PythonTestMethod] = [
     PythonTestMethod(

@@ -1,52 +1,20 @@
-import collections
-import gc
 import math
-import random
-import time
-from dataclasses import dataclass
-from typing import Callable, List, Optional, Tuple
+from typing import Tuple
 
-import numpy
-import numpy as np
-import pandas as pd
-import pyspark.sql.functions as func
-import pyspark.sql.types as DataTypes
-import scipy.stats
-from numba import cuda
-from numba import float64 as numba_float64
-from numba import jit, njit, prange, vectorize
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
-from pyspark.sql import Row, SparkSession
-from pyspark.sql.pandas.functions import pandas_udf
-from pyspark.sql.window import Window
-from ..CondTestData import DataPoint, DataPointSchema
 
-from LinearRegression import linear_regression
+from SixFieldTestData import DataPoint, DataSet, ExecutionParameters
 from Utils.SparkUtils import TidySparkSession, cast_no_arg_sort_by_key
 
-SubTotal = collections.namedtuple("SubTotal",
-                                  ["running_sum_of_C", "running_uncond_count", "running_max_of_D",
-                                   "running_cond_sum_of_E_squared", "running_cond_sum_of_E",
-                                   "running_cond_count"])
-
-
-@dataclass(frozen=True)
-class GrpTotal:
-    grp: int
-    subgrp: int
-    mean_of_C: float
-    max_of_D: float
-    cond_var_of_E: float
+from ..CondDataTypes import GrpTotal, SubTotal
 
 
 def cond_rdd_reduce(
     spark_session: TidySparkSession,
-    pyData: List[DataPoint],
+    _exec_params: ExecutionParameters,
+    data_set: DataSet,    
 ) -> Tuple[RDD | None, spark_DataFrame | None]:
-    spark = spark_session.spark
-    sc = spark_session.spark_context
-    rddData = sc.parallelize(pyData)
 
     def mergeValue2(sub: SubTotal, v: DataPoint):
         running_sum_of_C = sub.running_sum_of_C + v.C
@@ -114,11 +82,12 @@ def cond_rdd_reduce(
             ) / (cond_count - 1))
 
     rddSumCount = (
-        rddData
+        data_set.rddSrc
         .map(lambda x: ((x.grp, x.subgrp), x))
         .combineByKey(createCombiner2,
                       mergeValue2,
-                      mergeCombiners2)
+                      mergeCombiners2,
+                      numPartitions=data_set.NumGroups*data_set.NumSubGroups)
         .map(lambda kv: (kv[0], finalAnalytics2(kv[0], kv[1])))
     )
     rddSumCount = (

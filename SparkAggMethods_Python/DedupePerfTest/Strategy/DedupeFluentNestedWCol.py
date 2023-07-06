@@ -11,13 +11,17 @@ from ..DedupeDomain import (
     MergeItems_RecList, MergeItems_RecList_Returns,
     NestBlocksDataframe, UnnestBlocksDataframe
 )
-from ..DedupeTestData import DedupeDataParameters
+from ..DedupeDataTypes import DataSetOfSizeOfSources, ExecutionParameters, RecordSparseStruct
 
 # region method_fluent_nested_withCol
 
 
-def method_fluent_nested_withCol(_spark_session: TidySparkSession,
-                                 _data_params: DedupeDataParameters, _dataSize: int, dfSrc: spark_DataFrame):
+def method_fluent_nested_withCol(
+    spark_session: TidySparkSession,
+    data_params: ExecutionParameters,
+    data_set: DataSetOfSizeOfSources,
+):
+    dfSrc = data_set.df
     df = NestBlocksDataframe(dfSrc)
     df = df \
         .withColumn("FirstOrderEdges",

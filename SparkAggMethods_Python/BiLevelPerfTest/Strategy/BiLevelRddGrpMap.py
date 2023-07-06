@@ -1,27 +1,26 @@
-from typing import List, Optional, Tuple
+from typing import Optional, Tuple
 
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 from pyspark.sql import Row
 
+from SixFieldTestData import DataSet, ExecutionParameters
 from Utils.SparkUtils import TidySparkSession
-
-from ..BiLevelTestData import DataPoint
 
 
 def bi_rdd_grpmap(
-    spark_session: TidySparkSession, pyData: List[DataPoint]
+    spark_session: TidySparkSession,
+    _exec_params: ExecutionParameters,
+    data_set: DataSet
 ) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
-    spark = spark_session.spark
-    sc = spark_session.spark_context
+    rddSrc = data_set.rddSrc
+
     class MutableRunningTotal:
         def __init__(self, grp):
             self.grp = grp
             self.running_sub_sum_of_E_squared = 0
             self.running_sub_sum_of_E = 0
             self.running_sub_count = 0
-
-    rddData = sc.parallelize(pyData)
 
     def processData1(grp, iterator):
         import math
@@ -63,12 +62,9 @@ def bi_rdd_grpmap(
                     max_of_D=running_max_of_D,
                     avg_var_of_E=avg_var_of_E))
 
-    rddResult = rddData\
+    rddResult = rddSrc\
         .groupBy(lambda x: (x.grp))\
         .map(lambda pair: processData1(pair[0], pair[1]))\
         .repartition(1)\
         .sortByKey().values()
-    df = spark.createDataFrame(rddResult)\
-        .select('grp', 'mean_of_C', 'max_of_D', 'avg_var_of_E')
-    return None, df
-
+    return rddResult, None

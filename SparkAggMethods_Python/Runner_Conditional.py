@@ -7,24 +7,37 @@ import time
 from dataclasses import dataclass
 from typing import List, Optional, Tuple
 
+from SixFieldTestData import DataSet, ExecutionParameters, generateData
 from ConditionalPerfTest.CondDirectory import (
-    PythonTestMethod,
-    implementation_list,
-    strategy_name_list,
-)
-from ConditionalPerfTest.CondRunResult import RunResult, write_header, write_run_result
-from ConditionalPerfTest.CondTestData import DataPoint, generateData
+    PythonTestMethod, implementation_list, strategy_name_list)
+from ConditionalPerfTest.CondRunResult import (
+    RunResult, write_header, write_run_result)
 from PerfTestCommon import count_iter
-from Utils.SparkUtils import TidySparkSession
+from Utils.SparkUtils import NUM_EXECUTORS, TidySparkSession
 from Utils.Utils import always_true
 
 DEBUG_ARGS = None if False else (
     []
-    + '--size 3_3_10'.split()
+    # + '--size 3_3_100k'.split()
     + '--runs 1'.split()
-    + '--random-seed 1234'.split()
+    # + '--random-seed 1234'.split()
     + ['--no-shuffle']
-    # +'--strategy bi_pandas'.split()
+    # + ['--strategy']
+    #   + [
+    #     #     'cond_sql_join',
+    #     # 'cond_fluent_join',
+    #     # 'cond_sql_null',
+    #     # 'cond_fluent_null',
+    #     # 'cond_fluent_zero',
+    #     # 'cond_pandas',
+    #     # 'cond_pandas_numba',
+    #     # 'cond_sql_nested',
+    #     # 'cond_fluent_nested',
+    #     # 'cond_fluent_window',
+    #     # 'cond_rdd_grpmap',
+    #     # 'cond_rdd_reduce',
+    #     'cond_rdd_mappart',
+    # ]
 )
 PYTHON_RESULT_FILE_PATH = 'Results/conditional_runs.csv'
 
@@ -44,7 +57,7 @@ available_data_sizes = [
     '3_30_10k',
     '3_300_1k',
     '3_3k_100',
-    '3_3_100k']
+]
 
 
 def parse_args() -> Arguments:
@@ -79,15 +92,26 @@ def parse_args() -> Arguments:
 
 def do_test_runs(args: Arguments, spark_session: TidySparkSession):
     data_sets = [x for x in [
-        generateData(3, 3, 10**1) if '3_3_10' in args.sizes else None,
-        generateData(3, 3, 10**2) if '3_3_100' in args.sizes else None,
-        generateData(3, 3, 10**3) if '3_3_1k' in args.sizes else None,
-        generateData(3, 3, 10**4) if '3_3_10k' in args.sizes else None,
-        generateData(3, 3, 10**5) if '3_3_100k' in args.sizes else None,
+        generateData(
+            '3_3_10', spark_session,
+            3, 3, 10**1) if '3_3_10' in args.sizes else None,
+        generateData(
+            '3_3_100', spark_session,
+            3, 3, 10**2) if '3_3_100' in args.sizes else None,
+        generateData(
+            '3_3_1k', spark_session,
+            3, 3, 10**3) if '3_3_1k' in args.sizes else None,
+        generateData(
+            '3_3_10k', spark_session,
+            3, 3, 10**4) if '3_3_10k' in args.sizes else None,
+        generateData(
+            '3_3_100k', spark_session,
+            3, 3, 10**5) if '3_3_100k' in args.sizes else None,
     ] if x is not None]
-    keyed_implementation_list = {x.strategy_name: x for x in implementation_list}
+    keyed_implementation_list = {
+        x.strategy_name: x for x in implementation_list}
     cond_run_itinerary: List[
-        Tuple[PythonTestMethod, List[DataPoint]]
+        Tuple[PythonTestMethod, DataSet]
     ] = [
         (cond_method, data)
         for strategy in args.strategies
@@ -99,20 +123,33 @@ def do_test_runs(args: Arguments, spark_session: TidySparkSession):
         random.seed(args.random_seed)
     if args.shuffle:
         random.shuffle(cond_run_itinerary)
+    exec_params = ExecutionParameters(
+        NumExecutors=NUM_EXECUTORS,
+    )
     with open(PYTHON_RESULT_FILE_PATH, 'at+') as file:
         write_header(file)
-        for index, (cond_method, data) in enumerate(cond_run_itinerary):
-            spark_session.log.info("Working on %d of %d" % (index, len(cond_run_itinerary)))
+        for index, (cond_method, data_set) in enumerate(cond_run_itinerary):
+            print(f"Working on {cond_method.strategy_name} for {data_set.SizeCode}")
+            spark_session.log.info(
+                "Working on %s %d of %d" %
+                (cond_method.strategy_name, index, len(cond_run_itinerary)))
             startedTime = time.time()
-            rdd, df = cond_method.delegate(spark_session, data)
+            rdd, df = cond_method.delegate(
+                spark_session, exec_params, data_set)
             if df is not None:
                 rdd = df.rdd
             assert rdd is not None
+            if rdd.getNumPartitions() != data_set.AggTgtNumPartitions:
+                print(
+                    f"{cond_method.strategy_name} output rdd has {rdd.getNumPartitions()} partitions")
+                findings = rdd.collect()
+                print(f"size={len(findings)}, ", findings)
+                exit(1)
             recordCount = count_iter(rdd.toLocalIterator())
             finishedTime = time.time()
             result = RunResult(
-                dataSize=len(data),
-                elapsedTime=finishedTime-startedTime,
+                dataSize=data_set.NumDataPoints,
+                elapsedTime=finishedTime - startedTime,
                 recordCount=recordCount)
             write_run_result(cond_method, result, file)
             del df
@@ -120,10 +157,11 @@ def do_test_runs(args: Arguments, spark_session: TidySparkSession):
             gc.collect()
             time.sleep(0.1)
 
+
 if __name__ == "__main__":
     args = parse_args()
     config = {
-        "spark.sql.shuffle.partitions": 7,
+        "spark.sql.shuffle.partitions": NUM_EXECUTORS * 2,
         "spark.rdd.compress": "false",
         "spark.driver.memory": "2g",
         "spark.executor.memory": "3g",

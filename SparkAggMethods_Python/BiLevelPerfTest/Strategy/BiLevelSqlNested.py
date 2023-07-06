@@ -1,22 +1,22 @@
-from typing import List, Optional, Tuple
+from typing import Optional, Tuple
 
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 
+from SixFieldTestData import DataSet, ExecutionParameters
 from Utils.SparkUtils import TidySparkSession
-
-from ..BiLevelTestData import DataPoint
 
 
 def bi_sql_nested(
-        spark_session: TidySparkSession, pyData: List[DataPoint]
-                ) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
+    spark_session: TidySparkSession,
+    _exec_params: ExecutionParameters,
+    data_set: DataSet
+) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
+    dfSrc = data_set.dfSrc
     spark = spark_session.spark
-    # df = spark.createDataFrame(
-    #     map(lambda x: astuple(x), pyData), schema=DataPointSchema)
-    dfData = spark.createDataFrame(pyData)
+
     spark.catalog.dropTempView("exampledata")
-    dfData.createTempView("exampledata")
+    dfSrc.createTempView("exampledata")
     df=spark.sql('''
     SELECT 
             grp,

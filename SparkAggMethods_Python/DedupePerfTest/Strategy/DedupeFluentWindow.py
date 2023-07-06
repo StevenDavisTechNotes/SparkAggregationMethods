@@ -6,12 +6,18 @@ from pyspark.sql import Window
 from Utils.SparkUtils import TidySparkSession, dfZipWithIndex
 
 from ..DedupeDomain import udfMatchSingleName
-from ..DedupeTestData import DedupeDataParameters
+from ..DedupeDataTypes import DataSetOfSizeOfSources, ExecutionParameters, RecordSparseStruct
 
 # region method_fluent_windows
 
 
-def method_fluent_windows(spark_session: TidySparkSession, data_params: DedupeDataParameters, _dataSize: int, dfSrc: spark_DataFrame):
+def method_fluent_windows(
+    spark_session: TidySparkSession,
+    data_params: ExecutionParameters,
+    data_set: DataSetOfSizeOfSources,
+):
+    dfSrc = data_set.df
+
     numPartitions = 4 * data_params.NumExecutors  # cross product
     df = dfZipWithIndex(dfSrc, spark=spark_session.spark, colName="RowId")
     df = df \

@@ -8,12 +8,18 @@ from pyspark.sql import Row
 from Utils.SparkUtils import TidySparkSession
 
 from ..DedupeDomain import BlockingFunction, CombineRowList, IsMatch
-from ..DedupeTestData import DedupeDataParameters
+from ..DedupeDataTypes import DataSetOfSizeOfSources, ExecutionParameters, RecordSparseStruct
 
 # region method_rdd_reduce
 
 
-def method_rdd_reduce(_spark_session: TidySparkSession, data_params: DedupeDataParameters, _dataSize: int, dfSrc: spark_DataFrame):
+def method_rdd_reduce(
+    spark_session: TidySparkSession,
+    data_params: ExecutionParameters,
+    data_set: DataSetOfSizeOfSources,
+):
+    dfSrc = data_set.df
+
     def appendRowToListDisjoint(lrows: List[Row], rrow: Row) -> List[Row]:
         lrows.append(rrow)
         return lrows

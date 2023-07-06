@@ -1,34 +1,18 @@
-from typing import List, Callable, Tuple, Optional
-from dataclasses import dataclass
+from typing import List
 
-from pyspark import RDD
-from pyspark.sql import DataFrame as spark_DataFrame
+from SixFieldTestData import PythonTestMethod
 
-from Utils.SparkUtils import TidySparkSession
-
-from .BiLevelTestData import DataPoint
-from .Strategy.BiLevelSqlJoin import bi_sql_join
 from .Strategy.BiLevelFluentJoin import bi_fluent_join
-from .Strategy.BiLevelPandas import bi_pandas
-from .Strategy.BiLevelPandasNumba import bi_pandas_numba
-from .Strategy.BiLevelSqlNested import bi_sql_nested
 from .Strategy.BiLevelFluentNested import bi_fluent_nested
 from .Strategy.BiLevelFluentWindow import bi_fluent_window
+from .Strategy.BiLevelPandas import bi_pandas
+from .Strategy.BiLevelPandasNumba import bi_pandas_numba
 from .Strategy.BiLevelRddGrpMap import bi_rdd_grpmap
+from .Strategy.BiLevelRddMapPart import bi_rdd_mappart
 from .Strategy.BiLevelRddReduce1 import bi_rdd_reduce1
 from .Strategy.BiLevelRddReduce2 import bi_rdd_reduce2
-from .Strategy.BiLevelRddMapPart import bi_rdd_mappart
-
-
-@dataclass(frozen=True)
-class PythonTestMethod:
-    strategy_name: str
-    language: str
-    interface: str
-    delegate: Callable[
-        [TidySparkSession, List[DataPoint]],
-        Tuple[Optional[RDD], Optional[spark_DataFrame]]]
-
+from .Strategy.BiLevelSqlJoin import bi_sql_join
+from .Strategy.BiLevelSqlNested import bi_sql_nested
 
 implementation_list: List[PythonTestMethod] = [
     PythonTestMethod(

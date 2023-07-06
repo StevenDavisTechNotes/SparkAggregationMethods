@@ -1,26 +1,29 @@
 import collections
-from typing import List, Optional, Tuple
+from typing import Optional, Tuple
 
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 from pyspark.sql import Row
 
+from SixFieldTestData import DataSet, ExecutionParameters
 from Utils.SparkUtils import TidySparkSession
 
-from ..BiLevelTestData import DataPoint
+
+SubTotal1 = collections.namedtuple(
+    "SubTotal1",
+    ["running_sum_of_C", "running_max_of_D",
+     "subgrp_totals"])
+SubTotal2 = collections.namedtuple(
+    "SubTotal2",
+    ["running_sum_of_E_squared", "running_sum_of_E", "running_count"])
 
 
 def bi_rdd_mappart(
-    spark_session: TidySparkSession, pyData: List[DataPoint]
+    spark_session: TidySparkSession,
+    _exec_params: ExecutionParameters,
+    data_set: DataSet
 ) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
-    spark = spark_session.spark
-    sc = spark_session.spark_context
-    rddData = sc.parallelize(pyData)
-    SubTotal1 = collections.namedtuple("SubTotal1",
-                                       ["running_sum_of_C", "running_max_of_D",
-                                        "subgrp_totals"])
-    SubTotal2 = collections.namedtuple("SubTotal2",
-                                       ["running_sum_of_E_squared", "running_sum_of_E", "running_count"])
+    rddSrc = data_set.rddSrc
 
     class MutableGrpTotal:
         def __init__(self):
@@ -94,7 +97,7 @@ def bi_rdd_mappart(
                     lsub2.running_sum_of_E_squared -
                     lsub2.running_sum_of_E * lsub2.running_sum_of_E /
                     lsub2.running_count
-                ) / (lsub2.running_count-1)
+                ) / (lsub2.running_count - 1)
             vars_of_E.append(var_of_E)
             running_count += lsub2.running_count
         return Row(
@@ -103,11 +106,9 @@ def bi_rdd_mappart(
             max_of_D=lsub.running_max_of_D,
             avg_var_of_E=statistics.mean(vars_of_E))
 
-    rddResult = rddData \
+    rddResult = rddSrc \
         .mapPartitions(partitionTriage) \
         .groupByKey() \
         .map(lambda kv: (kv[0], mergeCombiners3(kv[0], kv[1]))) \
         .sortByKey().values()
-    df = spark.createDataFrame(rddResult)\
-        .select('grp', 'mean_of_C', 'max_of_D', 'avg_var_of_E')
-    return None, df
+    return rddResult, None

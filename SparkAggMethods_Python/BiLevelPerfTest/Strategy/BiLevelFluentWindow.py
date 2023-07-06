@@ -1,22 +1,20 @@
-from typing import List, Optional, Tuple
+from typing import Optional, Tuple
 
 import pyspark.sql.functions as func
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 from pyspark.sql.window import Window
 
+from SixFieldTestData import DataSet, ExecutionParameters
 from Utils.SparkUtils import TidySparkSession
-
-from ..BiLevelTestData import DataPoint
 
 
 def bi_fluent_window(
-    spark_session: TidySparkSession, pyData: List[DataPoint]
+    _spark_session: TidySparkSession,
+    _exec_params: ExecutionParameters,
+    data_set: DataSet
 ) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
-    spark = spark_session.spark
-    # df = spark.createDataFrame(
-    #     map(lambda x: astuple(x), pyData), schema=DataPointSchema)
-    df = spark.createDataFrame(pyData)
+    df = data_set.dfSrc
     window = Window \
         .partitionBy(df.grp, df.subgrp) \
         .orderBy(df.id)

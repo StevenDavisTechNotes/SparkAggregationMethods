@@ -7,17 +7,8 @@ from pyspark.sql import Row
 
 from Utils.SparkUtils import TidySparkSession
 
-from .DedupeDirectory import PythonTestMethod
-from .DedupeTestData import RecordSparseStruct, nameHash
-
-
-@dataclass(frozen=True)
-class ItineraryItem:
-    testMethod: PythonTestMethod
-    NumSources: int
-    numPeople: int
-    dataSize: int
-    df: spark_DataFrame
+from .DedupeDataTypes import ItineraryItem, PythonTestMethod, RecordSparseStruct
+from .DedupeTestData import nameHash
 
 
 def arrangeFieldOrder(rec):
@@ -39,7 +30,9 @@ def arrangeFieldOrder(rec):
 #
 
 
-def verifyCorrectnessRdd(spark_session: TidySparkSession, itinerary_items: ItineraryItem, rdd: RDD[Row]):
+def verifyCorrectnessRdd(
+    spark_session: TidySparkSession,
+        itinerary_items: ItineraryItem, rdd: RDD[Row]):
     rdd = rdd \
         .map(arrangeFieldOrder)
     df = spark_session.spark.createDataFrame(rdd, schema=RecordSparseStruct)
@@ -47,16 +40,18 @@ def verifyCorrectnessRdd(spark_session: TidySparkSession, itinerary_items: Itine
 #
 
 
-def verifyCorrectnessDf(spark_session: TidySparkSession, itinerary_items: ItineraryItem, df: spark_DataFrame):
+def verifyCorrectnessDf(
+    spark_session: TidySparkSession,
+        itinerary_items: ItineraryItem, df: spark_DataFrame):
     df = df.orderBy(df.FieldA.cast(DataTypes.IntegerType()))
     df.cache()
 
     try:
-        actualNumPeople = itinerary_items.numPeople
-        NumSources = itinerary_items.NumSources
+        actualNumPeople = itinerary_items.data_sets_of_size.num_people
+        NumSources = itinerary_items.data_set.num_sources
         secretKeys = set(x.SecretKey for x in df.select(
             df.SecretKey).collect())
-        expectedSecretKeys = set(range(1, actualNumPeople+1))
+        expectedSecretKeys = set(range(1, actualNumPeople + 1))
         if secretKeys != expectedSecretKeys:
             dmissing = expectedSecretKeys - secretKeys
             dextra = secretKeys - expectedSecretKeys
@@ -66,7 +61,7 @@ def verifyCorrectnessDf(spark_session: TidySparkSession, itinerary_items: Itiner
         if count != actualNumPeople:
             raise Exception(
                 f"df.count()({count}) != numPeople({actualNumPeople}) ")
-        NumBRecords = max(1, 2*actualNumPeople//100)
+        NumBRecords = max(1, 2 * actualNumPeople // 100)
         for index, row in enumerate(df.toLocalIterator()):
             i = index + 1
             if f"FFFFFFA{i}_{nameHash(i)}" != row.FirstName:

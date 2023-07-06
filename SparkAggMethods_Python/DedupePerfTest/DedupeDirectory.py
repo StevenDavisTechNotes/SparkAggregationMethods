@@ -1,12 +1,6 @@
-from dataclasses import dataclass
-from typing import Callable, List, Optional, Tuple
+from typing import List
 
-from pyspark import RDD
-from pyspark.sql import DataFrame as spark_DataFrame
-
-from Utils.SparkUtils import TidySparkSession
-
-from .DedupeTestData import DedupeDataParameters
+from .DedupeDataTypes import PythonTestMethod
 from .Strategy.DedupeFluentNestedPandas import method_pandas
 from .Strategy.DedupeFluentNestedPython import method_fluent_nested_python
 from .Strategy.DedupeFluentNestedWCol import method_fluent_nested_withCol
@@ -14,16 +8,6 @@ from .Strategy.DedupeFluentWindow import method_fluent_windows
 from .Strategy.DedupeRddGroupBy import method_rdd_groupby
 from .Strategy.DedupeRddMapPart import method_rdd_mappart
 from .Strategy.DedupeRddReduce import method_rdd_reduce
-
-
-@dataclass(frozen=True)
-class PythonTestMethod:
-    strategy_name: str
-    language: str
-    interface: str
-    delegate: Callable[
-        [TidySparkSession, DedupeDataParameters, int, spark_DataFrame],
-        Tuple[Optional[RDD], Optional[spark_DataFrame]]]
 
 
 implementation_list: List[PythonTestMethod] = [

@@ -8,13 +8,18 @@ from pyspark.sql import DataFrame as spark_DataFrame
 from Utils.SparkUtils import TidySparkSession, dfZipWithIndex
 
 from ..DedupeDomain import MatchSingleName, MinNotNull
-from ..DedupeTestData import DedupeDataParameters, RecordSparseStruct
+from ..DedupeDataTypes import DataSetOfSizeOfSources, ExecutionParameters, RecordSparseStruct
 
 # region method_pandas
 
 
-def method_pandas(spark_session: TidySparkSession,
-                  data_params: DedupeDataParameters, _dataSize: int, dfSrc: spark_DataFrame):
+def method_pandas(
+    spark_session: TidySparkSession,
+    data_params: ExecutionParameters,
+    data_set: DataSetOfSizeOfSources,
+):
+    dfSrc = data_set.df
+
     def findMatches(df: pd.DataFrame) -> pd.DataFrame:
         toMatch = df[['RowId', 'SourceId', 'FirstName',
                       'LastName', 'ZipCode', 'SecretKey']]

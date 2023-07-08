@@ -18,7 +18,7 @@ from Utils.Utils import always_true
 
 DEBUG_ARGS = None if False else (
     []
-    # + '--size 3_3_100k'.split()
+    + '--size 3_3_10'.split()
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
@@ -139,7 +139,7 @@ def do_test_runs(args: Arguments, spark_session: TidySparkSession):
             if df is not None:
                 rdd = df.rdd
             assert rdd is not None
-            if rdd.getNumPartitions() != data_set.AggTgtNumPartitions:
+            if rdd.getNumPartitions() > max(data_set.AggTgtNumPartitions, NUM_EXECUTORS * 2):
                 print(
                     f"{cond_method.strategy_name} output rdd has {rdd.getNumPartitions()} partitions")
                 findings = rdd.collect()

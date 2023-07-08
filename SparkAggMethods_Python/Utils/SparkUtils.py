@@ -68,6 +68,7 @@ class TidySparkSession:
             .master(f"local[{NUM_EXECUTORS}]")
             .config("spark.pyspark.python", full_path_to_python)
             .config("spark.ui.enabled", "false")
+            .config('spark.hadoop.mapreduce.fileoutputcommitter.algorithm.version', 2)
         )
         for key, value in config_dict.items():
             spark = spark.config(key, value)

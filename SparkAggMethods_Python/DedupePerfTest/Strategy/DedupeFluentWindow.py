@@ -1,12 +1,11 @@
 import pyspark.sql.functions as func
 import pyspark.sql.types as DataTypes
-from pyspark.sql import DataFrame as spark_DataFrame
 from pyspark.sql import Window
 
 from Utils.SparkUtils import TidySparkSession, dfZipWithIndex
 
 from ..DedupeDomain import udfMatchSingleName
-from ..DedupeDataTypes import DataSetOfSizeOfSources, ExecutionParameters, RecordSparseStruct
+from ..DedupeDataTypes import DataSetOfSizeOfSources, ExecutionParameters
 
 # region method_fluent_windows
 
@@ -123,7 +122,8 @@ def method_fluent_windows(
             func.min(df.FieldD).alias("FieldD"),
             func.min(df.FieldE).alias("FieldE"),
             func.min(df.FieldF).alias("FieldF")) \
-        .drop(df.GroupId)
+        .drop(df.GroupId) \
+        .repartition(2 * data_params.NumExecutors)
     return None, df
 
 

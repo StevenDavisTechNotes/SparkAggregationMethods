@@ -10,7 +10,7 @@ import time
 
 from PerfTestCommon import count_iter
 from SectionPerfTest.SectionTypeDefs import DataSetDescription, PythonTestMethod, RunResult
-from Utils.SparkUtils import TidySparkSession
+from Utils.SparkUtils import NUM_EXECUTORS, TidySparkSession
 from Utils.Utils import always_true
 
 from SectionPerfTest.SectionDirectory import implementation_list, strategy_name_list
@@ -19,7 +19,7 @@ from SectionPerfTest.SectionTestData import populateDatasets, available_data_siz
 
 DEBUG_ARGS = None if False else (
     []
-    # + '--size 1 10'.split()
+    + '--size 1'.split()
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
@@ -41,7 +41,10 @@ def parse_args() -> Arguments:
     parser = argparse.ArgumentParser()
     parser.add_argument('--random-seed', type=int)
     parser.add_argument('--runs', type=int, default=30)
-    parser.add_argument('--new-files', default=False, action=argparse.BooleanOptionalAction)
+    parser.add_argument(
+        '--new-files',
+        default=False,
+        action=argparse.BooleanOptionalAction)
     parser.add_argument(
         '--size',
         choices=available_data_sizes,
@@ -101,16 +104,17 @@ def infeasible(strategy: str, data_set: DataSetDescription) -> bool:
 
 
 def do_test_runs(args: Arguments, spark_session: TidySparkSession):
-    data_sets = {str(x.NumStudents): x for x in populateDatasets(args.make_new_data_files)}
+    data_sets = {str(x.NumStudents): x for x in populateDatasets(
+        args.make_new_data_files)}
     data_sets = {k: v for k, v in data_sets.items() if k in args.sizes}
     keyed_implementation_list = {
         x.strategy_name: x for x in implementation_list}
     test_run_itinerary: List[
         Tuple[PythonTestMethod, DataSetDescription]
     ] = [
-        (cond_method, data)
+        (test_method, data)
         for strategy in args.strategies
-        if always_true(cond_method := keyed_implementation_list[strategy])
+        if always_true(test_method := keyed_implementation_list[strategy])
         for data in data_sets.values()
         if not infeasible(strategy, data)
         for _ in range(0, args.num_runs)
@@ -121,12 +125,12 @@ def do_test_runs(args: Arguments, spark_session: TidySparkSession):
         random.shuffle(test_run_itinerary)
     with open(PYTHON_RESULT_FILE_PATH, 'at+') as file:
         write_header(file)
-        for index, (cond_method, data) in enumerate(test_run_itinerary):
+        for index, (test_method, data) in enumerate(test_run_itinerary):
             spark_session.log.info(
                 "Working on %d of %d" %
                 (index, len(test_run_itinerary)))
             startedTime = time.time()
-            lst, rdd, df = cond_method.delegate(spark_session, data)
+            lst, rdd, df = test_method.delegate(spark_session, data)
             if lst is not None:
                 foundNumStudents = len(lst)
             elif rdd is not None:
@@ -135,19 +139,26 @@ def do_test_runs(args: Arguments, spark_session: TidySparkSession):
             elif df is not None:
                 print(f"output rdd has {df.rdd.getNumPartitions()} partitions")
                 foundNumStudents = count_iter(df.rdd.toLocalIterator())
+                rdd = df.rdd
             else:
                 raise ValueError("Not data returned")
             finishedTime = time.time()
+            if rdd is not None and rdd.getNumPartitions() > NUM_EXECUTORS * 2:
+                print(
+                    f"{test_method.strategy_name} output rdd has {rdd.getNumPartitions()} partitions")
+                findings = rdd.collect()
+                print(f"size={len(findings)}!", findings)
+                exit(1)
             actualNumStudents = data.dataSize // data.sectionMaximum
             result = RunResult(
                 success=foundNumStudents == actualNumStudents,
                 data=data,
                 elapsed_time=finishedTime - startedTime,
                 record_count=foundNumStudents)
-            write_run_result(cond_method, result, file)
+            write_run_result(test_method, result, file)
             print(
                 "%s Took %f secs" %
-                (cond_method.strategy_name,
+                (test_method.strategy_name,
                  finishedTime -
                  startedTime))
             del lst
@@ -160,7 +171,7 @@ def do_test_runs(args: Arguments, spark_session: TidySparkSession):
 if __name__ == "__main__":
     args = parse_args()
     config = {
-        "spark.sql.shuffle.partitions": 16,
+        "spark.sql.shuffle.partitions": NUM_EXECUTORS * 2,
         "spark.rdd.compress": "false",
         "spark.worker.cleanup.enabled": "true",
         "spark.default.parallelism": 7,

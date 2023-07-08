@@ -5,50 +5,37 @@ import math
 import numpy
 import scipy
 
-from LinearRegression import linear_regression
+from Utils.LinearRegression import linear_regression
 
 from .BiLevelDirectory import implementation_list
-from .BiLevelRunResult import (
-    FINAL_REPORT_FILE_PATH,
-    RESULT_FILE_PATH,
-    RunResult)
+from .BiLevelRunResult import FINAL_REPORT_FILE_PATH, read_result_file
 
 TEMP_RESULT_FILE_PATH = "d:/temp/SparkPerfTesting/temp.csv"
 
+PerformanceModelParameters = collections.namedtuple(
+    "PerformanceModelParameters",
+    ["name", "interface", "run_count",
+     "b0", "b0_low", "b0_high",
+     "b1", "b1_low", "b1_high",
+     "s2", "s2_low", "s2_high"])
+
 
 def analyze_run_results():
-    cond_runs = {}
-    with open(RESULT_FILE_PATH, 'r', encoding='utf-8-sig') as f, \
-            open(TEMP_RESULT_FILE_PATH, 'w') as fout:
-        for textline in f:
-            if textline.startswith('#'):
-                print("Excluding line: " + textline)
-                continue
-            if textline.find(',') < 0:
-                print("Excluding line: " + textline)
-                continue
-            fields = textline.rstrip().split(',')
-            if len(fields) < 6:
-                fields.append('3')
-            cond_method_name, cond_method_interface, result_dataSize, result_relCard, result_elapsedTime, result_recordCount = fields
-            if result_recordCount != '3':
-                print("Excluding line: " + textline)
-                continue
-            result = RunResult(
-                dataSize=int(result_dataSize),
-                relCard=int(result_relCard),
-                elapsedTime=float(result_elapsedTime),
-                recordCount=int(result_recordCount))
-            if cond_method_name not in cond_runs:
-                cond_runs[cond_method_name] = []
-            cond_runs[cond_method_name].append(result)
-            fout.write("%s,%s,%d,%d,%f,%d\n" % (cond_method_name, cond_method_interface,
+    test_runs = {}
+    with open(TEMP_RESULT_FILE_PATH, 'w') as fout:
+        for result in read_result_file():
+            strategy_name = result.strategy_name
+            if strategy_name not in test_runs:
+                test_runs[strategy_name] = []
+            test_runs[strategy_name].append(result)
+            fout.write("%s,%s,%d,%d,%f,%d\n" % (strategy_name, result.interface,
                        result.dataSize, result.relCard, result.elapsedTime, result.recordCount))
-    CondResult = collections.namedtuple("CondResult",
-                                        ["name", "interface", "run_count",
-                                         "b0", "b0_low", "b0_high",
-                                         "b1", "b1_low", "b1_high",
-                                         "s2", "s2_low", "s2_high"])
+    if len(test_runs) < 1:
+        print("no tests")
+        return
+    if any([len(x) for x in test_runs.values()]) < 10:
+        print("not enough data ", [len(x) for x in test_runs.values()])
+        return
     summary_status = ''
     regression_status = ''
     if True:
@@ -73,11 +60,11 @@ def analyze_run_results():
         #     'relCard', 'mean', 'stdev',
         #     'rl', 'rh'
         # ))
-        for name in cond_runs:
+        for name in test_runs:
             print("Looking to analyze %s" % name)
             cond_method = [
                 x for x in implementation_list if x.strategy_name == name][0]
-            times = cond_runs[name]
+            times = test_runs[name]
             size_values = set(x.relCard for x in times)
             for relCard in size_values:
                 ar = [x.elapsedTime for x in times if x.relCard == relCard]
@@ -99,7 +86,7 @@ def analyze_run_results():
             y_values = [float(x.elapsedTime) for x in times]
             (b0, (b0_low, b0_high)), (b1, (b1_low, b1_high)), (s2, (s2_low, s2_high)) = \
                 linear_regression(x_values, y_values, confidence)
-            result = CondResult(
+            result = PerformanceModelParameters(
                 name=cond_method.strategy_name,
                 interface=cond_method.interface,
                 run_count=len(times),
@@ -132,5 +119,4 @@ def analyze_run_results():
 
 
 if __name__ == "__main__":
-    # DoPostProcess_Unknown_skipped()
     analyze_run_results()

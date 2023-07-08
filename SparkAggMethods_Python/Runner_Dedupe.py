@@ -1,5 +1,5 @@
 #!python
-# python -m Runner_DeDupe
+# python -m Runner_Dedupe
 import argparse
 import gc
 import math
@@ -14,19 +14,19 @@ from DedupePerfTest.DedupeDirectory import (
 from DedupePerfTest.DedupeExpected import (
     ItineraryItem, verifyCorrectnessDf, verifyCorrectnessRdd)
 from DedupePerfTest.DedupeRunResult import (
-    RESULT_FILE_PATH, RunResult, write_failed_run, write_header, write_run_result)
+    RESULT_FILE_PATH, RunResult, write_header, write_run_result)
 from DedupePerfTest.DedupeTestData import DoGenData
 from PerfTestCommon import count_iter
-from Utils.SparkUtils import TidySparkSession
+from Utils.SparkUtils import NUM_EXECUTORS, TidySparkSession
 from Utils.Utils import always_true
 
 DEBUG_ARGS = None if False else (
     []
-    # + '--size 1 10'.split()
+    + '--size 1'.split()
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
-    # + '--strategy method_rdd_reduce'.split()
+    # + '--strategy method_pandas'.split()
 )
 LOCAL_TEST_DATA_FILE_LOCATION = "d:/temp/SparkPerfTesting"
 REMOTE_TEST_DATA_LOCATION = "wasb:///sparkperftesting"
@@ -109,12 +109,12 @@ def runtests(DataSetsBySize: List[DataSetsOfSize],
         x.strategy_name: x for x in implementation_list}
     test_run_itinerary: List[ItineraryItem] = [
         ItineraryItem(
-            testMethod=test_method,
+            testMethod=test_method_t,
             data_set=data_set,
             data_sets_of_size=data_sets_of_size,
         )
         for strategy in args.strategies
-        if always_true(test_method := keyed_implementation_list[strategy])
+        if always_true(test_method_t := keyed_implementation_list[strategy])
         for data_sets_of_size in DataSetsBySize
         for data_set in data_sets_of_size.data_sets
         for _ in range(args.num_runs)
@@ -130,6 +130,7 @@ def runtests(DataSetsBySize: List[DataSetsOfSize],
         write_header(result_log_file)
         for index, itinerary_item in enumerate(test_run_itinerary):
             log.info("Working on %d of %d" % (index, len(test_run_itinerary)))
+            test_method = itinerary_item.testMethod
             startedTime = time.time()
             print("Working on %s %d %d" %
                   (test_method.strategy_name, itinerary_item.data_sets_of_size.num_people, itinerary_item.data_set.data_size))
@@ -142,8 +143,18 @@ def runtests(DataSetsBySize: List[DataSetsOfSize],
                 elif dfout is not None:
                     print(f"NumPartitions={dfout.rdd.getNumPartitions()}")
                     foundNumPeople = count_iter(dfout.toLocalIterator())
+                    rddout = dfout.rdd
                 else:
                     raise Exception("not returning anything")
+                if rddout.getNumPartitions() \
+                        > max(args.ideosyncracies.SufflePartitions,
+                              args.ideosyncracies.NumExecutors * 2):
+                    print(
+                        f"{test_method.strategy_name} output rdd has {rddout.getNumPartitions()} partitions")
+                    findings = rddout.collect()
+                    print(f"size={len(findings)}!", findings)
+                    exit(1)
+
             except Exception as exception:
                 rddout = dfout = None
                 log.exception(exception)
@@ -162,7 +173,7 @@ def runtests(DataSetsBySize: List[DataSetsOfSize],
                 CanAssumeNoDupesPerPartition=exec_params.CanAssumeNoDupesPerPartition)
             success = True
             if foundNumPeople != itinerary_item.data_sets_of_size.num_people:
-                write_failed_run(test_method, result, result_log_file)
+                write_run_result(False, test_method, result, result_log_file)
                 continue
             if rddout is not None:
                 print(f"output rdd has {rddout.getNumPartitions()} partitions")
@@ -203,7 +214,7 @@ def do_test_runs(args: Arguments, spark_session: TidySparkSession):
 if __name__ == "__main__":
     args = parse_args()
     config = {
-        "spark.sql.shuffle.partitions": args.ideosyncracies.SufflePartitions,
+        "spark.sql.shuffle.partitions": max(args.ideosyncracies.SufflePartitions, NUM_EXECUTORS * 2),
         "spark.default.parallelism": args.ideosyncracies.DefaultParallelism,
         "spark.rdd.compress": "false",
         "spark.python.worker.reuse": "false",

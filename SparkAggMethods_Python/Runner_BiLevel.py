@@ -115,15 +115,15 @@ def do_test_runs(args: Arguments, spark_session: TidySparkSession):
             if df is not None:
                 rdd = df.rdd
             assert rdd is not None
-            if rdd.getNumPartitions() != data_set.AggTgtNumPartitions:
+            if rdd.getNumPartitions() > max(data_set.AggTgtNumPartitions, NUM_EXECUTORS * 2):
                 print(
                     f"{cond_method.strategy_name} output rdd has {rdd.getNumPartitions()} partitions")
-                findings=rdd.collect()
-                print(f"size={len(findings)}, ", findings)
+                findings = rdd.collect()
+                print(f"size={len(findings)}!", findings)
                 exit(1)
-            recordCount=count_iter(rdd.toLocalIterator())
-            finishedTime=time.time()
-            result=RunResult(
+            recordCount = count_iter(rdd.toLocalIterator())
+            finishedTime = time.time()
+            result = RunResult(
                 dataSize=data_set.NumDataPoints,
                 relCard=data_set.RelativeCardinalityBetweenGroupings,
                 elapsedTime=finishedTime - startedTime,
@@ -138,7 +138,7 @@ def do_test_runs(args: Arguments, spark_session: TidySparkSession):
 if __name__ == "__main__":
     args = parse_args()
     config = {
-        "spark.sql.shuffle.partitions": 7,
+        "spark.sql.shuffle.partitions": NUM_EXECUTORS * 2,
         "spark.rdd.compress": "false",
         "spark.driver.memory": "2g",
         "spark.executor.memory": "3g",

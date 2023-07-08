@@ -13,7 +13,7 @@ MaximumProcessableSegment = pow(10, 5)
 
 def write_header(file: TextIO):
     print(
-        ' strategy,interface,dataSize,relCard,elapsedTime,recordCount,finishedAt,',
+        ' status,strategy,interface,NumStudents,dataSize,sectionMaximum,elapsedTime,recordCount,finishedAt,',
         file=file)
     file.flush()
 

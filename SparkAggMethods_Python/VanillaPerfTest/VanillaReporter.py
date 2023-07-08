@@ -1,3 +1,5 @@
+#!python
+# python -m VanillaPerfTest.VanillaReporter
 import math
 import os
 from typing import Dict, List
@@ -5,7 +7,8 @@ from typing import Dict, List
 import numpy
 from scipy.stats import norm as scipy_stats_norm  # type: ignore
 
-from PerfTestCommon import TestMethodDescription
+from PerfTestCommon import ExternalTestMethod, TestMethodDescription
+from SixFieldTestData import PythonTestMethod
 
 from .VanillaDirectory import implementation_list, scala_implementation_list
 from .VanillaRunResult import (FINAL_REPORT_FILE_PATH, PYTHON_RESULT_FILE_PATH,
@@ -17,19 +20,20 @@ def parse_results() -> Dict[str, List[RunResult]]:
     if os.path.exists(PYTHON_RESULT_FILE_PATH):
         with open(PYTHON_RESULT_FILE_PATH, 'r') as f:
             for textline in f:
+                textline = textline.rstrip()
                 if textline.startswith('#'):
-                    print("Excluding line: "+textline.rstrip())
+                    print("Excluding line: " + textline)
                     continue
                 if textline.find(',') < 0:
-                    print("Excluding line: "+textline.rstrip())
+                    print("Excluding line: " + textline)
                     continue
                 fields = textline.rstrip().split(',')
                 cond_method_name, cond_method_interface, result_dataSize, \
                     result_elapsedTime, result_recordCount, \
-                         result_datetime, result_blank  \
-                            = tuple(fields)
+                    result_datetime, result_blank  \
+                    = tuple(fields)
                 if result_recordCount != '9':
-                    print("Excluding line: "+textline)
+                    print("Excluding line: " + textline)
                     continue
                 typed_method_name = f"{cond_method_name}_python"
                 if typed_method_name not in cond_runs:
@@ -42,23 +46,24 @@ def parse_results() -> Dict[str, List[RunResult]]:
     if os.path.exists(SCALA_RESULT_FILE_PATH):
         with open(SCALA_RESULT_FILE_PATH, 'r') as f:
             for textline in f:
+                textline = textline.rstrip()
                 if textline.startswith('#'):
-                    print("Excluding line: "+textline)
+                    print("Excluding line: " + textline)
                     continue
                 if textline.startswith(' '):
-                    print("Excluding line: "+textline)
+                    print("Excluding line: " + textline)
                     continue
                 if textline.find(',') < 0:
-                    print("Excluding line: "+textline)
+                    print("Excluding line: " + textline)
                     continue
                 fields = textline.rstrip().split(',')
                 outcome, rawmethod, interface, expectedSize, returnedSize, elapsedTime = tuple(
                     fields)
                 if outcome != 'success':
-                    print("Excluding line: "+textline)
+                    print("Excluding line: " + textline)
                     continue
                 if returnedSize != '9':
-                    print("Excluding line: "+textline)
+                    print("Excluding line: " + textline)
                     continue
                 typed_method_name = f"{rawmethod}_scala"
                 if typed_method_name not in cond_runs:
@@ -70,20 +75,23 @@ def parse_results() -> Dict[str, List[RunResult]]:
                 cond_runs[typed_method_name].append(result)
     return cond_runs
 
-def do_regression(python_implementation_list, scala_implementation_list, cond_runs):
+
+def do_regression(python_implementation_list: List[PythonTestMethod],
+                  scala_implementation_list: List[ExternalTestMethod], cond_runs):
     summary_status = ''
     confidence = 0.95
     sorted_implementation_list = sorted(
         [TestMethodDescription(
-            data_name=f"{x.name}_{x.language}", raw_method_name=x.name,
+            data_name=f"{x.strategy_name}_{x.language}", raw_method_name=x.strategy_name,
             language=x.language, interface=x.interface)
             for x in python_implementation_list + scala_implementation_list],
         key=lambda x: (x.language, x.interface, x.raw_method_name))
     summary_status += ",".join([
         'RunName', 'RawMethod', 'Method', 'Language', 'Interface',
-        'DataSize', 'NumRuns', 'Elapsed Time', 'stdev', 'rl', 'rh'])+"\n"
+        'DataSize', 'NumRuns', 'Elapsed Time', 'stdev', 'rl', 'rh']) + "\n"
     for method in sorted_implementation_list:
-        times = cond_runs[method.data_name] if method.data_name in cond_runs else []
+        times = cond_runs[method.data_name] if method.data_name in cond_runs else [
+        ]
         size_values = set(x.dataSize for x in times)
         for dataSize in sorted(size_values):
             ar = [x.elapsedTime for x in times if x.dataSize == dataSize]
@@ -91,7 +99,7 @@ def do_regression(python_implementation_list, scala_implementation_list, cond_ru
             mean = numpy.mean(ar)
             stdev = numpy.std(ar, ddof=1)
             rl, rh = scipy_stats_norm.interval(
-                confidence, loc=mean, scale=stdev/math.sqrt(len(ar)))
+                confidence, loc=mean, scale=stdev / math.sqrt(len(ar)))
             summary_status += "%s,%s,%s,%s,%s,%d,%d,%f,%f,%f,%f\n" % (
                 method.data_name,
                 method.raw_method_name,
@@ -102,13 +110,18 @@ def do_regression(python_implementation_list, scala_implementation_list, cond_ru
             )
     return summary_status
 
+
 def analyze_run_results():
     cond_runs = parse_results()
-    summary_status = do_regression(implementation_list, scala_implementation_list, cond_runs)
-        
+    summary_status = do_regression(
+        implementation_list,
+        scala_implementation_list,
+        cond_runs)
+
     with open(FINAL_REPORT_FILE_PATH, 'wt') as f:
         f.write(summary_status)
         f.write("\n")
+
 
 if __name__ == "__main__":
     analyze_run_results()

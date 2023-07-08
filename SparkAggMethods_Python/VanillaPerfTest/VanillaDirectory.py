@@ -70,27 +70,27 @@ implementation_list: List[PythonTestMethod] = [
 ]
 scala_implementation_list = [
     ExternalTestMethod(
-        name='vanilla_sql',
+        strategy_name='vanilla_sql',
         language='scala',
         interface='sql'),
     ExternalTestMethod(
-        name='vanilla_fluent',
+        strategy_name='vanilla_fluent',
         language='scala',
         interface='sql'),
     ExternalTestMethod(
-        name='vanilla_udaf',
+        strategy_name='vanilla_udaf',
         language='scala',
         interface='sql'),
     ExternalTestMethod(
-        name='vanilla_rdd_grpmap',
+        strategy_name='vanilla_rdd_grpmap',
         language='scala',
         interface='rdd'),
     ExternalTestMethod(
-        name='vanilla_rdd_reduce',
+        strategy_name='vanilla_rdd_reduce',
         language='scala',
         interface='rdd'),
     ExternalTestMethod(
-        name='vanilla_rdd_mappart',
+        strategy_name='vanilla_rdd_mappart',
         language='scala',
         interface='rdd'),
 ]

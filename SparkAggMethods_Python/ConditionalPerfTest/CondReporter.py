@@ -5,7 +5,7 @@ import numpy
 import scipy.stats
 from SixFieldTestData import RunResult
 
-from LinearRegression import linear_regression
+from Utils.LinearRegression import linear_regression
 from .CondDirectory import implementation_list
 
 TEMP_RESULT_FILE_PATH = "d:/temp/SparkPerfTesting/temp.csv"

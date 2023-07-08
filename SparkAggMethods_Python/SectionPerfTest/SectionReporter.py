@@ -1,3 +1,5 @@
+#!python
+# python -m SectionPerfTest.SectionReporter
 import collections
 import math
 from typing import List
@@ -5,7 +7,7 @@ from typing import List
 import numpy
 import scipy.stats
 
-from LinearRegression import linear_regression
+from Utils.LinearRegression import linear_regression
 
 from .SectionDirectory import implementation_list
 from .SectionRunResult import FINAL_REPORT_FILE_PATH, PYTHON_RESULT_FILE_PATH
@@ -25,6 +27,7 @@ def analyze_run_results():
     with open(PYTHON_RESULT_FILE_PATH, 'rt') as f, \
             open('Results/temp.csv', 'w') as fout:
         for textline in f:
+            textline = textline.rstrip()
             if textline.startswith("Working"):
                 print("Excluding line: " + textline)
                 continue
@@ -33,8 +36,8 @@ def analyze_run_results():
                 continue
             fields: List[str] = textline.rstrip().split(',')
             test_status, test_method_name, test_method_interface, \
-                data_num_students, \
-                result_dataSize, result_SectionMaximum, \
+                result_num_students, \
+                result_dataSize, result_section_maximum, \
                 result_elapsedTime, result_recordCount, \
                 finished_at \
                 = tuple(fields)
@@ -46,8 +49,8 @@ def analyze_run_results():
                 data=DataSetDescription(
                     dataSize=int(result_dataSize),
                     filename="N/A",
-                    sectionMaximum=int(result_SectionMaximum),
-                    NumStudents=int(data_num_students),
+                    sectionMaximum=int(result_section_maximum),
+                    NumStudents=int(result_num_students),
                 ),
                 # dataSize=int(result_dataSize) // int(result_SectionMaximum),
                 elapsed_time=float(result_elapsedTime),
@@ -134,3 +137,7 @@ def analyze_run_results():
         f.write("\n")
         f.write(regression_status)
         f.write("\n")
+
+
+if __name__ == "__main__":
+    analyze_run_results()

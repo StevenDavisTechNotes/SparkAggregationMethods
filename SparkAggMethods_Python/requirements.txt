@@ -3,7 +3,6 @@
 autopep8
 findspark
 flake8
-# jupyterlab 
 numba
 numpy>=1.14
 pandas>=0.23.2

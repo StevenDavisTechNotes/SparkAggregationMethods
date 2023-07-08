@@ -34,7 +34,7 @@ from pyspark.sql.window import Window
 
 from scipy.stats import norm as scipy_stats_norm  # type: ignore
 
-from LinearRegression import linear_regression
+from Utils.LinearRegression import linear_regression
 
 
 def createSparkContext() -> SparkSession:
@@ -684,7 +684,7 @@ def DoTesting(spark: SparkSession, sc: SparkContext, log):
 
 def DoAnalysis(python_implementation_list):
     import scipy.stats
-    from LinearRegression import linear_regression
+    from Utils.LinearRegression import linear_regression
     cond_runs = {}
     with open('Results/vanilla_runs.csv', 'r') as f:
         for textline in f:

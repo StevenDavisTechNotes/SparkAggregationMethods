@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class ExternalTestMethod:
-    name: str
+    strategy_name: str
     language: str
     interface: str
 

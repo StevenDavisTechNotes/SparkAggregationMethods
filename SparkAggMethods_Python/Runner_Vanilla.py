@@ -87,19 +87,19 @@ def do_test_runs(args: Arguments, spark_session: TidySparkSession):
     ] if x is not None]
     keyed_implementation_list = {
         x.strategy_name: x for x in implementation_list}
-    cond_run_itinerary: List[
+    itinerary: List[
         Tuple[PythonTestMethod, DataSet]
     ] = [
-        (cond_method, data_set)
+        (test_method, data_set)
         for strategy in args.strategies
-        if always_true(cond_method := keyed_implementation_list[strategy])
+        if always_true(test_method := keyed_implementation_list[strategy])
         for data_set in data_sets
         for _ in range(0, args.num_runs)
     ]
     if args.random_seed is not None:
         random.seed(args.random_seed)
     if args.shuffle:
-        random.shuffle(cond_run_itinerary)
+        random.shuffle(itinerary)
     exec_params = ExecutionParameters(
         NumExecutors=NUM_EXECUTORS,
     )
@@ -110,19 +110,19 @@ def do_test_runs(args: Arguments, spark_session: TidySparkSession):
                 '1', spark_session, 3, 3, 10**0))
     with open(PYTHON_RESULT_FILE_PATH, 'at+') as file:
         write_header(file)
-        for index, (cond_method, data_set) in enumerate(cond_run_itinerary):
-            print(f"Working on {cond_method.strategy_name} for {data_set.SizeCode}")
+        for index, (test_method, data_set) in enumerate(itinerary):
+            print(f"Working on {test_method.strategy_name} for {data_set.SizeCode}")
             spark_session.log.info(
-                "Working on %d of %d" % (index, len(cond_run_itinerary)))
+                "Working on %d of %d" % (index, len(itinerary)))
             startedTime = time.time()
-            rdd, df = cond_method.delegate(
+            rdd, df = test_method.delegate(
                 spark_session, exec_params, data_set)
             if df is not None:
                 rdd = df.rdd
             assert rdd is not None
-            if rdd.getNumPartitions() != data_set.AggTgtNumPartitions:
+            if rdd.getNumPartitions() > max(data_set.AggTgtNumPartitions, NUM_EXECUTORS * 2):
                 print(
-                    f"{cond_method.strategy_name} output rdd has {rdd.getNumPartitions()} partitions")
+                    f"{test_method.strategy_name} output rdd has {rdd.getNumPartitions()} partitions")
                 findings = rdd.collect()
                 print(f"size={len(findings)}, ", findings)
                 exit(1)
@@ -132,7 +132,7 @@ def do_test_runs(args: Arguments, spark_session: TidySparkSession):
                 dataSize=data_set.NumDataPoints,
                 elapsedTime=finishedTime - startedTime,
                 recordCount=recordCount)
-            write_run_result(cond_method, result, file)
+            write_run_result(test_method, result, file)
             del df
             del rdd
             gc.collect()

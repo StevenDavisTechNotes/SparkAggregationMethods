@@ -1,11 +1,8 @@
-import collections
 import hashlib
 import os
-from dataclasses import dataclass
-from typing import List, Optional
+from typing import List
 
 import pyspark.sql.functions as func
-import pyspark.sql.types as DataTypes
 from pyspark.sql import SparkSession
 from .DedupeDataTypes import ExecutionParameters, RecordSparseStruct, DataSetOfSizeOfSources, DataSetsOfSize
 
@@ -40,7 +37,7 @@ def DoGenData(
     spark: SparkSession,
     data_params: ExecutionParameters
 ) -> List[DataSetsOfSize]:
-    rootPath = data_params.test_data_file_location
+    rootPath = os.path.join(data_params.test_data_file_location, "Dedupe_Test_Data")
     recordAFilename = rootPath + "/Dedupe_FieldA%d.csv"
     recordBFilename = rootPath + "/Dedupe_FieldB%d.csv"
     recordCFilename = rootPath + "/Dedupe_FieldC%d.csv"

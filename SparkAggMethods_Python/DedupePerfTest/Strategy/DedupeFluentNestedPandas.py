@@ -121,15 +121,13 @@ def method_pandas(
     spark = spark_session.spark
     numPartitions = data_params.NumExecutors
     df: spark_DataFrame = dfZipWithIndex(dfSrc, spark=spark, colName="RowId")
-    df = (
-        df
-        .withColumn(
-            "BlockingKey",
-            func.hash(
-                df.ZipCode.cast(DataTypes.IntegerType()),
-                func.substring(df.FirstName, 1, 1),
-                func.substring(df.LastName, 1, 1)))
-        .repartition(numPartitions, df.BlockingKey))
+    df = df.withColumn(
+        "BlockingKey",
+        func.hash(
+            df.ZipCode.cast(DataTypes.IntegerType()),
+            func.substring(df.FirstName, 1, 1),
+            func.substring(df.LastName, 1, 1)))
+    df = df.repartition(numPartitions, df.BlockingKey)
 
     def inner_agg_method(dfGroup: pd.DataFrame) -> pd.DataFrame:
         matched = findMatches(dfGroup)

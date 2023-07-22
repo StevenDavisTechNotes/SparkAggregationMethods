@@ -7,7 +7,7 @@ from numba import jit, prange
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 
-from SixFieldTestData import DataSet, ExecutionParameters
+from SixFieldCommon.SixFieldTestData import DataSet, ExecutionParameters
 from Utils.SparkUtils import TidySparkSession
 
 from ..CondDataTypes import agg_columns_4, groupby_columns, postAggSchema_4
@@ -41,7 +41,7 @@ def cond_pandas_numba(
         accE = 0.
         for i in prange(n):
             accE += E[i]
-        return (accE2 - accE**2 / n) / (n - 1)
+        return accE2 / n - (accE / n)**2
 
     def inner_agg_method(dfPartition):
         group_key = dfPartition['grp'].iloc[0]
@@ -58,7 +58,10 @@ def cond_pandas_numba(
             my_looplift_var(posE),
         ]], columns=groupby_columns + agg_columns_4)
 
-    aggregates = df \
-        .groupby(df.grp, df.subgrp).applyInPandas(inner_agg_method, postAggSchema_4) \
-        .orderBy('grp', 'subgrp')
-    return None, aggregates,
+    df = (
+        df
+        .groupby(df.grp, df.subgrp)
+        .applyInPandas(inner_agg_method, postAggSchema_4)
+    )
+    df = df.orderBy(df.grp, df.subgrp)
+    return None, df,

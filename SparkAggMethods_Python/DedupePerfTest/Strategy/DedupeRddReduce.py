@@ -2,18 +2,15 @@ from itertools import chain
 from typing import List, Tuple
 
 from pyspark import RDD
-from pyspark.sql import DataFrame as spark_DataFrame
 from pyspark.sql import Row
 
 from Utils.SparkUtils import TidySparkSession
 
 from ..DedupeDomain import BlockingFunction, CombineRowList, IsMatch
-from ..DedupeDataTypes import DataSetOfSizeOfSources, ExecutionParameters, RecordSparseStruct
-
-# region method_rdd_reduce
+from ..DedupeDataTypes import DataSetOfSizeOfSources, ExecutionParameters
 
 
-def method_rdd_reduce(
+def dedupe_rdd_reduce(
     spark_session: TidySparkSession,
     data_params: ExecutionParameters,
     data_set: DataSetOfSizeOfSources,
@@ -61,7 +58,7 @@ def method_rdd_reduce(
                 lrows.append(rrow)
         return lrows
 
-    numPartitions = data_params.NumExecutors
+    numPartitions = data_set.grouped_num_partitions
     appendRowToList = appendRowToListDisjoint \
         if data_params.CanAssumeNoDupesPerPartition \
         else appendRowToListMixed
@@ -82,6 +79,3 @@ def method_rdd_reduce(
             ))
     )
     return rdd4, None
-
-
-# endregion

@@ -3,14 +3,14 @@ from typing import Tuple
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 
-from SixFieldTestData import DataSet, ExecutionParameters
+from SixFieldCommon.SixFieldTestData import DataSet, ExecutionParameters
 from Utils.SparkUtils import TidySparkSession
 
 
 def cond_sql_nested(
     spark_session: TidySparkSession,
     _exec_params: ExecutionParameters,
-    data_set: DataSet,    
+    data_set: DataSet,
 ) -> Tuple[RDD | None, spark_DataFrame | None]:
     spark = spark_session.spark
     spark.catalog.dropTempView("exampledata")
@@ -21,9 +21,9 @@ def cond_sql_nested(
             sum_of_C / count as mean_of_C,
             max_of_D,
             (
-                cond_sum_of_E_squared -
-                cond_sum_of_E * cond_sum_of_E / cond_count_of_E
-            ) / (cond_count_of_E - 1) cond_var_of_E
+                cond_sum_of_E_squared  / cond_count_of_E -
+                POWER(cond_sum_of_E / cond_count_of_E, 2)
+            ) cond_var_of_E
     FROM
         (SELECT
                 grp, subgrp,

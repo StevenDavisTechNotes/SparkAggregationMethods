@@ -41,7 +41,7 @@ def method_prep_mappart(
                 Major=int(fields[1]), GPA=float(fields[2]), Credits=int(fields[3])))
         raise Exception(
             f"Unknown parsed row type {rowType} on line {lineNumber} in file {filename}")
-    #
+
     interFileName = identifySectionUsingIntermediateFile(filename)
     TargetNumPartitions = max(
         NumExecutors, (dataSize + MaximumProcessableSegment - 1) // MaximumProcessableSegment)

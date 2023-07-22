@@ -1,6 +1,6 @@
 import pyspark.sql.types as DataTypes
 
-from SixFieldTestData import DataPointSchema
+from SixFieldCommon.SixFieldTestData import DataPointSchema
 
 groupby_columns = ['grp', 'subgrp']
 agg_columns_non_null = ['mean_of_C', 'max_of_D']

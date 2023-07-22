@@ -5,7 +5,7 @@ import pandas as pd
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 
-from SixFieldTestData import DataSet, ExecutionParameters
+from SixFieldCommon.SixFieldTestData import DataSet, ExecutionParameters
 from Utils.SparkUtils import TidySparkSession
 
 from ..CondDataTypes import agg_columns_4, groupby_columns, postAggSchema_4
@@ -20,11 +20,9 @@ def cond_pandas(
 
     def my_var(E: pd.Series):
         return (
-            (
-                (E * E).sum() -
-                E.sum()**2 / E.count()
-            ) / (E.count() - 1)
-            if E.count() > 1 else numpy.nan)
+            (E * E).sum() / E.count() -
+            (E.sum() / E.count())**2
+        )
 
     def inner_agg_method(dfPartition: pd.DataFrame):
         group_key = dfPartition['grp'].iloc[0]
@@ -37,11 +35,14 @@ def cond_pandas(
             subgroup_key,
             C.mean(),
             D.max(),
-            negE.var(),
-            negE.agg(my_var).mean(),
+            negE.var(ddof=0),
+            negE.agg(my_var),
         ]], columns=groupby_columns + agg_columns_4)
 
-    df_result = df \
-        .groupby(df.grp, df.subgrp).applyInPandas(inner_agg_method, postAggSchema_4) \
-        .orderBy('grp', 'subgrp')
-    return None, df_result
+    df = (
+        df
+        .groupBy(df.grp, df.subgrp)
+        .applyInPandas(inner_agg_method, postAggSchema_4)
+    )
+    df = df.orderBy(df.grp, df.subgrp)
+    return None, df

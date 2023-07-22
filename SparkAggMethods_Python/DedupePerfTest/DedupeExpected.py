@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import List
 
 import pyspark.sql.types as DataTypes
 from pyspark import RDD
@@ -27,7 +28,7 @@ def arrangeFieldOrder(rec):
         rec.FieldF))
     row.__fields__ = RecordSparseStruct.names
     return row
-#
+
 
 
 def verifyCorrectnessRdd(
@@ -37,7 +38,6 @@ def verifyCorrectnessRdd(
         .map(arrangeFieldOrder)
     df = spark_session.spark.createDataFrame(rdd, schema=RecordSparseStruct)
     return verifyCorrectnessDf(spark_session, itinerary_items, df)
-#
 
 
 def verifyCorrectnessDf(
@@ -47,10 +47,11 @@ def verifyCorrectnessDf(
     df.cache()
 
     try:
-        actualNumPeople = itinerary_items.data_sets_of_size.num_people
+        actualNumPeople = itinerary_items.data_sets_by_size.num_people
         NumSources = itinerary_items.data_set.num_sources
-        secretKeys = set(x.SecretKey for x in df.select(
-            df.SecretKey).collect())
+        secretKeys = set(
+            x.SecretKey for x in df.select(
+                df.SecretKey).collect())
         expectedSecretKeys = set(range(1, actualNumPeople + 1))
         if secretKeys != expectedSecretKeys:
             dmissing = expectedSecretKeys - secretKeys
@@ -127,6 +128,91 @@ def verifyCorrectnessDf(
         return False
 
     print("Looking Good!")
+    return True
+
+
+def verifyCorrectness(
+        itinerary_items: ItineraryItem,
+        lst: List[Row],
+):
+    lst.sort(key=lambda x: int(x.FieldA))
+
+    try:
+        actualNumPeople = itinerary_items.data_sets_by_size.num_people
+        NumSources = itinerary_items.data_set.num_sources
+        secretKeys = {x.SecretKey for x in lst}
+        expectedSecretKeys = set(range(1, actualNumPeople + 1))
+        if secretKeys != expectedSecretKeys:
+            dmissing = expectedSecretKeys - secretKeys
+            dextra = secretKeys - expectedSecretKeys
+            raise Exception(f"Missing {dmissing} extra {dextra}")
+
+        count = len(lst)
+        if count != actualNumPeople:
+            raise Exception(
+                f"df.count()({count}) != numPeople({actualNumPeople}) ")
+        NumBRecords = max(1, 2 * actualNumPeople // 100)
+        for index, row in enumerate(lst):
+            i = index + 1
+            if f"FFFFFFA{i}_{nameHash(i)}" != row.FirstName:
+                raise Exception(
+                    f"{i}: FFFFFFA{i}_{nameHash(i)} != {row.FirstName}")
+            if f'LLLLLLA{i}_{nameHash(i)}' != row.LastName:
+                raise Exception(
+                    f'{i}: LLLLLLA{i}_{nameHash(i)} != {row.LastName}')
+            if f'{i} Main St' != row.StreetAddress:
+                raise Exception(f'{i} Main St != row.StreetAddress')
+            if 'Plaineville ME' != row.City:
+                raise Exception('{i}: Plaineville ME != {row.City}')
+            if f'{(i-1)%100:05d}' != row.ZipCode:
+                raise Exception(f'{(i-1)%100:05d} != {row.ZipCode}')
+            if i != row.SecretKey:
+                raise Exception(f'{i}: {i} != SecretKey={row.SecretKey}')
+            if f'{i*2}' != row.FieldA:
+                raise Exception(f'{i}: {i*2} != FieldA={row.FieldA}')
+
+            if (NumSources < 2) or (i > NumBRecords):
+                if row.FieldB is not None:
+                    raise Exception(
+                        "{i}: row.FieldB is not None, NumSources={NumSources}, NumBRecords={NumBRecords}")
+            else:
+                if f'{i*3}' != row.FieldB:
+                    raise Exception(f'{i}: {i*3} != FieldB={row.FieldB}')
+
+            if NumSources < 3:
+                if row.FieldC is not None:
+                    raise Exception(
+                        "{i}: row.FieldC is not None, NumSources={NumSources}")
+            else:
+                if f'{i*5}' != row.FieldC:
+                    raise Exception(f'{i}: {i*5} != FieldC={row.FieldC}')
+
+            if NumSources < 4:
+                if row.FieldD is not None:
+                    raise Exception(
+                        "{i}: row.FieldD is not None, NumSources={NumSources}")
+            else:
+                if f'{i*7}' != row.FieldD:
+                    raise Exception(f'{i}: {i*7} != FieldD={row.FieldD}')
+
+            if NumSources < 5:
+                if row.FieldE is not None:
+                    raise Exception(
+                        "{i}: row.FieldE is not None, NumSources={NumSources}")
+            else:
+                if f'{i*11}' != row.FieldE:
+                    raise Exception(f'{i}: {i*11} != FieldE={row.FieldE}')
+
+            if NumSources < 6:
+                if row.FieldF is not None:
+                    raise Exception(
+                        "{i}: row.FieldF is not None, NumSources={NumSources}")
+            else:
+                if f'{i*13}' != row.FieldF:
+                    raise Exception(f'{i}: {i*13} != FieldF={row.FieldF}')
+    except Exception as exception:
+        print("data error", exception)
+        return False
     return True
 
 

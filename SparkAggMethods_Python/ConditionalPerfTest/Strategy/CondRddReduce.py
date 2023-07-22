@@ -4,8 +4,8 @@ from typing import Tuple
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 
-from SixFieldTestData import DataPoint, DataSet, ExecutionParameters
-from Utils.SparkUtils import TidySparkSession, cast_no_arg_sort_by_key
+from SixFieldCommon.SixFieldTestData import DataPoint, DataSet, ExecutionParameters
+from Utils.SparkUtils import TidySparkSession
 
 from ..CondDataTypes import GrpTotal, SubTotal
 
@@ -13,8 +13,8 @@ from ..CondDataTypes import GrpTotal, SubTotal
 def cond_rdd_reduce(
     spark_session: TidySparkSession,
     _exec_params: ExecutionParameters,
-    data_set: DataSet,    
-) -> Tuple[RDD | None, spark_DataFrame | None]:
+    data_set: DataSet,
+) -> Tuple[RDD[GrpTotal] | None, spark_DataFrame | None]:
 
     def mergeValue2(sub: SubTotal, v: DataPoint):
         running_sum_of_C = sub.running_sum_of_C + v.C
@@ -73,13 +73,10 @@ def cond_rdd_reduce(
             if cond_count < 1 else
             sum_of_C / uncond_count,
             max_of_D=max_of_D,
-            cond_var_of_E=math.nan
-            if cond_count < 2 else
-            (
-                cond_sum_of_E_squared -
-                cond_sum_of_E *
-                cond_sum_of_E / cond_count
-            ) / (cond_count - 1))
+            cond_var_of_E=(
+                cond_sum_of_E_squared / cond_count
+                - (cond_sum_of_E / cond_count)**2)
+        )
 
     rddSumCount = (
         data_set.rddSrc
@@ -87,11 +84,9 @@ def cond_rdd_reduce(
         .combineByKey(createCombiner2,
                       mergeValue2,
                       mergeCombiners2,
-                      numPartitions=data_set.NumGroups*data_set.NumSubGroups)
+                      numPartitions=data_set.NumGroups * data_set.NumSubGroups)
         .map(lambda kv: (kv[0], finalAnalytics2(kv[0], kv[1])))
-    )
-    rddSumCount = (
-        cast_no_arg_sort_by_key(rddSumCount)
-        .sortByKey()
+        .sortByKey()  # type: ignore
+        .values()
     )
     return rddSumCount, None

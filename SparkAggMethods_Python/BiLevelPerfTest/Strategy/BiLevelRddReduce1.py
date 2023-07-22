@@ -6,7 +6,7 @@ from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 from pyspark.sql import Row
 
-from SixFieldTestData import DataSet, ExecutionParameters
+from SixFieldCommon.SixFieldTestData import DataSet, ExecutionParameters
 from Utils.SparkUtils import TidySparkSession
 
 SubTotal1 = collections.namedtuple(
@@ -88,13 +88,9 @@ def bi_rdd_reduce1(
         for sub in level1.subgrp_running_totals.values():
             count = sub.running_count
             running_grp_count += count
-            var_of_E = math.nan \
-                if count < 2 else \
-                (
-                    sub.running_sum_of_E_squared -
-                    sub.running_sum_of_E *
-                    sub.running_sum_of_E / count
-                ) / (count - 1)
+            var_of_E = (
+                sub.running_sum_of_E_squared / count
+                - (sub.running_sum_of_E / count)**2)
             list_of_var_of_E.append(var_of_E)
 
         return Row(
@@ -105,12 +101,14 @@ def bi_rdd_reduce1(
             max_of_D=level1.running_max_of_D,
             avg_var_of_E=statistics.mean(list_of_var_of_E))
 
-    rddResult = rddSrc \
-        .map(lambda x: (x.grp, x))\
+    rddResult = (
+        rddSrc
+        .map(lambda x: (x.grp, x))
         .combineByKey(createCombiner,
                       mergeValue,
                       mergeCombiners,
-                      numPartitions=data_set.AggTgtNumPartitions)\
-        .sortByKey()\
+                      numPartitions=data_set.AggTgtNumPartitions)
+        .sortByKey()
         .map(lambda x: finalAnalytics(x[0], x[1]))
+    )
     return rddResult, None

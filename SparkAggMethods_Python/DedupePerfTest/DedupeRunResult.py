@@ -2,7 +2,9 @@ from dataclasses import dataclass
 import datetime
 from typing import Iterable, TextIO
 
-from .DedupeDataTypes import PythonTestMethod
+from Utils.Utils import always_true
+
+from .DedupeDataTypes import DataSetOfSizeOfSources, PythonTestMethod
 
 RESULT_FILE_PATH = 'Results/dedupe_runs.csv'
 FINAL_REPORT_FILE_PATH = '../Results/python/dedupe_results_20230618.csv'
@@ -26,7 +28,7 @@ class RunResult:
 @dataclass(frozen=True)
 class PersistedRunResult:
     status: str
-    stategy_name: str
+    strategy_name: str
     interface: str
     numSources: int
     dataSize: int
@@ -36,6 +38,32 @@ class PersistedRunResult:
     foundNumPeople: int
     IsCloudMode: bool
     CanAssumeNoDupesPerPartition: bool
+
+
+EXPECTED_LOGICAL_DATA_SIZES = [10**x for x in range(0, 5)]
+
+EXPECTED_NUM_RECORDS = sorted([
+    num_data_points
+    for data_size_exp in range(0, 5)
+    if always_true(num_people := 10**data_size_exp)
+    for num_sources in [2, 3, 6]
+    if always_true(num_data_points := (
+        (0 if num_sources < 1 else num_people)
+        + (0 if num_sources < 2 else max(1, 2 * num_people // 100))
+        + (0 if num_sources < 3 else num_people)
+        + 3 * (0 if num_sources < 6 else num_people)
+    ))
+    if num_data_points < 50200
+])
+
+def regressor_from_run_result(result: PersistedRunResult) -> int:
+    return result.dataSize
+
+
+def infeasible(strategy_name: str, data_set: DataSetOfSizeOfSources) -> bool:
+    match strategy_name:
+        case _:
+            return False
 
 
 def write_header(file: TextIO):
@@ -81,20 +109,21 @@ def read_result_file() -> Iterable[PersistedRunResult]:
                 print("Excluding line: " + textline)
                 continue
             fields = textline.split(',')
-            test_status, test_method_name, test_method_interface, \
+            test_status, strategy_name, interface, \
                 result_numSources, \
                 result_dataSize, result_dataSizeExp, \
                 result_actualNumPeople, \
                 result_elapsedTime, result_foundNumPeople, \
                 result_IsCloudMode, result_CanAssumeNoDupesPerPartition, \
+                finishedAt, *rest \
                 = tuple(fields)
             if test_status != 'success':
                 print("Excluding line: " + textline)
                 continue
             result = PersistedRunResult(
                 status=test_status,
-                stategy_name=test_method_name,
-                interface=test_method_interface,
+                strategy_name=strategy_name,
+                interface=interface,
                 numSources=int(result_numSources),
                 dataSize=int(result_dataSize),
                 dataSizeExp=int(result_dataSizeExp),

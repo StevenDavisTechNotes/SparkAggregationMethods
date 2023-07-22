@@ -2,6 +2,7 @@
 import pyspark.sql.functions as func
 import pyspark.sql.types as DataTypes
 from pyspark.sql import Row
+from pyspark.sql import DataFrame as spark_DataFrame
 
 from .DedupeDataTypes import RecordSparseStruct
 
@@ -53,8 +54,8 @@ def IsMatch(iFirstName, jFirstName, iLastName, jLastName, iZipCode, jZipCode, iS
         return False
     if iSecretKey != jSecretKey:
         raise Exception(f"""
-        False match for {iSecretKey}-{jSecretKey} with itself 
-        iFirstName={iFirstName} jFirstName={jFirstName} actualRatioFirstName={actualRatioFirstName} 
+        False match for {iSecretKey}-{jSecretKey} with itself
+        iFirstName={iFirstName} jFirstName={jFirstName} actualRatioFirstName={actualRatioFirstName}
         iLastName={iLastName} jLastName={jLastName} actualRatioLastName={actualRatioLastName}""")
     return True
 
@@ -80,19 +81,21 @@ udfMatchSingleName = func.udf(
 # region Shared blockprocessing
 
 
-def NestBlocksDataframe(df):
+def NestBlocksDataframe(df: spark_DataFrame, grouped_num_partitions: int):
     df = df \
         .withColumn("BlockingKey",
                     func.hash(
                         df.ZipCode.cast(DataTypes.IntegerType()),
                         func.substring(df.FirstName, 1, 1),
                         func.substring(df.LastName, 1, 1)))
-    df = df \
-        .groupBy(df.BlockingKey) \
+    df = (
+        df
+        .repartition(grouped_num_partitions, df.BlockingKey)
+        .groupBy(df.BlockingKey)
         .agg(func.collect_list(func.struct(*df.columns))
              .alias("BlockedData"))
+    )
     return df
-#
 
 
 def UnnestBlocksDataframe(df):
@@ -102,7 +105,6 @@ def UnnestBlocksDataframe(df):
         .drop(func.col("BlockingKey")) \
         .drop(func.col("SourceId"))
     return df
-#
 
 
 def BlockingFunction(x: Row) -> int:
@@ -110,7 +112,6 @@ def BlockingFunction(x: Row) -> int:
         int(x.ZipCode), x.FirstName[0], x.LastName[0]))
 
 
-#
 # FindRecordMatches_RecList
 FindRecordMatches_RecList_Returns = DataTypes.ArrayType(
     DataTypes.StructType([
@@ -126,9 +127,9 @@ FindRecordMatches_RecList_Returns = DataTypes.ArrayType(
 def FindRecordMatches_RecList(recordList):
     n = len(recordList)
     edgeList = []
-    for i in range(0, n-1):
+    for i in range(0, n - 1):
         irow = recordList[i]
-        for j in range(i+1, n):
+        for j in range(i + 1, n):
             jrow = recordList[j]
             if irow.SourceId == jrow.SourceId:
                 continue
@@ -148,7 +149,6 @@ def FindRecordMatches_RecList(recordList):
     return edgeList
 
 
-#
 # FindConnectedComponents_RecList
 FindConnectedComponents_RecList_Returns = DataTypes.ArrayType(
     DataTypes.StructType([
@@ -198,7 +198,6 @@ def FindConnectedComponents_RecList(edgeList):
     return componentList
 
 
-#
 # MergeItems_RecList
 MergeItems_RecList_Returns = DataTypes.ArrayType(
     DataTypes.StructType(
@@ -226,7 +225,6 @@ def MergeItems_RecList(blockedDataList, connectedComponentList):
             continue
         returnList.append(rec)
     return returnList
-#
 
 
 def CombineRowList(constituentList):
@@ -307,7 +305,6 @@ def CombineRowList(constituentList):
     return row
 
 
-#
 SinglePass_RecList_DF_Returns = MergeItems_RecList_Returns
 
 
@@ -317,5 +314,5 @@ def SinglePass_RecList(blockedData):
     firstOrderEdges = None
     mergedItems = MergeItems_RecList(blockedData, connectedComponents)
     return mergedItems
-#
+
 # endregion

@@ -3,19 +3,18 @@ from typing import Tuple
 
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
-from pyspark.sql import Row
 
-from SixFieldTestData import DataSet, ExecutionParameters
-from Utils.SparkUtils import TidySparkSession, cast_no_arg_sort_by_key
+from SixFieldCommon.SixFieldTestData import DataSet, ExecutionParameters
+from Utils.SparkUtils import TidySparkSession
 
-from ..CondDataTypes import SubTotal
+from ..CondDataTypes import GrpTotal, SubTotal
 
 
 def cond_rdd_mappart(
     spark_session: TidySparkSession,
     _exec_params: ExecutionParameters,
     data_set: DataSet,
-) -> Tuple[RDD | None, spark_DataFrame | None]:
+) -> Tuple[RDD[GrpTotal] | None, spark_DataFrame | None]:
 
     class MutableRunningTotal:
         def __init__(self):
@@ -82,19 +81,16 @@ def cond_rdd_mappart(
         cond_sum_of_E_squared = total.running_cond_sum_of_E_squared
         cond_sum_of_E = total.running_cond_sum_of_E
         cond_count = total.running_cond_count
-        return Row(
+        return GrpTotal(
             grp=key[0], subgrp=key[1],
             mean_of_C=math.nan
             if cond_count < 1 else
             sum_of_C / uncond_count,
             max_of_D=max_of_D,
-            cond_var_of_E=math.nan
-            if cond_count < 2 else
-            (
-                cond_sum_of_E_squared -
-                cond_sum_of_E *
-                cond_sum_of_E / cond_count
-            ) / (cond_count - 1))
+            cond_var_of_E=(
+                cond_sum_of_E_squared / cond_count
+                - (cond_sum_of_E / cond_count)**2)
+        )
 
     rddSumCount = (
         data_set.rddSrc
@@ -103,9 +99,7 @@ def cond_rdd_mappart(
             numPartitions=data_set.NumGroups * data_set.NumSubGroups)
         .map(lambda kv: (kv[0], mergeCombiners3(kv[0], kv[1])))
         .map(lambda kv: (kv[0], finalAnalytics2(kv[0], kv[1])))
-    )
-    rddSumCount = (
-        cast_no_arg_sort_by_key(rddSumCount)
         .sortByKey()
+        .values()
     )
     return rddSumCount, None

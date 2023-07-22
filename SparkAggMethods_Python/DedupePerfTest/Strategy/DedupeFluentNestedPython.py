@@ -7,16 +7,14 @@ from ..DedupeDomain import (
     NestBlocksDataframe, SinglePass_RecList, SinglePass_RecList_DF_Returns, UnnestBlocksDataframe)
 from ..DedupeDataTypes import DataSetOfSizeOfSources, ExecutionParameters, RecordSparseStruct
 
-# region method_fluent_nested_python
 
-
-def method_fluent_nested_python(
+def dedupe_fluent_nested_python(
     spark_session: TidySparkSession,
     data_params: ExecutionParameters,
     data_set: DataSetOfSizeOfSources,
 ):
     dfSrc = data_set.df
-    df = NestBlocksDataframe(dfSrc)
+    df = NestBlocksDataframe(dfSrc, data_set.grouped_num_partitions)
     df = df \
         .withColumn("MergedItems",
                     func.udf(SinglePass_RecList,
@@ -24,6 +22,3 @@ def method_fluent_nested_python(
                         df.BlockedData))
     df = UnnestBlocksDataframe(df)
     return None, df
-
-
-# endregion

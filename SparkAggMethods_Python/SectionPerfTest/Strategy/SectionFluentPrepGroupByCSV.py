@@ -4,11 +4,11 @@ from typing import List, Tuple
 import pyspark.sql.types as DataTypes
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
+from SectionPerfTest.Strategy.SectionRddPrepShared import section_prep_groupby_core
 
 from Utils.SparkUtils import TidySparkSession
 
-from ..SectionLogic import (
-    method_prep_groupby_core, parseLineToRow, rowToStudentSummary)
+from ..SectionLogic import parseLineToRow, rowToStudentSummary
 from ..SectionTestData import TEST_DATA_FILE_LOCATION
 from ..SectionTypeDefs import (
     DataSetDescription, SparseLineSchema, StudentSummary)
@@ -59,6 +59,6 @@ def method_prepcsv_groupby(
     df = spark.read.format("csv") \
         .schema(SparseLineWithSectionIdLineNoSchema) \
         .load(interFileName)
-    df = method_prep_groupby_core(df, sectionMaximum)
+    df = section_prep_groupby_core(df, sectionMaximum)
     rdd = df.rdd.map(rowToStudentSummary)
     return None, rdd, None

@@ -14,13 +14,14 @@ from pyspark.sql import DataFrame as spark_DataFrame
 
 from Utils.SparkUtils import TidySparkSession
 
+
 @dataclass(frozen=True)
 class ExecutionParameters:
     in_cloud_mode: bool
     NumExecutors: int
     CanAssumeNoDupesPerPartition: bool
     DefaultParallelism: int
-    SufflePartitions: int
+    MinSufflePartitions: int
     test_data_file_location: str
 
 
@@ -66,6 +67,7 @@ RecordSparseStruct = DataTypes.StructType([
 class DataSetOfSizeOfSources:
     num_sources: int
     data_size: int
+    grouped_num_partitions: int
     df: spark_DataFrame
 
 
@@ -89,4 +91,4 @@ class PythonTestMethod:
 class ItineraryItem:
     testMethod: PythonTestMethod
     data_set: DataSetOfSizeOfSources
-    data_sets_of_size: DataSetsOfSize
+    data_sets_by_size: DataSetsOfSize

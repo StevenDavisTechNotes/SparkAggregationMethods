@@ -36,7 +36,7 @@ def method_mappart_odd_even(
     SegmentSize = SegmentOffset + sectionMaximum - 1 + SegmentExtra
     TargetNumPartitions = max(
         NumExecutors, (dataSize + MaximumProcessableSegment - 1) // MaximumProcessableSegment)
-    #
+
     rddTypedWithIndex = rddTypedWithIndexFactory(
         spark_session, filename, TargetNumPartitions)
     rddSegmentsEven = cast(Any, rddTypedWithIndex) \

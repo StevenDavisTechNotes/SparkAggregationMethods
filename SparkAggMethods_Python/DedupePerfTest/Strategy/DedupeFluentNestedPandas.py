@@ -10,10 +10,8 @@ from Utils.SparkUtils import TidySparkSession, dfZipWithIndex
 from ..DedupeDomain import MatchSingleName, MinNotNull
 from ..DedupeDataTypes import DataSetOfSizeOfSources, ExecutionParameters, RecordSparseStruct
 
-# region method_pandas
 
-
-def method_pandas(
+def dedupe_pandas(
     spark_session: TidySparkSession,
     data_params: ExecutionParameters,
     data_set: DataSetOfSizeOfSources,
@@ -134,12 +132,12 @@ def method_pandas(
         connectedComponents = findComponents(matched)
         mergedValue = combineComponents(dfGroup, connectedComponents)
         return mergedValue
+    
+    num_rows_per_partition = data_set.data_size * data_set.num_sources
     df = (
         df
-        .groupby(df.BlockingKey)
+        .repartition(data_set.grouped_num_partitions, df.BlockingKey)
+        .groupBy(df.BlockingKey)
         .applyInPandas(inner_agg_method, RecordSparseStruct)
     )
     return None, df
-
-
-# endregion

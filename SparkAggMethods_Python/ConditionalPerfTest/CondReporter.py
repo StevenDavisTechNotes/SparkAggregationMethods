@@ -3,12 +3,13 @@ import math
 
 import numpy
 import scipy.stats
-from SixFieldTestData import RunResult
+from SixFieldCommon.SixFieldTestData import RunResult
 
 from Utils.LinearRegression import linear_regression
 from .CondDirectory import implementation_list
 
 TEMP_RESULT_FILE_PATH = "d:/temp/SparkPerfTesting/temp.csv"
+
 
 def analyze_run_results():
     cond_runs = {}
@@ -56,7 +57,8 @@ def analyze_run_results():
             'b1_low', 'b1', 'b1_high',
             's2_low', 's2', 's2_high')
         for strategy_name in cond_runs:
-            cond_method = [x for x in implementation_list if x.strategy_name == strategy_name][0]
+            cond_method = [
+                x for x in implementation_list if x.strategy_name == strategy_name][0]
             times = cond_runs[strategy_name]
             size_values = set(x.dataSize for x in times)
             for dataSize in set(x.dataSize for x in times):
@@ -64,7 +66,7 @@ def analyze_run_results():
                 numRuns = len(ar)
                 mean = numpy.mean(ar)
                 stdev = numpy.std(ar, ddof=1)
-                rl, rh = scipy.stats.norm.interval( # type: ignore
+                rl, rh = scipy.stats.norm.interval(  # type: ignore
                     confidence, loc=mean, scale=stdev/math.sqrt(len(ar)))
                 summary_status += "%s,%s,%d,%d,%f,%f,%f,%f\n" % (
                     strategy_name, cond_method.interface,

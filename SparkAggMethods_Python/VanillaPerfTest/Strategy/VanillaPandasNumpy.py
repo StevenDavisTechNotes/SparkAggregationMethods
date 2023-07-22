@@ -4,10 +4,10 @@ import numpy
 import pandas as pd
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
+from pyspark.sql.functions import collect_list
 
-from SixFieldTestData import DataSet, ExecutionParameters
+from SixFieldCommon.SixFieldTestData import DataSet, ExecutionParameters
 from Utils.SparkUtils import TidySparkSession
-
 from ..VanillaDataTypes import agg_columns, groupby_columns, postAggSchema
 
 
@@ -30,13 +30,15 @@ def vanilla_pandas_numpy(
             numpy.mean(C),
             numpy.max(D),
             numpy.var(E),
-            (numpy.inner(E, E) - numpy.sum(E)**2 / E.count()) / (E.count() - 1)
-            if E.count() > 1 else numpy.nan,
+            numpy.inner(E, E) / E.count()
+            - (numpy.sum(E) / E.count())**2,
         ]], columns=groupby_columns + agg_columns)
 
     df = data_set.dfSrc
-    aggregates = (
-        df.groupby(df.grp, df.subgrp)
+    df = (
+        df
+        .groupBy(df.grp, df.subgrp)
         .applyInPandas(inner_agg_method, postAggSchema)
     )
-    return None, aggregates
+    df = df.orderBy(df.grp, df.subgrp)
+    return None, df

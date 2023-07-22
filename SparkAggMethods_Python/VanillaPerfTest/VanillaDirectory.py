@@ -1,6 +1,6 @@
 from typing import List
 
-from SixFieldTestData import PythonTestMethod
+from SixFieldCommon.SixFieldTestData import PythonTestMethod
 from PerfTestCommon import ExternalTestMethod
 
 from .Strategy.VanillaFluent import vanilla_fluent

@@ -3,10 +3,14 @@ from typing import Iterable, TextIO
 from dataclasses import dataclass
 import datetime
 
+from SixFieldCommon.SixFieldTestData import MAX_DATA_POINTS_PER_PARTITION, DataSet
+from Utils.Utils import int_divide_round_up
+
 from .BiLevelDirectory import PythonTestMethod
 
 RESULT_FILE_PATH = 'Results/bi_level_runs.csv'
 FINAL_REPORT_FILE_PATH = '../Results/python/bi_level_results_20230618.csv'
+EXPECTED_SIZES = [1, 10, 100, 1000]
 
 
 @dataclass(frozen=True)
@@ -26,14 +30,30 @@ class PersistedRunResult:
     elapsedTime: float
     recordCount: int
 
+
+def regressor_from_run_result(result: PersistedRunResult) -> int:
+    return result.relCard
+
+
+def infeasible(strategy_name: str, data_set: DataSet) -> bool:
+    match strategy_name:
+        case 'bi_rdd_grpmap':
+            return (
+                data_set.NumDataPoints
+                > MAX_DATA_POINTS_PER_PARTITION
+                * data_set.NumGroups)
+        case _:
+            return False
+
+
 def write_header(file: TextIO):
     print(' strategy,interface,dataSize,relCard,elapsedTime,recordCount,finishedAt,', file=file)
     file.flush()
 
 
 def write_run_result(
-        test_method: PythonTestMethod, 
-        result: RunResult, 
+        test_method: PythonTestMethod,
+        result: RunResult,
         file: TextIO
 ):
     print("%s,%s,%d,%d,%f,%d,%s," % (
@@ -42,6 +62,7 @@ def write_run_result(
         datetime.datetime.now().isoformat(),
     ), file=file)
     file.flush()
+
 
 def read_result_file() -> Iterable[PersistedRunResult]:
     with open(RESULT_FILE_PATH, 'r', encoding='utf-8-sig') as f:

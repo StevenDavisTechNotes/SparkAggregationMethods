@@ -1,10 +1,10 @@
-from typing import Optional, Tuple
+from typing import Iterable, Optional, Tuple
 
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 from pyspark.sql import Row
 
-from SixFieldTestData import DataSet, ExecutionParameters
+from SixFieldCommon.SixFieldTestData import MAX_DATA_POINTS_PER_PARTITION, DataPoint, DataSet, ExecutionParameters
 from Utils.SparkUtils import TidySparkSession
 
 
@@ -22,7 +22,7 @@ def bi_rdd_grpmap(
             self.running_sub_sum_of_E = 0
             self.running_sub_count = 0
 
-    def processData1(grp, iterator):
+    def processData1(grp: int, iterator: Iterable[DataPoint]):
         import math
         import statistics
         running_sum_of_C = 0
@@ -46,15 +46,10 @@ def bi_rdd_grpmap(
             running_sub.running_sub_count += 1
         mean_of_C = running_sum_of_C / running_grp_count \
             if running_grp_count > 0 else math.nan
-        ar = [math.nan if
-              x.running_sub_count < 2 else
-              (
-                  x.running_sub_sum_of_E_squared
-                  - x.running_sub_sum_of_E *
-                  x.running_sub_sum_of_E /
-                  x.running_sub_count
-              ) / (x.running_sub_count - 1)
-              for x in running_subs_of_E.values()]
+        ar = [(
+            x.running_sub_sum_of_E_squared / x.running_sub_count
+            - (x.running_sub_sum_of_E / x.running_sub_count)**2)
+            for x in running_subs_of_E.values()]
         avg_var_of_E = statistics.mean(ar)
         return (grp,
                 Row(grp=grp,
@@ -62,9 +57,20 @@ def bi_rdd_grpmap(
                     max_of_D=running_max_of_D,
                     avg_var_of_E=avg_var_of_E))
 
-    rddResult = rddSrc\
-        .groupBy(lambda x: (x.grp))\
-        .map(lambda pair: processData1(pair[0], pair[1]))\
-        .repartition(1)\
-        .sortByKey().values()
+    if (
+            data_set.NumDataPoints
+            > MAX_DATA_POINTS_PER_PARTITION
+            * data_set.NumGroups
+    ):
+        raise ValueError(
+            "This strategy only works if all of the values per key can fit into memory at once.")
+
+    rddResult = (
+        rddSrc
+        .groupBy(lambda x: x.grp)
+        .map(lambda pair: processData1(pair[0], pair[1]))
+        .repartition(numPartitions=1)
+        .sortByKey()  # type: ignore
+        .values()
+    )
     return rddResult, None

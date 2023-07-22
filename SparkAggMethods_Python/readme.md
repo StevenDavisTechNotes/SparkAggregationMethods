@@ -23,3 +23,10 @@ pip install -r .\requirements.txt
 
 Then
 Close and reopen VSCode
+
+# Handy command lines
+flake8 .
+autopep8 --recursive --diff . | findstr /i /c:'--- original/'
+autopep8 --recursive  --in-place .
+
+

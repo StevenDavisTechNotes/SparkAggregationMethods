@@ -8,7 +8,7 @@ from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 
 from Utils.SparkUtils import TidySparkSession
-from SixFieldTestData import DataSet, ExecutionParameters
+from SixFieldCommon.SixFieldTestData import DataSet, ExecutionParameters
 
 from ..VanillaDataTypes import agg_columns, groupby_columns, postAggSchema
 
@@ -41,7 +41,7 @@ def vanilla_pandas_numba(
         accE = 0.
         for i in prange(n):
             accE += E[i]
-        return (accE2 - accE**2 / n) / (n - 1)
+        return accE2 / n - (accE/ n)**2
 
     def inner_agg_method(dfPartition):
         group_key = dfPartition['grp'].iloc[0]
@@ -58,8 +58,9 @@ def vanilla_pandas_numba(
             my_looplift_var(E),
         ]], columns=groupby_columns + agg_columns)
 
-    aggregates = (
+    df = (
         df.groupby(df.grp, df.subgrp)
         .applyInPandas(inner_agg_method, postAggSchema)
+        .orderBy(df.grp, df.subgrp)
     )
-    return None, aggregates
+    return None, df

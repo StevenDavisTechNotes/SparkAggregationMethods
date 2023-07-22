@@ -4,11 +4,12 @@ import pyspark.sql.types as DataTypes
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 from pyspark.sql import Row
+from SectionPerfTest.Strategy.SectionRddPrepShared import section_prep_groupby_core
 
 from Utils.SparkUtils import TidySparkSession
 
 from ..SectionLogic import (
-    identifySectionUsingIntermediateFile, method_prep_groupby_core, rowToStudentSummary)
+    identifySectionUsingIntermediateFile, rowToStudentSummary)
 from ..SectionRunResult import MaximumProcessableSegment, NumExecutors
 from ..SectionTypeDefs import (
     DataSetDescription,
@@ -77,6 +78,6 @@ def method_prep_groupby(
         .zipWithIndex() \
         .map(parseLineToRowWithLineNo)
     df = spark.createDataFrame(rdd, SparseLineWithSectionIdLineNoSchema)
-    df = method_prep_groupby_core(df, sectionMaximum)
+    df = section_prep_groupby_core(df, sectionMaximum)
     rdd = df.rdd.map(rowToStudentSummary)
     return None, rdd, None

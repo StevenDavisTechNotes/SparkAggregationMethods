@@ -5,7 +5,7 @@ findspark
 flake8
 numba
 numpy>=1.14
-pandas>=0.23.2
+pandas>=0.23.2,<2.0
 psutil 
 pyarrow>=1.0.0
 Py4J>=0.10.9.3

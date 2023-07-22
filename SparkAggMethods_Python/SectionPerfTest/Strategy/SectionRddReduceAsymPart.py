@@ -16,7 +16,6 @@ def method_reduce_partials_broken(
         spark_session: TidySparkSession,
         data_set: DataSetDescription,
 ) -> Tuple[List[StudentSummary] | None, RDD | None, spark_DataFrame | None]:
-    sectionMaximum = data_set.sectionMaximum
     dataSize = data_set.dataSize
     filename = data_set.filename
     TargetNumPartitions = max(

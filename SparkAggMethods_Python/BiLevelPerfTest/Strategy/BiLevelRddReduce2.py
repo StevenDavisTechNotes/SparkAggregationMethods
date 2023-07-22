@@ -6,7 +6,7 @@ from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 from pyspark.sql import Row
 
-from SixFieldTestData import DataSet, ExecutionParameters
+from SixFieldCommon.SixFieldTestData import DataSet, ExecutionParameters
 from Utils.SparkUtils import TidySparkSession
 
 SubTotal = collections.namedtuple(
@@ -58,7 +58,6 @@ def bi_rdd_reduce2(
         running_sum_of_C = 0
         running_grp_count = 0
         running_max_of_D = None
-        running_subs_of_E = {}
         running_sum_of_var_of_E = 0
         running_count_of_subgrp = 0
 
@@ -70,13 +69,10 @@ def bi_rdd_reduce2(
                 if running_max_of_D is None or \
                 running_max_of_D < sub.running_max_of_D \
                 else running_max_of_D
-            var_of_E = math.nan \
-                if count < 2 else \
-                (
-                    sub.running_sum_of_E_squared -
-                    sub.running_sum_of_E *
-                    sub.running_sum_of_E / count
-                ) / (count - 1)
+            var_of_E = (
+                sub.running_sum_of_E_squared / count
+                - (sub.running_sum_of_E / count)**2
+            )
             running_sum_of_var_of_E += var_of_E
             running_count_of_subgrp += 1
 
@@ -86,19 +82,19 @@ def bi_rdd_reduce2(
             if running_grp_count < 1 else
             running_sum_of_C / running_grp_count,
             max_of_D=running_max_of_D,
-            avg_var_of_E=math.nan
-            if running_count_of_subgrp < 1 else
-            running_sum_of_var_of_E /
-            running_count_of_subgrp)
+            avg_var_of_E=running_sum_of_var_of_E / running_count_of_subgrp)
 
-    rddResult = rddSrc \
-        .map(lambda x: ((x.grp, x.subgrp), x))\
+    rddResult = (
+        rddSrc
+        .map(lambda x: ((x.grp, x.subgrp), x))
         .combineByKey(createCombiner,
                       mergeValue,
                       mergeCombiners,
-                      numPartitions=data_set.AggTgtNumPartitions)\
-        .map(lambda x: (x[0][0], x[1]))\
-        .groupByKey(numPartitions=1)\
-        .map(lambda x: (x[0], finalAnalytics(x[0], x[1])))\
-        .sortByKey().values()
+                      numPartitions=data_set.AggTgtNumPartitions)
+        .map(lambda x: (x[0][0], x[1]))
+        .groupByKey(numPartitions=1)
+        .map(lambda x: (x[0], finalAnalytics(x[0], x[1])))
+        .sortByKey()
+        .values()
+    )
     return rddResult, None

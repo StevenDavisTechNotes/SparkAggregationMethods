@@ -8,72 +8,106 @@ import numpy
 from scipy.stats import norm as scipy_stats_norm  # type: ignore
 
 from PerfTestCommon import ExternalTestMethod, TestMethodDescription
-from SixFieldTestData import PythonTestMethod
+from SixFieldCommon.SixFieldTestData import PythonTestMethod
 
 from .VanillaDirectory import implementation_list, scala_implementation_list
-from .VanillaRunResult import (FINAL_REPORT_FILE_PATH, PYTHON_RESULT_FILE_PATH,
-                               SCALA_RESULT_FILE_PATH, RunResult)
+from .VanillaRunResult import (EXPECTED_SIZES, FINAL_REPORT_FILE_PATH, PYTHON_RESULT_FILE_PATH,
+                               SCALA_RESULT_FILE_PATH, PersistedRunResult, RunResult, regressor_from_run_result)
 
 
-def parse_results() -> Dict[str, List[RunResult]]:
-    cond_runs = {}
+def read_python_file() -> List[PersistedRunResult]:
+    test_runs: List[PersistedRunResult] = []
+    with open(PYTHON_RESULT_FILE_PATH, 'r') as f:
+        for textline in f:
+            textline = textline.rstrip()
+            if textline.startswith('#'):
+                print("Excluding line: " + textline)
+                continue
+            if textline.find(',') < 0:
+                print("Excluding line: " + textline)
+                continue
+            fields = textline.rstrip().split(',')
+            strategy_name, interface, result_dataSize, \
+                result_elapsedTime, result_recordCount, \
+                result_datetime, result_blank  \
+                = tuple(fields)
+            if result_recordCount != '9':
+                print("Excluding line: " + textline)
+                continue
+            language = 'python'
+            result = PersistedRunResult(
+                strategy_name=strategy_name,
+                language=language,
+                strategy_w_language_name=f"{strategy_name}_{language}",
+                interface=interface,
+                dataSize=int(result_dataSize),
+                elapsedTime=float(result_elapsedTime),
+                recordCount=int(result_recordCount))
+            test_runs.append(result)
+    return test_runs
+
+
+def read_scala_file() -> List[PersistedRunResult]:
+    test_runs: List[PersistedRunResult] = []
+    with open(SCALA_RESULT_FILE_PATH, 'r') as f:
+        for textline in f:
+            textline = textline.rstrip()
+            if textline.startswith('#'):
+                print("Excluding line: " + textline)
+                continue
+            if textline.startswith(' '):
+                print("Excluding line: " + textline)
+                continue
+            if textline.find(',') < 0:
+                print("Excluding line: " + textline)
+                continue
+            fields = textline.rstrip().split(',')
+            outcome, strategy_name, interface, expectedSize, returnedSize, elapsedTime = tuple(
+                fields)
+            if outcome != 'success':
+                print("Excluding line: " + textline)
+                continue
+            if returnedSize != '9':
+                print("Excluding line: " + textline)
+                continue
+            language='scala'
+            result = PersistedRunResult(
+                strategy_name=strategy_name,
+                language=language,
+                strategy_w_language_name=f"{strategy_name}_{language}",
+                interface=interface,
+                dataSize=int(expectedSize),
+                elapsedTime=float(elapsedTime),
+                recordCount=-1)
+            test_runs.append(result)
+    return test_runs
+
+
+def parse_results() -> List[PersistedRunResult]:
+    cond_runs: List[PersistedRunResult] = []
     if os.path.exists(PYTHON_RESULT_FILE_PATH):
-        with open(PYTHON_RESULT_FILE_PATH, 'r') as f:
-            for textline in f:
-                textline = textline.rstrip()
-                if textline.startswith('#'):
-                    print("Excluding line: " + textline)
-                    continue
-                if textline.find(',') < 0:
-                    print("Excluding line: " + textline)
-                    continue
-                fields = textline.rstrip().split(',')
-                cond_method_name, cond_method_interface, result_dataSize, \
-                    result_elapsedTime, result_recordCount, \
-                    result_datetime, result_blank  \
-                    = tuple(fields)
-                if result_recordCount != '9':
-                    print("Excluding line: " + textline)
-                    continue
-                typed_method_name = f"{cond_method_name}_python"
-                if typed_method_name not in cond_runs:
-                    cond_runs[typed_method_name] = []
-                result = RunResult(
-                    dataSize=int(result_dataSize),
-                    elapsedTime=float(result_elapsedTime),
-                    recordCount=int(result_recordCount))
-                cond_runs[typed_method_name].append(result)
+        cond_runs += read_python_file()
     if os.path.exists(SCALA_RESULT_FILE_PATH):
-        with open(SCALA_RESULT_FILE_PATH, 'r') as f:
-            for textline in f:
-                textline = textline.rstrip()
-                if textline.startswith('#'):
-                    print("Excluding line: " + textline)
-                    continue
-                if textline.startswith(' '):
-                    print("Excluding line: " + textline)
-                    continue
-                if textline.find(',') < 0:
-                    print("Excluding line: " + textline)
-                    continue
-                fields = textline.rstrip().split(',')
-                outcome, rawmethod, interface, expectedSize, returnedSize, elapsedTime = tuple(
-                    fields)
-                if outcome != 'success':
-                    print("Excluding line: " + textline)
-                    continue
-                if returnedSize != '9':
-                    print("Excluding line: " + textline)
-                    continue
-                typed_method_name = f"{rawmethod}_scala"
-                if typed_method_name not in cond_runs:
-                    cond_runs[typed_method_name] = []
-                result = RunResult(
-                    dataSize=int(expectedSize),
-                    elapsedTime=float(elapsedTime),
-                    recordCount=-1)
-                cond_runs[typed_method_name].append(result)
+        cond_runs += read_scala_file()
     return cond_runs
+
+
+def structure_test_results(
+        test_runs: List[PersistedRunResult]
+) -> Dict[str, Dict[int, List[PersistedRunResult]]]:
+    test_methods = {x.strategy_name for x in implementation_list}.union([x.strategy_name for x in test_runs])
+    test_x_values = set(EXPECTED_SIZES).union([regressor_from_run_result(x) for x in test_runs])
+    test_results = {method: {x: [] for x in test_x_values} for method in test_methods}
+    for result in test_runs:
+        test_results[result.strategy_name][result.dataSize].append(result)
+    return test_results
+
+
+def make_runs_summary(test_results: Dict[str, Dict[int, List[PersistedRunResult]]]) -> Dict[str, Dict[int, int]]:
+    return {strategy_name:
+            {x_variable: len(runs) for x_variable, runs in runs_for_strategy_name.items()}
+            for strategy_name, runs_for_strategy_name in test_results.items()}
+
 
 
 def do_regression(python_implementation_list: List[PythonTestMethod],

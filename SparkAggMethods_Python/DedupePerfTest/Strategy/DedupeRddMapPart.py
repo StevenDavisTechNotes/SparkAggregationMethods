@@ -1,14 +1,11 @@
-from pyspark.sql import DataFrame as spark_DataFrame
 
 from Utils.SparkUtils import TidySparkSession
 
 from ..DedupeDomain import BlockingFunction, CombineRowList, IsMatch
-from ..DedupeDataTypes import DataSetOfSizeOfSources, ExecutionParameters, RecordSparseStruct
-
-# region method_rdd_mappart
+from ..DedupeDataTypes import DataSetOfSizeOfSources, ExecutionParameters
 
 
-def method_rdd_mappart(
+def dedupe_rdd_mappart(
     spark_session: TidySparkSession,
     data_params: ExecutionParameters,
     data_set: DataSetOfSizeOfSources,
@@ -31,7 +28,6 @@ def method_rdd_mappart(
             rows.append(jrow)
         return rows
 
-
     def core_mappart(iterator):
         store = {}
         for kv in iterator:
@@ -42,9 +38,10 @@ def method_rdd_mappart(
             for row in bucket:
                 yield row
 
-    rdd = dfSrc.rdd \
-        .keyBy(BlockingFunction) \
-        .partitionBy(data_params.NumExecutors) \
+    rdd = (
+        dfSrc.rdd
+        .keyBy(BlockingFunction)
+        .partitionBy(data_set.grouped_num_partitions)
         .mapPartitions(core_mappart)
+    )
     return rdd, None
-# endregion

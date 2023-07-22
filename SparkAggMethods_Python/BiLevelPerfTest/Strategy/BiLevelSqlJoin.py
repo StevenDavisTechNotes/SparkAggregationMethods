@@ -3,7 +3,7 @@ from typing import Optional, Tuple
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 
-from SixFieldTestData import DataSet, ExecutionParameters
+from SixFieldCommon.SixFieldTestData import DataSet, ExecutionParameters
 from Utils.SparkUtils import TidySparkSession
 
 
@@ -34,9 +34,9 @@ def bi_sql_join(
         (SELECT 
                 grp,
                 subgrp,
-                VARIANCE(E) var_of_E,
-                (SUM(E * E) - 
-                SUM(E)*AVG(E))/(COUNT(E)-1) var_of_E2
+                VAR_POP(E) var_of_E,
+                (SUM(E * E) /COUNT(E) - 
+                POWER(AVG(E), 2)) var_of_E2
             FROM
                 exampledata
             GROUP BY grp , subgrp

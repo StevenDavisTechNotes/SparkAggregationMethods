@@ -1,12 +1,16 @@
 import hashlib
 import os
+from pathlib import Path
 from typing import List
 
 import pyspark.sql.functions as func
 from pyspark.sql import SparkSession
+from Utils.SparkUtils import NUM_EXECUTORS
+
+from Utils.Utils import always_true, int_divide_round_up
 from .DedupeDataTypes import ExecutionParameters, RecordSparseStruct, DataSetOfSizeOfSources, DataSetsOfSize
 
-# region DoGenData
+MAX_DATA_POINTS_PER_PARTITION: int = 10000
 
 
 def nameHash(i):
@@ -35,15 +39,17 @@ LLLLLL{letter}{i}_{nameHash(i)},
 def DoGenData(
     numPeopleList: List[int],
     spark: SparkSession,
-    data_params: ExecutionParameters
+    exec_params: ExecutionParameters
 ) -> List[DataSetsOfSize]:
-    rootPath = os.path.join(data_params.test_data_file_location, "Dedupe_Test_Data")
+    rootPath = os.path.join(
+        exec_params.test_data_file_location, "Dedupe_Test_Data")
     recordAFilename = rootPath + "/Dedupe_FieldA%d.csv"
     recordBFilename = rootPath + "/Dedupe_FieldB%d.csv"
     recordCFilename = rootPath + "/Dedupe_FieldC%d.csv"
     recordDFilename = rootPath + "/Dedupe_FieldD%d.csv"
     recordEFilename = rootPath + "/Dedupe_FieldE%d.csv"
     recordFFilename = rootPath + "/Dedupe_FieldF%d.csv"
+    Path(recordAFilename).parent.mkdir(parents=True, exist_ok=True)
     srcDfListList: List[DataSetsOfSize] = []
     for numPeople in numPeopleList:
         if not os.path.isfile(recordFFilename % numPeople):
@@ -65,7 +71,7 @@ def DoGenData(
             with open(recordFFilename % numPeople, "w") as f:
                 for i in range(1, numPeople + 1):
                     f.write(line(i, 'F',))
-        if data_params.CanAssumeNoDupesPerPartition:
+        if exec_params.CanAssumeNoDupesPerPartition:
             dfA = (spark.read
                    .csv(
                        recordAFilename % numPeople,
@@ -137,16 +143,30 @@ def DoGenData(
         data_set_3_sources = dfA.unionAll(dfB).unionAll(dfC)
         data_set_6_sources = dfA.unionAll(dfB).unionAll(dfC) \
             .unionAll(dfD).unionAll(dfE).unionAll(dfF)
-        if data_params.CanAssumeNoDupesPerPartition is False:  # Scramble
-            data_set_2_sources = data_set_2_sources.repartition(data_params.NumExecutors)
-            data_set_3_sources = data_set_3_sources.repartition(data_params.NumExecutors)
-            data_set_6_sources = data_set_6_sources.repartition(data_params.NumExecutors)
+        if exec_params.CanAssumeNoDupesPerPartition is False:  # Scramble
+            data_set_2_sources = data_set_2_sources.repartition(
+                exec_params.NumExecutors)
+            data_set_3_sources = data_set_3_sources.repartition(
+                exec_params.NumExecutors)
+            data_set_6_sources = data_set_6_sources.repartition(
+                exec_params.NumExecutors)
         data_set_2_sources.persist()
         data_set_3_sources.persist()
         data_set_6_sources.persist()
-        srcDfListList.append(DataSetsOfSize(numPeople, [
-            DataSetOfSizeOfSources(2, data_set_2_sources.count(), data_set_2_sources),
-            DataSetOfSizeOfSources(3, data_set_3_sources.count(), data_set_3_sources),
-            DataSetOfSizeOfSources(6, data_set_6_sources.count(), data_set_6_sources),]))
+        data_sets = [(2, data_set_2_sources), (3, data_set_3_sources), (6, data_set_6_sources)]
+        data_sets = [(num_sources, df.count(), df) for (num_sources, df) in data_sets]
+        data_sets = [
+            DataSetOfSizeOfSources(
+                num_sources=num_sources,
+                data_size=data_size,
+                grouped_num_partitions=num_partitions,
+                df=df)
+            for (num_sources, data_size, df) in data_sets
+            if always_true(num_partitions := max(
+                NUM_EXECUTORS * 2,
+                exec_params.MinSufflePartitions,
+                int_divide_round_up(
+                    data_size,
+                    MAX_DATA_POINTS_PER_PARTITION)))]
+        srcDfListList.append(DataSetsOfSize(num_people=numPeople, data_sets=data_sets))
     return srcDfListList
-# endregion

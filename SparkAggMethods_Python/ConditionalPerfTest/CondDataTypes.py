@@ -1,7 +1,7 @@
 
 import pyspark.sql.types as DataTypes
 
-from SixFieldTestData import DataPointSchema
+from SixFieldCommon.SixFieldTestData import DataPointSchema
 import collections
 
 

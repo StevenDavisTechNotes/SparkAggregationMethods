@@ -5,7 +5,7 @@ import pandas as pd
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 
-from SixFieldTestData import DataSet, ExecutionParameters
+from SixFieldCommon.SixFieldTestData import DataSet, ExecutionParameters
 from Utils.SparkUtils import TidySparkSession
 
 from ..VanillaDataTypes import agg_columns, groupby_columns, postAggSchema
@@ -25,20 +25,21 @@ def vanilla_pandas(
         D = dfPartition['D']
         E = dfPartition['E']
         var_of_E2 = (
-            ((E * E).sum() - E.sum()**2 / E.count()) / (E.count() - 1)
-            if E.count() > 1 else numpy.nan)
+            (E * E).sum() / E.count()
+            - (E.sum() / E.count())**2)
         return pd.DataFrame([[
             group_key,
             subgroup_key,
             C.mean(),
             D.max(),
-            E.var(),
+            E.var(ddof=0),
             var_of_E2,
         ]], columns=groupby_columns + agg_columns)
 
-    aggregates = (
+    df = (
         df
-        .groupby(df.grp, df.subgrp)
+        .groupBy(df.grp, df.subgrp)
         .applyInPandas(inner_agg_method, postAggSchema)
     )
-    return None, aggregates
+    df = df.orderBy(df.grp, df.subgrp)
+    return None, df

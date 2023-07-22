@@ -12,7 +12,8 @@ from pyspark.sql.dataframe import DataFrame as spark_DataFrame
 import pyspark.sql.types as DataTypes
 
 SPARK_SRATCH_FOLDER = "C:\\temp\\spark_scratch"
-NUM_EXECUTORS = 8
+NUM_EXECUTORS = 7
+
 
 class RddWithNoArgSortByKey:
     def __init__(self, src: RDD) -> None:
@@ -69,6 +70,7 @@ class TidySparkSession:
             .config("spark.pyspark.python", full_path_to_python)
             .config("spark.ui.enabled", "false")
             .config('spark.hadoop.mapreduce.fileoutputcommitter.algorithm.version', 2)
+            .config("spark.sql.execution.arrow.pyspark.enabled", "true")
         )
         for key, value in config_dict.items():
             spark = spark.config(key, value)
@@ -113,18 +115,18 @@ def dfZipWithIndex(
         :param offset: adjustment to zipWithIndex()'s index
         :param colName: name of the index column
     '''
-    #
+
     new_schema = DataTypes.StructType(
         [DataTypes.StructField(
             colName, DataTypes.LongType(), True)]
         + df.schema.fields)
-    #
+
     zipped_rdd = df.rdd.zipWithIndex()
-    #
+
     new_rdd = zipped_rdd.map(
         lambda kv: ([kv[1] + offset] + list(kv[0])))
-    #
+
     return spark.createDataFrame(new_rdd, new_schema)
 
 
-#
+

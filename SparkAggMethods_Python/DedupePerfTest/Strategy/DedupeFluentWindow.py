@@ -7,17 +7,17 @@ from Utils.SparkUtils import TidySparkSession, dfZipWithIndex
 from ..DedupeDomain import udfMatchSingleName
 from ..DedupeDataTypes import DataSetOfSizeOfSources, ExecutionParameters
 
-# region method_fluent_windows
 
-
-def method_fluent_windows(
+def dedupe_fluent_windows(
     spark_session: TidySparkSession,
     data_params: ExecutionParameters,
     data_set: DataSetOfSizeOfSources,
 ):
     dfSrc = data_set.df
 
-    numPartitions = 4 * data_params.NumExecutors  # cross product
+    numPartitions = max(
+        4 * data_params.NumExecutors,  # cross product
+        data_set.grouped_num_partitions)
     df = dfZipWithIndex(dfSrc, spark=spark_session.spark, colName="RowId")
     df = df \
         .withColumn("BlockingKey",
@@ -125,6 +125,3 @@ def method_fluent_windows(
         .drop(df.GroupId) \
         .repartition(2 * data_params.NumExecutors)
     return None, df
-
-
-# endregion

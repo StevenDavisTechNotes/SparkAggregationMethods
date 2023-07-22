@@ -5,7 +5,7 @@ from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 from pyspark.sql import Row
 
-from SixFieldTestData import DataPoint, DataSet, ExecutionParameters
+from SixFieldCommon.SixFieldTestData import DataPoint, DataSet, ExecutionParameters
 from Utils.SparkUtils import TidySparkSession
 
 
@@ -72,21 +72,20 @@ def vanilla_rdd_reduce(
         sum_of_E = total.running_sum_of_E
         return Row(
             grp=key[0], subgrp=key[1],
-            mean_of_C=math.nan
-            if count < 1 else sum_of_C / count,
+            mean_of_C=sum_of_C / count,
             max_of_D=max_of_D,
-            var_of_E=math.nan
-            if count < 2 else (
-                sum_of_E_squared -
-                sum_of_E * sum_of_E / count
-            ) / (count - 1))
+            var_of_E=(
+                sum_of_E_squared / count
+                - (sum_of_E / count) ** 2)
+        )
 
     sumCount: RDD[Row] = (
         rddSrc
         .map(lambda x: ((x.grp, x.subgrp), x))
         .combineByKey(createCombiner2,
                       mergeValue2,
-                      mergeCombiners2)
+                      mergeCombiners2,
+                      numPartitions=data_set.AggTgtNumPartitions)
         .map(lambda kv: finalAnalytics2(kv[0], kv[1])))
     rddResult = sumCount.sortBy(
         keyfunc=lambda x: (x.grp, x.subgrp))  # type: ignore

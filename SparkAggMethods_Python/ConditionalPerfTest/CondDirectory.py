@@ -1,6 +1,6 @@
 from typing import List
 
-from SixFieldTestData import PythonTestMethod
+from SixFieldCommon.SixFieldTestData import PythonTestMethod
 
 from .Strategy.CondFluentJoin import cond_fluent_join
 from .Strategy.CondFluentNested import cond_fluent_nested

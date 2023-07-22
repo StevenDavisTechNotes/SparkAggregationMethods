@@ -4,7 +4,7 @@ import pyspark.sql.functions as func
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 
-from SixFieldTestData import DataSet, ExecutionParameters
+from SixFieldCommon.SixFieldTestData import DataSet, ExecutionParameters
 from Utils.SparkUtils import TidySparkSession
 
 
@@ -23,11 +23,12 @@ def cond_fluent_join(
         .filter(dfData.E < 0) \
         .groupBy(dfData.grp, dfData.subgrp) \
         .agg(
-            func.variance(dfData.E).alias("cond_var_of_E"))
-    df = uncond \
-        .join(cond,
-              (uncond.grp == cond.grp) & (uncond.subgrp == cond.subgrp)) \
-        .drop(cond.grp) \
-        .drop(cond.subgrp) \
-        .orderBy(uncond.grp, uncond.subgrp)
+            func.var_pop(dfData.E).alias("cond_var_of_E"))
+    df = (
+        uncond
+        .join(cond, (uncond.grp == cond.grp) & (uncond.subgrp == cond.subgrp))
+        .drop(cond.grp)
+        .drop(cond.subgrp)
+    )
+    df =df.orderBy(df.grp, df.subgrp)
     return (None, df)

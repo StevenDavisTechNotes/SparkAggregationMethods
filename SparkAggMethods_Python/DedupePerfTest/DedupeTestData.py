@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+from functools import reduce
 import hashlib
 import os
 from pathlib import Path
@@ -5,11 +7,37 @@ from typing import List
 
 import pyspark.sql.functions as func
 from pyspark.sql import SparkSession
+from pyspark.sql import DataFrame as spark_DataFrame
+
 from Utils.SparkUtils import NUM_EXECUTORS
-
 from Utils.Utils import always_true, int_divide_round_up
-from .DedupeDataTypes import ExecutionParameters, RecordSparseStruct, DataSetOfSizeOfSources, DataSetsOfSize
+from .DedupeDataTypes import ExecutionParameters, RecordSparseStruct, DataSetOfSizeOfSources
 
+
+@dataclass(frozen=True)
+class DataSizeDetails:
+    code: str
+    num_people: int
+    num_b_recs: int
+    num_sources: int
+    data_size: int
+
+MAX_EXPONENT = 5
+DATA_SIZE_CODE_TO_DATA_SIZE = {
+    data_size_code: DataSizeDetails(
+        code=data_size_code,
+        num_people=num_people,
+        num_b_recs = num_b_recs,
+        num_sources=num_sources,
+        data_size=num_rows,
+    )
+    for num_people in [10**x for x in range(0, MAX_EXPONENT+1)]
+    for num_sources in [2, 3, 6]
+    if always_true(num_b_recs := max(1, 2 * num_people // 100))
+    if always_true(num_rows := (num_sources-1)*num_people + num_b_recs)
+    if always_true(logical_data_size := num_sources*num_people)
+    if always_true(data_size_code := str(logical_data_size) if logical_data_size < 1000 else f'{logical_data_size//1000}k')
+}
 MAX_DATA_POINTS_PER_PARTITION: int = 10000
 
 
@@ -37,136 +65,85 @@ LLLLLL{letter}{i}_{nameHash(i)},
 
 
 def DoGenData(
-    numPeopleList: List[int],
+    # numPeopleList: List[int],
+    data_size_code_list: List[str],
     spark: SparkSession,
     exec_params: ExecutionParameters
-) -> List[DataSetsOfSize]:
+) -> List[DataSetOfSizeOfSources]:
     rootPath = os.path.join(
         exec_params.test_data_file_location, "Dedupe_Test_Data")
-    recordAFilename = rootPath + "/Dedupe_FieldA%d.csv"
-    recordBFilename = rootPath + "/Dedupe_FieldB%d.csv"
-    recordCFilename = rootPath + "/Dedupe_FieldC%d.csv"
-    recordDFilename = rootPath + "/Dedupe_FieldD%d.csv"
-    recordEFilename = rootPath + "/Dedupe_FieldE%d.csv"
-    recordFFilename = rootPath + "/Dedupe_FieldF%d.csv"
-    Path(recordAFilename).parent.mkdir(parents=True, exist_ok=True)
-    srcDfListList: List[DataSetsOfSize] = []
-    for numPeople in numPeopleList:
-        if not os.path.isfile(recordFFilename % numPeople):
-            with open(recordAFilename % numPeople, "w") as f:
-                for i in range(1, numPeople + 1):
-                    f.write(line(i, 'A'))
-            with open(recordBFilename % numPeople, "w") as f:
-                for i in range(1, max(1, 2 * numPeople // 100) + 1):
-                    f.write(line(i, 'B'))
-            with open(recordCFilename % numPeople, "w") as f:
-                for i in range(1, numPeople + 1):
-                    f.write(line(i, 'C'))
-            with open(recordDFilename % numPeople, "w") as f:
-                for i in range(1, numPeople + 1):
-                    f.write(line(i, 'D',))
-            with open(recordEFilename % numPeople, "w") as f:
-                for i in range(1, numPeople + 1):
-                    f.write(line(i, 'E',))
-            with open(recordFFilename % numPeople, "w") as f:
-                for i in range(1, numPeople + 1):
-                    f.write(line(i, 'F',))
+    source_codes = ['A', 'B', 'C', 'D', 'E', 'F']
+
+    def derive_file_path(source_code: str, num_people: int) -> str:
+        return rootPath + "/Dedupe_Field%s%d.csv" % (source_code, num_people)
+
+    Path(rootPath).mkdir(parents=True, exist_ok=True)
+    all_data_sets: List[DataSetOfSizeOfSources] = []
+    target_data_size_list = [DATA_SIZE_CODE_TO_DATA_SIZE[x] for x in data_size_code_list]
+    for num_people in sorted({x.num_people for x in target_data_size_list}):
+        for source_code in source_codes:
+            file_path = derive_file_path(source_code, num_people)
+            if not os.path.isfile(file_path):
+                num_people_to_represent = (
+                    num_people
+                    if source_code != 'B' else
+                    max(1, 2 * num_people // 100)
+                )
+                with open(file_path, "w") as f:
+                    for i in range(1, num_people_to_represent + 1):
+                        f.write(line(i, source_code))
+        single_source_data_frames: List[spark_DataFrame]
         if exec_params.CanAssumeNoDupesPerPartition:
-            dfA = (spark.read
-                   .csv(
-                       recordAFilename % numPeople,
-                       schema=RecordSparseStruct)
-                   .coalesce(1)
-                   .withColumn("SourceId", func.lit(0)))
-            dfB = (spark.read
-                   .csv(
-                       recordBFilename % numPeople,
-                       schema=RecordSparseStruct)
-                   .coalesce(1)
-                   .withColumn("SourceId", func.lit(1)))
-            dfC = (spark.read
-                   .csv(
-                       recordCFilename % numPeople,
-                       schema=RecordSparseStruct)
-                   .coalesce(1)
-                   .withColumn("SourceId", func.lit(2)))
-            dfD = (spark.read
-                   .csv(
-                       recordDFilename % numPeople,
-                       schema=RecordSparseStruct)
-                   .coalesce(1)
-                   .withColumn("SourceId", func.lit(3)))
-            dfE = (spark.read
-                   .csv(
-                       recordEFilename % numPeople,
-                       schema=RecordSparseStruct)
-                   .coalesce(1)
-                   .withColumn("SourceId", func.lit(4)))
-            dfF = (spark.read
-                   .csv(
-                       recordFFilename % numPeople,
-                       schema=RecordSparseStruct)
-                   .coalesce(1)
-                   .withColumn("SourceId", func.lit(5)))
+            single_source_data_frames = [
+                (spark.read
+                 .csv(
+                     derive_file_path(source_code, num_people),
+                     schema=RecordSparseStruct)
+                 .coalesce(1)
+                 .withColumn("SourceId", func.lit(isource)))
+                for isource, source_code in enumerate(source_codes)
+            ]
         else:
-            dfA = (spark.read
-                   .csv(
-                       recordAFilename % numPeople,
-                       schema=RecordSparseStruct)
-                   .withColumn("SourceId", func.lit(0)))
-            dfB = (spark.read
-                   .csv(
-                       recordBFilename % numPeople,
-                       schema=RecordSparseStruct)
-                   .withColumn("SourceId", func.lit(1)))
-            dfC = (spark.read
-                   .csv(
-                       recordCFilename % numPeople,
-                       schema=RecordSparseStruct)
-                   .withColumn("SourceId", func.lit(2)))
-            dfD = (spark.read
-                   .csv(
-                       recordDFilename % numPeople,
-                       schema=RecordSparseStruct)
-                   .withColumn("SourceId", func.lit(3)))
-            dfE = (spark.read
-                   .csv(
-                       recordEFilename % numPeople,
-                       schema=RecordSparseStruct)
-                   .withColumn("SourceId", func.lit(4)))
-            dfF = (spark.read
-                   .csv(
-                       recordFFilename % numPeople,
-                       schema=RecordSparseStruct)
-                   .withColumn("SourceId", func.lit(5)))
-        data_set_2_sources = dfA.unionAll(dfB)
-        data_set_3_sources = dfA.unionAll(dfB).unionAll(dfC)
-        data_set_6_sources = dfA.unionAll(dfB).unionAll(dfC) \
-            .unionAll(dfD).unionAll(dfE).unionAll(dfF)
+            single_source_data_frames = [
+                (spark.read
+                 .csv(
+                     derive_file_path(source_code, num_people),
+                     schema=RecordSparseStruct)
+                 .withColumn("SourceId", func.lit(isource)))
+                for isource, source_code in enumerate(source_codes)
+            ]
+
+        def combine_sources(num: int) -> spark_DataFrame:
+            return reduce(
+                lambda dfA, dfB: dfA.unionAll(dfB),
+                [single_source_data_frames[i] for i in range(num)]
+            )
+        quantized_data_sets = {
+            2: combine_sources(2),
+            3: combine_sources(3),
+            6: combine_sources(6),
+        }
         if exec_params.CanAssumeNoDupesPerPartition is False:  # Scramble
-            data_set_2_sources = data_set_2_sources.repartition(
-                exec_params.NumExecutors)
-            data_set_3_sources = data_set_3_sources.repartition(
-                exec_params.NumExecutors)
-            data_set_6_sources = data_set_6_sources.repartition(
-                exec_params.NumExecutors)
-        data_set_2_sources.persist()
-        data_set_3_sources.persist()
-        data_set_6_sources.persist()
-        data_sets = [(2, data_set_2_sources), (3, data_set_3_sources), (6, data_set_6_sources)]
-        data_sets = [(num_sources, df.count(), df) for (num_sources, df) in data_sets]
-        data_sets = [
-            DataSetOfSizeOfSources(
-                num_sources=num_sources,
-                data_size=data_size,
-                grouped_num_partitions=num_partitions,
-                df=df)
-            for (num_sources, data_size, df) in data_sets
-            if always_true(num_partitions := max(
+            quantized_data_sets = {
+                k: df.repartition(exec_params.NumExecutors)
+                for k, df in quantized_data_sets.items()
+            }
+        for df in quantized_data_sets.values():
+            df.persist()
+        for num_sources, df in quantized_data_sets.items():
+            data_size = df.count()
+            if data_size not in [x.data_size for x in target_data_size_list]:
+                continue
+            num_partitions = max(
                 NUM_EXECUTORS * 2,
                 exec_params.MinSufflePartitions,
                 int_divide_round_up(
                     data_size,
-                    MAX_DATA_POINTS_PER_PARTITION)))]
-        srcDfListList.append(DataSetsOfSize(num_people=numPeople, data_sets=data_sets))
-    return srcDfListList
+                    MAX_DATA_POINTS_PER_PARTITION))
+            all_data_sets.append(DataSetOfSizeOfSources(
+                num_people=num_people,
+                num_sources=num_sources,
+                data_size=data_size,
+                grouped_num_partitions=num_partitions,
+                df=df))
+    return all_data_sets

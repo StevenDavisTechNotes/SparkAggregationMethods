@@ -65,16 +65,11 @@ RecordSparseStruct = DataTypes.StructType([
 
 @dataclass(frozen=True)
 class DataSetOfSizeOfSources:
+    num_people: int
     num_sources: int
     data_size: int
     grouped_num_partitions: int
     df: spark_DataFrame
-
-
-@dataclass(frozen=True)
-class DataSetsOfSize:
-    num_people: int
-    data_sets: List[DataSetOfSizeOfSources]
 
 
 @dataclass(frozen=True)
@@ -91,4 +86,3 @@ class PythonTestMethod:
 class ItineraryItem:
     testMethod: PythonTestMethod
     data_set: DataSetOfSizeOfSources
-    data_sets_by_size: DataSetsOfSize

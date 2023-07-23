@@ -21,9 +21,6 @@ class RunResult:
     IsCloudMode: bool
     CanAssumeNoDupesPerPartition: bool
 
-# RunResult = collections.namedtuple("RunResult", ["numSources", "actualNumPeople", "dataSize",
-#                                    "dataSizeExp", "elapsedTime", "foundNumPeople", "IsCloudMode", "CanAssumeNoDupesPerPartition"])
-
 
 @dataclass(frozen=True)
 class PersistedRunResult:
@@ -40,8 +37,6 @@ class PersistedRunResult:
     CanAssumeNoDupesPerPartition: bool
 
 
-EXPECTED_LOGICAL_DATA_SIZES = [10**x for x in range(0, 5)]
-
 EXPECTED_NUM_RECORDS = sorted([
     num_data_points
     for data_size_exp in range(0, 5)
@@ -56,14 +51,29 @@ EXPECTED_NUM_RECORDS = sorted([
     if num_data_points < 50200
 ])
 
+
 def regressor_from_run_result(result: PersistedRunResult) -> int:
     return result.dataSize
 
 
 def infeasible(strategy_name: str, data_set: DataSetOfSizeOfSources) -> bool:
     match strategy_name:
+        case 'dedupe_pandas':
+            return data_set.data_size > 50200  # 50200
+        case 'dedupe_fluent_nested_python':
+            return data_set.data_size > 502000  # 20200
+        case 'dedupe_fluent_nested_withCol':
+            return data_set.data_size > 20200
+        case 'dedupe_fluent_windows':
+            return data_set.data_size > 50200  # 20200
+        case 'dedupe_rdd_groupby':
+            return data_set.data_size > 502000  # 50200
+        case 'dedupe_rdd_mappart':
+            return data_set.data_size > 502000  # 50200
+        case 'dedupe_rdd_reduce':
+            return data_set.data_size > 502000  # 50200
         case _:
-            return False
+            raise ValueError(f"Unknown strategy: {strategy_name}")
 
 
 def write_header(file: TextIO):

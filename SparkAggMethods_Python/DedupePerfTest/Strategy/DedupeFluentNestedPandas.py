@@ -133,7 +133,6 @@ def dedupe_pandas(
         mergedValue = combineComponents(dfGroup, connectedComponents)
         return mergedValue
     
-    num_rows_per_partition = data_set.data_size * data_set.num_sources
     df = (
         df
         .repartition(data_set.grouped_num_partitions, df.BlockingKey)

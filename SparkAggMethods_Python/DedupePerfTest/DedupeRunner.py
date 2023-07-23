@@ -13,20 +13,20 @@ from pyspark.sql import Row
 from Utils.SparkUtils import NUM_EXECUTORS, TidySparkSession
 from Utils.Utils import always_true
 
-from .DedupeDataTypes import DataSetsOfSize, ExecutionParameters
+from .DedupeDataTypes import DataSetOfSizeOfSources, ExecutionParameters
 from .DedupeDirectory import implementation_list, strategy_name_list
 from .DedupeExpected import ItineraryItem, verifyCorrectness
 from .DedupeRunResult import (
-    EXPECTED_LOGICAL_DATA_SIZES, RESULT_FILE_PATH, RunResult, infeasible, write_header, write_run_result)
-from .DedupeTestData import DoGenData
+    RESULT_FILE_PATH, RunResult, infeasible, write_header, write_run_result)
+from .DedupeTestData import DATA_SIZE_CODE_TO_DATA_SIZE, DoGenData
 
 DEBUG_ARGS = None if False else (
     []
-    + '--size 10k'.split()
+    + '--size 600k'.split()
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
-    + '--strategy dedupe_fluent_nested_withCol'.split()
+    + '--strategy  dedupe_rdd_reduce'.split()
 )
 LOCAL_TEST_DATA_FILE_LOCATION = "d:/temp/SparkPerfTesting"
 REMOTE_TEST_DATA_LOCATION = "wasb:///sparkperftesting"
@@ -55,8 +55,8 @@ def parse_args() -> Arguments:
     parser.add_argument('--runs', type=int, default=30)
     parser.add_argument(
         '--size',
-        choices=['1', '10', '100', '1k', '10k', '100k', '1m'],
-        default=['10', '100', '1k', '10k', '100k'],
+        choices=sorted(DATA_SIZE_CODE_TO_DATA_SIZE.keys()),
+        default=sorted([k for k, v in DATA_SIZE_CODE_TO_DATA_SIZE.items() if v.num_people > 1]),
         nargs="+")
     parser.add_argument(
         '--shuffle', default=True,
@@ -111,7 +111,7 @@ def run_one_itinerary_step(
     test_method = itinerary_item.testMethod
     startedTime = time.time()
     print("Working on %s %d %d" %
-          (test_method.strategy_name, itinerary_item.data_sets_by_size.num_people, itinerary_item.data_set.data_size))
+          (test_method.strategy_name, itinerary_item.data_set.num_people, itinerary_item.data_set.data_size))
     success = True
     try:
         rddout, dfout = test_method.delegate(
@@ -123,8 +123,8 @@ def run_one_itinerary_step(
         else:
             raise Exception("not returning anything")
         print("NumPartitions: in vs out ",
-                itinerary_item.data_set.df.rdd.getNumPartitions(), 
-                rddout.getNumPartitions())
+              itinerary_item.data_set.df.rdd.getNumPartitions(),
+              rddout.getNumPartitions())
         if rddout.getNumPartitions() \
                 > max(args.ideosyncracies.NumExecutors * 2,
                       itinerary_item.data_set.grouped_num_partitions):
@@ -141,15 +141,11 @@ def run_one_itinerary_step(
         success = False
     elapsedTime = time.time() - startedTime
     foundNumPeople = len(foundPeople)
-    if foundNumPeople != itinerary_item.data_sets_by_size.num_people:
-        success = False
-    if success is True:
-        success = verifyCorrectness(
-            itinerary_item, foundPeople)
+    success = verifyCorrectness(itinerary_item, foundPeople)
     assert success is True
     result = RunResult(
         numSources=itinerary_item.data_set.num_sources,
-        actualNumPeople=itinerary_item.data_sets_by_size.num_people,
+        actualNumPeople=itinerary_item.data_set.num_people,
         dataSize=itinerary_item.data_set.data_size,
         dataSizeExp=round(
             math.log10(
@@ -162,9 +158,9 @@ def run_one_itinerary_step(
 
 
 def runtests(
-    DataSetsBySize: List[DataSetsOfSize],
-    args: Arguments,
-    spark_session: TidySparkSession,
+        data_sets: List[DataSetOfSizeOfSources],
+        args: Arguments,
+        spark_session: TidySparkSession,
 ):
     keyed_implementation_list = {
         x.strategy_name: x for x in implementation_list}
@@ -172,12 +168,10 @@ def runtests(
         ItineraryItem(
             testMethod=test_method_t,
             data_set=data_set,
-            data_sets_by_size=data_sets_of_size,
         )
         for strategy in args.strategies
         if always_true(test_method_t := keyed_implementation_list[strategy])
-        for data_sets_of_size in DataSetsBySize
-        for data_set in data_sets_of_size.data_sets
+        for data_set in data_sets
         if not infeasible(strategy, data_set)
         for _ in range(args.num_runs)
     ]
@@ -203,18 +197,9 @@ def runtests(
 
 
 def do_test_runs(args: Arguments, spark_session: TidySparkSession):
-    testDataSizes = [x for x in [
-        10**0 if '1' in args.sizes else None,
-        10**1 if '10' in args.sizes else None,
-        10**2 if '100' in args.sizes else None,
-        10**3 if '1k' in args.sizes else None,
-        10**4 if '10k' in args.sizes else None,
-    ] if x is not None]
-    for size in testDataSizes:
-        assert size in EXPECTED_LOGICAL_DATA_SIZES, f"size {size} not in {EXPECTED_LOGICAL_DATA_SIZES}"
-    srcDfListList = DoGenData(
-        testDataSizes, spark_session.spark, args.ideosyncracies)
-    runtests(srcDfListList, args, spark_session)
+    data_sets = DoGenData(
+        args.sizes, spark_session.spark, args.ideosyncracies)
+    runtests(data_sets, args, spark_session)
 
 
 def main():

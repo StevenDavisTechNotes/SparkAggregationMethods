@@ -25,16 +25,16 @@ def dedupe_fluent_nested_withCol(
                     func.udf(FindRecordMatches_RecList,
                              FindRecordMatches_RecList_Returns)(
                         df.BlockedData))
-    # df = df \
-    #     .withColumn("ConnectedComponents",
-    #                 func.udf(FindConnectedComponents_RecList,
-    #                          FindConnectedComponents_RecList_Returns)(
-    #                     df.FirstOrderEdges)) \
-    #     .drop(df.FirstOrderEdges)
-    # df = df \
-    #     .withColumn("MergedItems",
-    #                 func.udf(MergeItems_RecList,
-    #                          MergeItems_RecList_Returns)(
-    #                     df.BlockedData, df.ConnectedComponents))
-    # df = UnnestBlocksDataframe(df)
+    df = df \
+        .withColumn("ConnectedComponents",
+                    func.udf(FindConnectedComponents_RecList,
+                             FindConnectedComponents_RecList_Returns)(
+                        df.FirstOrderEdges)) \
+        .drop(df.FirstOrderEdges)
+    df = df \
+        .withColumn("MergedItems",
+                    func.udf(MergeItems_RecList,
+                             MergeItems_RecList_Returns)(
+                        df.BlockedData, df.ConnectedComponents))
+    df = UnnestBlocksDataframe(df)
     return None, df

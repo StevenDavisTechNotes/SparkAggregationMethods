@@ -60,7 +60,6 @@ def analyze_run_results():
             cond_method = [
                 x for x in implementation_list if x.strategy_name == strategy_name][0]
             times = cond_runs[strategy_name]
-            size_values = set(x.dataSize for x in times)
             for dataSize in set(x.dataSize for x in times):
                 ar = [x.elapsedTime for x in times if x.dataSize == dataSize]
                 numRuns = len(ar)
@@ -77,7 +76,8 @@ def analyze_run_results():
             (b0, (b0_low, b0_high)), (b1, (b1_low, b1_high)), (s2, (s2_low, s2_high)) = \
                 linear_regression(x_values, y_values, confidence)
             # a = numpy.array(y_values)
-            # mean, sem, cumm_conf = numpy.mean(a), scipy.stats.sem(a, ddof=1), scipy.stats.t.ppf((1+confidence)/2., len(a)-1)
+            # mean, sem, cumm_conf = numpy.mean(a), scipy.stats.sem(a, ddof=1),
+            # scipy.stats.t.ppf((1+confidence)/2., len(a)-1)
             # rangelow, rangehigh = \
             #     scipy.stats.t.interval(confidence, len(times)-1, loc=mean, scale=sem)
             result = CondResult(

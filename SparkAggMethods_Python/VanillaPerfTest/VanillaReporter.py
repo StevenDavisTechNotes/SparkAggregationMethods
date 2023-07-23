@@ -12,7 +12,7 @@ from SixFieldCommon.SixFieldTestData import PythonTestMethod
 
 from .VanillaDirectory import implementation_list, scala_implementation_list
 from .VanillaRunResult import (EXPECTED_SIZES, FINAL_REPORT_FILE_PATH, PYTHON_RESULT_FILE_PATH,
-                               SCALA_RESULT_FILE_PATH, PersistedRunResult, RunResult, regressor_from_run_result)
+                               SCALA_RESULT_FILE_PATH, PersistedRunResult, regressor_from_run_result)
 
 
 def read_python_file() -> List[PersistedRunResult]:
@@ -70,7 +70,7 @@ def read_scala_file() -> List[PersistedRunResult]:
             if returnedSize != '9':
                 print("Excluding line: " + textline)
                 continue
-            language='scala'
+            language = 'scala'
             result = PersistedRunResult(
                 strategy_name=strategy_name,
                 language=language,
@@ -107,7 +107,6 @@ def make_runs_summary(test_results: Dict[str, Dict[int, List[PersistedRunResult]
     return {strategy_name:
             {x_variable: len(runs) for x_variable, runs in runs_for_strategy_name.items()}
             for strategy_name, runs_for_strategy_name in test_results.items()}
-
 
 
 def do_regression(python_implementation_list: List[PythonTestMethod],

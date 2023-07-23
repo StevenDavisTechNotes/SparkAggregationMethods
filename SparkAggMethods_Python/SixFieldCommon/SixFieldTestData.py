@@ -14,16 +14,17 @@ import pyspark.sql.types as DataTypes
 from pyspark import RDD, StorageLevel
 from pyspark.sql import DataFrame as spark_DataFrame
 
-from Utils.SparkUtils import NUM_EXECUTORS, TidySparkSession
+from Utils.SparkUtils import TidySparkSession
 from Utils.Utils import always_true, int_divide_round_up
 
-LOCAL_TEST_DATA_FILE_LOCATION = "d:/temp/SparkPerfTesting"
+SHARED_LOCAL_TEST_DATA_FILE_LOCATION = "d:/temp/SparkPerfTesting"
 MAX_DATA_POINTS_PER_PARTITION = 5 * 10**3
 
 
 @dataclass(frozen=True)
 class ExecutionParameters:
-    NumExecutors: int
+    DefaultParallelism: int
+    TestDataFolderLocation: str
 
 
 DataPoint = collections.namedtuple(
@@ -74,9 +75,10 @@ class RunResult:
     recordCount: int
 
 
-def generateData(
-    size_code: str,
+def generate_single_test_data_set(
     spark_session: TidySparkSession,
+    exec_params: ExecutionParameters,
+    size_code: str,
     numGrp1: int,
     numGrp2: int,
     repetition: int,
@@ -87,13 +89,12 @@ def generateData(
     # avoid preferential treatment of methods that don't repartition
     tgt_num_partitions = numGrp1 * numGrp2
     src_num_partitions = max(
-        NUM_EXECUTORS * 2,
-        # tgt_num_partitions,
+        exec_params.DefaultParallelism,
         int_divide_round_up(
             num_data_points,
             MAX_DATA_POINTS_PER_PARTITION))
     staging_file_name_csv = os.path.join(
-        LOCAL_TEST_DATA_FILE_LOCATION,
+        exec_params.TestDataFolderLocation,
         "SixField_Test_Data",
         f"SixFieldTestData_{numGrp1}_{numGrp2}_{repetition}.pkl")
     if os.path.exists(staging_file_name_csv) is False:

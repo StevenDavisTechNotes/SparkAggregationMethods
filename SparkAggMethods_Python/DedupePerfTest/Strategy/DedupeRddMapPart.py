@@ -2,13 +2,13 @@
 from Utils.SparkUtils import TidySparkSession
 
 from ..DedupeDomain import BlockingFunction, CombineRowList, IsMatch
-from ..DedupeDataTypes import DataSetOfSizeOfSources, ExecutionParameters
+from ..DedupeDataTypes import DataSet, ExecutionParameters
 
 
 def dedupe_rdd_mappart(
     spark_session: TidySparkSession,
     data_params: ExecutionParameters,
-    data_set: DataSetOfSizeOfSources,
+    data_set: DataSet,
 ):
     dfSrc = data_set.df
 

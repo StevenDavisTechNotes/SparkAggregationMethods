@@ -8,14 +8,14 @@ import gc
 import random
 import time
 
-from PerfTestCommon import count_iter
-from SectionPerfTest.SectionTypeDefs import DataSetDescription, PythonTestMethod, RunResult, StudentSummary
-from SectionPerfTest.Strategy.SectionNoSparkST import method_nospark_single_threaded, section_nospark_logic
-from Utils.SparkUtils import NUM_EXECUTORS, TidySparkSession
+from SectionPerfTest.SectionTypeDefs import (
+    DataSetDescription, ExecutionParameters, PythonTestMethod, RunResult, StudentSummary)
+from SectionPerfTest.Strategy.SectionNoSparkST import section_nospark_logic
+from Utils.SparkUtils import LOCAL_NUM_EXECUTORS, TidySparkSession
 from Utils.Utils import always_true
 
 from .SectionDirectory import implementation_list, strategy_name_list
-from .SectionRunResult import infeasible, write_header, write_run_result, PYTHON_RESULT_FILE_PATH
+from .SectionRunResult import PYTHON_RESULT_FILE_PATH, infeasible, write_header, write_run_result
 from .SectionTestData import populateDatasets, available_data_sizes
 
 DEBUG_ARGS = None if False else (
@@ -28,6 +28,10 @@ DEBUG_ARGS = None if False else (
 )
 
 
+LOCAL_TEST_DATA_FILE_LOCATION = "d:/temp/SparkPerfTesting"
+REMOTE_TEST_DATA_LOCATION = "wasb:///sparkperftesting"
+
+
 @dataclass(frozen=True)
 class Arguments:
     make_new_data_files: bool
@@ -36,6 +40,7 @@ class Arguments:
     shuffle: bool
     sizes: List[str]
     strategies: List[str]
+    exec_params: ExecutionParameters
 
 
 def parse_args() -> Arguments:
@@ -70,6 +75,10 @@ def parse_args() -> Arguments:
         shuffle=args.shuffle,
         sizes=args.size,
         strategies=args.strategy,
+        exec_params=ExecutionParameters(
+            DefaultParallelism=LOCAL_NUM_EXECUTORS,
+            TestDataFolderLocation=LOCAL_TEST_DATA_FILE_LOCATION,
+        )
     )
 
 
@@ -106,25 +115,25 @@ def do_test_runs(args: Arguments, spark_session: TidySparkSession):
 
     with open(PYTHON_RESULT_FILE_PATH, 'at+') as file:
         write_header(file)
-        for index, (test_method, data) in enumerate(test_run_itinerary):
-            run_one_itinerary_step(spark_session, test_run_itinerary, test_method, file, index, data)
+        for index, (test_method, data_set) in enumerate(test_run_itinerary):
+            spark_session.log.info(
+                "Working on %d of %d" %
+                (index, len(test_run_itinerary)))
+            print(f"Working on {test_method.strategy_name} for {data_set.data_set.dataSize}")
+            run_one_itinerary_step(spark_session, args.exec_params, test_method, file, data_set)
             gc.collect()
             time.sleep(0.1)
 
 
 def run_one_itinerary_step(
-        spark_session: TidySparkSession, 
-        test_run_itinerary: List[Tuple[PythonTestMethod, DataSetWithAnswer]], 
-        test_method: PythonTestMethod, 
-        file: TextIO, 
-        index: int, 
+        spark_session: TidySparkSession,
+        exec_params: ExecutionParameters,
+        test_method: PythonTestMethod,
+        file: TextIO,
         data_w_answer: DataSetWithAnswer,
 ):
     data_set = data_w_answer.data_set
     correct_answer = data_w_answer.correct_answer
-    spark_session.log.info(
-        "Working on %d of %d" %
-        (index, len(test_run_itinerary)))
     startedTime = time.time()
     lst, rdd, df = test_method.delegate(spark_session, data_set)
     foundStudents: List[StudentSummary]
@@ -141,7 +150,7 @@ def run_one_itinerary_step(
         raise ValueError("Not data returned")
     finishedTime = time.time()
     foundNumStudents = len(foundStudents)
-    if rdd is not None and rdd.getNumPartitions() > NUM_EXECUTORS * 2:
+    if rdd is not None and rdd.getNumPartitions() > exec_params.DefaultParallelism:
         print(f"{test_method.strategy_name} output rdd has {rdd.getNumPartitions()} partitions")
         findings = rdd.collect()
         print(f"size={len(findings)}!", findings)
@@ -151,7 +160,7 @@ def run_one_itinerary_step(
     success = True
     if foundNumStudents != actualNumStudents:
         success = False
-    elif {x.StudentId for x in foundStudents} != {x.StudentId for x in correct_answer}:        
+    elif {x.StudentId for x in foundStudents} != {x.StudentId for x in correct_answer}:
         success = False
         raise ValueError("Found student ids don't match")
     else:
@@ -173,10 +182,9 @@ def run_one_itinerary_step(
 def main():
     args = parse_args()
     config = {
-        "spark.sql.shuffle.partitions": NUM_EXECUTORS * 2,
-        "spark.rdd.compress": "false",
+        "spark.sql.shuffle.partitions": args.exec_params.DefaultParallelism,
+        "spark.default.parallelism": args.exec_params.DefaultParallelism,
         "spark.worker.cleanup.enabled": "true",
-        "spark.default.parallelism": 7,
         "spark.driver.memory": "2g",
         "spark.executor.memory": "3g",
         "spark.executor.memoryOverhead": "1g",

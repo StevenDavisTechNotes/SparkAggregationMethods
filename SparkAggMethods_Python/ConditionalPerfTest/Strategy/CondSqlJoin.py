@@ -16,32 +16,32 @@ def cond_sql_join(
     spark.catalog.dropTempView("exampledata")
     data_set.dfSrc.createTempView("exampledata")
     df = spark.sql('''
-    SELECT 
-        unconditional.grp, unconditional.subgrp, 
+    SELECT
+        unconditional.grp, unconditional.subgrp,
         mean_of_C, max_of_D, cond_var_of_E
     FROM
-        (SELECT 
+        (SELECT
             grp, subgrp, AVG(C) mean_of_C, MAX(D) max_of_D
         FROM
             exampledata
         GROUP BY grp , subgrp) unconditional
             LEFT JOIN
-        (SELECT 
+        (SELECT
             grp,
                 subgrp,
                 (
-                    cond_sum_of_E_squared  / cond_count_of_E - 
+                    cond_sum_of_E_squared  / cond_count_of_E -
                     POWER(cond_sum_of_E / cond_count_of_E, 2)
                 ) cond_var_of_E
         FROM
-            (SELECT 
+            (SELECT
                 grp,
                 subgrp,
                 cond_sum_of_E_squared,
                 cond_sum_of_E,
                 cond_count_of_E
         FROM
-            (SELECT 
+            (SELECT
                 grp,
                 subgrp,
                 SUM(E * E) AS cond_sum_of_E_squared,
@@ -51,7 +51,7 @@ def cond_sql_join(
             exampledata
         WHERE
             E < 0
-        GROUP BY grp , subgrp) AS Inter1) AS Inter2) conditional 
+        GROUP BY grp , subgrp) AS Inter1) AS Inter2) conditional
         ON unconditional.grp = conditional.grp
             AND unconditional.subgrp = conditional.subgrp
     ORDER BY grp, subgrp

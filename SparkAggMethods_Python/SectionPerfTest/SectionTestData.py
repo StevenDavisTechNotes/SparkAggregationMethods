@@ -13,7 +13,7 @@ available_data_sizes: List[str] = [
 
 
 def generateData(filename, NumStudents, NumTrimesters,
-                    NumClassesPerTrimester, NumDepts):
+                 NumClassesPerTrimester, NumDepts):
     def AddMonths(d, x):
         serial = d.year * 12 + (d.month - 1)
         serial += x
@@ -29,7 +29,7 @@ def generateData(filename, NumStudents, NumTrimesters,
                 dated = AddMonths(dt.datetime(2017, 1, 1), trimester)
                 wasAbroad = random.randint(0, 10) == 0
                 major = (studentId %
-                            NumDepts) if trimester > 1 else NumDepts - 1
+                         NumDepts) if trimester > 1 else NumDepts - 1
                 f.write(f"TH,{dated:%Y-%m-%d},{wasAbroad}\n")
                 trimester_credits = 0
                 trimester_weighted_grades = 0
@@ -43,6 +43,7 @@ def generateData(filename, NumStudents, NumTrimesters,
                 gpa = trimester_weighted_grades / trimester_credits
                 f.write(f"TF,{major},{gpa},{trimester_credits}\n")
     os.rename(tmp_file_name, filename)
+
 
 def populateDatasets(make_new_files: bool) -> List[DataSetDescription]:
     NumTrimesters = 8
@@ -59,13 +60,13 @@ def populateDatasets(make_new_files: bool) -> List[DataSetDescription]:
         dataSize = numStudents * sectionMaximum
         if make_new_files is True or os.path.exists(filename) is False:
             generateData(filename, numStudents, NumTrimesters,
-                        NumClassesPerTrimester, NumDepts)
+                         NumClassesPerTrimester, NumDepts)
         datasets.append(
             DataSetDescription(
                 dataSize=dataSize,
                 filename=filename,
                 sectionMaximum=sectionMaximum,
                 NumStudents=numStudents,
-                ))
+            ))
         numStudents *= 10
     return datasets

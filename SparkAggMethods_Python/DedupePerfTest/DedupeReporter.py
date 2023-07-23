@@ -9,7 +9,9 @@ import numpy
 
 from Utils.LinearRegression import linear_regression
 from .DedupeDirectory import implementation_list
-from .DedupeRunResult import EXPECTED_NUM_RECORDS, FINAL_REPORT_FILE_PATH, PersistedRunResult, read_result_file, regressor_from_run_result
+from .DedupeRunResult import (
+    EXPECTED_NUM_RECORDS, FINAL_REPORT_FILE_PATH, PersistedRunResult,
+    read_result_file, regressor_from_run_result)
 
 TEMP_RESULT_FILE_PATH = "d:/temp/SparkPerfTesting/temp.csv"
 

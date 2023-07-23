@@ -9,7 +9,9 @@ import scipy
 from Utils.LinearRegression import linear_regression
 
 from .BiLevelDirectory import implementation_list
-from .BiLevelRunResult import EXPECTED_SIZES, FINAL_REPORT_FILE_PATH, PersistedRunResult, read_result_file, regressor_from_run_result
+from .BiLevelRunResult import (
+    EXPECTED_SIZES, FINAL_REPORT_FILE_PATH, PersistedRunResult,
+    read_result_file, regressor_from_run_result)
 
 TEMP_RESULT_FILE_PATH = "d:/temp/SparkPerfTesting/temp.csv"
 

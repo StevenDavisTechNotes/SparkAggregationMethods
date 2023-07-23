@@ -30,5 +30,5 @@ def cond_fluent_join(
         .drop(cond.grp)
         .drop(cond.subgrp)
     )
-    df =df.orderBy(df.grp, df.subgrp)
+    df = df.orderBy(df.grp, df.subgrp)
     return (None, df)

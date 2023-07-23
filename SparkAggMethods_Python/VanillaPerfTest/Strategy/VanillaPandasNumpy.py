@@ -4,7 +4,6 @@ import numpy
 import pandas as pd
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
-from pyspark.sql.functions import collect_list
 
 from SixFieldCommon.SixFieldTestData import DataSet, ExecutionParameters
 from Utils.SparkUtils import TidySparkSession

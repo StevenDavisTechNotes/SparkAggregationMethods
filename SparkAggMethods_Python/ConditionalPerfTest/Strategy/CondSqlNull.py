@@ -16,7 +16,7 @@ def cond_sql_null(
     spark.catalog.dropTempView("exampledata")
     data_set.dfSrc.createTempView("exampledata")
     df = spark.sql('''
-    SELECT 
+    SELECT
         grp, subgrp, AVG(C) mean_of_C, MAX(D) max_of_D,
         VAR_POP(CASE WHEN E < 0 THEN E ELSE NULL END) AS cond_var_of_E
     FROM exampledata

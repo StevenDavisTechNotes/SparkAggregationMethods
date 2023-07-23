@@ -21,7 +21,6 @@ def bi_pandas(
         group_key = dfPartition['grp'].iloc[0]
         C = dfPartition['C']
         D = dfPartition['D']
-        E = dfPartition['E']
         subgroupedE = dfPartition.groupby('subgrp')['E']
         return pd.DataFrame([[
             group_key,

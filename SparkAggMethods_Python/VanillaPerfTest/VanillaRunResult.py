@@ -3,7 +3,6 @@ import datetime
 from typing import TextIO
 
 from SixFieldCommon.SixFieldTestData import MAX_DATA_POINTS_PER_PARTITION, DataSet, PythonTestMethod, RunResult
-from Utils.Utils import int_divide_round_up
 
 
 PYTHON_RESULT_FILE_PATH = 'Results/vanilla_runs.csv'

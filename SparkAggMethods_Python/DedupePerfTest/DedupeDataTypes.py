@@ -1,14 +1,7 @@
 from dataclasses import dataclass
+from typing import Callable, Optional, Tuple
 
 import pyspark.sql.types as DataTypes
-from pyspark import RDD
-from pyspark.sql import DataFrame as spark_DataFrame
-
-from Utils.SparkUtils import TidySparkSession
-
-from dataclasses import dataclass
-from typing import Callable, List, Optional, Tuple
-
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 
@@ -17,28 +10,27 @@ from Utils.SparkUtils import TidySparkSession
 
 @dataclass(frozen=True)
 class ExecutionParameters:
-    in_cloud_mode: bool
+    InCloudMode: bool
     NumExecutors: int
     CanAssumeNoDupesPerPartition: bool
     DefaultParallelism: int
-    MinSufflePartitions: int
-    test_data_file_location: str
+    TestDataFolderLocation: str
 
 
-@dataclass(frozen=True)
-class DataPoint():
-    FirstName: str
-    LastName: str
-    StreetAddress: Optional[str]
-    City: str
-    ZipCode: str
-    SecretKey: int
-    FieldA: Optional[str]
-    FieldB: Optional[str]
-    FieldC: Optional[str]
-    FieldD: Optional[str]
-    FieldE: Optional[str]
-    FieldF: Optional[str]
+# @dataclass(frozen=True)
+# class DataPoint():
+#     FirstName: str
+#     LastName: str
+#     StreetAddress: Optional[str]
+#     City: str
+#     ZipCode: str
+#     SecretKey: int
+#     FieldA: Optional[str]
+#     FieldB: Optional[str]
+#     FieldC: Optional[str]
+#     FieldD: Optional[str]
+#     FieldE: Optional[str]
+#     FieldF: Optional[str]
 
 
 # region data structure
@@ -58,13 +50,9 @@ RecordSparseStruct = DataTypes.StructType([
 ])
 # endregion
 
-# GenDataSets = collections.namedtuple("GenDataSets", ['NumPeople', 'DataSets'])
-# GenDataSet = collections.namedtuple(
-#     "GenDataSet", ['NumSources', 'DataSize', 'dfSrc'])
-
 
 @dataclass(frozen=True)
-class DataSetOfSizeOfSources:
+class DataSet:
     num_people: int
     num_sources: int
     data_size: int
@@ -78,11 +66,11 @@ class PythonTestMethod:
     language: str
     interface: str
     delegate: Callable[
-        [TidySparkSession, ExecutionParameters, DataSetOfSizeOfSources],
+        [TidySparkSession, ExecutionParameters, DataSet],
         Tuple[Optional[RDD], Optional[spark_DataFrame]]]
 
 
 @dataclass(frozen=True)
 class ItineraryItem:
     testMethod: PythonTestMethod
-    data_set: DataSetOfSizeOfSources
+    data_set: DataSet

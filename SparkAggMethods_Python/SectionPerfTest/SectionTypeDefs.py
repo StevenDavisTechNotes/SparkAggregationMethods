@@ -8,6 +8,13 @@ from pyspark.sql import DataFrame as spark_DataFrame
 
 from Utils.SparkUtils import TidySparkSession
 
+
+@dataclass(frozen=True)
+class ExecutionParameters:
+    DefaultParallelism: int
+    TestDataFolderLocation: str
+
+
 # region GenData
 StudentHeader = collections.namedtuple("StudentHeader",
                                        ["StudentId", "StudentName"])

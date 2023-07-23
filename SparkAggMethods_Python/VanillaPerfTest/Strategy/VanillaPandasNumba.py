@@ -41,7 +41,7 @@ def vanilla_pandas_numba(
         accE = 0.
         for i in prange(n):
             accE += E[i]
-        return accE2 / n - (accE/ n)**2
+        return accE2 / n - (accE / n)**2
 
     def inner_agg_method(dfPartition):
         group_key = dfPartition['grp'].iloc[0]

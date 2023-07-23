@@ -37,7 +37,7 @@ def vanilla_panda_cupy(
     #     df
     #     .groupby(df.grp, df.subgrp)
     #     .applyInPandas(inner_agg_method, postAggSchema)
-        # .orderBy(df.grp, df.subgrp)
+    #     .orderBy(df.grp, df.subgrp)
     # )
     # return None, aggregates
     raise NotImplementedError()

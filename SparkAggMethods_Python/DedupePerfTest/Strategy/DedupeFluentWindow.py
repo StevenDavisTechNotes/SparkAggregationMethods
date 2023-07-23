@@ -5,13 +5,13 @@ from pyspark.sql import Window
 from Utils.SparkUtils import TidySparkSession, dfZipWithIndex
 
 from ..DedupeDomain import udfMatchSingleName
-from ..DedupeDataTypes import DataSetOfSizeOfSources, ExecutionParameters
+from ..DedupeDataTypes import DataSet, ExecutionParameters
 
 
 def dedupe_fluent_windows(
     spark_session: TidySparkSession,
     data_params: ExecutionParameters,
-    data_set: DataSetOfSizeOfSources,
+    data_set: DataSet,
 ):
     dfSrc = data_set.df
 

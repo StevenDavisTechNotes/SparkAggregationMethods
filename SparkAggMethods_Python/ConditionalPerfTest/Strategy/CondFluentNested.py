@@ -45,6 +45,6 @@ def cond_fluent_nested(
     dfInter = dfInter \
         .withColumn('mean_of_C', dfInter.sum_of_C / dfInter.uncond_count)
     dfResult = dfInter.select('grp', 'subgrp', 'mean_of_C', 'mean_of_C2', 'wrong_mean_of_C',
-                             'max_of_D', 'cond_var_of_E')
+                              'max_of_D', 'cond_var_of_E')
     dfResult = dfResult.orderBy(dfResult.grp, dfResult.subgrp)
     return None, dfResult

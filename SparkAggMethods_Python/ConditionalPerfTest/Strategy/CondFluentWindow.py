@@ -39,7 +39,7 @@ def cond_fluent_window(
             func.count(dfData.C).alias("count_of_C_pre"),
             func.max(dfData.D).alias("max_of_D_pre"),
             func.var_pop(func.when(dfData.E < 0, dfData.E)
-                          ).alias("cond_var_of_E_1_pre"),
+                         ).alias("cond_var_of_E_1_pre"),
             func.last(dfData.cond_var_of_E_2_pre1).alias("cond_var_of_E_2_pre2"))
     )
 

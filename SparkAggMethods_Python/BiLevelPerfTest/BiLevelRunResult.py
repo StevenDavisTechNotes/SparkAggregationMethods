@@ -4,7 +4,6 @@ from dataclasses import dataclass
 import datetime
 
 from SixFieldCommon.SixFieldTestData import MAX_DATA_POINTS_PER_PARTITION, DataSet
-from Utils.Utils import int_divide_round_up
 
 from .BiLevelDirectory import PythonTestMethod
 

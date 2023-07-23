@@ -10,13 +10,13 @@ from ..DedupeDomain import (
     MergeItems_RecList, MergeItems_RecList_Returns,
     NestBlocksDataframe, UnnestBlocksDataframe
 )
-from ..DedupeDataTypes import DataSetOfSizeOfSources, ExecutionParameters
+from ..DedupeDataTypes import DataSet, ExecutionParameters
 
 
 def dedupe_fluent_nested_withCol(
     spark_session: TidySparkSession,
     data_params: ExecutionParameters,
-    data_set: DataSetOfSizeOfSources,
+    data_set: DataSet,
 ):
     dfSrc = data_set.df
     df = NestBlocksDataframe(dfSrc, data_set.grouped_num_partitions)

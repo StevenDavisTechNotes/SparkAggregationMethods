@@ -42,7 +42,10 @@ def IsMatch(iFirstName, jFirstName, iLastName, jLastName, iZipCode, jZipCode, iS
     if actualRatioFirstName < MatchThreshold:
         if iSecretKey == jSecretKey:
             raise Exception(
-                f"FirstName non-match for {iSecretKey} with itself {iFirstName} {jFirstName} actualRatioFirstName={actualRatioFirstName}")
+                "FirstName non-match "
+                f"for {iSecretKey} with itself "
+                f"{iFirstName} {jFirstName} with "
+                f"actualRatioFirstName={actualRatioFirstName}")
         return False
     actualRatioLastName = SequenceMatcher(
         None, iLastName, jLastName) \
@@ -50,7 +53,10 @@ def IsMatch(iFirstName, jFirstName, iLastName, jLastName, iZipCode, jZipCode, iS
     if actualRatioLastName < MatchThreshold:
         if iSecretKey == jSecretKey:
             raise Exception(
-                f"LastName non-match for {iSecretKey} with itself {iLastName} {jLastName} with actualRatioLastName={actualRatioLastName}")
+                "LastName non-match "
+                f"for {iSecretKey} with itself "
+                f"{iLastName} {jLastName} with "
+                f"actualRatioLastName={actualRatioLastName}")
         return False
     if iSecretKey != jSecretKey:
         raise Exception(f"""

@@ -9,10 +9,10 @@ from typing import List, Optional, Tuple
 
 import pandas as pd
 
-from PerfTestCommon import count_iter
 from SixFieldCommon.SixFieldTestData import (
-    DataSet, ExecutionParameters, PythonTestMethod, RunResult, generateData)
-from Utils.SparkUtils import NUM_EXECUTORS, TidySparkSession
+    SHARED_LOCAL_TEST_DATA_FILE_LOCATION, DataSet, ExecutionParameters,
+    PythonTestMethod, RunResult, generate_single_test_data_set)
+from Utils.SparkUtils import LOCAL_NUM_EXECUTORS, TidySparkSession
 from Utils.Utils import always_true
 
 from .Strategy.VanillaPandasCuda import vanilla_panda_cupy
@@ -45,6 +45,7 @@ class Arguments:
     shuffle: bool
     sizes: List[str]
     strategies: List[str]
+    exec_params: ExecutionParameters
 
 
 def parse_args() -> Arguments:
@@ -77,32 +78,33 @@ def parse_args() -> Arguments:
         shuffle=args.shuffle,
         sizes=args.size,
         strategies=args.strategy,
+        exec_params=ExecutionParameters(
+            DefaultParallelism=2 * LOCAL_NUM_EXECUTORS,
+            TestDataFolderLocation=SHARED_LOCAL_TEST_DATA_FILE_LOCATION,
+        ),
     )
 
 
 def do_test_runs(args: Arguments, spark_session: TidySparkSession):
+    def generate_single_test_data_set_simple(code: str, num_grp_1: int, num_grp_2: int, num_data_points: int):
+        return generate_single_test_data_set(
+            spark_session, args.exec_params,
+            code, num_grp_1, num_grp_2, num_data_points)
     data_sets = [x for x in [
-        generateData('1', spark_session,
-                     3, 3, 10 ** 0,
-                     ) if '1' in args.sizes else None,
-        generateData('10', spark_session,
-                     3, 3, 10 ** 1,
-                     ) if '10' in args.sizes else None,
-        generateData('100', spark_session,
-                     3, 3, 10 ** 2,
-                     ) if '100' in args.sizes else None,
-        generateData('1k', spark_session,
-                     3, 3, 10 ** 3,
-                     ) if '1k' in args.sizes else None,
-        generateData('10k', spark_session,
-                     3, 3, 10 ** 4,
-                     ) if '10k' in args.sizes else None,
-        generateData('100k', spark_session,
-                     3, 3, 10 ** 5,
-                     ) if '100k' in args.sizes else None,
-        generateData('1m', spark_session,
-                     3, 3, 10 ** 6,
-                     ) if '1m' in args.sizes else None,
+        generate_single_test_data_set_simple('1', 3, 3, 10 ** 0,
+                                             ) if '1' in args.sizes else None,
+        generate_single_test_data_set_simple('10', 3, 3, 10 ** 1,
+                                             ) if '10' in args.sizes else None,
+        generate_single_test_data_set_simple('100', 3, 3, 10 ** 2,
+                                             ) if '100' in args.sizes else None,
+        generate_single_test_data_set_simple('1k', 3, 3, 10 ** 3,
+                                             ) if '1k' in args.sizes else None,
+        generate_single_test_data_set_simple('10k', 3, 3, 10 ** 4,
+                                             ) if '10k' in args.sizes else None,
+        generate_single_test_data_set_simple('100k', 3, 3, 10 ** 5,
+                                             ) if '100k' in args.sizes else None,
+        generate_single_test_data_set_simple('1m', 3, 3, 10 ** 6,
+                                             ) if '1m' in args.sizes else None,
     ] if x is not None]
     keyed_implementation_list = {
         x.strategy_name: x for x in implementation_list}
@@ -120,34 +122,31 @@ def do_test_runs(args: Arguments, spark_session: TidySparkSession):
         random.seed(args.random_seed)
     if args.shuffle:
         random.shuffle(itinerary)
-    exec_params = ExecutionParameters(
-        NumExecutors=NUM_EXECUTORS,
-    )
     if 'vanilla_panda_cupy' in args.strategies:
         # for code generation warming
         vanilla_panda_cupy(
-            spark_session, exec_params, generateData(
-                '1', spark_session, 3, 3, 10**0,
+            spark_session, args.exec_params, generate_single_test_data_set(
+                spark_session, args.exec_params, '1', 3, 3, 10**0,
             ))
     with open(PYTHON_RESULT_FILE_PATH, 'at+') as file:
         write_header(file)
         for index, (test_method, data_set) in enumerate(itinerary):
-            test_one_step_in_itinerary(spark_session, itinerary, test_method, exec_params, file, index, data_set)
+            spark_session.log.info(
+                "Working on %d of %d" % (index, len(itinerary)))
+            print(f"Working on {test_method.strategy_name} for {data_set.SizeCode}")
+            test_one_step_in_itinerary(spark_session, args.exec_params, test_method, file, data_set)
             gc.collect()
             time.sleep(0.1)
 
 
-def test_one_step_in_itinerary(spark_session, itinerary, test_method, exec_params, file, index, data_set):
-    print(f"Working on {test_method.strategy_name} for {data_set.SizeCode}")
-    spark_session.log.info(
-        "Working on %d of %d" % (index, len(itinerary)))
+def test_one_step_in_itinerary(spark_session, test_method, exec_params, file, data_set):
     startedTime = time.time()
     rdd, df = test_method.delegate(
         spark_session, exec_params, data_set)
     if df is not None:
         rdd = df.rdd
     assert rdd is not None
-    if rdd.getNumPartitions() > max(data_set.AggTgtNumPartitions, NUM_EXECUTORS * 2):
+    if rdd.getNumPartitions() > max(data_set.AggTgtNumPartitions, exec_params.DefaultParallelism):
         print(
             f"{test_method.strategy_name} output rdd has {rdd.getNumPartitions()} partitions")
         findings = rdd.collect()
@@ -180,8 +179,8 @@ def test_one_step_in_itinerary(spark_session, itinerary, test_method, exec_param
 def main():
     args = parse_args()
     config = {
-        "spark.sql.shuffle.partitions": NUM_EXECUTORS * 2,
-        "spark.rdd.compress": "false",
+        "spark.sql.shuffle.partitions": args.exec_params.DefaultParallelism,
+        "spark.default.parallelism": args.exec_params.DefaultParallelism,
         "spark.driver.memory": "2g",
         "spark.executor.memory": "3g",
         "spark.executor.memoryOverhead": "1g",

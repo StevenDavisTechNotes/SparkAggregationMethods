@@ -1,15 +1,14 @@
-from pyspark.sql import DataFrame as spark_DataFrame
 
 from Utils.SparkUtils import TidySparkSession
 
 from ..DedupeDomain import BlockingFunction, SinglePass_RecList
-from ..DedupeDataTypes import DataSetOfSizeOfSources, ExecutionParameters, RecordSparseStruct
+from ..DedupeDataTypes import DataSet, ExecutionParameters
 
 
 def dedupe_rdd_groupby(
     spark_session: TidySparkSession,
     data_params: ExecutionParameters,
-    data_set: DataSetOfSizeOfSources,
+    data_set: DataSet,
 ):
     dfSrc = data_set.df
 

@@ -1,4 +1,3 @@
-import math
 from typing import NamedTuple, Optional, Tuple
 
 from pyspark import RDD

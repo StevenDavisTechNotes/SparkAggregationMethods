@@ -7,57 +7,15 @@ from pyspark.sql import Row
 from Utils.SparkUtils import TidySparkSession
 
 from ..DedupeDomain import BlockingFunction, CombineRowList, IsMatch
-from ..DedupeDataTypes import DataSetOfSizeOfSources, ExecutionParameters
+from ..DedupeDataTypes import DataSet, ExecutionParameters
 
 
 def dedupe_rdd_reduce(
-    spark_session: TidySparkSession,
+    _spark_session: TidySparkSession,
     data_params: ExecutionParameters,
-    data_set: DataSetOfSizeOfSources,
+    data_set: DataSet,
 ):
     dfSrc = data_set.df
-
-    def appendRowToListDisjoint(lrows: List[Row], rrow: Row) -> List[Row]:
-        lrows.append(rrow)
-        return lrows
-
-    def appendRowToListMixed(lrows: List[Row], rrow: Row) -> List[Row]:
-        nInitialLRows = len(lrows)  # no need to test for matches in r
-        found = False
-        for lindex in range(0, nInitialLRows):
-            lrow = lrows[lindex]
-            if not IsMatch(
-                    lrow.FirstName, rrow.FirstName,
-                    lrow.LastName, rrow.LastName,
-                    lrow.ZipCode, rrow.ZipCode,
-                    lrow.SecretKey, rrow.SecretKey):
-                continue
-            lrows[lindex] = CombineRowList([lrow, rrow])
-            found = True
-            break
-        if not found:
-            lrows.append(rrow)
-        return lrows
-
-    def CombineRowLists(lrows: List[Row], rrows: List[Row]) -> List[Row]:
-        nInitialLRows = len(lrows)  # no need to test for matches in r
-        for rindex, rrow in enumerate(rrows):
-            found = False
-            for lindex in range(0, nInitialLRows):
-                lrow = lrows[lindex]
-                if not IsMatch(
-                        lrow.FirstName, rrow.FirstName,
-                        lrow.LastName, rrow.LastName,
-                        lrow.ZipCode, rrow.ZipCode,
-                        lrow.SecretKey, rrow.SecretKey):
-                    continue
-                lrows[lindex] = CombineRowList([lrow, rrow])
-                found = True
-                break
-            if not found:
-                lrows.append(rrow)
-        return lrows
-
     numPartitions = data_set.grouped_num_partitions
     appendRowToList = appendRowToListDisjoint \
         if data_params.CanAssumeNoDupesPerPartition \
@@ -79,3 +37,47 @@ def dedupe_rdd_reduce(
             ))
     )
     return rdd4, None
+
+
+def appendRowToListDisjoint(lrows: List[Row], rrow: Row) -> List[Row]:
+    lrows.append(rrow)
+    return lrows
+
+
+def appendRowToListMixed(lrows: List[Row], rrow: Row) -> List[Row]:
+    nInitialLRows = len(lrows)  # no need to test for matches in r
+    found = False
+    for lindex in range(0, nInitialLRows):
+        lrow = lrows[lindex]
+        if not IsMatch(
+                lrow.FirstName, rrow.FirstName,
+                lrow.LastName, rrow.LastName,
+                lrow.ZipCode, rrow.ZipCode,
+                lrow.SecretKey, rrow.SecretKey):
+            continue
+        lrows[lindex] = CombineRowList([lrow, rrow])
+        found = True
+        break
+    if not found:
+        lrows.append(rrow)
+    return lrows
+
+
+def CombineRowLists(lrows: List[Row], rrows: List[Row]) -> List[Row]:
+    nInitialLRows = len(lrows)  # no need to test for matches in r
+    for rindex, rrow in enumerate(rrows):
+        found = False
+        for lindex in range(0, nInitialLRows):
+            lrow = lrows[lindex]
+            if not IsMatch(
+                    lrow.FirstName, rrow.FirstName,
+                    lrow.LastName, rrow.LastName,
+                    lrow.ZipCode, rrow.ZipCode,
+                    lrow.SecretKey, rrow.SecretKey):
+                continue
+            lrows[lindex] = CombineRowList([lrow, rrow])
+            found = True
+            break
+        if not found:
+            lrows.append(rrow)
+    return lrows

@@ -73,7 +73,9 @@ def dfSparseRowsFactory(spark_session: TidySparkSession,
 
 
 def rddTypedWithIndexFactory(
-        spark_session: TidySparkSession, filename: str, numPartitions: int | None = None
+        spark_session: TidySparkSession,
+        filename: str,
+        numPartitions: int | None = None
 ) -> RDD[LabeledTypedRow]:
     rdd = spark_session.spark_context.textFile(
         filename, minPartitions=(numPartitions or 1))
@@ -146,9 +148,6 @@ class MutableStudent:
             if self.LastMajor is not None else None
         )
 
-    # def gradeSummaryRow(self):
-    #     return Row(**self.gradeSummary())
-
     def _asdict(self) -> Dict[str, Any]:
         return {"StudentId": self.StudentId, "LastMajor": self.LastMajor, "SourceLines": self.SourceLines,
                 "Credits": list(self.Credits), "WGrade": list(self.WeightedGradeTotal)}
@@ -183,7 +182,6 @@ def aggregateTypedRowsToGrades(iterator) -> Iterable[StudentSummary]:
         yield student.gradeSummary()
 
 
-
 def rowToStudentSummary(x):
     return StudentSummary(
         StudentId=x.StudentId,
@@ -194,16 +192,17 @@ def rowToStudentSummary(x):
         MajorGPA=x.MajorGPA)
 
 
-
 # endregion
 # region Snippets
-StudentSnippet = collections.namedtuple("StudentSnippet",
-                                        ["StudentId", "StudentName",
-                                         "FirstTrimester", "LastTrimester", "LastMajor", "Credits", "WeightedGradeTotal",
-                                         "FirstLineIndex", "LastLineIndex"])
-CompletedStudent = collections.namedtuple("CompletedStudent",
-                                          ["StudentId", "StudentName", "SourceLines", "LastMajor", "Credits", "WeightedGradeTotal",
-                                           "FirstLineIndex", "LastLineIndex"])
+StudentSnippet = collections.namedtuple(
+    "StudentSnippet",
+    ["StudentId", "StudentName",
+     "FirstTrimester", "LastTrimester", "LastMajor", "Credits", "WeightedGradeTotal",
+     "FirstLineIndex", "LastLineIndex"])
+CompletedStudent = collections.namedtuple(
+    "CompletedStudent",
+    ["StudentId", "StudentName", "SourceLines", "LastMajor", "Credits", "WeightedGradeTotal",
+     "FirstLineIndex", "LastLineIndex"])
 
 
 class StudentSnippetBuilder:
@@ -326,7 +325,7 @@ class StudentSnippetBuilder:
         return lhgroup
 
     @staticmethod
-    def gradeSummary(x):
+    def gradeSummary(x) -> StudentSummary:
         assert x.LastMajor is not None
         return StudentSummary(
             StudentId=x.StudentId,

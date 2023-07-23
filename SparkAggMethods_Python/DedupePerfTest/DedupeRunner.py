@@ -10,25 +10,25 @@ from typing import List, Optional, Tuple
 
 from pyspark.sql import Row
 
-from Utils.SparkUtils import NUM_EXECUTORS, TidySparkSession
+from Utils.SparkUtils import TidySparkSession
 from Utils.Utils import always_true
 
-from .DedupeDataTypes import DataSetOfSizeOfSources, ExecutionParameters
+from .DedupeDataTypes import DataSet, ExecutionParameters
 from .DedupeDirectory import implementation_list, strategy_name_list
 from .DedupeExpected import ItineraryItem, verifyCorrectness
 from .DedupeRunResult import (
     RESULT_FILE_PATH, RunResult, infeasible, write_header, write_run_result)
-from .DedupeTestData import DATA_SIZE_CODE_TO_DATA_SIZE, DoGenData
+from .DedupeTestData import DATA_SIZE_CODE_TO_DATA_SIZE, generate_test_data
 
 DEBUG_ARGS = None if False else (
     []
-    + '--size 600k'.split()
+    + '--size 60k'.split()
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
-    + '--strategy  dedupe_rdd_reduce'.split()
+    + '--strategy  dedupe_fluent_nested_python'.split()
 )
-LOCAL_TEST_DATA_FILE_LOCATION = "d:/temp/SparkPerfTesting"
+T_LOCAL_TEST_DATA_FILE_LOCATION = "d:/temp/SparkPerfTesting"
 REMOTE_TEST_DATA_LOCATION = "wasb:///sparkperftesting"
 MaximumProcessableSegment = pow(10, 5)
 
@@ -40,7 +40,7 @@ class Arguments:
     shuffle: bool
     sizes: List[str]
     strategies: List[str]
-    ideosyncracies: ExecutionParameters
+    exec_params: ExecutionParameters
 
 
 def parse_args() -> Arguments:
@@ -71,19 +71,17 @@ def parse_args() -> Arguments:
     else:
         args = parser.parse_args(DEBUG_ARGS)
 
-    IsCloudMode = args.cloud_mode
-    if IsCloudMode:
-        NumExecutors = 40
-        CanAssumeNoDupesPerPartition = False
-        DefaultParallelism = 2 * NumExecutors
-        MinSufflePartitions = DefaultParallelism
-        test_data_file_location = REMOTE_TEST_DATA_LOCATION
+    in_cloud_mode = args.cloud_mode
+    if in_cloud_mode:
+        num_executors = 40
+        can_assume_no_dupes_per_partition = False
+        default_parallelism = 2 * num_executors
+        test_data_folder_location = REMOTE_TEST_DATA_LOCATION
     else:
-        NumExecutors = 7
-        CanAssumeNoDupesPerPartition = args.assume_no_dupes_per_partition
-        DefaultParallelism = 16
-        MinSufflePartitions = 14
-        test_data_file_location = LOCAL_TEST_DATA_FILE_LOCATION
+        num_executors = 7
+        can_assume_no_dupes_per_partition = args.assume_no_dupes_per_partition
+        default_parallelism = 16
+        test_data_folder_location = T_LOCAL_TEST_DATA_FILE_LOCATION
 
     return Arguments(
         num_runs=args.runs,
@@ -91,13 +89,12 @@ def parse_args() -> Arguments:
         shuffle=args.shuffle,
         sizes=args.size,
         strategies=args.strategy,
-        ideosyncracies=ExecutionParameters(
-            in_cloud_mode=IsCloudMode,
-            NumExecutors=NumExecutors,
-            CanAssumeNoDupesPerPartition=CanAssumeNoDupesPerPartition,
-            DefaultParallelism=DefaultParallelism,
-            MinSufflePartitions=MinSufflePartitions,
-            test_data_file_location=test_data_file_location,
+        exec_params=ExecutionParameters(
+            InCloudMode=in_cloud_mode,
+            NumExecutors=num_executors,
+            CanAssumeNoDupesPerPartition=can_assume_no_dupes_per_partition,
+            DefaultParallelism=default_parallelism,
+            TestDataFolderLocation=test_data_folder_location,
         ))
 
 
@@ -105,7 +102,7 @@ def run_one_itinerary_step(
         index: int, num_iterinary_stops, itinerary_item: ItineraryItem,
         args: Arguments, spark_session: TidySparkSession
 ) -> Tuple[bool, RunResult]:
-    exec_params = args.ideosyncracies
+    exec_params = args.exec_params
     log = spark_session.log
     log.info("Working on %d of %d" % (index, num_iterinary_stops))
     test_method = itinerary_item.testMethod
@@ -126,7 +123,7 @@ def run_one_itinerary_step(
               itinerary_item.data_set.df.rdd.getNumPartitions(),
               rddout.getNumPartitions())
         if rddout.getNumPartitions() \
-                > max(args.ideosyncracies.NumExecutors * 2,
+                > max(args.exec_params.NumExecutors * 2,
                       itinerary_item.data_set.grouped_num_partitions):
             print(
                 f"{test_method.strategy_name} output rdd has {rddout.getNumPartitions()} partitions")
@@ -136,8 +133,8 @@ def run_one_itinerary_step(
         foundPeople: List[Row] = rddout.collect()
     except Exception as exception:
         foundPeople = []
-        # log.exception(exception)
         exit(1)
+        log.exception(exception)
         success = False
     elapsedTime = time.time() - startedTime
     foundNumPeople = len(foundPeople)
@@ -152,13 +149,13 @@ def run_one_itinerary_step(
                 itinerary_item.data_set.data_size)),
         elapsedTime=elapsedTime,
         foundNumPeople=foundNumPeople,
-        IsCloudMode=exec_params.in_cloud_mode,
+        IsCloudMode=exec_params.InCloudMode,
         CanAssumeNoDupesPerPartition=exec_params.CanAssumeNoDupesPerPartition)
     return success, result
 
 
-def runtests(
-        data_sets: List[DataSetOfSizeOfSources],
+def run_tests(
+        data_sets: List[DataSet],
         args: Arguments,
         spark_session: TidySparkSession,
 ):
@@ -197,17 +194,16 @@ def runtests(
 
 
 def do_test_runs(args: Arguments, spark_session: TidySparkSession):
-    data_sets = DoGenData(
-        args.sizes, spark_session.spark, args.ideosyncracies)
-    runtests(data_sets, args, spark_session)
+    data_sets = generate_test_data(
+        args.sizes, spark_session.spark, args.exec_params)
+    run_tests(data_sets, args, spark_session)
 
 
 def main():
     args = parse_args()
     config = {
-        "spark.sql.shuffle.partitions": max(args.ideosyncracies.MinSufflePartitions, NUM_EXECUTORS * 2),
-        "spark.default.parallelism": args.ideosyncracies.DefaultParallelism,
-        "spark.rdd.compress": "false",
+        "spark.sql.shuffle.partitions": args.exec_params.DefaultParallelism,
+        "spark.default.parallelism": args.exec_params.DefaultParallelism,
         "spark.python.worker.reuse": "false",
         "spark.port.maxRetries": "1",
         "spark.rpc.retry.wait": "10s",
@@ -218,7 +214,7 @@ def main():
         "spark.shuffle.io.retryWait": "60s",
         "spark.sql.execution.arrow.pyspark.enabled": "true",
     }
-    enable_hive_support = args.ideosyncracies.in_cloud_mode
+    enable_hive_support = args.exec_params.InCloudMode
     with TidySparkSession(config, enable_hive_support) as spark_session:
         do_test_runs(args, spark_session)
 

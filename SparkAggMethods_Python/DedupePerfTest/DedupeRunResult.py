@@ -4,7 +4,7 @@ from typing import Iterable, TextIO
 
 from Utils.Utils import always_true
 
-from .DedupeDataTypes import DataSetOfSizeOfSources, PythonTestMethod
+from .DedupeDataTypes import DataSet, PythonTestMethod
 
 RESULT_FILE_PATH = 'Results/dedupe_runs.csv'
 FINAL_REPORT_FILE_PATH = '../Results/python/dedupe_results_20230618.csv'
@@ -56,10 +56,10 @@ def regressor_from_run_result(result: PersistedRunResult) -> int:
     return result.dataSize
 
 
-def infeasible(strategy_name: str, data_set: DataSetOfSizeOfSources) -> bool:
+def infeasible(strategy_name: str, data_set: DataSet) -> bool:
     match strategy_name:
         case 'dedupe_pandas':
-            return data_set.data_size > 50200  # 50200
+            return data_set.data_size > 50200
         case 'dedupe_fluent_nested_python':
             return data_set.data_size > 502000  # 20200
         case 'dedupe_fluent_nested_withCol':
@@ -67,11 +67,11 @@ def infeasible(strategy_name: str, data_set: DataSetOfSizeOfSources) -> bool:
         case 'dedupe_fluent_windows':
             return data_set.data_size > 50200  # 20200
         case 'dedupe_rdd_groupby':
-            return data_set.data_size > 502000  # 50200
+            return data_set.data_size > 50200  # takes too long otherwise
         case 'dedupe_rdd_mappart':
-            return data_set.data_size > 502000  # 50200
+            return data_set.data_size > 502000  # takes too long otherwise
         case 'dedupe_rdd_reduce':
-            return data_set.data_size > 502000  # 50200
+            return data_set.data_size > 502000  # takes too long otherwise
         case _:
             raise ValueError(f"Unknown strategy: {strategy_name}")
 

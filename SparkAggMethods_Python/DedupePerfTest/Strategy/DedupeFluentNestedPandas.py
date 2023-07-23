@@ -8,13 +8,13 @@ from pyspark.sql import DataFrame as spark_DataFrame
 from Utils.SparkUtils import TidySparkSession, dfZipWithIndex
 
 from ..DedupeDomain import MatchSingleName, MinNotNull
-from ..DedupeDataTypes import DataSetOfSizeOfSources, ExecutionParameters, RecordSparseStruct
+from ..DedupeDataTypes import DataSet, ExecutionParameters, RecordSparseStruct
 
 
 def dedupe_pandas(
     spark_session: TidySparkSession,
     data_params: ExecutionParameters,
-    data_set: DataSetOfSizeOfSources,
+    data_set: DataSet,
 ):
     dfSrc = data_set.df
 
@@ -132,7 +132,7 @@ def dedupe_pandas(
         connectedComponents = findComponents(matched)
         mergedValue = combineComponents(dfGroup, connectedComponents)
         return mergedValue
-    
+
     df = (
         df
         .repartition(data_set.grouped_num_partitions, df.BlockingKey)

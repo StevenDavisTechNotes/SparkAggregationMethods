@@ -22,7 +22,7 @@ TestRegression = collections.namedtuple(
      "s2", "s2_low", "s2_high"])
 
 
-def analyze_run_results():
+def analyze_run_results():  # noqa: C901
     test_runs = {}
     with open(PYTHON_RESULT_FILE_PATH, 'rt') as f, \
             open('Results/temp.csv', 'w') as fout:
@@ -39,7 +39,7 @@ def analyze_run_results():
                 result_num_students, \
                 result_dataSize, result_section_maximum, \
                 result_elapsedTime, result_recordCount, \
-                finished_at \
+                _finished_at \
                 = tuple(fields)
             if test_status != 'success':
                 print("Excluding line: " + textline)
@@ -52,7 +52,6 @@ def analyze_run_results():
                     sectionMaximum=int(result_section_maximum),
                     NumStudents=int(result_num_students),
                 ),
-                # dataSize=int(result_dataSize) // int(result_SectionMaximum),
                 elapsed_time=float(result_elapsedTime),
                 record_count=int(result_recordCount))
             if test_method_name not in test_runs:
@@ -64,7 +63,6 @@ def analyze_run_results():
                 result.data.sectionMaximum,
                 result.elapsed_time,
                 result.record_count))
-    # print(test_runs)
     if len(test_runs) < 1:
         print("no tests")
         return
@@ -108,7 +106,8 @@ def analyze_run_results():
             (b0, (b0_low, b0_high)), (b1, (b1_low, b1_high)), (s2, (s2_low, s2_high)) = \
                 linear_regression(x_values, y_values, confidence)
             # a = numpy.array(y_values)
-            # mean, sem, cumm_conf = numpy.mean(a), scipy.stats.sem(a, ddof=1), scipy.stats.t.ppf((1+confidence)/2., len(a)-1)
+            # mean, sem, cumm_conf = numpy.mean(a),
+            # scipy.stats.sem(a, ddof=1), scipy.stats.t.ppf((1+confidence)/2., len(a)-1)
             # rangelow, rangehigh = \
             #     scipy.stats.t.interval(confidence, len(times)-1, loc=mean, scale=sem)
             result = TestRegression(

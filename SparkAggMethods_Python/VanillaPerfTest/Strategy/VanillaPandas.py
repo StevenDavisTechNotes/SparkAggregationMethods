@@ -1,6 +1,5 @@
 from typing import Optional, Tuple
 
-import numpy
 import pandas as pd
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame

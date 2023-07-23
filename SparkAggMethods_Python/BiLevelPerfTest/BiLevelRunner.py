@@ -5,19 +5,19 @@ import gc
 import random
 import time
 from dataclasses import dataclass
-from typing import List, Optional, Tuple
+from typing import List, Optional, TextIO, Tuple
 
 import pandas as pd
 
-from PerfTestCommon import count_iter
-from SixFieldCommon.SixFieldTestData import (DataSet, ExecutionParameters,
-                                             PythonTestMethod, generateData)
-from Utils.SparkUtils import NUM_EXECUTORS, TidySparkSession
+from SixFieldCommon.SixFieldTestData import (
+    SHARED_LOCAL_TEST_DATA_FILE_LOCATION, DataSet, ExecutionParameters,
+    PythonTestMethod, generate_single_test_data_set)
+from Utils.SparkUtils import LOCAL_NUM_EXECUTORS, TidySparkSession
 from Utils.Utils import always_true
 
 from .BiLevelDirectory import implementation_list, strategy_name_list
 from .BiLevelRunResult import (
-    EXPECTED_SIZES, RunResult, infeasible, write_header, write_run_result)
+    RunResult, infeasible, write_header, write_run_result)
 
 DEBUG_ARGS = None if False else (
     []
@@ -49,6 +49,7 @@ class Arguments:
     shuffle: bool
     sizes: List[str]
     strategies: List[str]
+    exec_params: ExecutionParameters
 
 
 def parse_args() -> Arguments:
@@ -78,29 +79,37 @@ def parse_args() -> Arguments:
         shuffle=args.shuffle,
         sizes=args.size,
         strategies=args.strategy,
+        exec_params=ExecutionParameters(
+            DefaultParallelism=2 * LOCAL_NUM_EXECUTORS,
+            TestDataFolderLocation=SHARED_LOCAL_TEST_DATA_FILE_LOCATION,
+        ),
     )
 
 
 def do_test_runs(args: Arguments, spark_session: TidySparkSession):
+    def generate_single_test_data_set_simple(code: str, num_grp_1: int, num_grp_2: int, num_data_points: int):
+        return generate_single_test_data_set(
+            spark_session, args.exec_params,
+            code, num_grp_1, num_grp_2, num_data_points)
     data_sets = [x for x in [
-        generateData('3_3_10', spark_session,
-                     3, 3, 10 ** 1,
-                     ) if '3_3_10' in args.sizes else None,
+        generate_single_test_data_set_simple('3_3_10',
+                                             3, 3, 10 ** 1,
+                                             ) if '3_3_10' in args.sizes else None,
         # generateData(3, 3, 10**2) if '3_3_100' in args.sizes else None,
         # generateData(3, 3, 10**3) if '3_3_1k' in args.sizes else None,
         # generateData(3, 3, 10**4) if '3_3_10k' in args.sizes else None,
-        generateData('3_3_100k', spark_session,
-                     3, 3, 10 ** 5,
-                     ) if '3_3_100k' in args.sizes else None,
-        generateData('3_30_10k', spark_session,
-                     3, 30, 10 ** 4,
-                     ) if '3_30_10k' in args.sizes else None,
-        generateData('3_300_1k', spark_session,
-                     3, 300, 10 ** 3,
-                     ) if '3_300_1k' in args.sizes else None,
-        generateData('3_3k_100', spark_session,
-                     3, 3000, 10 ** 2,
-                     ) if '3_3k_100' in args.sizes else None,
+        generate_single_test_data_set_simple('3_3_100k',
+                                             3, 3, 10 ** 5,
+                                             ) if '3_3_100k' in args.sizes else None,
+        generate_single_test_data_set_simple('3_30_10k',
+                                             3, 30, 10 ** 4,
+                                             ) if '3_30_10k' in args.sizes else None,
+        generate_single_test_data_set_simple('3_300_1k',
+                                             3, 300, 10 ** 3,
+                                             ) if '3_300_1k' in args.sizes else None,
+        generate_single_test_data_set_simple('3_3k_100',
+                                             3, 3000, 10 ** 2,
+                                             ) if '3_3k_100' in args.sizes else None,
     ] if x is not None]
     keyed_implementation_list = {
         x.strategy_name: x for x in implementation_list}
@@ -119,34 +128,39 @@ def do_test_runs(args: Arguments, spark_session: TidySparkSession):
     if args.shuffle:
         random.shuffle(test_run_itinerary)
     exec_params = ExecutionParameters(
-        NumExecutors=NUM_EXECUTORS,
+        DefaultParallelism=2 * LOCAL_NUM_EXECUTORS,
+        TestDataFolderLocation=SHARED_LOCAL_TEST_DATA_FILE_LOCATION,
     )
     with open(RESULT_FILE_PATH, 'at+') as file:
         write_header(file)
         for index, (test_method, data_set) in enumerate(test_run_itinerary):
+            spark_session.log.info("Working on %d of %d" %
+                                   (index, len(test_run_itinerary)))
+            print(f"Working on {test_method.strategy_name} for {data_set.SizeCode}")
             test_one_step_in_itinerary(
                 spark_session,
-                test_run_itinerary,
-                test_method,
                 exec_params,
+                test_method,
                 file,
-                index,
                 data_set)
             gc.collect()
             time.sleep(0.1)
 
 
-def test_one_step_in_itinerary(spark_session, test_run_itinerary, test_method, exec_params, file, index, data_set):
-    print(f"Working on {test_method.strategy_name} for {data_set.SizeCode}")
-    spark_session.log.info("Working on %d of %d" %
-                           (index, len(test_run_itinerary)))
+def test_one_step_in_itinerary(
+        spark_session: TidySparkSession,
+        exec_params: ExecutionParameters,
+        test_method: PythonTestMethod,
+        file: TextIO,
+        data_set: DataSet,
+):
     startedTime = time.time()
     rdd, df = test_method.delegate(
         spark_session, exec_params, data_set)
     if df is not None:
         rdd = df.rdd
     assert rdd is not None
-    if rdd.getNumPartitions() > max(data_set.AggTgtNumPartitions, NUM_EXECUTORS * 2):
+    if rdd.getNumPartitions() > max(data_set.AggTgtNumPartitions, exec_params.DefaultParallelism):
         print(
             f"{test_method.strategy_name} output rdd has {rdd.getNumPartitions()} partitions")
         findings = rdd.collect()
@@ -162,7 +176,6 @@ def test_one_step_in_itinerary(spark_session, test_run_itinerary, test_method, e
     else:
         raise ValueError("Both df and rdd are None")
     if 'avg_var_of_E2' not in df_answer:
-        df_answer_orig = df_answer.copy()
         df_answer['avg_var_of_E2'] = df_answer['avg_var_of_E']
     abs_diff = float(
         (data_set.bilevel_answer - df_answer)
@@ -182,8 +195,8 @@ def test_one_step_in_itinerary(spark_session, test_run_itinerary, test_method, e
 def main():
     args = parse_args()
     config = {
-        "spark.sql.shuffle.partitions": NUM_EXECUTORS * 2,
-        "spark.rdd.compress": "false",
+        "spark.sql.shuffle.partitions": args.exec_params.DefaultParallelism,
+        "spark.default.parallelism": args.exec_params.DefaultParallelism,
         "spark.driver.memory": "2g",
         "spark.executor.memory": "3g",
         "spark.executor.memoryOverhead": "1g",

@@ -5,11 +5,9 @@ from typing import Dict, TextIO
 from .SectionTestData import LARGEST_EXPONENT
 from .SectionTypeDefs import DataSetDescription, RunResult, PythonTestMethod
 
-LOCAL_TEST_DATA_FILE_LOCATION = "d:/temp/SparkPerfTesting"
-REMOTE_TEST_DATA_LOCATION = "wasb:///sparkperftesting"
+
 PYTHON_RESULT_FILE_PATH = 'Results/section_runs.csv'
 FINAL_REPORT_FILE_PATH = '../Results/python/section_results_20230618.csv'
-
 NumExecutors = 7
 MaximumProcessableSegment = pow(10, 5)
 
@@ -29,16 +27,15 @@ def regressor_from_run_result(result: PersistedRunResult) -> int:
 LARGEST_EXPONENT_BY_METHOD_NAME: Dict[str, int] = {
     'method_nospark_single_threaded': LARGEST_EXPONENT,
     'method_mappart_single_threaded': 5 - 1,  # unrealiable
-    'method_join_groupby': 5 - 1,  # too slow
+    'method_mappart_odd_even': 7 - 1,  # unrealiable
     'method_mappart_partials': 7 - 1,  # unrealiable
     'method_asymreduce_partials': 7 - 1,  # unrealiable
-    'method_mappart_odd_even': 7 - 1,  # unrealiable
-    'method_join_groupby': 7 - 1,  # times out
-    'method_join_mappart': 7 - 1,  # times out
     'method_prep_mappart': 8 - 1,  # takes too long
-    'method_prepcsv_groupby': 8 - 1,  # times out
     'method_prep_groupby': 8 - 1,  # times out
-    'method_prepcsv_groupby': LARGEST_EXPONENT,
+    'method_prepcsv_groupby': 8 - 1,  # times out
+    'method_join_groupby': 5 - 1,  # too slow
+    'method_join_mappart': 7 - 1,  # times out
+
 }
 
 

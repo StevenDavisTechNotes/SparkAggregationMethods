@@ -169,3 +169,6 @@ success,dedupe_rdd_reduce,rdd,6,50200,5,10000,334.8340630531311,10000,FALSE,TRUE
  result,strategy,interface,numSources,dataSize,dataSizeExp,actualNumPeople,elapsedTime,foundNumPeople,IsCloudMode,CanAssumeNoDupesPerPartition,finishedAt
  result,strategy,interface,numSources,dataSize,dataSizeExp,actualNumPeople,elapsedTime,foundNumPeople,IsCloudMode,CanAssumeNoDupesPerPartition,finishedAt
 success,dedupe_rdd_groupby,rdd,6,502000,6,100000,29044.96613240242,100000,FALSE,TRUE,2023-07-23T02:00:37.543364
+ result,strategy,interface,numSources,dataSize,dataSizeExp,actualNumPeople,elapsedTime,foundNumPeople,IsCloudMode,CanAssumeNoDupesPerPartition,finishedAt
+ result,strategy,interface,numSources,dataSize,dataSizeExp,actualNumPeople,elapsedTime,foundNumPeople,IsCloudMode,CanAssumeNoDupesPerPartition,finishedAt
+success,dedupe_fluent_nested_python,fluent,6,50200,5,10000,493.28132605552673,10000,FALSE,TRUE,2023-07-23T10:48:04.621354

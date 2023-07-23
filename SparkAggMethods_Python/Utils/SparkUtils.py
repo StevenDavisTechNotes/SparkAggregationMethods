@@ -12,7 +12,7 @@ from pyspark.sql.dataframe import DataFrame as spark_DataFrame
 import pyspark.sql.types as DataTypes
 
 SPARK_SRATCH_FOLDER = "C:\\temp\\spark_scratch"
-NUM_EXECUTORS = 7
+LOCAL_NUM_EXECUTORS = 7
 
 
 class RddWithNoArgSortByKey:
@@ -66,11 +66,12 @@ class TidySparkSession:
             SparkSession
             .builder
             .appName("PerfTestApp")
-            .master(f"local[{NUM_EXECUTORS}]")
+            .master(f"local[{LOCAL_NUM_EXECUTORS}]")
             .config("spark.pyspark.python", full_path_to_python)
             .config("spark.ui.enabled", "false")
             .config('spark.hadoop.mapreduce.fileoutputcommitter.algorithm.version', 2)
             .config("spark.sql.execution.arrow.pyspark.enabled", "true")
+            .config("spark.rdd.compress", "false")
         )
         for key, value in config_dict.items():
             spark = spark.config(key, value)
@@ -127,6 +128,3 @@ def dfZipWithIndex(
         lambda kv: ([kv[1] + offset] + list(kv[0])))
 
     return spark.createDataFrame(new_rdd, new_schema)
-
-
-

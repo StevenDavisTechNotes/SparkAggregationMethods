@@ -14,32 +14,6 @@ def vanilla_rdd_grpmap(
     data_set: DataSet
 ) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
 
-    def processData1(key: Tuple[int, int], iterator: Iterable[DataPoint]) -> Tuple[Tuple[int, int], Row]:
-        import math
-        sum_of_C = 0
-        count = 0
-        max_of_D = None
-        sum_of_E_squared = 0
-        sum_of_E = 0
-        for item in iterator:
-            sum_of_C = sum_of_C + item.C
-            count = count + 1
-            max_of_D = item.D \
-                if max_of_D is None or max_of_D < item.D \
-                else max_of_D
-            sum_of_E_squared += item.E * item.E
-            sum_of_E += item.E
-        mean_of_C = sum_of_C / count \
-            if count > 0 else math.nan
-        var_of_E = sum_of_E_squared / count - (sum_of_E / count)**2
-        return (
-            key,
-            Row(grp=key[0],
-                subgrp=key[1],
-                mean_of_C=mean_of_C,
-                max_of_D=max_of_D,
-                var_of_E=var_of_E))
-
     if (
             data_set.description.NumDataPoints
             > MAX_DATA_POINTS_PER_PARTITION
@@ -57,3 +31,30 @@ def vanilla_rdd_grpmap(
         .values()
     )
     return rddResult, None
+
+
+def processData1(key: Tuple[int, int], iterator: Iterable[DataPoint]) -> Tuple[Tuple[int, int], Row]:
+    import math
+    sum_of_C = 0
+    count = 0
+    max_of_D = None
+    sum_of_E_squared = 0
+    sum_of_E = 0
+    for item in iterator:
+        sum_of_C = sum_of_C + item.C
+        count = count + 1
+        max_of_D = item.D \
+            if max_of_D is None or max_of_D < item.D \
+            else max_of_D
+        sum_of_E_squared += item.E * item.E
+        sum_of_E += item.E
+    mean_of_C = sum_of_C / count \
+        if count > 0 else math.nan
+    var_of_E = sum_of_E_squared / count - (sum_of_E / count)**2
+    return (
+        key,
+        Row(grp=key[0],
+            subgrp=key[1],
+            mean_of_C=mean_of_C,
+            max_of_D=max_of_D,
+            var_of_E=var_of_E))

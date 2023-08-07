@@ -1,12 +1,12 @@
 import math
 from dataclasses import dataclass
-from typing import NamedTuple, Optional, Tuple
+from typing import Iterable, NamedTuple, Optional, Tuple
 
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 from pyspark.sql import Row
 
-from SixFieldCommon.SixFieldTestData import DataSet, ExecutionParameters
+from SixFieldCommon.SixFieldTestData import DataPoint, DataSet, ExecutionParameters
 from Utils.SparkUtils import TidySparkSession
 
 
@@ -55,17 +55,9 @@ def vanilla_rdd_mappart(
     return rddResult, None
 
 
-def max(lhs: Optional[float], rhs: Optional[float]) -> Optional[float]:
-    if lhs is None:
-        return rhs
-    if rhs is None:
-        return lhs
-    if lhs > rhs:
-        return lhs
-    return rhs
-
-
-def partitionTriage(iterator):
+def partitionTriage(
+        iterator: Iterable[DataPoint],
+) -> Iterable[Tuple[Tuple[int, int], SubTotal]]:
     running_subtotals = {}
     for v in iterator:
         k = (v.grp, v.subgrp)
@@ -87,15 +79,28 @@ def partitionTriage(iterator):
             running_sum_of_E=sub.running_sum_of_E))
 
 
-def mergeCombiners3(key, iterable):
+def max(
+        lhs: Optional[float],
+        rhs: Optional[float],
+) -> Optional[float]:
+    if lhs is None:
+        return rhs
+    if rhs is None:
+        return lhs
+    if lhs > rhs:
+        return lhs
+    return rhs
+
+
+def mergeCombiners3(
+        key: Tuple[int, int],
+        iterable: Iterable[SubTotal],
+) -> SubTotal:
     lsub = MutableRunningTotal.zero()
     for rsub in iterable:
         lsub.running_sum_of_C += rsub.running_sum_of_C
         lsub.running_count += rsub.running_count
-        lsub.running_max_of_D = lsub.running_max_of_D \
-            if lsub.running_max_of_D is not None and \
-            lsub.running_max_of_D > rsub.running_max_of_D \
-            else rsub.running_max_of_D
+        lsub.running_max_of_D = max(lsub.running_max_of_D, rsub.running_max_of_D)
         lsub.running_sum_of_E_squared += \
             rsub.running_sum_of_E_squared
         lsub.running_sum_of_E += rsub.running_sum_of_E
@@ -107,7 +112,10 @@ def mergeCombiners3(key, iterable):
         running_sum_of_E=lsub.running_sum_of_E)
 
 
-def finalAnalytics2(key, final):
+def finalAnalytics2(
+        key: Tuple[int, int],
+        final: SubTotal,
+) -> Row:
     sum_of_C = final.running_sum_of_C
     count = final.running_count
     max_of_D = final.running_max_of_D

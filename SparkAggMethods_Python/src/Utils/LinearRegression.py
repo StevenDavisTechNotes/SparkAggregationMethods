@@ -1,8 +1,10 @@
 from dataclasses import dataclass
+from typing import List, Optional, Tuple
 from scipy.stats import chi2 as scipy_stats_chi2  # type: ignore
 from scipy.stats import t as scipy_stats_t  # type: ignore
 import numpy
 import statistics
+from numpy.typing import NDArray
 
 
 @dataclass(frozen=True)
@@ -21,15 +23,27 @@ class CondResult:
     s2: RegressionRange
 
 
+LinearRegressionResult = Tuple[
+    Tuple[Optional[float], Tuple[Optional[float], Optional[float]]],
+    Tuple[Optional[float], Tuple[Optional[float], Optional[float]]],
+    Tuple[Optional[float], Tuple[Optional[float], Optional[float]]],
+]
+
 # based on https://gist.github.com/riccardoscalco/5356167
-def linear_regression(x, y, prob):
+
+
+def linear_regression(
+        x_in: List[float],
+        y_in: List[float],
+        prob: float,
+) -> LinearRegressionResult:
     """
     Return the linear regression parameters and their <prob> confidence intervals.
     ex:
     >>> linear_regression([.1,.2,.3],[10,11,11.5],0.95)
     """
-    x = numpy.array(x)
-    y = numpy.array(y)
+    x: NDArray = numpy.array(x_in)
+    y: NDArray = numpy.array(y_in)
     n = len(x)
     if n < 3:
         return (

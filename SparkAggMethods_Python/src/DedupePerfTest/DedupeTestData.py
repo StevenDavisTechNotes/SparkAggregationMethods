@@ -45,15 +45,24 @@ DATA_SIZE_CODE_TO_DATA_SIZE = {
 MAX_DATA_POINTS_PER_PARTITION: int = 10000
 
 
-def derive_file_path(root_path: str, source_code: str, num_people: int) -> str:
+def derive_file_path(
+        root_path: str,
+        source_code: str,
+        num_people: int,
+) -> str:
     return root_path + "/Dedupe_Field%s%d.csv" % (source_code, num_people)
 
 
-def nameHash(i: int) -> str:
+def nameHash(
+        i: int,
+) -> str:
     return hashlib.sha512(str(i).encode('utf8')).hexdigest()
 
 
-def line(i: int, misspelledLetter: str) -> str:
+def line(
+        i: int,
+        misspelledLetter: str,
+) -> str:
     letter = misspelledLetter
     v = f"""
 FFFFFF{letter}{i}_{nameHash(i)},
@@ -142,7 +151,11 @@ def generate_test_data(
     return all_data_sets
 
 
-def generate_data_files(root_path, source_codes, num_people):
+def generate_data_files(
+        root_path: str,
+        source_codes: List[str],
+        num_people: int,
+) -> None:
     for source_code in source_codes:
         file_path = derive_file_path(root_path, source_code, num_people)
         if not os.path.isfile(file_path):

@@ -1,5 +1,4 @@
 from typing import Optional, Tuple
-import pandas as pd
 
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
@@ -23,7 +22,10 @@ def vanilla_panda_cupy(
     # return None, aggregates
     raise NotImplementedError()
 
-# def inner_agg_method(dfPartition: pd.DataFrame) -> pd.DataFrame:
+
+# def inner_agg_method(
+#         dfPartition: pd.DataFrame,
+# ) -> pd.DataFrame:
 #     group_key = dfPartition['grp'].iloc[0]
 #     subgroup_key = dfPartition['subgrp'].iloc[0]
 #     C = cupy.asarray(dfPartition['C'])

@@ -27,7 +27,9 @@ def vanilla_pandas_numpy(
     return None, df
 
 
-def inner_agg_method(dfPartition: pd.DataFrame) -> pd.DataFrame:
+def inner_agg_method(
+        dfPartition: pd.DataFrame,
+) -> pd.DataFrame:
     group_key = dfPartition['grp'].iloc[0]
     subgroup_key = dfPartition['subgrp'].iloc[0]
     C = dfPartition['C']

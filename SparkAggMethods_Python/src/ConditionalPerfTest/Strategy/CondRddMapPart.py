@@ -71,7 +71,10 @@ def partitionTriage(
             running_cond_count=sub.running_cond_count))
 
 
-def mergeCombiners3(_key: Tuple[int, int], iterable: Iterable[SubTotal]) -> SubTotal:
+def mergeCombiners3(
+        _key: Tuple[int, int],
+        iterable: Iterable[SubTotal],
+) -> SubTotal:
     lsub = MutableRunningTotal()
     for rsub in iterable:
         lsub.running_sum_of_C += rsub.running_sum_of_C
@@ -93,7 +96,10 @@ def mergeCombiners3(_key: Tuple[int, int], iterable: Iterable[SubTotal]) -> SubT
         running_cond_count=lsub.running_cond_count)
 
 
-def finalAnalytics2(key: Tuple[int, int], total: SubTotal) -> GrpTotal:
+def finalAnalytics2(
+        key: Tuple[int, int],
+        total: SubTotal,
+) -> GrpTotal:
     sum_of_C = total.running_sum_of_C
     uncond_count = total.running_uncond_count
     max_of_D = total.running_max_of_D

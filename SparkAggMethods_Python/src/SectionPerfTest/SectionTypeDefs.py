@@ -25,6 +25,8 @@ ClassLine = collections.namedtuple("ClassLine",
                                    ["Dept", "Credits", "Grade"])
 TrimesterFooter = collections.namedtuple("TrimesterFooter",
                                          ["Major", "GPA", "Credits"])
+TypedLine = StudentHeader | TrimesterHeader | ClassLine | TrimesterFooter
+
 StudentSummary = collections.namedtuple("StudentSummary",
                                         ["StudentId", "StudentName", "SourceLines", "GPA", "Major", "MajorGPA"])
 StudentSummaryStruct = DataTypes.StructType([
@@ -103,4 +105,3 @@ class PythonTestMethod:
     delegate: Callable[
         [TidySparkSession, DataSet],
         Tuple[List[StudentSummary] | None, RDD | None, spark_DataFrame | None]]
-

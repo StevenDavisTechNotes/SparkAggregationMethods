@@ -39,12 +39,18 @@ def dedupe_rdd_reduce(
     return rdd4, None
 
 
-def appendRowToListDisjoint(lrows: List[Row], rrow: Row) -> List[Row]:
+def appendRowToListDisjoint(
+        lrows: List[Row],
+        rrow: Row,
+) -> List[Row]:
     lrows.append(rrow)
     return lrows
 
 
-def appendRowToListMixed(lrows: List[Row], rrow: Row) -> List[Row]:
+def appendRowToListMixed(
+        lrows: List[Row],
+        rrow: Row,
+) -> List[Row]:
     nInitialLRows = len(lrows)  # no need to test for matches in r
     found = False
     for lindex in range(0, nInitialLRows):
@@ -63,7 +69,10 @@ def appendRowToListMixed(lrows: List[Row], rrow: Row) -> List[Row]:
     return lrows
 
 
-def CombineRowLists(lrows: List[Row], rrows: List[Row]) -> List[Row]:
+def CombineRowLists(
+        lrows: List[Row],
+        rrows: List[Row],
+) -> List[Row]:
     nInitialLRows = len(lrows)  # no need to test for matches in r
     for rindex, rrow in enumerate(rrows):
         found = False

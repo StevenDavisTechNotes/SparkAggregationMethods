@@ -1,7 +1,8 @@
 
+from typing import Dict, List, Optional, TypeVar, Union
+
 import pyspark.sql.functions as func
 import pyspark.sql.types as DataTypes
-from pyspark.sql import Row
 from pyspark.sql import DataFrame as spark_DataFrame
 
 from DedupePerfTest.DedupeDataTypes import RecordSparseStruct
@@ -9,18 +10,24 @@ from DedupePerfTest.DedupeDataTypes import RecordSparseStruct
 MatchThreshold = 0.9
 # must be 0.4316546762589928 < threshold < 0.9927007299270073 @ 10k
 
-
 # region Shared
 
 
-def MinNotNull(lst):
-    filteredList = [
+T = TypeVar('T', bound=Union[float, str])
+
+
+def MinNotNull(
+        lst: List[Optional[T]]
+) -> Optional[T]:
+    filteredList: List[T] = [
         x for x in lst if x is not None]
     return min(filteredList) \
         if len(filteredList) > 0 else None
 
 
-def FirstNotNull(lst):
+def FirstNotNull(
+        lst: List[Optional[T]]
+) -> Optional[T]:
     for x in lst:
         if x is not None:
             return x
@@ -29,13 +36,17 @@ def FirstNotNull(lst):
 # region IsMatch
 
 
-def IsMatch(iFirstName, jFirstName, iLastName, jLastName, iZipCode, jZipCode, iSecretKey, jSecretKey):
+def IsMatch(
+        iFirstName: str,
+        jFirstName: str,
+        iLastName: str,
+        jLastName: str,
+        iZipCode: str,
+        jZipCode: str,
+        iSecretKey: int,
+        jSecretKey: int,
+) -> bool:
     from difflib import SequenceMatcher
-
-    # if iZipCode != jZipCode:
-    #     if iSecretKey == jSecretKey:
-    #         raise Exception(f"ZipCode non-match for {iSecretKey} with itself: {iZipCode} {jZipCode}")
-    #     return False
     actualRatioFirstName = SequenceMatcher(
         None, iFirstName, jFirstName) \
         .ratio()
@@ -66,7 +77,12 @@ def IsMatch(iFirstName, jFirstName, iLastName, jLastName, iZipCode, jZipCode, iS
     return True
 
 
-def MatchSingleName(lhs, rhs, iSecretKey, jSecretKey):
+def MatchSingleName(
+        lhs: str,
+        rhs: str,
+        iSecretKey: int,
+        jSecretKey: int,
+) -> bool:
     from difflib import SequenceMatcher
     actualRatio = SequenceMatcher(
         None, lhs, rhs) \
@@ -87,7 +103,10 @@ udfMatchSingleName = func.udf(
 # region Shared blockprocessing
 
 
-def NestBlocksDataframe(df: spark_DataFrame, grouped_num_partitions: int):
+def NestBlocksDataframe(
+        df: spark_DataFrame,
+        grouped_num_partitions: int,
+) -> spark_DataFrame:
     df = df \
         .withColumn("BlockingKey",
                     func.hash(
@@ -104,16 +123,22 @@ def NestBlocksDataframe(df: spark_DataFrame, grouped_num_partitions: int):
     return df
 
 
-def UnnestBlocksDataframe(df):
-    df = df \
-        .select(func.explode(df.MergedItems).alias("Rows")) \
-        .select(func.col("Rows.*")) \
-        .drop(func.col("BlockingKey")) \
+def UnnestBlocksDataframe(
+        df: spark_DataFrame,
+) -> spark_DataFrame:
+    df = (
+        df
+        .select(func.explode(df.MergedItems).alias("Rows"))
+        .select(func.col("Rows.*"))
+        .drop(func.col("BlockingKey"))
         .drop(func.col("SourceId"))
+    )
     return df
 
 
-def BlockingFunction(x: Row) -> int:
+def BlockingFunction(
+        x: DataTypes.Row
+) -> int:
     return hash((
         int(x.ZipCode), x.FirstName[0], x.LastName[0]))
 
@@ -130,7 +155,9 @@ FindRecordMatches_RecList_Returns = DataTypes.ArrayType(
     ]))
 
 
-def FindRecordMatches_RecList(recordList):
+def FindRecordMatches_RecList(
+        recordList: List[DataTypes.Row],
+) -> List[DataTypes.Row]:
     n = len(recordList)
     edgeList = []
     for i in range(0, n - 1):
@@ -170,7 +197,9 @@ FindConnectedComponents_RecList_Returns = DataTypes.ArrayType(
     ]))
 
 
-def FindConnectedComponents_RecList(edgeList):
+def FindConnectedComponents_RecList(
+        edgeList: List,
+) -> List[DataTypes.Row]:
     # This is not optimal for large components.  See GraphFrame
     componentForVertex = dict()
     for edge in edgeList:
@@ -214,7 +243,10 @@ MergeItems_RecList_Returns = DataTypes.ArrayType(
                                DataTypes.StringType(), False),]))
 
 
-def MergeItems_RecList(blockedDataList, connectedComponentList):
+def MergeItems_RecList(
+        blockedDataList: List[DataTypes.Row],
+        connectedComponentList: List[DataTypes.Row],
+) -> List[DataTypes.Row]:
     verticesInAComponent = set()
     for component in connectedComponentList:
         verticesInAComponent = verticesInAComponent \
@@ -233,8 +265,10 @@ def MergeItems_RecList(blockedDataList, connectedComponentList):
     return returnList
 
 
-def CombineRowList(constituentList):
-    mutableRec = constituentList[0].asDict()
+def CombineRowList(
+        constituentList: List[DataTypes.Row],
+) -> DataTypes.Row:
+    mutableRec: Dict[str, Union[str, int, None]] = constituentList[0].asDict()
     mutableRec['SourceId'] = None
     bestNumNameParts = 0
     for contributor in constituentList:
@@ -288,7 +322,7 @@ def CombineRowList(constituentList):
             mutableRec['FieldE'],
             mutableRec['FieldF'],
             mutableRec['SourceId'],
-            mutableRec['BlockingKey']))
+            mutableRec['BlockingKey']))  # type: ignore
         row.__fields__ = RecordSparseStruct.names + \
             ['SourceId', 'BlockingKey']
     else:
@@ -305,7 +339,7 @@ def CombineRowList(constituentList):
             mutableRec['FieldD'],
             mutableRec['FieldE'],
             mutableRec['FieldF'],
-            mutableRec['SourceId']))
+            mutableRec['SourceId']))  # type: ignore
         row.__fields__ = RecordSparseStruct.names + \
             ['SourceId']
     return row
@@ -314,7 +348,9 @@ def CombineRowList(constituentList):
 SinglePass_RecList_DF_Returns = MergeItems_RecList_Returns
 
 
-def SinglePass_RecList(blockedData):
+def SinglePass_RecList(
+        blockedData: List[DataTypes.Row],
+) -> List[DataTypes.Row]:
     firstOrderEdges = FindRecordMatches_RecList(blockedData)
     connectedComponents = FindConnectedComponents_RecList(firstOrderEdges)
     firstOrderEdges = None

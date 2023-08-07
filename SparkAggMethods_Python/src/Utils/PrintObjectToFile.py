@@ -48,12 +48,19 @@ def pprint(
         end=end)
 
 
-def pick_file_path(suffix: str) -> str:
+def pick_file_path(
+        suffix: str,
+) -> str:
     return os.path.join(os.environ['TMP'], f"LastUnitTestData{suffix}.py")
+
 
 re_match_dt_1: re.Pattern[str] | None = None
 
-def pprints(rows: Any, fh: TextIO) -> None:
+
+def pprints(
+        rows: Any,
+        fh: TextIO,
+) -> None:
     global re_match_dt_1, re_match_dt_2, re_match_2, re_match_3
     with io.StringIO(newline='\n') as intermediateStream:
         pprint(
@@ -67,11 +74,18 @@ def pprints(rows: Any, fh: TextIO) -> None:
 
         fh.write(text)
 
-def PrintObjectAsPythonLiteral(rows: Any, suffix: str = "") -> None:
+
+def PrintObjectAsPythonLiteral(
+        rows: Any,
+        suffix: str = "",
+) -> None:
     with open(pick_file_path(suffix), "w", encoding="utf-8") as fh:
         pprints(rows, fh)
 
 
-def PrintText(src: str, suffix: str = "") -> None:
+def PrintText(
+        src: str,
+        suffix: str = "",
+) -> None:
     with open(pick_file_path(suffix), "w", encoding='utf8') as fh:
         print(src, file=fh)

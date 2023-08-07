@@ -29,7 +29,10 @@ def cond_rdd_reduce(
     return rddSumCount, None
 
 
-def mergeValue2(sub: SubTotal, v: DataPoint):
+def mergeValue2(
+        sub: SubTotal,
+        v: DataPoint,
+) -> SubTotal:
     running_sum_of_C = sub.running_sum_of_C + v.C
     running_uncond_count = sub.running_uncond_count + 1
     running_max_of_D = sub.running_max_of_D \
@@ -52,7 +55,9 @@ def mergeValue2(sub: SubTotal, v: DataPoint):
         running_cond_count)
 
 
-def createCombiner2(v: DataPoint):
+def createCombiner2(
+        v: DataPoint,
+) -> SubTotal:
     return mergeValue2(SubTotal(
         running_sum_of_C=0,
         running_uncond_count=0,
@@ -62,7 +67,10 @@ def createCombiner2(v: DataPoint):
         running_cond_count=0), v)
 
 
-def mergeCombiners2(lsub: SubTotal, rsub: SubTotal):
+def mergeCombiners2(
+        lsub: SubTotal,
+        rsub: SubTotal,
+) -> SubTotal:
     return SubTotal(
         running_sum_of_C=lsub.running_sum_of_C + rsub.running_sum_of_C,
         running_uncond_count=lsub.running_uncond_count + rsub.running_uncond_count,
@@ -76,7 +84,10 @@ def mergeCombiners2(lsub: SubTotal, rsub: SubTotal):
         running_cond_count=lsub.running_cond_count + rsub.running_cond_count)
 
 
-def finalAnalytics2(key: Tuple[int, int], total: SubTotal) -> GrpTotal:
+def finalAnalytics2(
+        key: Tuple[int, int],
+        total: SubTotal,
+) -> GrpTotal:
     sum_of_C = total.running_sum_of_C
     uncond_count = total.running_uncond_count
     max_of_D = total.running_max_of_D

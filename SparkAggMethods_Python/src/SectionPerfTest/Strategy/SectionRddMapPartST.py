@@ -2,10 +2,11 @@ from typing import List, Tuple
 
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
+from SectionPerfTest.SectionMutuableSubtotal import aggregateTypedRowsToGrades
 
 from Utils.SparkUtils import TidySparkSession
 
-from SectionPerfTest.SectionLogic import aggregateTypedRowsToGrades, parseLineToTypes
+from SectionPerfTest.SectionLogic import parseLineToTypes
 from SectionPerfTest.SectionTypeDefs import DataSet, StudentSummary
 
 

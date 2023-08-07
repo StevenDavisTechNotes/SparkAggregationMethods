@@ -6,7 +6,7 @@ from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 from pyspark.sql import Row
 
-from SixFieldCommon.SixFieldTestData import DataSet, ExecutionParameters
+from SixFieldCommon.SixFieldTestData import DataSet, ExecutionParameters, DataPoint
 from Utils.SparkUtils import TidySparkSession
 
 SubTotal1 = collections.namedtuple(
@@ -39,7 +39,10 @@ def bi_rdd_reduce1(
     return rddResult, None
 
 
-def mergeValue(pre, v):
+def mergeValue(
+        pre: SubTotal1,
+        v: DataPoint,
+) -> SubTotal1:
     subgrp_running_totals = pre.subgrp_running_totals.copy()
     if v.subgrp not in subgrp_running_totals:
         subgrp_running_totals[v.subgrp] = \
@@ -62,14 +65,19 @@ def mergeValue(pre, v):
         subgrp_running_totals=subgrp_running_totals)
 
 
-def createCombiner(v):
+def createCombiner(
+        v: DataPoint,
+) -> SubTotal1:
     return mergeValue(SubTotal1(
         running_sum_of_C=0,
         running_max_of_D=None,
         subgrp_running_totals={}), v)
 
 
-def mergeCombiners(lsub, rsub):
+def mergeCombiners(
+    lsub: SubTotal1,
+    rsub: SubTotal1,
+) -> SubTotal1:
     subgrp_running_totals = {}
     all_subgrp = set(lsub.subgrp_running_totals.keys() |
                      rsub.subgrp_running_totals.keys())
@@ -104,7 +112,10 @@ def mergeCombiners(lsub, rsub):
         subgrp_running_totals=subgrp_running_totals)
 
 
-def finalAnalytics(grp, level1):
+def finalAnalytics(
+        grp: int,
+        level1: SubTotal1,
+) -> Row:
     import statistics
     running_grp_count = 0
     list_of_var_of_E = []

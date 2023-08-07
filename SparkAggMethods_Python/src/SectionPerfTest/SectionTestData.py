@@ -19,6 +19,15 @@ available_data_sizes: List[str] = [
     str(10**i) for i in range(0, LARGEST_EXPONENT + 1)]
 
 
+def AddMonths(
+        d: dt.date,
+        add_months: int,
+) -> dt.date:
+    serial = d.year * 12 + (d.month - 1)
+    serial += add_months
+    return dt.date(serial // 12, serial % 12 + 1, d.day)
+
+
 def populate_data_set(
         filename: str,
         NumStudents: int,
@@ -26,10 +35,6 @@ def populate_data_set(
         NumClassesPerTrimester: int,
         NumDepts: int
 ) -> None:
-    def AddMonths(d, x):
-        serial = d.year * 12 + (d.month - 1)
-        serial += x
-        return dt.date(serial // 12, serial % 12 + 1, d.day)
     tmp_file_name = os.path.join(
         TEST_DATA_FILE_LOCATION,
         "Section_Test_Data",

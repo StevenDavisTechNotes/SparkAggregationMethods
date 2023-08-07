@@ -33,7 +33,10 @@ def vanilla_rdd_grpmap(
     return rddResult, None
 
 
-def processData1(key: Tuple[int, int], iterator: Iterable[DataPoint]) -> Tuple[Tuple[int, int], Row]:
+def processData1(
+        key: Tuple[int, int],
+        iterator: Iterable[DataPoint],
+) -> Tuple[Tuple[int, int], Row]:
     import math
     sum_of_C = 0
     count = 0

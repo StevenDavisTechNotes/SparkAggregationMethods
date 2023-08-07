@@ -1,12 +1,12 @@
 import collections
 import math
-from typing import Optional, Tuple
+from typing import Iterable, Optional, Tuple
 
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 from pyspark.sql import Row
 
-from SixFieldCommon.SixFieldTestData import DataSet, ExecutionParameters
+from SixFieldCommon.SixFieldTestData import DataSet, ExecutionParameters, DataPoint
 from Utils.SparkUtils import TidySparkSession
 
 SubTotal = collections.namedtuple(
@@ -38,7 +38,10 @@ def bi_rdd_reduce2(
     return rddResult, None
 
 
-def mergeValue(pre, v):
+def mergeValue(
+        pre: SubTotal,
+        v: DataPoint,
+) -> SubTotal:
     return SubTotal(
         running_sum_of_C=pre.running_sum_of_C + v.C,
         running_count=pre.running_count + 1,
@@ -51,7 +54,9 @@ def mergeValue(pre, v):
         running_sum_of_E=pre.running_sum_of_E + v.E)
 
 
-def createCombiner(v):
+def createCombiner(
+        v: DataPoint,
+) -> SubTotal:
     return mergeValue(SubTotal(
         running_sum_of_C=0,
         running_count=0,
@@ -60,7 +65,10 @@ def createCombiner(v):
         running_sum_of_E=0), v)
 
 
-def mergeCombiners(lsub, rsub):
+def mergeCombiners(
+        lsub: SubTotal,
+        rsub: SubTotal,
+) -> SubTotal:
     return SubTotal(
         running_sum_of_C=lsub.running_sum_of_C + rsub.running_sum_of_C,
         running_count=lsub.running_count + rsub.running_count,
@@ -73,7 +81,10 @@ def mergeCombiners(lsub, rsub):
         running_sum_of_E=lsub.running_sum_of_E + rsub.running_sum_of_E)
 
 
-def finalAnalytics(grp, iterator):
+def finalAnalytics(
+        grp: int,
+        iterator: Iterable[SubTotal]
+) -> Row:
     running_sum_of_C = 0
     running_grp_count = 0
     running_max_of_D = None

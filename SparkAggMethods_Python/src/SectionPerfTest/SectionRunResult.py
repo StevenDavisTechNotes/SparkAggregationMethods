@@ -20,7 +20,9 @@ class PersistedRunResult:
     record_count: int
 
 
-def regressor_from_run_result(result: PersistedRunResult) -> int:
+def regressor_from_run_result(
+        result: PersistedRunResult,
+) -> int:
     return result.data.num_students
 
 
@@ -39,35 +41,29 @@ LARGEST_EXPONENT_BY_METHOD_NAME: Dict[str, int] = {
 }
 
 
-def infeasible(strategy: str, data_set: DataSetDescription) -> bool:
+def infeasible(
+        strategy: str,
+        data_set: DataSetDescription,
+) -> bool:
     dataNumStudents = data_set.num_students
     largest_exponent_by_method_name = LARGEST_EXPONENT_BY_METHOD_NAME[strategy]
     return dataNumStudents >= pow(10, largest_exponent_by_method_name)
 
 
-# EXPECTED_SIZES_BY_STRATEGY = {
-#     strategy_name:
-#     [10**x for x in range(1, max_exp)]
-#     for strategy_name, max_exp in LARGEST_EXPONENT_BY_METHOD_NAME.items()
-# }
-
-
-# EXPECTED_SIZES = {
-#     10**x
-#     for max_exp in LARGEST_EXPONENT_BY_METHOD_NAME.values()
-#     for x in range(0, max_exp+1)
-# }
-
-
-def write_header(file: TextIO):
+def write_header(
+        file: TextIO,
+) -> None:
     print(
         ' status,strategy,interface,NumStudents,dataSize,sectionMaximum,elapsedTime,recordCount,finishedAt,',
         file=file)
     file.flush()
 
 
-def write_run_result(test_method: PythonTestMethod,
-                     result: RunResult, file: TextIO):
+def write_run_result(
+        test_method: PythonTestMethod,
+        result: RunResult,
+        file: TextIO,
+) -> None:
     data = result.data
     print("%s,%s,%s,%d,%d,%d,%f,%d,%s," % (
         "success" if result.success else "failure",

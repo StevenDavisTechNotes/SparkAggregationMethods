@@ -17,23 +17,6 @@ def bi_pandas(
 ) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
     df = data_set.data.dfSrc
 
-    def inner_agg_method(dfPartition: pd.DataFrame) -> pd.DataFrame:
-        group_key = dfPartition['grp'].iloc[0]
-        C = dfPartition['C']
-        D = dfPartition['D']
-        subgroupedE = dfPartition.groupby('subgrp')['E']
-        return pd.DataFrame([[
-            group_key,
-            C.mean(),
-            D.max(),
-            subgroupedE.var(ddof=0).mean(),
-            subgroupedE
-            .agg(lambda E:
-                 ((E * E).sum() / E.count() -
-                     (E.sum() / E.count())**2))
-            .mean(),
-        ]], columns=result_columns)
-
     df = (
         df
         .groupBy(df.grp)
@@ -41,3 +24,23 @@ def bi_pandas(
     )
     df = df.orderBy(df.grp)
     return None, df
+
+
+def inner_agg_method(
+        dfPartition: pd.DataFrame
+) -> pd.DataFrame:
+    group_key = dfPartition['grp'].iloc[0]
+    C = dfPartition['C']
+    D = dfPartition['D']
+    subgroupedE = dfPartition.groupby('subgrp')['E']
+    return pd.DataFrame([[
+        group_key,
+        C.mean(),
+        D.max(),
+        subgroupedE.var(ddof=0).mean(),
+        subgroupedE
+        .agg(lambda E:
+             ((E * E).sum() / E.count() -
+              (E.sum() / E.count())**2))
+        .mean(),
+    ]], columns=result_columns)

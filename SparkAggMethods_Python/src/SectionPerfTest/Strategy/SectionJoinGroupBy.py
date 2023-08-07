@@ -23,21 +23,6 @@ def section_join_groupby(
 
     rdd = sc.textFile(data_set.data.test_filepath, data_set.data.target_num_partitions)
 
-    def withIndexColumn(lineNumber, row):
-        return Row(
-            LineNumber=lineNumber,
-            ClassCredits=row.ClassCredits,
-            ClassGrade=row.ClassGrade,
-            Date=row.Date,
-            Dept=row.Dept,
-            Major=row.Major,
-            StudentId=row.StudentId,
-            StudentName=row.StudentName,
-            TriCredits=row.TriCredits,
-            TriGPA=row.TriGPA,
-            Type=row.Type,
-            WasAbroad=row.WasAbroad)
-    #
     NumRows = rdd.count()
     rdd = (
         rdd
@@ -122,3 +107,22 @@ def section_join_groupby(
     )
     rdd = df.rdd.map(rowToStudentSummary)
     return None, rdd, None
+
+
+def withIndexColumn(
+        lineNumber: int,
+        row: Row,
+) -> Row:
+    return Row(
+        LineNumber=lineNumber,
+        ClassCredits=row.ClassCredits,
+        ClassGrade=row.ClassGrade,
+        Date=row.Date,
+        Dept=row.Dept,
+        Major=row.Major,
+        StudentId=row.StudentId,
+        StudentName=row.StudentName,
+        TriCredits=row.TriCredits,
+        TriGPA=row.TriGPA,
+        Type=row.Type,
+        WasAbroad=row.WasAbroad)

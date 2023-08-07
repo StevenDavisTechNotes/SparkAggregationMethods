@@ -1,13 +1,12 @@
-from typing import Tuple
+from typing import Iterable, Tuple
 
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 
-from SixFieldCommon.SixFieldTestData import (MAX_DATA_POINTS_PER_PARTITION,
-                                             DataSet, ExecutionParameters)
-from Utils.SparkUtils import TidySparkSession
-
 from ConditionalPerfTest.CondDataTypes import GrpTotal
+from SixFieldCommon.SixFieldTestData import (
+    MAX_DATA_POINTS_PER_PARTITION, DataPoint, DataSet, ExecutionParameters)
+from Utils.SparkUtils import TidySparkSession
 
 
 def cond_rdd_grpmap(
@@ -32,7 +31,10 @@ def cond_rdd_grpmap(
     return rddResult, None
 
 
-def processData1(key, iterator):
+def processData1(
+        key: Tuple[int, int],
+        iterator: Iterable[DataPoint],
+) -> Tuple[Tuple[int, int], GrpTotal]:
     import math
     sum_of_C = 0
     unconditional_count = 0

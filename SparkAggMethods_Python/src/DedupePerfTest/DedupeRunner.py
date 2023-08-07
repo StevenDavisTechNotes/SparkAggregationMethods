@@ -191,7 +191,10 @@ def run_tests(
             print("")
 
 
-def do_test_runs(args: Arguments, spark_session: TidySparkSession):
+def do_test_runs(
+        args: Arguments,
+        spark_session: TidySparkSession,
+):
     data_sets = generate_test_data(
         args.sizes, spark_session.spark, args.exec_params)
     run_tests(data_sets, args, spark_session)

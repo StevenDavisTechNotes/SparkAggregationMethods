@@ -52,11 +52,16 @@ EXPECTED_NUM_RECORDS = sorted([
 ])
 
 
-def regressor_from_run_result(result: PersistedRunResult) -> int:
+def regressor_from_run_result(
+        result: PersistedRunResult,
+) -> int:
     return result.dataSize
 
 
-def infeasible(strategy_name: str, data_set: DataSet) -> bool:
+def infeasible(
+        strategy_name: str,
+        data_set: DataSet,
+) -> bool:
     match strategy_name:
         case 'dedupe_pandas':
             return data_set.data_size > 50200
@@ -76,7 +81,9 @@ def infeasible(strategy_name: str, data_set: DataSet) -> bool:
             raise ValueError(f"Unknown strategy: {strategy_name}")
 
 
-def write_header(file: TextIO):
+def write_header(
+        file: TextIO,
+) -> None:
     print(",".join((
         " result",
         "strategy", "interface", "numSources",
@@ -92,7 +99,7 @@ def write_run_result(
         test_method: PythonTestMethod,
         result: RunResult,
         file: TextIO
-):
+) -> None:
     print(",".join([str(x) for x in [
         "success" if success else "failure",
         test_method.strategy_name, test_method.interface, result.numSources,

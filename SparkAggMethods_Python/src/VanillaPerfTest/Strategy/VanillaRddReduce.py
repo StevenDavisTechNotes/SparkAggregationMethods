@@ -34,7 +34,10 @@ def vanilla_rdd_reduce(
     return rddResult, None
 
 
-def max(lhs: Optional[float], rhs: Optional[float]) -> Optional[float]:
+def max(
+        lhs: Optional[float],
+        rhs: Optional[float],
+) -> Optional[float]:
     if lhs is None:
         return rhs
     if rhs is None:
@@ -53,7 +56,10 @@ def createAccumulator() -> SubTotalDC:
         running_sum_of_E=0)
 
 
-def mergeValue2(sub: SubTotalDC, v: DataPoint) -> SubTotalDC:
+def mergeValue2(
+        sub: SubTotalDC,
+        v: DataPoint,
+) -> SubTotalDC:
     running_sum_of_E_squared = sub.running_sum_of_E_squared + v.E * v.E
     running_sum_of_E = sub.running_sum_of_E + v.E
     return SubTotalDC(
@@ -64,11 +70,16 @@ def mergeValue2(sub: SubTotalDC, v: DataPoint) -> SubTotalDC:
         running_sum_of_E=running_sum_of_E)
 
 
-def createCombiner2(v: DataPoint) -> SubTotalDC:
+def createCombiner2(
+        v: DataPoint,
+) -> SubTotalDC:
     return mergeValue2(createAccumulator(), v)
 
 
-def mergeCombiners2(lsub: SubTotalDC, rsub: SubTotalDC) -> SubTotalDC:
+def mergeCombiners2(
+        lsub: SubTotalDC,
+        rsub: SubTotalDC,
+) -> SubTotalDC:
     return SubTotalDC(
         running_sum_of_C=lsub.running_sum_of_C + rsub.running_sum_of_C,
         running_count=lsub.running_count + rsub.running_count,
@@ -79,7 +90,10 @@ def mergeCombiners2(lsub: SubTotalDC, rsub: SubTotalDC) -> SubTotalDC:
     )
 
 
-def finalAnalytics2(key: Tuple[int, int], total: SubTotalDC):
+def finalAnalytics2(
+        key: Tuple[int, int],
+        total: SubTotalDC,
+) -> Row:
     sum_of_C = total.running_sum_of_C
     count = total.running_count
     max_of_D = total.running_max_of_D

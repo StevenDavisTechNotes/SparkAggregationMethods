@@ -2,14 +2,14 @@ from typing import Iterable, List, Tuple
 
 from pyspark import RDD, StorageLevel
 from pyspark.sql import DataFrame as spark_DataFrame
-from Utils.PrintObjectToFile import PrintObjectAsPythonLiteral
 
-from Utils.SparkUtils import TidySparkSession
-from Utils.Utils import int_divide_round_up
-
-from SectionPerfTest.SectionLogic import CompletedStudent, StudentSnippet, StudentSnippetBuilder, rddTypedWithIndexFactory
+from SectionPerfTest.SectionLogic import rddTypedWithIndexFactory
+from SectionPerfTest.SectionSnippetSubtotal import (
+    CompletedStudent, StudentSnippet, StudentSnippetBuilder)
 from SectionPerfTest.SectionTypeDefs import (
     DataSet, LabeledTypedRow, StudentSummary)
+from Utils.SparkUtils import TidySparkSession
+from Utils.Utils import int_divide_round_up
 
 
 def section_mappart_partials(
@@ -21,7 +21,7 @@ def section_mappart_partials(
     default_parallelism = data_set.exec_params.DefaultParallelism
     maximum_processable_segment = data_set.exec_params.MaximumProcessableSegment
 
-    targetNumPartitions = int_divide_round_up(initial_num_rows,  maximum_processable_segment)
+    targetNumPartitions = int_divide_round_up(initial_num_rows, maximum_processable_segment)
 
     rdd = rddTypedWithIndexFactory(spark_session, filename, targetNumPartitions) \
         .map(lambda x: StudentSnippetBuilder.studentSnippetFromTypedRow(x.Index, x.Value))
@@ -43,7 +43,7 @@ def section_mappart_partials(
                                    x.Index % maximum_processable_segment))
         # type = RDD<((igroup, iremainder),(index, snippet))>
         #
-        targetNumPartitions = int_divide_round_up(remaining_num_rows,  maximum_processable_segment)
+        targetNumPartitions = int_divide_round_up(remaining_num_rows, maximum_processable_segment)
         rdd = rdd.repartitionAndSortWithinPartitions(
             numPartitions=targetNumPartitions,
             partitionFunc=lambda x: x[0])  # type: ignore
@@ -90,7 +90,7 @@ def section_mappart_partials(
             #
             break
     rdd = (
-        rddCumulativeCompleted 
+        rddCumulativeCompleted
         .map(StudentSnippetBuilder.gradeSummary)
         .repartition(default_parallelism))
     # type: RDD[StudentSummary]
@@ -98,7 +98,9 @@ def section_mappart_partials(
     return None, rdd, None
 
 
-def strainCompletedItems(lgroup):
+def strainCompletedItems(
+        lgroup: List[StudentSnippet],
+) -> Tuple[List[CompletedStudent], List[StudentSnippet]]:
     completedList = []
     for i in range(len(lgroup) - 2, 0, -1):
         rec = lgroup[i]
@@ -112,13 +114,15 @@ def strainCompletedItems(lgroup):
 
 def consolidateSnippetsInPartition(
         iter: Iterable[Tuple[int, bool, int, StudentSnippet]]
-) -> Iterable[Tuple[bool, StudentSnippet]]:
+) -> Iterable[Tuple[bool, CompletedStudent | StudentSnippet]]:
     residual = []
     lGroupNumber = None
     lgroup = None
 
+    rMember: StudentSnippet
     for rGroupNumber, rIsAtStartOfSegment, _passNumber, rMember in iter:
         if lGroupNumber is not None and rGroupNumber != lGroupNumber:
+            assert lgroup is not None
             completedItems, lgroup = strainCompletedItems(lgroup)
             for item in completedItems:
                 yield True, item
@@ -133,6 +137,7 @@ def consolidateSnippetsInPartition(
         else:
             StudentSnippetBuilder.addSnippets(lgroup, [rMember])
     if lGroupNumber is not None:
+        assert lgroup is not None
         completedItems, lgroup = strainCompletedItems(lgroup)
         for item in completedItems:
             yield True, item

@@ -2,13 +2,13 @@ from typing import Any, List, Tuple, cast
 
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
+from SectionPerfTest.SectionMutuableSubtotal import aggregateTypedRowsToGrades
 
 from Utils.SparkUtils import TidySparkSession
 
-from SectionPerfTest.SectionLogic import (
-    aggregateTypedRowsToGrades, identifySectionUsingIntermediateFile)
+from SectionPerfTest.SectionLogic import identifySectionUsingIntermediateFile
 from SectionPerfTest.SectionTypeDefs import (
-    ClassLine, DataSet, StudentHeader, StudentSummary, TrimesterFooter, TrimesterHeader)
+    ClassLine, DataSet, StudentHeader, StudentSummary, TrimesterFooter, TrimesterHeader, TypedLine)
 
 
 def section_prep_mappart(
@@ -34,7 +34,10 @@ def section_prep_mappart(
     return None, rdd, None
 
 
-def parseLineToTypesWithLineNo(filename, pair):
+def parseLineToTypesWithLineNo(
+        filename: str,
+        pair: Tuple[str, int],
+) -> Tuple[int, int, TypedLine]:
     lineNumber = pair[1]
     line = pair[0]
     fields = line.split(',')

@@ -85,7 +85,10 @@ def parse_args() -> Arguments:
     )
 
 
-def do_test_runs(args: Arguments, spark_session: TidySparkSession):
+def do_test_runs(
+        args: Arguments,
+        spark_session: TidySparkSession,
+) -> None:
     data_sets = populate_data_sets(args, spark_session)
     keyed_implementation_list = {
         x.strategy_name: x for x in implementation_list}
@@ -123,7 +126,12 @@ def populate_data_sets(
         spark_session: TidySparkSession,
 ) -> List[DataSetWithAnswer]:
 
-    def generate_single_test_data_set_simple(code: str, num_grp_1: int, num_grp_2: int, num_data_points: int):
+    def generate_single_test_data_set_simple(
+            code: str,
+            num_grp_1:
+            int, num_grp_2: int,
+            num_data_points: int
+    ) -> DataSetWithAnswer:
         return populate_data_set(
             spark_session, args.exec_params,
             code, num_grp_1, num_grp_2, num_data_points)

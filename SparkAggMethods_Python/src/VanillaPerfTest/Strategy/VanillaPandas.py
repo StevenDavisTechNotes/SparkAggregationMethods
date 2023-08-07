@@ -17,24 +17,6 @@ def vanilla_pandas(
 ) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
     df = data_set.data.dfSrc
 
-    def inner_agg_method(dfPartition: pd.DataFrame) -> pd.DataFrame:
-        group_key = dfPartition['grp'].iloc[0]
-        subgroup_key = dfPartition['subgrp'].iloc[0]
-        C = dfPartition['C']
-        D = dfPartition['D']
-        E = dfPartition['E']
-        var_of_E2 = (
-            (E * E).sum() / E.count()
-            - (E.sum() / E.count())**2)
-        return pd.DataFrame([[
-            group_key,
-            subgroup_key,
-            C.mean(),
-            D.max(),
-            E.var(ddof=0),
-            var_of_E2,
-        ]], columns=result_columns)
-
     df = (
         df
         .groupBy(df.grp, df.subgrp)
@@ -42,3 +24,24 @@ def vanilla_pandas(
     )
     df = df.orderBy(df.grp, df.subgrp)
     return None, df
+
+
+def inner_agg_method(
+        dfPartition: pd.DataFrame,
+) -> pd.DataFrame:
+    group_key = dfPartition['grp'].iloc[0]
+    subgroup_key = dfPartition['subgrp'].iloc[0]
+    C = dfPartition['C']
+    D = dfPartition['D']
+    E = dfPartition['E']
+    var_of_E2 = (
+        (E * E).sum() / E.count()
+        - (E.sum() / E.count())**2)
+    return pd.DataFrame([[
+        group_key,
+        subgroup_key,
+        C.mean(),
+        D.max(),
+        E.var(ddof=0),
+        var_of_E2,
+    ]], columns=result_columns)

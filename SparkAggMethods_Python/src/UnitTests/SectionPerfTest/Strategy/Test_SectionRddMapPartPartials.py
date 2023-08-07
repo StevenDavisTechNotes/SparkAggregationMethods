@@ -1,7 +1,5 @@
-from typing import List
-import pytest
+from SectionPerfTest.SectionSnippetSubtotal import StudentSnippet
 
-from SectionPerfTest.SectionLogic import StudentSnippet
 from SectionPerfTest.Strategy.SectionRddMapPartPartials import consolidateSnippetsInPartition
 
 
@@ -796,6 +794,7 @@ class Test_consolidateSnippetsInPartition():
         ]
         result = list(consolidateSnippetsInPartition(starting))
         assert (len(result) == 1)
+
 
 if __name__ == "__main__":
     Test_consolidateSnippetsInPartition().test_OneStudent_Pass1()

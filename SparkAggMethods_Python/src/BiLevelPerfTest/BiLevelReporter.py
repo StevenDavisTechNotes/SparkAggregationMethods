@@ -23,6 +23,18 @@ PerformanceModelParameters = collections.namedtuple(
      "s2", "s2_low", "s2_high"])
 
 
+def parse_results():
+    raw_test_runs: List[PersistedRunResult] = []
+    with open(TEMP_RESULT_FILE_PATH, 'w') as fout:
+        for result in read_result_file():
+            raw_test_runs.append(result)
+            fout.write("%s,%s,%d,%d,%f,%d\n" % (result.strategy_name, result.interface,
+                       result.dataSize, result.relCard, result.elapsedTime, result.recordCount))
+    if len(raw_test_runs) < 1:
+        print("no tests")
+    return raw_test_runs
+
+
 def structure_test_results(
         test_runs: List[PersistedRunResult]
 ) -> Dict[str, Dict[int, List[PersistedRunResult]]]:
@@ -34,21 +46,16 @@ def structure_test_results(
     return test_results
 
 
-def make_runs_summary(test_results: Dict[str, Dict[int, List[PersistedRunResult]]]) -> Dict[str, Dict[int, int]]:
+def make_runs_summary(
+        test_results: Dict[str, Dict[int, List[PersistedRunResult]]]
+) -> Dict[str, Dict[int, int]]:
     return {strategy_name:
             {x_variable: len(runs) for x_variable, runs in runs_for_strategy_name.items()}
             for strategy_name, runs_for_strategy_name in test_results.items()}
 
 
 def analyze_run_results():
-    raw_test_runs: List[PersistedRunResult] = []
-    with open(TEMP_RESULT_FILE_PATH, 'w') as fout:
-        for result in read_result_file():
-            raw_test_runs.append(result)
-            fout.write("%s,%s,%d,%d,%f,%d\n" % (result.strategy_name, result.interface,
-                       result.dataSize, result.relCard, result.elapsedTime, result.recordCount))
-    if len(raw_test_runs) < 1:
-        print("no tests")
+    raw_test_runs = parse_results()
     test_results = structure_test_results(raw_test_runs)
     test_runs_summary = make_runs_summary(test_results)
     print("test_runs_summary", test_runs_summary)

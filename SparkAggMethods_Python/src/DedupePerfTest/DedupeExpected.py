@@ -1,12 +1,16 @@
-from typing import List
+from typing import Iterable, List, Tuple
 
+from pyspark import RDD
+from pyspark.sql import DataFrame as spark_DataFrame
 from pyspark.sql import Row
 
 from DedupePerfTest.DedupeDataTypes import ItineraryItem, RecordSparseStruct
 from DedupePerfTest.DedupeTestData import nameHash
 
 
-def arrangeFieldOrder(rec):
+def arrangeFieldOrder(
+        rec: Row,
+) -> Row:
     row = Row(*(
         rec.FirstName,
         rec.LastName,
@@ -116,11 +120,17 @@ def verify_single_line(  # noqa: C901
             raise Exception(f'{i}: {i*13} != FieldF={row.FieldF}')
 
 
-def count_in_a_partition(idx, iterator):
+def count_in_a_partition(
+        idx: int,
+        iterator: Iterable
+) -> Iterable[Tuple[int, int]]:
     yield idx, sum(1 for _ in iterator)
 
 
-def printPartitionDistribution(rddout, dfout):
+def printPartitionDistribution(
+        rddout: RDD,
+        dfout: spark_DataFrame,
+) -> None:
     print("records per partition ",
           (rddout or dfout.rdd)
           .mapPartitionsWithIndex(count_in_a_partition)

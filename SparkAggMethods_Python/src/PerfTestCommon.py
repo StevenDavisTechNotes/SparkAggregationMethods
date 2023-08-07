@@ -17,7 +17,9 @@ class TestMethodDescription:
     interface: str
 
 
-def count_iter(iterator: Iterable):
+def count_iter(
+        iterator: Iterable
+):
     count = 0
     for _ in iterator:
         count += 1

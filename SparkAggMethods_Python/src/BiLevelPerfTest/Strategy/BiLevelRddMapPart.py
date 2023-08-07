@@ -1,16 +1,17 @@
 import collections
-from typing import Optional, Tuple
+from typing import Dict, Iterable, Optional, Tuple
 
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 from pyspark.sql import Row
 
-from SixFieldCommon.SixFieldTestData import DataSet, ExecutionParameters
+from SixFieldCommon.SixFieldTestData import (
+    DataPoint, DataSet, ExecutionParameters)
 from Utils.SparkUtils import TidySparkSession
 
 
 class MutableGrpTotal:
-    def __init__(self, grp):
+    def __init__(self, grp: int):
         self.grp = grp
         self.running_sum_of_C = 0
         self.running_max_of_D = None
@@ -18,7 +19,7 @@ class MutableGrpTotal:
 
 
 class MutableSubGrpTotal:
-    def __init__(self, grp, subgrp):
+    def __init__(self, grp: int, subgrp: int):
         self.grp = grp
         self.subgrp = subgrp
         self.running_count = 0
@@ -47,14 +48,16 @@ def bi_rdd_mappart(
         .mapPartitions(partitionTriage)
         .groupByKey(numPartitions=data_set.data.AggTgtNumPartitions)
         .map(lambda kv: (kv[0], mergeCombiners3(kv[0], kv[1])))
-        .sortByKey()
+        .sortByKey()  # type: ignore
         .values()
     )
     return rddResult, None
 
 
-def partitionTriage(iterator):
-    running_grp_totals = {}
+def partitionTriage(
+        iterator: Iterable[DataPoint]
+) -> Iterable[Tuple[int, SubTotal1]]:
+    running_grp_totals: Dict[int, MutableGrpTotal] = dict()
     for v in iterator:
         k1 = v.grp
         if k1 not in running_grp_totals:
@@ -92,7 +95,10 @@ def partitionTriage(iterator):
                     for k2, r2 in r1.running_subgrp_totals.items()}))
 
 
-def mergeCombiners3(grp, iterable):
+def mergeCombiners3(
+        grp: int,
+        iterable: Iterable[SubTotal1]
+) -> Row:
     import statistics
     lsub = MutableGrpTotal(grp)
     for rsub1 in iterable:

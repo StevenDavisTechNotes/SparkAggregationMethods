@@ -17,7 +17,7 @@ from Utils.Utils import always_true
 from BiLevelPerfTest.BiLevelDataTypes import result_columns
 from BiLevelPerfTest.BiLevelDirectory import implementation_list, strategy_name_list
 from BiLevelPerfTest.BiLevelRunResult import (RunResult, infeasible, write_header,
-                               write_run_result)
+                                              write_run_result)
 
 DEBUG_ARGS = None if False else (
     []
@@ -86,7 +86,10 @@ def parse_args() -> Arguments:
     )
 
 
-def do_test_runs(args: Arguments, spark_session: TidySparkSession):
+def do_test_runs(
+        args: Arguments,
+        spark_session: TidySparkSession
+) -> None:
     data_sets = populate_data_sets(args, spark_session)
     keyed_implementation_list = {
         x.strategy_name: x for x in implementation_list}
@@ -127,7 +130,9 @@ def populate_data_sets(
         spark_session: TidySparkSession,
 ) -> List[DataSetWithAnswer]:
 
-    def generate_single_test_data_set_simple(code: str, num_grp_1: int, num_grp_2: int, num_data_points: int):
+    def generate_single_test_data_set_simple(
+            code: str, num_grp_1: int, num_grp_2: int, num_data_points: int
+    ) -> DataSetWithAnswer:
         return populate_data_set(
             spark_session, args.exec_params,
             code, num_grp_1, num_grp_2, num_data_points)
@@ -190,25 +195,25 @@ def test_one_step_in_itinerary(
     else:
         raise ValueError("Both df and rdd are None")
     if 'avg_var_of_E2' not in df_answer:
-        df_answer['avg_var_of_E2']=df_answer['avg_var_of_E']
-    abs_diff=float(
+        df_answer['avg_var_of_E2'] = df_answer['avg_var_of_E']
+    abs_diff = float(
         (data_set.answer.bilevel_answer - df_answer)
         .abs().max().max())
-    status=abs_diff < 1e-12
+    status = abs_diff < 1e-12
     assert (status is True)
-    recordCount=len(df_answer)
-    result=RunResult(
-        dataSize = data_set.description.NumDataPoints,
-        relCard = data_set.description.RelativeCardinalityBetweenGroupings,
-        elapsedTime = finishedTime - startedTime,
-        recordCount = recordCount)
+    recordCount = len(df_answer)
+    result = RunResult(
+        dataSize=data_set.description.NumDataPoints,
+        relCard=data_set.description.RelativeCardinalityBetweenGroupings,
+        elapsedTime=finishedTime - startedTime,
+        recordCount=recordCount)
     write_run_result(test_method, result, file)
     return rdd, df
 
 
 def main():
-    args=parse_args()
-    config={
+    args = parse_args()
+    config = {
         "spark.sql.shuffle.partitions": args.exec_params.DefaultParallelism,
         "spark.default.parallelism": args.exec_params.DefaultParallelism,
         "spark.driver.memory": "2g",
@@ -218,7 +223,7 @@ def main():
     }
     with TidySparkSession(
         config,
-        enable_hive_support = False
+        enable_hive_support=False
     ) as spark_session:
         do_test_runs(args, spark_session)
 

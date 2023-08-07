@@ -19,11 +19,16 @@ class PersistedRunResult:
     recordCount: int
 
 
-def regressor_from_run_result(result: PersistedRunResult) -> int:
+def regressor_from_run_result(
+        result: PersistedRunResult
+) -> int:
     return result.dataSize
 
 
-def infeasible(strategy_name: str, data_set: DataSet) -> bool:
+def infeasible(
+        strategy_name: str,
+        data_set: DataSet,
+) -> bool:
     match strategy_name:
         case 'cond_rdd_grpmap':
             return (
@@ -34,7 +39,9 @@ def infeasible(strategy_name: str, data_set: DataSet) -> bool:
             return False
 
 
-def write_header(file: TextIO):
+def write_header(
+        file: TextIO
+) -> None:
     print(
         ' strategy,interface,dataSize,elapsedTime,recordCount,finishedAt,',
         file=file)
@@ -42,8 +49,10 @@ def write_header(file: TextIO):
 
 
 def write_run_result(
-    cond_method: PythonTestMethod,
-        result: RunResult, file: TextIO):
+        cond_method: PythonTestMethod,
+        result: RunResult,
+        file: TextIO,
+) -> None:
     print("%s,%s,%d,%f,%d,%s" % (
         cond_method.strategy_name, cond_method.interface,
         result.dataSize, result.elapsedTime, result.recordCount,

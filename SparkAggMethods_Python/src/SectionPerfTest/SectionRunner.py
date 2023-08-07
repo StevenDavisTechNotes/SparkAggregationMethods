@@ -1,20 +1,21 @@
-from typing import List, TextIO, Tuple, Optional
-
 import argparse
-from dataclasses import dataclass
 import gc
 import random
 import time
+from dataclasses import dataclass
+from typing import List, Optional, TextIO, Tuple
 
+from SectionPerfTest.SectionDirectory import (
+    implementation_list, strategy_name_list)
+from SectionPerfTest.SectionRunResult import (
+    MAXIMUM_PROCESSABLE_SEGMENT, PYTHON_RESULT_FILE_PATH, infeasible, write_header, write_run_result)
+from SectionPerfTest.SectionTestData import (
+    available_data_sizes, populate_data_sets)
 from SectionPerfTest.SectionTypeDefs import (
     DataSetAnswer, DataSetWithAnswer, ExecutionParameters, PythonTestMethod, RunResult, StudentSummary)
 from SectionPerfTest.Strategy.SectionNoSparkST import section_nospark_logic
 from Utils.SparkUtils import LOCAL_NUM_EXECUTORS, TidySparkSession
 from Utils.Utils import always_true
-
-from SectionPerfTest.SectionDirectory import implementation_list, strategy_name_list
-from SectionPerfTest.SectionRunResult import MAXIMUM_PROCESSABLE_SEGMENT, PYTHON_RESULT_FILE_PATH, infeasible, write_header, write_run_result
-from SectionPerfTest.SectionTestData import populate_data_sets, available_data_sizes
 
 DEBUG_ARGS = None if False else (
     []
@@ -22,7 +23,7 @@ DEBUG_ARGS = None if False else (
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
-    +'--strategy section_mappart_partials'.split()
+    + '--strategy section_mappart_partials'.split()
 )
 
 
@@ -81,7 +82,10 @@ def parse_args() -> Arguments:
     )
 
 
-def do_test_runs(args: Arguments, spark_session: TidySparkSession):
+def do_test_runs(
+        args: Arguments,
+        spark_session: TidySparkSession,
+) -> None:
     data_sets_wo_answers = populate_data_sets(
         args.exec_params,
         args.make_new_data_files)

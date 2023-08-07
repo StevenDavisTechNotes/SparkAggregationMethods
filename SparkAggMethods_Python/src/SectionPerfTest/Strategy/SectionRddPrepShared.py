@@ -1,8 +1,12 @@
 import pyspark.sql.functions as func
 from pyspark.sql.window import Window
+from pyspark.sql import DataFrame as spark_DataFrame
 
 
-def section_prep_groupby_core(dfSrc, sectionMaximum):
+def section_prep_groupby_core(
+        dfSrc: spark_DataFrame,
+        sectionMaximum: int,
+) -> spark_DataFrame:
     df = dfSrc
     window = (
         Window

@@ -12,7 +12,7 @@ from SixFieldCommon.SixFieldTestData import PythonTestMethod
 
 from VanillaPerfTest.VanillaDirectory import implementation_list, scala_implementation_list
 from VanillaPerfTest.VanillaRunResult import (EXPECTED_SIZES, FINAL_REPORT_FILE_PATH, PYTHON_RESULT_FILE_PATH,
-                               SCALA_RESULT_FILE_PATH, PersistedRunResult, regressor_from_run_result)
+                                              SCALA_RESULT_FILE_PATH, PersistedRunResult, regressor_from_run_result)
 
 
 def read_python_file() -> List[PersistedRunResult]:
@@ -103,14 +103,19 @@ def structure_test_results(
     return test_results
 
 
-def make_runs_summary(test_results: Dict[str, Dict[int, List[PersistedRunResult]]]) -> Dict[str, Dict[int, int]]:
+def make_runs_summary(
+        test_results: Dict[str, Dict[int, List[PersistedRunResult]]],
+) -> Dict[str, Dict[int, int]]:
     return {strategy_name:
             {x_variable: len(runs) for x_variable, runs in runs_for_strategy_name.items()}
             for strategy_name, runs_for_strategy_name in test_results.items()}
 
 
-def do_regression(python_implementation_list: List[PythonTestMethod],
-                  scala_implementation_list: List[ExternalTestMethod], cond_runs):
+def do_regression(
+        python_implementation_list: List[PythonTestMethod],
+        scala_implementation_list: List[ExternalTestMethod],
+        test_results: Dict[str, Dict[int, List[PersistedRunResult]]],
+) -> str:
     summary_status = ''
     confidence = 0.95
     sorted_implementation_list = sorted(
@@ -122,12 +127,14 @@ def do_regression(python_implementation_list: List[PythonTestMethod],
     summary_status += ",".join([
         'RunName', 'RawMethod', 'Method', 'Language', 'Interface',
         'DataSize', 'NumRuns', 'Elapsed Time', 'stdev', 'rl', 'rh']) + "\n"
-    for method in sorted_implementation_list:
-        times = cond_runs[method.data_name] if method.data_name in cond_runs else [
-        ]
-        size_values = set(x.dataSize for x in times)
-        for dataSize in sorted(size_values):
-            ar = [x.elapsedTime for x in times if x.dataSize == dataSize]
+
+    for strategy_name in test_results:
+        print("Looking to analyze %s" % strategy_name)
+        method = [
+            x for x in sorted_implementation_list if x.raw_method_name == strategy_name][0]
+        for regressor_value in test_results[strategy_name]:
+            runs = test_results[strategy_name][regressor_value]
+            ar = [x.elapsedTime for x in runs]
             numRuns = len(ar)
             mean = numpy.mean(ar)
             stdev = numpy.std(ar, ddof=1)
@@ -139,17 +146,18 @@ def do_regression(python_implementation_list: List[PythonTestMethod],
                 method.raw_method_name.replace("vanilla_", ""),
                 method.language,
                 method.interface,
-                dataSize, numRuns, mean, stdev, rl, rh
+                regressor_value, numRuns, mean, stdev, rl, rh
             )
     return summary_status
 
 
 def analyze_run_results():
-    cond_runs = parse_results()
+    raw_test_runs = parse_results()
+    test_results = structure_test_results(raw_test_runs)
     summary_status = do_regression(
         implementation_list,
         scala_implementation_list,
-        cond_runs)
+        test_results)
 
     with open(FINAL_REPORT_FILE_PATH, 'wt') as f:
         f.write(summary_status)

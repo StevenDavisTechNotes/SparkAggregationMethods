@@ -1,7 +1,4 @@
-from typing import List
-import pytest
-
-from SectionPerfTest.SectionLogic import StudentSnippet, StudentSnippetBuilder
+from SectionPerfTest.SectionSnippetSubtotal import StudentSnippet, StudentSnippetBuilder
 
 
 class Test_StudentSnippetBuilder:
@@ -817,13 +814,12 @@ class Test_StudentSnippetBuilder:
                 LastLineIndex=1
             ),
         ]
-        for i in range(1,49):
-            lgroup = [lgroups[i-1]._replace()]
+        for i in range(1, 49):
+            lgroup = [lgroups[i - 1]._replace()]
             rMember = rMembers[i]
             StudentSnippetBuilder.addSnippets(lgroup, [rMember])
             assert len(lgroup) == 1
             assert lgroup[0] == lgroups[i]
-        bkpt = 1
 
 
 # PrintObjectAsPythonLiteral(lgroup)

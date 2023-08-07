@@ -34,7 +34,9 @@ def structure_test_results(
     return test_results
 
 
-def make_runs_summary(test_results: Dict[str, Dict[int, List[PersistedRunResult]]]) -> Dict[str, Dict[int, int]]:
+def make_runs_summary(
+        test_results: Dict[str, Dict[int, List[PersistedRunResult]]],
+) -> Dict[str, Dict[int, int]]:
     return {strategy_name:
             {x_variable: len(runs) for x_variable, runs in runs_for_strategy_name.items()}
             for strategy_name, runs_for_strategy_name in test_results.items()}

@@ -5,7 +5,7 @@ from pyspark.sql import DataFrame as spark_DataFrame
 from pyspark.sql import Row
 
 from SixFieldCommon.SixFieldTestData import DataPoint, DataSet, ExecutionParameters
-from Utils.SparkUtils import TidySparkSession
+from Utils.TidySparkSession import TidySparkSession
 
 
 class SubTotalDC(NamedTuple):
@@ -17,9 +17,9 @@ class SubTotalDC(NamedTuple):
 
 
 def vanilla_rdd_reduce(
-    spark_session: TidySparkSession,
-    _exec_params: ExecutionParameters,
-    data_set: DataSet
+        spark_session: TidySparkSession,
+        _exec_params: ExecutionParameters,
+        data_set: DataSet
 ) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
     sumCount: RDD[Row] = (
         data_set.data.rddSrc

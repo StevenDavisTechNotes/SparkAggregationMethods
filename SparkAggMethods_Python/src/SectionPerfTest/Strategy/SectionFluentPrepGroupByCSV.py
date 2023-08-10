@@ -6,7 +6,7 @@ from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 from SectionPerfTest.Strategy.SectionRddPrepShared import section_prep_groupby_core
 
-from Utils.SparkUtils import TidySparkSession
+from Utils.TidySparkSession import TidySparkSession
 
 from SectionPerfTest.SectionLogic import parseLineToRow, rowToStudentSummary
 from SectionPerfTest.SectionTestData import TEST_DATA_FILE_LOCATION
@@ -15,7 +15,8 @@ from SectionPerfTest.SectionTypeDefs import (
 
 
 def section_prepcsv_groupby(
-    spark_session: TidySparkSession, data_set: DataSet
+        spark_session: TidySparkSession,
+        data_set: DataSet,
 ) -> Tuple[List[StudentSummary] | None, RDD | None, spark_DataFrame | None]:
     spark = spark_session.spark
     sectionMaximum = data_set.data.section_maximum

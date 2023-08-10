@@ -14,7 +14,7 @@ import pyspark.sql.types as DataTypes
 from pyspark import RDD, StorageLevel
 from pyspark.sql import DataFrame as spark_DataFrame
 
-from Utils.SparkUtils import TidySparkSession
+from Utils.TidySparkSession import TidySparkSession
 from Utils.Utils import always_true, int_divide_round_up
 
 SHARED_LOCAL_TEST_DATA_FILE_LOCATION = "d:/temp/SparkPerfTesting"
@@ -95,12 +95,12 @@ class RunResult:
 
 
 def populate_data_set(
-    spark_session: TidySparkSession,
-    exec_params: ExecutionParameters,
-    size_code: str,
-    num_grp_1: int,
-    num_grp_2: int,
-    repetition: int,
+        spark_session: TidySparkSession,
+        exec_params: ExecutionParameters,
+        size_code: str,
+        num_grp_1: int,
+        num_grp_2: int,
+        repetition: int,
 ) -> DataSetWithAnswer:
     num_data_points = num_grp_1 * num_grp_2 * repetition
     # Need to split this up, upfront, into many partitions

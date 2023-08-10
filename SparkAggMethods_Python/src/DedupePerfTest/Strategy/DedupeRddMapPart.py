@@ -6,13 +6,13 @@ from pyspark.sql import Row
 from DedupePerfTest.DedupeDataTypes import DataSet, ExecutionParameters
 from DedupePerfTest.DedupeDomain import (BlockingFunction, CombineRowList,
                                          IsMatch)
-from Utils.SparkUtils import TidySparkSession
+from Utils.TidySparkSession import TidySparkSession
 
 
 def dedupe_rdd_mappart(
-    spark_session: TidySparkSession,
-    data_params: ExecutionParameters,
-    data_set: DataSet,
+        spark_session: TidySparkSession,
+        data_params: ExecutionParameters,
+        data_set: DataSet,
 ):
     dfSrc = data_set.df
 

@@ -6,7 +6,7 @@ from pyspark.sql import DataFrame as spark_DataFrame
 from pyspark.sql import Row
 from SectionPerfTest.Strategy.SectionRddPrepShared import section_prep_groupby_core
 
-from Utils.SparkUtils import TidySparkSession
+from Utils.TidySparkSession import TidySparkSession
 
 from SectionPerfTest.SectionLogic import (
     identifySectionUsingIntermediateFile, rowToStudentSummary)
@@ -17,7 +17,8 @@ from SectionPerfTest.SectionTypeDefs import (
 
 
 def section_prep_groupby(
-    spark_session: TidySparkSession, data_set: DataSet
+        spark_session: TidySparkSession,
+        data_set: DataSet,
 ) -> Tuple[List[StudentSummary] | None, RDD | None, spark_DataFrame | None]:
     sc = spark_session.spark_context
     spark = spark_session.spark

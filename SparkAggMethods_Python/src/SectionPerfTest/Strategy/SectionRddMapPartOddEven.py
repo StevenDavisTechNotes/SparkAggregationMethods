@@ -8,7 +8,7 @@ from SectionPerfTest.SectionMutuableSubtotal import (
     MutableStudent, MutableTrimester)
 from SectionPerfTest.SectionTypeDefs import (
     ClassLine, DataSet, LabeledTypedRow, StudentHeader, StudentSummary, TrimesterFooter, TrimesterHeader, TypedLine)
-from Utils.SparkUtils import TidySparkSession
+from Utils.TidySparkSession import TidySparkSession
 
 
 def aggregate(
@@ -77,8 +77,8 @@ def chooseCompleteSection(
 
 
 def section_mappart_odd_even(
-    spark_session: TidySparkSession,
-    data_set: DataSet,
+        spark_session: TidySparkSession,
+        data_set: DataSet,
 ) -> Tuple[List[StudentSummary] | None, RDD | None, spark_DataFrame | None]:
     sectionMaximum = data_set.data.section_maximum
     filename = data_set.data.test_filepath

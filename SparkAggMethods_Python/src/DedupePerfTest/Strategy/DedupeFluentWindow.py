@@ -1,17 +1,18 @@
 import pyspark.sql.functions as func
 import pyspark.sql.types as DataTypes
 from pyspark.sql import Window
+from Utils.SparkUtils import dfZipWithIndex
 
-from Utils.SparkUtils import TidySparkSession, dfZipWithIndex
+from Utils.TidySparkSession import TidySparkSession
 
 from DedupePerfTest.DedupeDomain import udfMatchSingleName
 from DedupePerfTest.DedupeDataTypes import DataSet, ExecutionParameters
 
 
 def dedupe_fluent_windows(
-    spark_session: TidySparkSession,
-    data_params: ExecutionParameters,
-    data_set: DataSet,
+        spark_session: TidySparkSession,
+        data_params: ExecutionParameters,
+        data_set: DataSet,
 ):
     dfSrc = data_set.df
 

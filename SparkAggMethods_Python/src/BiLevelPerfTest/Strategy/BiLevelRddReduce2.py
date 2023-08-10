@@ -7,7 +7,7 @@ from pyspark.sql import DataFrame as spark_DataFrame
 from pyspark.sql import Row
 
 from SixFieldCommon.SixFieldTestData import DataSet, ExecutionParameters, DataPoint
-from Utils.SparkUtils import TidySparkSession
+from Utils.TidySparkSession import TidySparkSession
 
 SubTotal = collections.namedtuple(
     "SubTotal",
@@ -16,9 +16,9 @@ SubTotal = collections.namedtuple(
 
 
 def bi_rdd_reduce2(
-    spark_session: TidySparkSession,
-    _exec_params: ExecutionParameters,
-    data_set: DataSet
+        spark_session: TidySparkSession,
+        _exec_params: ExecutionParameters,
+        data_set: DataSet
 ) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
     rddSrc = data_set.data.rddSrc
 

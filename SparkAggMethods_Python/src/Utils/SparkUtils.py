@@ -1,18 +1,8 @@
-from typing import Tuple, Any, Dict
 
-import os
-from pathlib import Path
-import shutil
-
-
-import findspark
-from pyspark import RDD, SparkContext
+import pyspark.sql.types as DataTypes
+from pyspark import RDD
 from pyspark.sql import SparkSession
 from pyspark.sql.dataframe import DataFrame as spark_DataFrame
-import pyspark.sql.types as DataTypes
-
-SPARK_SRATCH_FOLDER = "C:\\temp\\spark_scratch"
-LOCAL_NUM_EXECUTORS = 7
 
 
 class RddWithNoArgSortByKey:
@@ -25,79 +15,6 @@ class RddWithNoArgSortByKey:
 
 def cast_no_arg_sort_by_key(src: RDD) -> RddWithNoArgSortByKey:
     return RddWithNoArgSortByKey(src)
-
-
-SPARK_SRATCH_FOLDER = "C:\\temp\\spark_scratch"
-
-
-class TidySparkSession:
-    spark: SparkSession
-    spark_context: SparkContext
-    log: Any
-
-    def __init__(
-        self,
-        config_dict: Dict[str, Any],
-        enable_hive_support: bool
-    ):
-        self.createScratchFolder()
-        self.cleanUpScratchFolder()
-        self.spark = self.openSparkSession(
-            config_dict, enable_hive_support=enable_hive_support)
-        sc, log = self.setupSparkContext()
-        self.spark_context = sc
-        self.log = log
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_value, exc_traceback) -> None:
-        self.spark.stop()
-
-    def openSparkSession(
-            self, config_dict: Dict[str, Any], enable_hive_support: bool) -> SparkSession:
-        findspark.init()
-        full_path_to_python = os.path.join(
-            os.getcwd(), "venv", "scripts", "python.exe")
-        os.environ["PYSPARK_PYTHON"] = full_path_to_python
-        os.environ["PYSPARK_DRIVER_PYTHON"] = full_path_to_python
-        os.environ["SPARK_LOCAL_DIRS"] = SPARK_SRATCH_FOLDER
-        spark = (
-            SparkSession
-            .builder
-            .appName("PerfTestApp")
-            .master(f"local[{LOCAL_NUM_EXECUTORS}]")
-            .config("spark.pyspark.python", full_path_to_python)
-            .config("spark.ui.enabled", "false")
-            .config('spark.hadoop.mapreduce.fileoutputcommitter.algorithm.version', 2)
-            .config("spark.sql.execution.arrow.pyspark.enabled", "true")
-            .config("spark.rdd.compress", "false")
-        )
-        for key, value in config_dict.items():
-            spark = spark.config(key, value)
-        if enable_hive_support:
-            spark = spark.enableHiveSupport()
-        return spark.getOrCreate()
-
-    def createScratchFolder(self) -> None:
-        if os.path.exists(SPARK_SRATCH_FOLDER) is False:
-            os.mkdir(SPARK_SRATCH_FOLDER)
-
-    def cleanUpScratchFolder(self) -> None:
-        for item in Path(SPARK_SRATCH_FOLDER).iterdir():
-            shutil.rmtree(item)
-
-    def setupSparkContext(self) -> Tuple[SparkContext, Any]:
-        spark: Any = self.spark
-        sc = spark.sparkContext
-        log4jLogger = sc._jvm.org.apache.log4j
-        log = log4jLogger.LogManager.getLogger(__name__)
-        log.info("script initialized")
-        sc.setCheckpointDir(
-            os.path.join(
-                SPARK_SRATCH_FOLDER,
-                "SectionAggCheckpoint"))
-        return sc, log
 
 
 # from

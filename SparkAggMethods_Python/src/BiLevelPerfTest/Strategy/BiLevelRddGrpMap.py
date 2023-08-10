@@ -5,13 +5,13 @@ from pyspark.sql import DataFrame as spark_DataFrame
 from pyspark.sql import Row
 
 from SixFieldCommon.SixFieldTestData import MAX_DATA_POINTS_PER_PARTITION, DataPoint, DataSet, ExecutionParameters
-from Utils.SparkUtils import TidySparkSession
+from Utils.TidySparkSession import TidySparkSession
 
 
 def bi_rdd_grpmap(
-    spark_session: TidySparkSession,
-    _exec_params: ExecutionParameters,
-    data_set: DataSet
+        spark_session: TidySparkSession,
+        _exec_params: ExecutionParameters,
+        data_set: DataSet
 ) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
     rddSrc = data_set.data.rddSrc
 

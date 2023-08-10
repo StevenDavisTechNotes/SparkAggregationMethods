@@ -5,13 +5,13 @@ from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 
 from SixFieldCommon.SixFieldTestData import DataSet, ExecutionParameters
-from Utils.SparkUtils import TidySparkSession
+from Utils.TidySparkSession import TidySparkSession
 
 
 def bi_fluent_join(
-    _spark_session: TidySparkSession,
-    _exec_params: ExecutionParameters,
-    data_set: DataSet
+        _spark_session: TidySparkSession,
+        _exec_params: ExecutionParameters,
+        data_set: DataSet
 ) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
     df = data_set.data.dfSrc
     level1 = (

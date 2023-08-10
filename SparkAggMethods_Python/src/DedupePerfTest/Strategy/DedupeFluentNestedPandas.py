@@ -4,17 +4,18 @@ import pandas as pd
 import pyspark.sql.functions as func
 import pyspark.sql.types as DataTypes
 from pyspark.sql import DataFrame as spark_DataFrame
+from Utils.SparkUtils import dfZipWithIndex
 
-from Utils.SparkUtils import TidySparkSession, dfZipWithIndex
+from Utils.TidySparkSession import TidySparkSession
 
 from DedupePerfTest.DedupeDomain import MatchSingleName
 from DedupePerfTest.DedupeDataTypes import DataSet, ExecutionParameters, RecordSparseStruct
 
 
 def dedupe_pandas(
-    spark_session: TidySparkSession,
-    data_params: ExecutionParameters,
-    data_set: DataSet,
+        spark_session: TidySparkSession,
+        data_params: ExecutionParameters,
+        data_set: DataSet,
 ):
     dfSrc = data_set.df
 

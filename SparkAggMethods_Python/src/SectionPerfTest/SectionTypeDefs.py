@@ -6,7 +6,7 @@ import pyspark.sql.types as DataTypes
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 
-from Utils.SparkUtils import TidySparkSession
+from Utils.TidySparkSession import TidySparkSession
 
 
 @dataclass(frozen=True)

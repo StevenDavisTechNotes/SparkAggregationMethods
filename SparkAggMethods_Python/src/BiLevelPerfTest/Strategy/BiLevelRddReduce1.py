@@ -7,7 +7,7 @@ from pyspark.sql import DataFrame as spark_DataFrame
 from pyspark.sql import Row
 
 from SixFieldCommon.SixFieldTestData import DataSet, ExecutionParameters, DataPoint
-from Utils.SparkUtils import TidySparkSession
+from Utils.TidySparkSession import TidySparkSession
 
 SubTotal1 = collections.namedtuple(
     "SubTotal1",
@@ -20,9 +20,9 @@ SubTotal2 = collections.namedtuple(
 
 
 def bi_rdd_reduce1(
-    spark_session: TidySparkSession,
-    _exec_params: ExecutionParameters,
-    data_set: DataSet
+        spark_session: TidySparkSession,
+        _exec_params: ExecutionParameters,
+        data_set: DataSet
 ) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:  # noqa: C901
     rddSrc = data_set.data.rddSrc
 
@@ -75,8 +75,8 @@ def createCombiner(
 
 
 def mergeCombiners(
-    lsub: SubTotal1,
-    rsub: SubTotal1,
+        lsub: SubTotal1,
+        rsub: SubTotal1,
 ) -> SubTotal1:
     subgrp_running_totals = {}
     all_subgrp = set(lsub.subgrp_running_totals.keys() |

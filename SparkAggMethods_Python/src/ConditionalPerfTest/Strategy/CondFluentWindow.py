@@ -6,13 +6,13 @@ from pyspark.sql import DataFrame as spark_DataFrame
 from pyspark.sql.window import Window
 
 from SixFieldCommon.SixFieldTestData import DataSet, ExecutionParameters
-from Utils.SparkUtils import TidySparkSession
+from Utils.TidySparkSession import TidySparkSession
 
 
 def cond_fluent_window(
-    spark_session: TidySparkSession,
-    _exec_params: ExecutionParameters,
-    data_set: DataSet,
+        spark_session: TidySparkSession,
+        _exec_params: ExecutionParameters,
+        data_set: DataSet,
 ) -> Tuple[RDD | None, spark_DataFrame | None]:
     dfData = data_set.data.dfSrc
     dfData = dfData \

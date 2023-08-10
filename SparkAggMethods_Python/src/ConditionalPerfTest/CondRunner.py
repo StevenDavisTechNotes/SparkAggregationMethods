@@ -11,7 +11,7 @@ from ConditionalPerfTest.CondDataTypes import GrpTotal
 from SixFieldCommon.SixFieldTestData import (
     SHARED_LOCAL_TEST_DATA_FILE_LOCATION, DataSetWithAnswer, ExecutionParameters,
     PythonTestMethod, populate_data_set)
-from Utils.SparkUtils import LOCAL_NUM_EXECUTORS, TidySparkSession
+from Utils.TidySparkSession import LOCAL_NUM_EXECUTORS, TidySparkSession
 from Utils.Utils import always_true
 
 from ConditionalPerfTest.CondDirectory import implementation_list, strategy_name_list

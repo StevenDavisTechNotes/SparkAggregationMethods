@@ -4,16 +4,16 @@ from typing import List, Tuple
 from pyspark import RDD
 from pyspark.sql import Row
 
-from Utils.SparkUtils import TidySparkSession
+from Utils.TidySparkSession import TidySparkSession
 
 from DedupePerfTest.DedupeDomain import BlockingFunction, CombineRowList, IsMatch
 from DedupePerfTest.DedupeDataTypes import DataSet, ExecutionParameters
 
 
 def dedupe_rdd_reduce(
-    _spark_session: TidySparkSession,
-    data_params: ExecutionParameters,
-    data_set: DataSet,
+        _spark_session: TidySparkSession,
+        data_params: ExecutionParameters,
+        data_set: DataSet,
 ):
     dfSrc = data_set.df
     numPartitions = data_set.grouped_num_partitions

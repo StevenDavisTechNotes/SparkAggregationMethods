@@ -8,7 +8,7 @@ from typing import List, Optional, Tuple
 
 from pyspark.sql import Row
 
-from Utils.SparkUtils import TidySparkSession
+from Utils.TidySparkSession import TidySparkSession
 from Utils.Utils import always_true
 
 from DedupePerfTest.DedupeDataTypes import DataSet, ExecutionParameters

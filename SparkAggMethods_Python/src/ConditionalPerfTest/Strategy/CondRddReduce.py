@@ -5,15 +5,15 @@ from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 
 from SixFieldCommon.SixFieldTestData import DataPoint, DataSet, ExecutionParameters
-from Utils.SparkUtils import TidySparkSession
+from Utils.TidySparkSession import TidySparkSession
 
 from ConditionalPerfTest.CondDataTypes import GrpTotal, SubTotal
 
 
 def cond_rdd_reduce(
-    spark_session: TidySparkSession,
-    _exec_params: ExecutionParameters,
-    data_set: DataSet,
+        spark_session: TidySparkSession,
+        _exec_params: ExecutionParameters,
+        data_set: DataSet,
 ) -> Tuple[RDD[GrpTotal] | None, spark_DataFrame | None]:
     rddSumCount = (
         data_set.data.rddSrc

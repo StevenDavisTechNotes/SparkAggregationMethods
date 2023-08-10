@@ -8,12 +8,13 @@ from SectionPerfTest.SectionSnippetSubtotal import (
     CompletedStudent, StudentSnippet, StudentSnippetBuilder)
 from SectionPerfTest.SectionTypeDefs import (
     DataSet, LabeledTypedRow, StudentSummary)
-from Utils.SparkUtils import TidySparkSession
+from Utils.TidySparkSession import TidySparkSession
 from Utils.Utils import int_divide_round_up
 
 
 def section_mappart_partials(
-    spark_session: TidySparkSession, data_set: DataSet
+        spark_session: TidySparkSession,
+        data_set: DataSet,
 ) -> Tuple[List[StudentSummary] | None, RDD | None, spark_DataFrame | None]:
     sc = spark_session.spark_context
     initial_num_rows = data_set.description.num_rows

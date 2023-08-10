@@ -4,13 +4,13 @@ from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 
 from SixFieldCommon.SixFieldTestData import DataSet, ExecutionParameters
-from Utils.SparkUtils import TidySparkSession
+from Utils.TidySparkSession import TidySparkSession
 
 
 def bi_sql_nested(
-    spark_session: TidySparkSession,
-    _exec_params: ExecutionParameters,
-    data_set: DataSet
+        spark_session: TidySparkSession,
+        _exec_params: ExecutionParameters,
+        data_set: DataSet
 ) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
     dfSrc = data_set.data.dfSrc
     spark = spark_session.spark

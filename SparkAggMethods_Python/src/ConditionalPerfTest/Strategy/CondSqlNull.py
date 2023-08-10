@@ -4,13 +4,13 @@ from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 
 from SixFieldCommon.SixFieldTestData import DataSet, ExecutionParameters
-from Utils.SparkUtils import TidySparkSession
+from Utils.TidySparkSession import TidySparkSession
 
 
 def cond_sql_null(
-    spark_session: TidySparkSession,
-    _exec_params: ExecutionParameters,
-    data_set: DataSet,
+        spark_session: TidySparkSession,
+        _exec_params: ExecutionParameters,
+        data_set: DataSet,
 ) -> Tuple[RDD | None, spark_DataFrame | None]:
     spark = spark_session.spark
     spark.catalog.dropTempView("exampledata")

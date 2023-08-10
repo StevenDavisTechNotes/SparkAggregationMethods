@@ -4,7 +4,7 @@ from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 from SectionPerfTest.SectionMutuableSubtotal import aggregateTypedRowsToGrades
 
-from Utils.SparkUtils import TidySparkSession
+from Utils.TidySparkSession import TidySparkSession
 
 from SectionPerfTest.SectionLogic import identifySectionUsingIntermediateFile
 from SectionPerfTest.SectionTypeDefs import (
@@ -12,7 +12,8 @@ from SectionPerfTest.SectionTypeDefs import (
 
 
 def section_prep_mappart(
-    spark_session: TidySparkSession, data_set: DataSet
+        spark_session: TidySparkSession,
+        data_set: DataSet,
 ) -> Tuple[List[StudentSummary] | None, RDD | None, spark_DataFrame | None]:
     sc = spark_session.spark_context
     filename = data_set.data.test_filepath

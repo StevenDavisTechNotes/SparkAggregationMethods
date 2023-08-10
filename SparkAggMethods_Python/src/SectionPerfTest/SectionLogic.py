@@ -8,7 +8,7 @@ from pyspark.sql import Row
 from SectionPerfTest.SectionTestData import TEST_DATA_FILE_LOCATION
 from SectionPerfTest.SectionTypeDefs import (
     ClassLine, LabeledTypedRow, SparseLineSchema, StudentHeader, StudentSummary, TrimesterFooter, TrimesterHeader)
-from Utils.SparkUtils import TidySparkSession
+from Utils.TidySparkSession import TidySparkSession
 
 # region parsers
 

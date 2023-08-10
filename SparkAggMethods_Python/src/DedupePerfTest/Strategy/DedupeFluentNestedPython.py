@@ -1,6 +1,6 @@
 import pyspark.sql.functions as func
 
-from Utils.SparkUtils import TidySparkSession
+from Utils.TidySparkSession import TidySparkSession
 
 from DedupePerfTest.DedupeDomain import (
     NestBlocksDataframe, SinglePass_RecList, SinglePass_RecList_DF_Returns, UnnestBlocksDataframe)
@@ -8,9 +8,9 @@ from DedupePerfTest.DedupeDataTypes import DataSet, ExecutionParameters
 
 
 def dedupe_fluent_nested_python(
-    spark_session: TidySparkSession,
-    data_params: ExecutionParameters,
-    data_set: DataSet,
+        spark_session: TidySparkSession,
+        data_params: ExecutionParameters,
+        data_set: DataSet,
 ):
     dfSrc = data_set.df
     df = NestBlocksDataframe(dfSrc, data_set.grouped_num_partitions)

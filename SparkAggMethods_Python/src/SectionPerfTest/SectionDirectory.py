@@ -8,6 +8,7 @@ from SectionPerfTest.Strategy.SectionJoinMapPart import section_join_mappart
 from SectionPerfTest.Strategy.SectionNoSparkST import section_nospark_single_threaded
 from SectionPerfTest.Strategy.SectionRddMapPartOddEven import section_mappart_odd_even
 from SectionPerfTest.Strategy.SectionRddMapPartPartials import section_mappart_partials
+from SectionPerfTest.Strategy.SectionRddMapPartPartials2 import section_mappart_partials_2
 from SectionPerfTest.Strategy.SectionRddMapPartST import section_mappart_single_threaded
 from SectionPerfTest.Strategy.SectionRddPrepMapPart import section_prep_mappart
 from SectionPerfTest.Strategy.SectionRddReduceAsymPart import section_asymreduce_partials
@@ -41,6 +42,13 @@ implementation_list: List[PythonTestMethod] = [
         interface='rdd',
         scale='threerows',
         delegate=section_mappart_partials
+    ),
+    PythonTestMethod(
+        strategy_name='section_mappart_partials_2',
+        language='python',
+        interface='rdd',
+        scale='threerows',
+        delegate=section_mappart_partials_2
     ),
     PythonTestMethod(
         strategy_name='section_asymreduce_partials',

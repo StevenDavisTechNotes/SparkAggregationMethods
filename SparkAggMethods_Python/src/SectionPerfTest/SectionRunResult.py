@@ -31,6 +31,7 @@ LARGEST_EXPONENT_BY_METHOD_NAME: Dict[str, int] = {
     'section_mappart_single_threaded': MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT - 1,  # unrealiable
     'section_mappart_odd_even': 7 - 1,  # unrealiable
     'section_mappart_partials': 7 - 1,  # unrealiable
+    'section_mappart_partials_2': LARGEST_EXPONENT,  # TBD
     'section_asymreduce_partials': 7 - 1,  # unrealiable
     'section_prep_mappart': 8 - 1,  # takes too long
     'section_prep_groupby': 8 - 1,  # times out

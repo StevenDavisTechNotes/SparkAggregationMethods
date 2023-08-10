@@ -15,7 +15,6 @@ class ExecutionParameters:
     MaximumProcessableSegment: int
     TestDataFolderLocation: str
 
-
 # region GenData
 StudentHeader = collections.namedtuple("StudentHeader",
                                        ["StudentId", "StudentName"])

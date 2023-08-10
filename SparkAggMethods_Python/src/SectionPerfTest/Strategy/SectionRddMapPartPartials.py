@@ -1,4 +1,4 @@
-from typing import Iterable, List, Tuple
+from typing import Iterable, List, Tuple, cast
 
 from pyspark import RDD, StorageLevel
 from pyspark.sql import DataFrame as spark_DataFrame
@@ -23,79 +23,76 @@ def section_mappart_partials(
 
     targetNumPartitions = int_divide_round_up(initial_num_rows, maximum_processable_segment)
 
-    rdd = rddTypedWithIndexFactory(spark_session, filename, targetNumPartitions) \
+    rdd_loop: RDD[StudentSnippet] = rddTypedWithIndexFactory(spark_session, filename, targetNumPartitions) \
         .map(lambda x: StudentSnippetBuilder.studentSnippetFromTypedRow(x.Index, x.Value))
-    rdd.persist(StorageLevel.DISK_ONLY)
-    # rdd type = RDD<StudentSnippet>
-    #
-    rddCumulativeCompleted: RDD[CompletedStudent] = sc.parallelize([])
+    rdd_loop.persist(StorageLevel.DISK_ONLY)
+
+    rdd_accumulative_completed: RDD[CompletedStudent] = sc.parallelize([])
     passNumber = 0
     while True:
         passNumber += 1
-        # rdd type = RDD<StudentSnippet>
-        #
-        remaining_num_rows = rdd.count()
-        rdd = rdd.zipWithIndex() \
+        remaining_num_rows = rdd_loop.count()
+        rdd2: RDD[LabeledTypedRow] = (
+            rdd_loop
+            .zipWithIndex()
             .map(lambda pair: LabeledTypedRow(Index=pair[1], Value=pair[0]))
-        # rdd type = RDD<LabeledTypedRow(index, snippet)>
-        #
-        rdd = rdd.keyBy(lambda x: (x.Index // maximum_processable_segment,
-                                   x.Index % maximum_processable_segment))
-        # type = RDD<((igroup, iremainder),(index, snippet))>
-        #
+        )
+
+        def key_by_function(x: LabeledTypedRow) -> Tuple[int, int]:
+            return x.Index // maximum_processable_segment, x.Index % maximum_processable_segment
+        rdd3: RDD[Tuple[Tuple[int, int], LabeledTypedRow]] \
+            = rdd2.keyBy(key_by_function)
+
         targetNumPartitions = int_divide_round_up(remaining_num_rows, maximum_processable_segment)
-        rdd = rdd.repartitionAndSortWithinPartitions(
+
+        def partition_function(key: Tuple[int, int]) -> int:
+            return key[0]
+        rdd4: RDD[Tuple[Tuple[int, int], LabeledTypedRow]] \
+            = rdd3.repartitionAndSortWithinPartitions(
             numPartitions=targetNumPartitions,
-            partitionFunc=lambda x: x[0])  # type: ignore
-        #
-        rdd = rdd.map(lambda x: (
-            x[0][0], x[0][1] == 0, passNumber, x[1].Value))
-        # type = RDD[Tuple[igroup, bool, pass, StudentSnippet]]
-        #
-        rdd = rdd.mapPartitions(consolidateSnippetsInPartition)
-        rdd.persist(StorageLevel.DISK_ONLY)
-        # type RDD<(bool, StudentSnippet)>
-        #
-        rddCompleted: RDD[CompletedStudent] \
-            = rdd.filter(lambda x: x[0]).map(lambda x: x[1])
-        # type: RDD[CompletedStudent]
-        #
-        rddCumulativeCompleted = rddCumulativeCompleted.union(rddCompleted)
-        rddCumulativeCompleted.localCheckpoint()
-        # type: RDD[StudentSnippet]
-        #
-        complete_count = rddCumulativeCompleted.count()
+            partitionFunc=partition_function)  # type: ignore
+
+        rdd5: RDD[Tuple[int, bool, int, StudentSnippet]] \
+            = rdd4.map(lambda x: (x[0][0], x[0][1] == 0, passNumber, x[1].Value))
+
+        rdd6: RDD[Tuple[bool, CompletedStudent | StudentSnippet]] \
+            = rdd5.mapPartitions(consolidateSnippetsInPartition)
+        rdd6.persist(StorageLevel.DISK_ONLY)
+
+        rdd_completed: RDD[CompletedStudent] \
+            = rdd6.filter(lambda x: x[0]).map(lambda x: cast(CompletedStudent, x[1]))
+
+        rdd_accumulative_completed = rdd_accumulative_completed.union(rdd_completed)
+        rdd_accumulative_completed.localCheckpoint()
+
+        complete_count = rdd_accumulative_completed.count()
         print(f"Completed {complete_count} of {initial_num_rows}")
-        #
-        rdd = rdd.filter(lambda x: not x[0]).map(lambda x: x[1])
-        # type: RDD[StudentSnippet]
-        #
-        rdd = rdd.sortBy(lambda x: x.FirstLineIndex)
-        rdd.persist(StorageLevel.DISK_ONLY)
-        # type: RDD[StudentSnippet]
-        #
-        NumRowsLeftToProcess = rdd.count()
+
+        rdd7: RDD[StudentSnippet] \
+            = rdd6.filter(lambda x: not x[0]).map(lambda x: cast(StudentSnippet, x[1]))
+
+        rdd8: RDD[StudentSnippet] = rdd7.sortBy(lambda x: x.FirstLineIndex)
+        rdd8.persist(StorageLevel.DISK_ONLY)
+
+        NumRowsLeftToProcess = rdd8.count()
         if passNumber == 20:
             print("Failed to complete")
-            print(rdd.collect())
+            print(rdd8.collect())
             raise Exception("Failed to complete")
-        if NumRowsLeftToProcess == 1:
-            rddFinal: RDD[CompletedStudent] \
-                = rdd.map(StudentSnippetBuilder.completedFromSnippet)
-            # type: RDD[CompletedStudent]
-            #
-            rddCumulativeCompleted \
-                = rddCumulativeCompleted.union(rddFinal)
-            # type: RDD[CompletedStudent]
-            #
+        if NumRowsLeftToProcess > 1:
+            rdd_loop = rdd8
+            continue
+        else:
+            rdd_final: RDD[CompletedStudent] \
+                = rdd8.map(StudentSnippetBuilder.completedFromSnippet)
+            rdd_accumulative_completed \
+                = rdd_accumulative_completed.union(rdd_final)
             break
-    rdd = (
-        rddCumulativeCompleted
+    rdd_answer: RDD[StudentSummary] = (
+        rdd_accumulative_completed
         .map(StudentSnippetBuilder.gradeSummary)
         .repartition(default_parallelism))
-    # type: RDD[StudentSummary]
-    #
-    return None, rdd, None
+    return None, rdd_answer, None
 
 
 def strainCompletedItems(

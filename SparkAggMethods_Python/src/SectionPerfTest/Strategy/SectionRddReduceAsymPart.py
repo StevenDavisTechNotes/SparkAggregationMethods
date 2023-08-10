@@ -86,8 +86,8 @@ def nonCommutativeTreeAggregate(
         for index, obj in iterator:
             acc = seqOp(acc, obj)
             lastindex = index
-        assert lastindex is not None
-        yield (lastindex, acc)
+        if lastindex is not None:
+            yield (lastindex, acc)
 
     def combineInPartition(
             ipart: int,
@@ -96,7 +96,7 @@ def nonCommutativeTreeAggregate(
         acc = zeroValueFactory()
         lastindex = None
         for (ipart, subindex), (index, obj) in iterator:
-            acc = seqOp(acc, obj)
+            acc = combOp(acc, obj)
             lastindex = index
         if lastindex is not None:
             yield (lastindex, acc)

@@ -3,7 +3,7 @@ import gc
 import random
 import time
 from dataclasses import dataclass
-from typing import List, Optional, TextIO, Tuple
+from typing import Dict, List, Optional, TextIO, Tuple
 
 from SectionPerfTest.SectionDirectory import (
     implementation_list, strategy_name_list)
@@ -14,7 +14,7 @@ from SectionPerfTest.SectionTestData import (
 from SectionPerfTest.SectionTypeDefs import (
     DataSetAnswer, DataSetWithAnswer, ExecutionParameters, PythonTestMethod, RunResult, StudentSummary)
 from SectionPerfTest.Strategy.SectionNoSparkST import section_nospark_logic
-from Utils.SparkUtils import LOCAL_NUM_EXECUTORS, TidySparkSession
+from Utils.TidySparkSession import LOCAL_NUM_EXECUTORS, TidySparkSession
 from Utils.Utils import always_true
 
 DEBUG_ARGS = None if False else (
@@ -191,11 +191,12 @@ def verify_correctness(
     return success
 
 
-def main():
-    args = parse_args()
-    config = {
-        "spark.sql.shuffle.partitions": args.exec_params.DefaultParallelism,
-        "spark.default.parallelism": args.exec_params.DefaultParallelism,
+def spark_configs(
+        default_parallelism: int,
+) -> Dict[str, str | int]:
+    return {
+        "spark.sql.shuffle.partitions": default_parallelism,
+        "spark.default.parallelism": default_parallelism,
         "spark.worker.cleanup.enabled": "true",
         "spark.driver.memory": "2g",
         "spark.executor.memory": "3g",
@@ -205,13 +206,16 @@ def main():
         "spark.reducer.maxReqsInFlight": "1",
         "spark.executor.heartbeatInterval": "10s",
         "spark.network.timeout": "120s",
-        # "spark.storage.blockManagerHeartbeatTimeoutMs": "300s",
         "spark.shuffle.io.maxRetries": "10",
         "spark.shuffle.io.retryWait": "60s",
         "spark.sql.execution.arrow.pyspark.enabled": "true",
     }
+
+
+def main():
+    args = parse_args()
     with TidySparkSession(
-        config,
+        spark_configs(args.exec_params.DefaultParallelism),
         enable_hive_support=False
     ) as spark_session:
         do_test_runs(args, spark_session)

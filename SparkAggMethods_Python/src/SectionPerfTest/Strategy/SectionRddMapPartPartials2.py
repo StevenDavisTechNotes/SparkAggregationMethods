@@ -1,29 +1,48 @@
-from typing import Iterable, List, Optional, Tuple, Union, cast
+from typing import Iterable, List, Optional, Tuple, Union, cast, Callable
 
-from pyspark import RDD, StorageLevel
+from pyspark import RDD, SparkContext, StorageLevel
 from pyspark.sql import DataFrame as spark_DataFrame
 
 from SectionPerfTest.SectionLogic import rddTypedWithIndexFactory
 from SectionPerfTest.SectionSnippetSubtotal2 import (
-    FIRST_LAST_FIRST, FIRST_LAST_LAST, CompletedStudent2, StudentSnippet2, completeSnippets2, completedFromSnippet2, gradeSummary2, margeSnippets2, studentSnippetFromTypedRow2)
+    FIRST_LAST_FIRST, FIRST_LAST_LAST, FIRST_LAST_NEITHER, CompletedStudent2, StudentSnippet2, completeSnippets2, completedFromSnippet2, gradeSummary2, margeSnippets2, studentSnippetFromTypedRow2)
 from SectionPerfTest.SectionTypeDefs import (
     DataSet, LabeledTypedRow, StudentSummary)
-from Utils.SparkUtils import TidySparkSession
+from Utils.TidySparkSession import TidySparkSession
 from Utils.Utils import int_divide_round_up
 
 
 def section_mappart_partials_2(
-    spark_session: TidySparkSession, data_set: DataSet
+        spark_session: TidySparkSession,
+        data_set: DataSet,
 ) -> Tuple[List[StudentSummary] | None, RDD | None, spark_DataFrame | None]:
     sc = spark_session.spark_context
-    initial_num_rows = data_set.description.num_rows
+    expected_row_count = data_set.description.num_rows
     filename = data_set.data.test_filepath
     default_parallelism = data_set.exec_params.DefaultParallelism
     maximum_processable_segment = data_set.exec_params.MaximumProcessableSegment
-
-    targetNumPartitions = int_divide_round_up(initial_num_rows, maximum_processable_segment)
-
+    targetNumPartitions = int_divide_round_up(expected_row_count, maximum_processable_segment)
     rdd_orig: RDD[LabeledTypedRow] = rddTypedWithIndexFactory(spark_session, filename, targetNumPartitions)
+
+    def report_num_completed(complete_count: int) -> None:
+        print(f"Completed {complete_count} of {expected_row_count}")
+
+    rdd_answer = section_mappart_partials_logic(
+        sc,
+        rdd_orig,
+        default_parallelism,
+        maximum_processable_segment,
+        report_num_completed)
+    return None, rdd_answer, None
+
+
+def section_mappart_partials_logic(
+        sc: SparkContext,
+        rdd_orig: RDD[LabeledTypedRow],
+        default_parallelism: int,
+        maximum_processable_segment: int = 10000,
+        report_num_completed: Optional[Callable[[int], None]] = None,
+) -> RDD[StudentSummary]:
     num_lines_in_orig = rdd_orig.count()
 
     rdd_loop: RDD[StudentSnippet2] = (
@@ -77,7 +96,8 @@ def section_mappart_partials_2(
         rdd_accumulative_completed.localCheckpoint()
 
         complete_count = rdd_accumulative_completed.count()
-        print(f"Completed {complete_count} of {initial_num_rows}")
+        if report_num_completed is not None:
+            report_num_completed(complete_count)
 
         rdd7: RDD[StudentSnippet2] \
             = rdd6.filter(lambda x: not x[0]).map(lambda x: cast(StudentSnippet2, x[1]))
@@ -85,25 +105,18 @@ def section_mappart_partials_2(
         rdd8: RDD[StudentSnippet2] = rdd7.sortBy(lambda x: x.FirstLineIndex)  # type: ignore
         rdd8.persist(StorageLevel.DISK_ONLY)
 
-        NumRowsLeftToProcess = rdd8.count()
+        NumRowsLeftToProcess = rdd8.filter(lambda x: x.FirstLastFlag == FIRST_LAST_NEITHER).count()
         if passNumber == 20:
-            print("Failed to complete")
-            print(rdd8.collect())
-            raise Exception("Failed to complete")
-        if NumRowsLeftToProcess > 1:
-            rdd_loop = rdd8
-            continue
-        else:
-            rdd_final: RDD[CompletedStudent2] \
-                = rdd8.map(completedFromSnippet2)
-            rdd_accumulative_completed \
-                = rdd_accumulative_completed.union(rdd_final)
+            raise RecursionError("Too many passes")
+        if NumRowsLeftToProcess == 0:
             break
+        rdd_loop = rdd8
     rdd_answer: RDD[StudentSummary] = (
         rdd_accumulative_completed
         .map(gradeSummary2)
         .repartition(default_parallelism))
-    return None, rdd_answer, None
+
+    return rdd_answer
 
 
 def consolidateSnippetsInPartition(

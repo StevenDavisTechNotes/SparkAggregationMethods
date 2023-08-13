@@ -1,11 +1,13 @@
-from typing import Iterable, List, Tuple, cast
+from typing import Iterable, List, Optional, Tuple, Union, cast, Callable
 
-from pyspark import RDD, StorageLevel
+from pyspark import RDD, SparkContext, StorageLevel
 from pyspark.sql import DataFrame as spark_DataFrame
 
 from SectionPerfTest.SectionLogic import rddTypedWithIndexFactory
 from SectionPerfTest.SectionSnippetSubtotal import (
-    CompletedStudent, StudentSnippet, StudentSnippetBuilder)
+    FIRST_LAST_FIRST, FIRST_LAST_LAST, FIRST_LAST_NEITHER, 
+    CompletedStudent, StudentSnippet2, 
+    completeSnippets2, gradeSummary, margeSnippets2, studentSnippetFromTypedRow2)
 from SectionPerfTest.SectionTypeDefs import (
     DataSet, LabeledTypedRow, StudentSummary)
 from Utils.TidySparkSession import TidySparkSession
@@ -17,15 +19,45 @@ def section_mappart_partials(
         data_set: DataSet,
 ) -> Tuple[List[StudentSummary] | None, RDD | None, spark_DataFrame | None]:
     sc = spark_session.spark_context
-    initial_num_rows = data_set.description.num_rows
+    expected_row_count = data_set.description.num_rows
     filename = data_set.data.test_filepath
     default_parallelism = data_set.exec_params.DefaultParallelism
     maximum_processable_segment = data_set.exec_params.MaximumProcessableSegment
+    targetNumPartitions = int_divide_round_up(expected_row_count, maximum_processable_segment)
+    rdd_orig: RDD[LabeledTypedRow] = rddTypedWithIndexFactory(spark_session, filename, targetNumPartitions)
 
-    targetNumPartitions = int_divide_round_up(initial_num_rows, maximum_processable_segment)
+    def report_num_completed(complete_count: int) -> None:
+        print(f"Completed {complete_count} of {expected_row_count}")
 
-    rdd_loop: RDD[StudentSnippet] = rddTypedWithIndexFactory(spark_session, filename, targetNumPartitions) \
-        .map(lambda x: StudentSnippetBuilder.studentSnippetFromTypedRow(x.Index, x.Value))
+    rdd_answer = section_mappart_partials_logic(
+        sc,
+        rdd_orig,
+        default_parallelism,
+        maximum_processable_segment,
+        report_num_completed)
+    return None, rdd_answer, None
+
+
+def section_mappart_partials_logic(
+        sc: SparkContext,
+        rdd_orig: RDD[LabeledTypedRow],
+        default_parallelism: int,
+        maximum_processable_segment: int = 10000,
+        report_num_completed: Optional[Callable[[int], None]] = None,
+) -> RDD[StudentSummary]:
+    num_lines_in_orig = rdd_orig.count()
+
+    rdd_loop: RDD[StudentSnippet2] = (
+        sc.parallelize([
+            StudentSnippet2(FirstLastFlag=FIRST_LAST_FIRST, FirstLineIndex=-1, LastLineIndex=-1)])
+        .union(
+            rdd_orig
+            .map(lambda x: studentSnippetFromTypedRow2(x.Index, x.Value)))
+        .union(
+            sc.parallelize([
+                StudentSnippet2(FirstLastFlag=FIRST_LAST_LAST,
+                                FirstLineIndex=num_lines_in_orig, LastLineIndex=num_lines_in_orig)]))
+    )
     rdd_loop.persist(StorageLevel.DISK_ONLY)
 
     rdd_accumulative_completed: RDD[CompletedStudent] = sc.parallelize([])
@@ -44,19 +76,18 @@ def section_mappart_partials(
         rdd3: RDD[Tuple[Tuple[int, int], LabeledTypedRow]] \
             = rdd2.keyBy(key_by_function)
 
-        targetNumPartitions = int_divide_round_up(remaining_num_rows, maximum_processable_segment)
-
         def partition_function(key: Tuple[int, int]) -> int:
             return key[0]
+        targetNumPartitions = int_divide_round_up(remaining_num_rows, maximum_processable_segment)
         rdd4: RDD[Tuple[Tuple[int, int], LabeledTypedRow]] \
             = rdd3.repartitionAndSortWithinPartitions(
             numPartitions=targetNumPartitions,
             partitionFunc=partition_function)  # type: ignore
 
-        rdd5: RDD[Tuple[int, bool, int, StudentSnippet]] \
+        rdd5: RDD[Tuple[int, bool, int, StudentSnippet2]] \
             = rdd4.map(lambda x: (x[0][0], x[0][1] == 0, passNumber, x[1].Value))
 
-        rdd6: RDD[Tuple[bool, CompletedStudent | StudentSnippet]] \
+        rdd6: RDD[Tuple[bool, Union[CompletedStudent, StudentSnippet2]]] \
             = rdd5.mapPartitions(consolidateSnippetsInPartition)
         rdd6.persist(StorageLevel.DISK_ONLY)
 
@@ -67,80 +98,62 @@ def section_mappart_partials(
         rdd_accumulative_completed.localCheckpoint()
 
         complete_count = rdd_accumulative_completed.count()
-        print(f"Completed {complete_count} of {initial_num_rows}")
+        if report_num_completed is not None:
+            report_num_completed(complete_count)
 
-        rdd7: RDD[StudentSnippet] \
-            = rdd6.filter(lambda x: not x[0]).map(lambda x: cast(StudentSnippet, x[1]))
+        rdd7: RDD[StudentSnippet2] \
+            = rdd6.filter(lambda x: not x[0]).map(lambda x: cast(StudentSnippet2, x[1]))
 
-        rdd8: RDD[StudentSnippet] = rdd7.sortBy(lambda x: x.FirstLineIndex)
+        rdd8: RDD[StudentSnippet2] = rdd7.sortBy(lambda x: x.FirstLineIndex)  # type: ignore
         rdd8.persist(StorageLevel.DISK_ONLY)
 
-        NumRowsLeftToProcess = rdd8.count()
+        NumRowsLeftToProcess = rdd8.filter(lambda x: x.FirstLastFlag == FIRST_LAST_NEITHER).count()
         if passNumber == 20:
-            print("Failed to complete")
-            print(rdd8.collect())
-            raise Exception("Failed to complete")
-        if NumRowsLeftToProcess > 1:
-            rdd_loop = rdd8
-            continue
-        else:
-            rdd_final: RDD[CompletedStudent] \
-                = rdd8.map(StudentSnippetBuilder.completedFromSnippet)
-            rdd_accumulative_completed \
-                = rdd_accumulative_completed.union(rdd_final)
+            raise RecursionError("Too many passes")
+        if NumRowsLeftToProcess == 0:
             break
+        rdd_loop = rdd8
     rdd_answer: RDD[StudentSummary] = (
         rdd_accumulative_completed
-        .map(StudentSnippetBuilder.gradeSummary)
-        .repartition(default_parallelism))
-    return None, rdd_answer, None
+        .map(gradeSummary)
+        .repartition(default_parallelism)
+    )
 
-
-def strainCompletedItems(
-        lgroup: List[StudentSnippet],
-) -> Tuple[List[CompletedStudent], List[StudentSnippet]]:
-    completedList = []
-    for i in range(len(lgroup) - 2, 0, -1):
-        rec = lgroup[i]
-        if rec.__class__.__name__ == 'CompletedStudent':
-            completedList.append(rec)
-            del lgroup[i]
-        else:
-            break
-    return completedList, lgroup
+    return rdd_answer
 
 
 def consolidateSnippetsInPartition(
-        iter: Iterable[Tuple[int, bool, int, StudentSnippet]]
-) -> Iterable[Tuple[bool, CompletedStudent | StudentSnippet]]:
-    residual = []
-    lGroupNumber = None
-    lgroup = None
+        iter: Iterable[Tuple[int, bool, int, StudentSnippet2]]
+) -> Iterable[Tuple[bool, Union[CompletedStudent, StudentSnippet2]]]:
+    front_is_clean: bool = False
+    building_snippet: Optional[StudentSnippet2] = None
 
-    rMember: StudentSnippet
-    for rGroupNumber, rIsAtStartOfSegment, _passNumber, rMember in iter:
-        if lGroupNumber is not None and rGroupNumber != lGroupNumber:
-            assert lgroup is not None
-            completedItems, lgroup = strainCompletedItems(lgroup)
-            for item in completedItems:
-                yield True, item
-            assert lgroup is not None
-            residual.extend(lgroup)
-            lGroupNumber = None
-            lgroup = None
-        if lGroupNumber is None:
-            lGroupNumber = rGroupNumber
-            lgroup = [rMember]
-            assert rIsAtStartOfSegment is True
+    rMember: StudentSnippet2
+    for rGroupNumber, _rIsAtStartOfSegment, _passNumber, rMember in iter:
+        if rMember.FirstLastFlag == FIRST_LAST_FIRST:
+            yield False, rMember
+            front_is_clean = True
+            continue
+        if building_snippet is not None:
+            if (
+                (rMember.FirstLastFlag == FIRST_LAST_LAST)
+                or (rMember.StudentId is not None)
+            ):
+                completedItems, remaining_snippets = completeSnippets2(
+                    building_snippet, front_is_clean=front_is_clean, back_is_clean=True)
+                for item in completedItems:
+                    yield True, item
+                for item in remaining_snippets:
+                    yield False, item
+                if rMember.FirstLastFlag == FIRST_LAST_LAST:
+                    yield False, rMember
+                    return
+                else:
+                    front_is_clean = True
+                    building_snippet = None
+        if building_snippet is None:
+            building_snippet = rMember
         else:
-            StudentSnippetBuilder.addSnippets(lgroup, [rMember])
-    if lGroupNumber is not None:
-        assert lgroup is not None
-        completedItems, lgroup = strainCompletedItems(lgroup)
-        for item in completedItems:
-            yield True, item
-        assert lgroup is not None
-        residual.extend(lgroup)
-
-    for item in residual:
-        yield item.__class__.__name__ == 'CompletedStudent', item
+            building_snippet = margeSnippets2(building_snippet, rMember)
+    if building_snippet is not None:
+        yield False, building_snippet

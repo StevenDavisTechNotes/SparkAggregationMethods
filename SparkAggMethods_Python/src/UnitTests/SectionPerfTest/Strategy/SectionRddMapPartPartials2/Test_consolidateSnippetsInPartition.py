@@ -1,12 +1,12 @@
 import pytest
 
-from SectionPerfTest.SectionSnippetSubtotal2 import (
+from SectionPerfTest.SectionSnippetSubtotal import (
     FIRST_LAST_FIRST,
     FIRST_LAST_LAST,
     FIRST_LAST_NEITHER,
-    CompletedStudent2,
+    CompletedStudent,
     StudentSnippet2)
-from SectionPerfTest.Strategy.SectionRddMapPartPartials2 import consolidateSnippetsInPartition
+from SectionPerfTest.Strategy.SectionRddMapPartPartials import consolidateSnippetsInPartition
 
 
 @pytest.fixture
@@ -918,7 +918,7 @@ def baked_snippet():
 
 @pytest.fixture
 def completed_student():
-    return CompletedStudent2(
+    return CompletedStudent(
         StudentId=1,
         StudentName='John1',
         LastMajor=1,

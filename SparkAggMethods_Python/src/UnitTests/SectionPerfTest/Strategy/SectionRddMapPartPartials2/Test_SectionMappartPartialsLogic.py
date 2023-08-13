@@ -4,10 +4,10 @@ import pytest
 from pyspark.sql import SparkSession
 from SectionPerfTest.SectionRunner import spark_configs
 
-from SectionPerfTest.SectionSnippetSubtotal2 import CompletedStudent2
+from SectionPerfTest.SectionSnippetSubtotal import CompletedStudent
 from SectionPerfTest.SectionTypeDefs import (
     ClassLine, LabeledTypedRow, StudentHeader, StudentSummary, TrimesterFooter, TrimesterHeader, TypedLine)
-from SectionPerfTest.Strategy.SectionRddMapPartPartials2 import \
+from SectionPerfTest.Strategy.SectionRddMapPartPartials import \
     section_mappart_partials_logic
 from Utils.PrintObjectToFile import PrintObjectAsPythonLiteral
 from Utils.TidySparkSession import SPARK_SCRATCH_FOLDER, openSparkSession
@@ -150,11 +150,11 @@ def spark() -> Iterable[SparkSession]:
     spark.stop()
 
 
-class Test_StudentSnippetBuilder:
+class Test_section_mappart_partials_logic:
     def test_OneStudent_Pass1_W_LeaderTrailer(
             self,
             student_history: List[TypedLine],
-            student_summary: CompletedStudent2,
+            student_summary: CompletedStudent,
             spark: SparkSession,
     ) -> None:
         sc = spark.sparkContext

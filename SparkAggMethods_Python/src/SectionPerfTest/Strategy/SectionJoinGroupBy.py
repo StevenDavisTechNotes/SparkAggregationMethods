@@ -114,16 +114,18 @@ def withIndexColumn(
         lineNumber: int,
         row: Row,
 ) -> Row:
+    # Warning, order of fields must match SparseLineSchema
     return Row(
         LineNumber=lineNumber,
-        ClassCredits=row.ClassCredits,
-        ClassGrade=row.ClassGrade,
-        Date=row.Date,
-        Dept=row.Dept,
-        Major=row.Major,
+        Type=row.Type,
         StudentId=row.StudentId,
         StudentName=row.StudentName,
-        TriCredits=row.TriCredits,
+        Date=row.Date,
+        WasAbroad=row.WasAbroad,
+        Dept=row.Dept,
+        ClassCredits=row.ClassCredits,
+        ClassGrade=row.ClassGrade,
+        Major=row.Major,
         TriGPA=row.TriGPA,
-        Type=row.Type,
-        WasAbroad=row.WasAbroad)
+        TriCredits=row.TriCredits,
+    )

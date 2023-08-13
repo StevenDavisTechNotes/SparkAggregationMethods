@@ -1,5 +1,5 @@
-from SectionPerfTest.SectionSnippetSubtotal2 import (
-    FIRST_LAST_NEITHER, CompletedStudent2, StudentSnippet2, completeSnippets2)
+from SectionPerfTest.SectionSnippetSubtotal import (
+    FIRST_LAST_NEITHER, CompletedStudent, StudentSnippet2, completeSnippets2)
 
 import pytest
 
@@ -22,7 +22,7 @@ def baked_snippet():
 
 @pytest.fixture
 def completed_student():
-    return CompletedStudent2(
+    return CompletedStudent(
         StudentId=1,
         StudentName='John1',
         LastMajor=1,

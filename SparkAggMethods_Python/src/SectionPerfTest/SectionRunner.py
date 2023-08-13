@@ -23,7 +23,7 @@ DEBUG_ARGS = None if False else (
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
-    + '--strategy section_mappart_partials_2'.split()
+    # + '--strategy section_join_groupby'.split()
 )
 
 

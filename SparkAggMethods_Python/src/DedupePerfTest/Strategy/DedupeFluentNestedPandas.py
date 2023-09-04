@@ -105,7 +105,7 @@ def combineComponents(
     ) -> str | None:
         lst = column.values.tolist()
         lst = [int(x) for x in lst if x is not None]
-        value = min(lst)
+        value = min(lst) if len(lst) > 0 else None
         value = str(value) if value is not None else None
         return value
 

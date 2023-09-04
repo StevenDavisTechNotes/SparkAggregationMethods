@@ -105,6 +105,7 @@ def section_join_groupby(
             / func.when(df.MajorCredits > 0, df.MajorCredits).otherwise(1))
         .drop(df.MajorWeightedGradeTotal)
         .drop(df.MajorCredits)
+        .sort(df.StudentId)
     )
     rdd = df.rdd.map(rowToStudentSummary)
     return None, rdd, None

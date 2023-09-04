@@ -56,7 +56,11 @@ def section_join_mappart(
             numPartitions=data_set.data.target_num_partitions,
             partitionFunc=lambda x: cast(Tuple[int, int], x[0])))  # type: ignore
 
-    rdd5: RDD[StudentSummary] = rdd4.mapPartitions(extractStudentSummary)
+    rdd5: RDD[StudentSummary] = (
+        rdd4
+        .mapPartitions(extractStudentSummary)
+        .sortBy(lambda x: x.StudentId)
+    )
     return None, rdd5, None
 
 

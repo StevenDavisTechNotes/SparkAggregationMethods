@@ -28,12 +28,17 @@ cond_sql_nested,sql,90,0.785269,9,2023-07-19T06:19:41.196491
 cond_fluent_nested,fluent,90,0.840100,9,2023-07-19T06:19:42.186952
 cond_fluent_window,fluent,90,1.124722,9,2023-07-19T06:19:43.461106
 cond_rdd_grpmap,rdd,90,28.692069,9,2023-07-19T06:20:12.307838
+# 2023-09-03
  strategy,interface,dataSize,elapsedTime,recordCount,finishedAt,
- strategy,interface,dataSize,elapsedTime,recordCount,finishedAt,
- strategy,interface,dataSize,elapsedTime,recordCount,finishedAt,
- strategy,interface,dataSize,elapsedTime,recordCount,finishedAt,
-cond_rdd_grpmap,rdd,90,29.388837,9,2023-07-19T08:09:43.745384
- strategy,interface,dataSize,elapsedTime,recordCount,finishedAt,
-cond_rdd_grpmap,rdd,90,29.480709,9,2023-07-19T08:15:53.761048
-cond_rdd_reduce,rdd,90,21.459230,9,2023-07-19T08:16:15.361454
-cond_rdd_mappart,rdd,90,21.445747,9,2023-07-19T08:16:36.952937
+cond_sql_join,sql,90000,1.620777,9,2023-09-03T15:56:00.161640
+cond_fluent_join,fluent,90000,0.901135,9,2023-09-03T15:56:01.235533
+cond_sql_null,sql,90000,0.807383,9,2023-09-03T15:56:02.191906
+cond_fluent_null,fluent,90000,0.474863,9,2023-09-03T15:56:02.807881
+cond_fluent_zero,fluent,90000,0.582863,9,2023-09-03T15:56:03.524841
+cond_pandas,pandas,90000,7.924811,9,2023-09-03T15:56:11.594032
+cond_pandas_numba,pandas,90000,16.079109,9,2023-09-03T15:56:27.820041
+cond_sql_nested,sql,90000,0.963826,9,2023-09-03T15:56:28.931394
+cond_fluent_nested,fluent,90000,1.085951,9,2023-09-03T15:56:30.173322
+cond_fluent_window,fluent,90000,1.857683,9,2023-09-03T15:56:32.183853
+cond_rdd_reduce,rdd,90000,25.973301,9,2023-09-03T15:56:58.304747
+cond_rdd_mappart,rdd,90000,24.567636,9,2023-09-03T15:57:23.022490

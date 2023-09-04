@@ -56,5 +56,6 @@ def section_prep_groupby_core(
                                 df.MajorCredits).otherwise(1))
         .drop(df.MajorWeightedGradeTotal)
         .drop(df.MajorCredits)
+        .sort(df.StudentId)
     )
     return df

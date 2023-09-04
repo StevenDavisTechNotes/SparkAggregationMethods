@@ -1,4 +1,4 @@
-from typing import Any, List, Tuple, cast
+from typing import List, Tuple
 
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
@@ -20,18 +20,21 @@ def section_prep_mappart(
     TargetNumPartitions = data_set.data.target_num_partitions
 
     interFileName = identifySectionUsingIntermediateFile(filename)
-    rdd = \
-        sc.textFile(interFileName, TargetNumPartitions) \
-        .zipWithIndex() \
-        .map(lambda pair: parseLineToTypesWithLineNo(filename, pair)) \
+    rdd1: RDD[Tuple[Tuple[int, int], TypedLine]] = (
+        sc.textFile(interFileName, TargetNumPartitions)
+        .zipWithIndex()
+        .map(lambda pair: parseLineToTypesWithLineNo(filename, pair))
         .map(lambda x: ((x[0], x[1]), x[2]))
-    rdd = \
-        cast(Any, rdd) \
+    )
+    rdd: RDD[StudentSummary] = (
+        rdd1
         .repartitionAndSortWithinPartitions(
             numPartitions=TargetNumPartitions,
-            partitionFunc=lambda x: x[0]) \
-        .map(lambda x: x[1]) \
+            partitionFunc=lambda x: x[0]) # type: ignore
+        .map(lambda x: x[1])
         .mapPartitions(aggregateTypedRowsToGrades)
+        .sortBy(lambda x: x.StudentId)
+    )
     return None, rdd, None
 
 

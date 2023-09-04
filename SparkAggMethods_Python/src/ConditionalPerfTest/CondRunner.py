@@ -1,5 +1,6 @@
 import argparse
 import gc
+import os
 import random
 import time
 from dataclasses import dataclass
@@ -12,7 +13,7 @@ from SixFieldCommon.SixFieldTestData import (
     SHARED_LOCAL_TEST_DATA_FILE_LOCATION, DataSetWithAnswer, ExecutionParameters,
     PythonTestMethod, populate_data_set)
 from Utils.TidySparkSession import LOCAL_NUM_EXECUTORS, TidySparkSession
-from Utils.Utils import always_true
+from Utils.Utils import always_true, set_random_seed
 
 from ConditionalPerfTest.CondDirectory import implementation_list, strategy_name_list
 from ConditionalPerfTest.CondRunResult import (RunResult, infeasible, write_header,
@@ -20,7 +21,7 @@ from ConditionalPerfTest.CondRunResult import (RunResult, infeasible, write_head
 
 DEBUG_ARGS = None if False else (
     []
-    + '--size 3_3_10'.split()
+    + '--size 3_3_10k'.split()
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
@@ -116,10 +117,13 @@ def do_test_runs(
         for _ in range(0, args.num_runs)
     ]
     if args.random_seed is not None:
-        random.seed(args.random_seed)
+        set_random_seed(args.random_seed)
     if args.shuffle:
         random.shuffle(itinerary)
-    with open(PYTHON_RESULT_FILE_PATH, 'at+') as file:
+    result_log_path_name = os.path.join(
+        spark_session.python_code_root_path,
+        PYTHON_RESULT_FILE_PATH)
+    with open(result_log_path_name, 'at+') as file:
         write_header(file)
         for index, (test_method, data_set) in enumerate(itinerary):
             spark_session.log.info(

@@ -1,6 +1,6 @@
 import collections
 from dataclasses import dataclass
-from typing import Callable, List, Tuple
+from typing import Callable, Iterable, Optional, Tuple
 
 import pyspark.sql.types as DataTypes
 from pyspark import RDD
@@ -14,6 +14,7 @@ class ExecutionParameters:
     DefaultParallelism: int
     MaximumProcessableSegment: int
     TestDataFolderLocation: str
+
 
 # region GenData
 StudentHeader = collections.namedtuple("StudentHeader",
@@ -71,11 +72,6 @@ class DataSetData:
 
 
 @dataclass(frozen=True)
-class DataSetAnswer():
-    correct_answer: List[StudentSummary]
-
-
-@dataclass(frozen=True)
 class DataSet():
     description: DataSetDescription
     data: DataSetData
@@ -84,7 +80,7 @@ class DataSet():
 
 @dataclass(frozen=True)
 class DataSetWithAnswer(DataSet):
-    answer: DataSetAnswer
+    answer_generator: Optional[Callable[[], Iterable[StudentSummary]]]
 
 
 @dataclass(frozen=True)
@@ -103,4 +99,4 @@ class PythonTestMethod:
     scale: str
     delegate: Callable[
         [TidySparkSession, DataSet],
-        Tuple[List[StudentSummary] | None, RDD | None, spark_DataFrame | None]]
+        Tuple[Iterable[StudentSummary] | None, RDD[StudentSummary] | None, spark_DataFrame | None]]

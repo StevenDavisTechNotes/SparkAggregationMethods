@@ -105,13 +105,15 @@ def section_mappart_odd_even(
     rddSegments = rddSegmentsEven.union(rddSegmentsOdd)
 
     rddParallelMapPartitionsInter = rddSegments.mapPartitions(aggregate)
-    rddParallelMapPartitions = rddParallelMapPartitionsInter \
-        .keyBy(lambda x: (x.StudentId, x.SourceLines)) \
+    rddParallelMapPartitions = (
+        rddParallelMapPartitionsInter
+        .keyBy(lambda x: (x.StudentId, x.SourceLines))
         .repartitionAndSortWithinPartitions(
             numPartitions=TargetNumPartitions,
-            partitionFunc=lambda x: x[0]) \
-        .map(lambda x: x[1]) \
-        .mapPartitions(chooseCompleteSection) \
+            partitionFunc=lambda x: x[0])
+        .map(lambda x: x[1])
+        .mapPartitions(chooseCompleteSection)
         .sortBy(lambda x: x.StudentId)
+    )
     rdd = rddParallelMapPartitions
     return None, rdd, None

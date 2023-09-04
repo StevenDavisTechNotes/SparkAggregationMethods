@@ -31,7 +31,11 @@ def section_prepcsv_groupby(
         .schema(SparseLineWithSectionIdLineNoSchema) \
         .load(interFileName)
     df = section_prep_groupby_core(df, sectionMaximum)
-    rdd = df.rdd.map(rowToStudentSummary)
+    rdd = (
+        df.rdd
+        .map(rowToStudentSummary)
+        .sortBy(lambda x: x.StudentId)
+    )
     return None, rdd, None
 
 

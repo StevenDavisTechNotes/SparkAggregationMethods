@@ -1,4 +1,6 @@
 import multiprocessing
+import random
+import numpy
 from typing import Any
 
 
@@ -17,3 +19,10 @@ def int_divide_round_up(
         y: int,
 ) -> int:
     return (x + y - 1) // y
+
+
+def set_random_seed(
+        seed: int
+) -> None:
+    random.seed(seed)
+    numpy.random.seed(seed + 1)

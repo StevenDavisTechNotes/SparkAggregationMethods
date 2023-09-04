@@ -142,10 +142,11 @@ def student_summary():
 @pytest.fixture(scope="session")
 def spark() -> Iterable[SparkSession]:
     enable_hive_support = False
-    spark, spark_context, log \
+    tidy_spark_session \
         = openSparkSession(
             spark_configs(1), enable_hive_support,
             SPARK_SCRATCH_FOLDER, 1)
+    spark = tidy_spark_session.spark_session
     yield spark
     spark.stop()
 
@@ -159,7 +160,7 @@ class Test_section_mappart_partials_logic:
     ) -> None:
         sc = spark.sparkContext
         rdd_orig = (
-            sc.parallelize(student_history)
+            sc.parallelize(student_history, numSlices=1)
             .zipWithIndex()
             .map(lambda pair:
                  LabeledTypedRow(
@@ -170,7 +171,39 @@ class Test_section_mappart_partials_logic:
             sc=sc,
             rdd_orig=rdd_orig,
             default_parallelism=1,
+            maximum_processable_segment=10**5,
         )
         result = rdd.collect()
         PrintObjectAsPythonLiteral(result)
         assert result == [student_summary]
+
+    def test_OneStudent_Split_Pass2_W_LeaderTrailer(
+            self,
+            student_history: List[TypedLine],
+            student_summary: CompletedStudent,
+            spark: SparkSession,
+    ) -> None:
+        # split from 1 row in the first segment
+        # to only 1 row in the second segument
+        for num_rows_in_first_segement in range(1, len(student_history)):
+            sc = spark.sparkContext
+            rdd_orig = (
+                sc.parallelize(student_history[0:num_rows_in_first_segement], numSlices=1)
+                .union(
+                    sc.parallelize(student_history[num_rows_in_first_segement:], numSlices=1)
+                )
+                .zipWithIndex()
+                .map(lambda pair:
+                     LabeledTypedRow(
+                         Index=pair[1],
+                         Value=pair[0]))
+            )
+            rdd = section_mappart_partials_logic(
+                sc=sc,
+                rdd_orig=rdd_orig,
+                default_parallelism=1,
+                maximum_processable_segment=10**5,
+            )
+            result = rdd.collect()
+            PrintObjectAsPythonLiteral(result)
+            assert result == [student_summary]

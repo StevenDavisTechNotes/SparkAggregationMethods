@@ -70,7 +70,8 @@ def write_run_result(
     file.flush()
 
 
-def read_result_file() -> Iterable[PersistedRunResult]:
+def read_result_file(
+) -> Iterable[PersistedRunResult]:
     with open(RESULT_FILE_PATH, 'r', encoding='utf-8-sig') as f:
         for textline in f:
             textline = textline.rstrip()

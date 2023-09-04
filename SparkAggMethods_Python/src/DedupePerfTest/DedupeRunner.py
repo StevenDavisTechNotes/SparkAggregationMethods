@@ -1,6 +1,7 @@
 import argparse
 import gc
 import math
+import os
 import random
 import time
 from dataclasses import dataclass
@@ -9,7 +10,7 @@ from typing import List, Optional, Tuple
 from pyspark.sql import Row
 
 from Utils.TidySparkSession import TidySparkSession
-from Utils.Utils import always_true
+from Utils.Utils import always_true, set_random_seed
 
 from DedupePerfTest.DedupeDataTypes import DataSet, ExecutionParameters
 from DedupePerfTest.DedupeDirectory import implementation_list, strategy_name_list
@@ -20,7 +21,7 @@ from DedupePerfTest.DedupeTestData import DATA_SIZE_CODE_TO_DATA_SIZE, generate_
 
 DEBUG_ARGS = None if False else (
     []
-    + '--size 1'.split()
+    + '--size 60k'.split()
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
@@ -171,11 +172,13 @@ def run_tests(
         for _ in range(args.num_runs)
     ]
     if args.random_seed is not None:
-        random.seed(args.random_seed)
+        set_random_seed(args.random_seed)
     if args.shuffle is True:
         random.shuffle(itinerary)
-
-    with open(RESULT_FILE_PATH, 'at+') as result_log_file:
+    result_log_path_name = os.path.join(
+        spark_session.python_code_root_path,
+        RESULT_FILE_PATH)
+    with open(result_log_path_name, 'at+') as result_log_file:
         write_header(result_log_file)
         for index, itinerary_item in enumerate(itinerary):
             success, result = run_one_itinerary_step(

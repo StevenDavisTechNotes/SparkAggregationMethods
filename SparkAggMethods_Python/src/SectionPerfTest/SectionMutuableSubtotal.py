@@ -1,7 +1,7 @@
-from typing import Any, Dict, Iterable
+from typing import Any, Dict, Iterable, Tuple
 
 from SectionPerfTest.SectionTypeDefs import (
-    ClassLine, NumDepts, StudentHeader, StudentSummary, TrimesterFooter, TrimesterHeader)
+    ClassLine, NumDepts, StudentHeader, StudentSummary, TrimesterFooter, TrimesterHeader, TypedLine)
 
 
 class MutableTrimester:
@@ -66,7 +66,8 @@ class MutableStudent:
 
 
 def aggregateTypedRowsToGrades(
-        iterator) -> Iterable[StudentSummary]:
+        iterator: Iterable[TypedLine],
+) -> Iterable[StudentSummary]:
     student: MutableStudent | None = None
     trimester: MutableTrimester | None = None
     for lineno, rec in enumerate(iterator):

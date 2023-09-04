@@ -36,7 +36,11 @@ def section_prep_groupby(
         .map(parseLineToRowWithLineNo)
     df = spark.createDataFrame(rdd, SparseLineWithSectionIdLineNoSchema)
     df = section_prep_groupby_core(df, sectionMaximum)
-    rdd = df.rdd.map(rowToStudentSummary)
+    rdd = (
+        df.rdd
+        .map(rowToStudentSummary)
+        .sortBy(lambda x: x.StudentId)
+    )
     return None, rdd, None
 
 

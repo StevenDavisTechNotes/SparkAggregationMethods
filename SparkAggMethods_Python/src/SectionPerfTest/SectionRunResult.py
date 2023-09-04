@@ -30,8 +30,7 @@ LARGEST_EXPONENT_BY_METHOD_NAME: Dict[str, int] = {
     'section_nospark_single_threaded': LARGEST_EXPONENT,
     'section_mappart_single_threaded': MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT - 1,  # unrealiable
     'section_mappart_odd_even': 7 - 1,  # unrealiable
-    'section_mappart_partials': 7 - 1,  # unrealiable
-    'section_mappart_partials_2': LARGEST_EXPONENT,  # TBD
+    'section_mappart_partials': 5 - 1,  # unrealiable in local mode
     'section_asymreduce_partials': 7 - 1,  # unrealiable
     'section_prep_mappart': 8 - 1,  # takes too long
     'section_prep_groupby': 8 - 1,  # times out
@@ -48,7 +47,10 @@ def infeasible(
 ) -> bool:
     dataNumStudents = data_set.num_students
     largest_exponent_by_method_name = LARGEST_EXPONENT_BY_METHOD_NAME[strategy]
-    return dataNumStudents >= pow(10, largest_exponent_by_method_name)
+    if dataNumStudents > pow(10, largest_exponent_by_method_name):
+        return True
+    else:
+        return False
 
 
 def write_header(

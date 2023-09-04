@@ -71,6 +71,9 @@ def section_asymreduce_partials(
         .flatMap(lambda x: x)
     rdd7 = rdd6 \
         .map(completedFromSnippet1)
-    rdd8: RDD[StudentSummary] = rdd7 \
+    rdd8: RDD[StudentSummary] = (
+        rdd7
         .map(gradeSummary)
+        .sortBy(lambda x: x.StudentId)
+    )
     return None, rdd8, None

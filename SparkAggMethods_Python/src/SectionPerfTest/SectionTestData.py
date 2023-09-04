@@ -40,6 +40,7 @@ def populate_data_set(
         "Section_Test_Data",
         "section_testdata_temp.csv")
     with open(tmp_file_name, "w") as f:
+        print(f"Creating {filename}")
         for studentId in range(1, NumStudents + 1):
             f.write(f"S,{studentId},John{studentId}\n")
             for trimester in range(1, NumTrimesters + 1):

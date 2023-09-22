@@ -19,9 +19,9 @@ from ConditionalPerfTest.CondDirectory import implementation_list, strategy_name
 from ConditionalPerfTest.CondRunResult import (RunResult, infeasible, write_header,
                                                write_run_result)
 
-DEBUG_ARGS = None if False else (
+DEBUG_ARGS = None if True else (
     []
-    + '--size 3_3_10k'.split()
+    # + '--size 3_3_10k'.split()
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']

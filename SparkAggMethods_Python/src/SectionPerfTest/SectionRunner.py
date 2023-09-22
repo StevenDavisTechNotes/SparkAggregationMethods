@@ -19,9 +19,9 @@ from SectionPerfTest.Strategy.SectionNoSparkST import section_nospark_logic
 from Utils.TidySparkSession import LOCAL_NUM_EXECUTORS, TidySparkSession
 from Utils.Utils import always_true, set_random_seed
 
-DEBUG_ARGS = None if False else (
+DEBUG_ARGS = None if True else (
     []
-    + '--size 1000'.split()
+    # + '--size 1000'.split()
     # + ['--no-check']
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()

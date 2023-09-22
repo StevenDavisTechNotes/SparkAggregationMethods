@@ -19,9 +19,9 @@ from DedupePerfTest.DedupeRunResult import (
     RESULT_FILE_PATH, RunResult, infeasible, write_header, write_run_result)
 from DedupePerfTest.DedupeTestData import DATA_SIZE_CODE_TO_DATA_SIZE, generate_test_data
 
-DEBUG_ARGS = None if False else (
+DEBUG_ARGS = None if True else (
     []
-    + '--size 60k'.split()
+    # + '--size 60k'.split()
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']

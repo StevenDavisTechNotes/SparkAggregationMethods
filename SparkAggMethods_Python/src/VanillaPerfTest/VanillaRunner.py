@@ -21,9 +21,9 @@ from VanillaPerfTest.VanillaDirectory import implementation_list, strategy_name_
 from VanillaPerfTest.VanillaRunResult import (
     PYTHON_RESULT_FILE_PATH, infeasible, write_header, write_run_result)
 
-DEBUG_ARGS = None if False else (
+DEBUG_ARGS = None if True else (
     []
-    + '--size 10k'.split()
+    # + '--size 10k'.split()
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']

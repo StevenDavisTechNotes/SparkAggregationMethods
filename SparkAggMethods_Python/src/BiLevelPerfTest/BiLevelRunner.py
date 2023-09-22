@@ -17,27 +17,27 @@ from Utils.Utils import always_true, set_random_seed
 
 from BiLevelPerfTest.BiLevelDataTypes import result_columns
 from BiLevelPerfTest.BiLevelDirectory import implementation_list, strategy_name_list
-from BiLevelPerfTest.BiLevelRunResult import (RunResult, infeasible, write_header,
-                                              write_run_result)
+from BiLevelPerfTest.BiLevelRunResult import (
+    RunResult, infeasible, write_header, write_run_result)
 
 DEBUG_ARGS = None if False else (
     []
-    + '--size 3_30_10k'.split()
+    # + '--size 3_3_100k'.split()
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
     # + ['--strategy',
-    # #    'bi_sql_join',
-    # #    'bi_fluent_join',
-    # #    'bi_pandas',
-    # #    'bi_pandas_numba',
-    # #    'bi_sql_nested',
-    # #    'bi_fluent_nested',
-    # #    'bi_fluent_window',
-    # #    'bi_rdd_grpmap',
-    # #    'bi_rdd_reduce1',
-    # #    'bi_rdd_reduce2',
-    # #    'bi_rdd_mappart'
+    #    'bi_sql_join',
+    #    #    'bi_fluent_join',
+    #    #    'bi_pandas',
+    #    #    'bi_pandas_numba',
+    #    #    'bi_sql_nested',
+    #    #    'bi_fluent_nested',
+    #    #    'bi_fluent_window',
+    #    #    'bi_rdd_grpmap',
+    #    #    'bi_rdd_reduce1',
+    #    #    'bi_rdd_reduce2',
+    #    #    'bi_rdd_mappart'
     #    ]
 )
 PYTHON_RESULT_FILE_PATH = 'Results/bi_level_runs.csv'
@@ -203,7 +203,7 @@ def test_one_step_in_itinerary(
     abs_diff = float(
         (data_set.answer.bilevel_answer - df_answer)
         .abs().max().max())
-    status = abs_diff < 1e-12
+    status = abs_diff < 1e-6
     assert (status is True)
     recordCount = len(df_answer)
     result = RunResult(

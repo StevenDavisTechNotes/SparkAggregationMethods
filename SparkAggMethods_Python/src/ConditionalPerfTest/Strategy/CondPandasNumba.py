@@ -53,7 +53,7 @@ def my_looplift_var(E: np.ndarray) -> float:
     accE = 0.
     for i in prange(n):
         accE += E[i]
-    return accE2 / n - (accE / n)**2
+    return accE2 / n - (accE / n)**2  # pyright: ignore
 
 
 def inner_agg_method(

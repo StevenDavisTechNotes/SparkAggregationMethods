@@ -23,45 +23,52 @@ def section_join_mappart(
     rdd2: RDD[Tuple[int, str, LabeledTypedRow]] = (
         rdd1
         .map(lambda x: (x.Index, x.Value.__class__.__name__, x.Value)))
-    rddSH0: RDD[Tuple[int, Tuple[int, int]]] = (
+    rdd8: RDD[Tuple[int, str, LabeledTypedRow]] = (
         rdd2
         .filter(lambda x: x[1] == 'StudentHeader')
-        .zipWithIndex()
-        .map(lambda x: (x[1], (x[0][0], x[0][2].StudentId))))
-    rssSH1: RDD[Tuple[int, Tuple[int, int]]] = (
-        rddSH0
+    )
+    rdd9: RDD[Tuple[Tuple[int, str, LabeledTypedRow], int]] = (
+        rdd8
+        .zipWithIndex())
+    rdd10: RDD[Tuple[int, Tuple[int, int]]] = (
+        rdd9
+        .map(lambda x: (x[1], (x[0][0], cast(StudentHeader, x[0][2].Value).StudentId))))
+    rdd11: RDD[Tuple[int, Tuple[int, int]]] = (
+        rdd10
         .map(lambda x: (x[0] - 1, x[1]))
         .filter(lambda x: x[0] >= 0)
-        .union(sc.parallelize([(rddSH0.count() - 1, (NumRows, cast(int, -1)))])))
+        .union(sc.parallelize([(rdd10.count() - 1, (NumRows, cast(int, -1)))])))
 
     def unpackStudentHeaderFromTuples(
             x: Tuple[int, Tuple[Tuple[int, int], Tuple[int, int]]],
     ) -> List[Tuple[int, int]]:
         shLineNumber, ((firstLineNo, studentId), (nextLineNo, _)) = x
         return [(lineNo, studentId) for lineNo in range(firstLineNo, nextLineNo)]
-    rddSH2: RDD[Tuple[int, Tuple[Tuple[int, int], Tuple[int, int]]]] = rddSH0.join(rssSH1)
-    rddSH: RDD[Tuple[int, int]] = rddSH2.flatMap(unpackStudentHeaderFromTuples)
-    rdd2a: RDD[Tuple[int, LabeledTypedRow]] = rdd2.map(lambda x: (x[0], x[2]))
-    rdd3: RDD[Tuple[Tuple[int, LabeledTypedRow], Tuple[int, int]]] = rdd2a.join(rddSH)
+
+    rdd12: RDD[Tuple[int, Tuple[Tuple[int, int], Tuple[int, int]]]] = rdd10.join(rdd11)
+    rdd13: RDD[Tuple[int, int]] = rdd12.flatMap(unpackStudentHeaderFromTuples)
+    rdd14: RDD[Tuple[int, LabeledTypedRow]] = rdd2.map(lambda x: (x[0], x[2]))
+    rdd15: RDD[Tuple[int, Tuple[LabeledTypedRow, int]]] = rdd14.join(rdd13)
 
     def repackageTypedLineWithSH(
             x: Tuple[int, Tuple[LabeledTypedRow, int]],
     ) -> Tuple[Tuple[int, int], LabeledTypedRow]:
         lineNo, (typedRow, studentId) = x
         return ((studentId, lineNo), typedRow)
-    rdd3a: RDD[Tuple[Tuple[int, int], LabeledTypedRow]] = rdd3.map(repackageTypedLineWithSH)
-    rdd4: RDD[Tuple[Tuple[int, int], LabeledTypedRow]] = (
-        rdd3a
+
+    rdd16: RDD[Tuple[Tuple[int, int], LabeledTypedRow]] = rdd15.map(repackageTypedLineWithSH)
+    rdd17: RDD[Tuple[Tuple[int, int], LabeledTypedRow]] = (
+        rdd16
         .repartitionAndSortWithinPartitions(
             numPartitions=data_set.data.target_num_partitions,
             partitionFunc=lambda x: cast(Tuple[int, int], x[0])))  # type: ignore
 
-    rdd5: RDD[StudentSummary] = (
-        rdd4
+    rdd18: RDD[StudentSummary] = (
+        rdd17
         .mapPartitions(extractStudentSummary)
         .sortBy(lambda x: x.StudentId)
     )
-    return None, rdd5, None
+    return None, rdd18, None
 
 
 def extractStudentSummary(

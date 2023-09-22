@@ -15,7 +15,7 @@ from SixFieldCommon.SixFieldTestData import (
 from Utils.TidySparkSession import LOCAL_NUM_EXECUTORS, TidySparkSession
 from Utils.Utils import always_true, set_random_seed
 
-from VanillaPerfTest.Strategy.VanillaPandasCuda import vanilla_panda_cupy
+from VanillaPerfTest.PySpark_Strategy.VanillaPandasCuda import vanilla_panda_cupy
 from VanillaPerfTest.VanillaDataTypes import result_columns
 from VanillaPerfTest.VanillaDirectory import implementation_list, strategy_name_list
 from VanillaPerfTest.VanillaRunResult import (

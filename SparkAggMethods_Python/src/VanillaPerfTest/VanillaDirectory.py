@@ -3,15 +3,15 @@ from typing import List
 from SixFieldCommon.SixFieldTestData import PythonTestMethod
 from PerfTestCommon import ExternalTestMethod
 
-from VanillaPerfTest.Strategy.VanillaFluent import vanilla_fluent
-from VanillaPerfTest.Strategy.VanillaPandas import vanilla_pandas
-from VanillaPerfTest.Strategy.VanillaPandasCuda import vanilla_panda_cupy
-from VanillaPerfTest.Strategy.VanillaPandasNumba import vanilla_pandas_numba
-from VanillaPerfTest.Strategy.VanillaPandasNumpy import vanilla_pandas_numpy
-from VanillaPerfTest.Strategy.VanillaRddGrpmap import vanilla_rdd_grpmap
-from VanillaPerfTest.Strategy.VanillaRddMappart import vanilla_rdd_mappart
-from VanillaPerfTest.Strategy.VanillaRddReduce import vanilla_rdd_reduce
-from VanillaPerfTest.Strategy.VanillaSql import vanilla_sql
+from VanillaPerfTest.PySpark_Strategy.VanillaFluent import vanilla_fluent
+from VanillaPerfTest.PySpark_Strategy.VanillaPandas import vanilla_pandas
+from VanillaPerfTest.PySpark_Strategy.VanillaPandasCuda import vanilla_panda_cupy
+from VanillaPerfTest.PySpark_Strategy.VanillaPandasNumba import vanilla_pandas_numba
+from VanillaPerfTest.PySpark_Strategy.VanillaPandasNumpy import vanilla_pandas_numpy
+from VanillaPerfTest.PySpark_Strategy.VanillaRddGrpmap import vanilla_rdd_grpmap
+from VanillaPerfTest.PySpark_Strategy.VanillaRddMappart import vanilla_rdd_mappart
+from VanillaPerfTest.PySpark_Strategy.VanillaRddReduce import vanilla_rdd_reduce
+from VanillaPerfTest.PySpark_Strategy.VanillaSql import vanilla_sql
 
 implementation_list: List[PythonTestMethod] = [
     PythonTestMethod(

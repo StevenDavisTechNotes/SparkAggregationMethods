@@ -6,7 +6,9 @@ from pyspark.sql import DataFrame as spark_DataFrame
 
 from SectionPerfTest.SectionLogic import (
     parseLineToTypes, rddTypedWithIndexFactory)
-from SectionPerfTest.SectionSnippetSubtotal import CompletedStudent, StudentSnippet1, mergeSnippetLists1, completedFromSnippet1, gradeSummary, studentSnippetFromTypedRow1
+from SectionPerfTest.SectionSnippetSubtotal import (
+    CompletedStudent, StudentSnippet1, completedFromSnippet1, gradeSummary,
+    mergeSnippetLists1, studentSnippetFromTypedRow1)
 from SectionPerfTest.SectionTypeDefs import (
     DataSet, LabeledTypedRow, StudentSummary)
 from Utils.NonCommutativeTreeAggregate import nonCommutativeTreeAggregate

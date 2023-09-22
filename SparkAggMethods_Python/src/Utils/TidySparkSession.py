@@ -1,13 +1,12 @@
 import os
-from pathlib import Path
 import shutil
-from typing import Any, Dict, Tuple, cast
 from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Dict, cast
 
 import findspark
 from pyspark import SparkContext
 from pyspark.sql import SparkSession
-
 
 SPARK_SCRATCH_FOLDER = "D:\\temp\\spark_scratch"
 LOCAL_NUM_EXECUTORS = 7

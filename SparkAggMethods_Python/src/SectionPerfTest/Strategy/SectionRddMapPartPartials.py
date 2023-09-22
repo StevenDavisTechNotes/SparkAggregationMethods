@@ -70,7 +70,6 @@ def section_mappart_partials_logic(
     data_to_process: Tuple[RDD[StudentSnippet2], int, RDD[CompletedStudent]] \
         = (rdd_start, num_lines_in_orig + 2, rdd_accumulative_completed)
 
-
     passNumber = 0
     rdd_start.persist(StorageLevel.DISK_ONLY)
     rdd_accumulative_completed.persist(StorageLevel.DISK_ONLY)

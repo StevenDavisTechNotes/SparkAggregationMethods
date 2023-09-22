@@ -164,7 +164,7 @@ def run_one_itinerary_step(
     elif rdd is not None:
         print(f"output rdd has {rdd.getNumPartitions()} partitions")
         count = rdd.count()
-        print(f"Got a count", count)
+        print("Got a count", count)
         found_students_iterable = rdd.toLocalIterator()
     elif df is not None:
         print(f"output rdd has {df.rdd.getNumPartitions()} partitions")

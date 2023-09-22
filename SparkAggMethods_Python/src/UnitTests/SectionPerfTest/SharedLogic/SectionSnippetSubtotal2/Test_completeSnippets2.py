@@ -60,5 +60,6 @@ def test_maybe_not_started_yet(baked_snippet):
         assert completedItems == []
         assert remaining_snippets == [baked_snippet]
 
+
 if __name__ == "__main__":
     print("here")

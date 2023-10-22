@@ -1,10 +1,13 @@
 from dataclasses import dataclass
-import datetime
-from typing import TextIO
 
-from SixFieldCommon.SixFieldTestData import MAX_DATA_POINTS_PER_PARTITION, RunResult, DataSet
-from ConditionalPerfTest.CondDirectory import PythonTestMethod
+from PerfTestCommon import CalcEngine
+from SixFieldCommon.Dask_SixFieldTestData import DaskDataSet
+from SixFieldCommon.PySpark_SixFieldTestData import PysparkDataSet
+from SixFieldCommon.SixFieldTestData import MAX_DATA_POINTS_PER_PARTITION
 
+T_PYTHON_PYSPARK_RUN_LOG_FILE_PATH = 'Results/conditional_pyspark_runs.csv'
+T_PYTHON_DASK_RUN_LOG_FILE_PATH = 'Results/conditional_dask_runs.csv'
+FINAL_REPORT_FILE_PATH = 'Results/cond_results.csv'
 EXPECTED_SIZES = [3 * 3 * 10**x for x in range(1, 5 + 2)]
 
 
@@ -12,11 +15,24 @@ EXPECTED_SIZES = [3 * 3 * 10**x for x in range(1, 5 + 2)]
 class PersistedRunResult:
     strategy_name: str
     language: str
+    engine: CalcEngine
     strategy_w_language_name: str
     interface: str
     dataSize: int
     elapsedTime: float
     recordCount: int
+
+
+def run_log_file_path(
+        engine: CalcEngine,
+) -> str:
+    match engine:
+        case  CalcEngine.PYSPARK:
+            return T_PYTHON_PYSPARK_RUN_LOG_FILE_PATH
+        case CalcEngine.DASK:
+            return T_PYTHON_DASK_RUN_LOG_FILE_PATH
+        case _:
+            raise ValueError(f"Unknown engine: {engine}")
 
 
 def regressor_from_run_result(
@@ -25,9 +41,18 @@ def regressor_from_run_result(
     return result.dataSize
 
 
-def infeasible(
+def dask_infeasible(
         strategy_name: str,
-        data_set: DataSet,
+        data_set: DaskDataSet,
+) -> bool:
+    match strategy_name:
+        case _:
+            return False
+
+
+def pyspark_infeasible(
+        strategy_name: str,
+        data_set: PysparkDataSet,
 ) -> bool:
     match strategy_name:
         case 'cond_rdd_grpmap':
@@ -37,25 +62,3 @@ def infeasible(
                 * data_set.description.NumGroups)
         case _:
             return False
-
-
-def write_header(
-        file: TextIO
-) -> None:
-    print(
-        ' strategy,interface,dataSize,elapsedTime,recordCount,finishedAt,',
-        file=file)
-    file.flush()
-
-
-def write_run_result(
-        cond_method: PythonTestMethod,
-        result: RunResult,
-        file: TextIO,
-) -> None:
-    print("%s,%s,%d,%f,%d,%s" % (
-        cond_method.strategy_name, cond_method.interface,
-        result.dataSize, result.elapsedTime, result.recordCount,
-        datetime.datetime.now().isoformat(),
-    ), file=file)
-    file.flush()

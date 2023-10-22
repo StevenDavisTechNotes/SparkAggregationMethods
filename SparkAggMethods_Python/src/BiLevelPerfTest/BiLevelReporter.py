@@ -6,12 +6,13 @@ from typing import Dict, List
 import numpy
 import scipy
 
+from BiLevelPerfTest.BiLevelDirectory import pyspark_implementation_list
+from BiLevelPerfTest.BiLevelRunResult import (EXPECTED_SIZES,
+                                              FINAL_REPORT_FILE_PATH,
+                                              PersistedRunResult,
+                                              read_result_file,
+                                              regressor_from_run_result)
 from Utils.LinearRegression import linear_regression
-
-from BiLevelPerfTest.BiLevelDirectory import implementation_list
-from BiLevelPerfTest.BiLevelRunResult import (
-    EXPECTED_SIZES, FINAL_REPORT_FILE_PATH, PersistedRunResult,
-    read_result_file, regressor_from_run_result)
 
 TEMP_RESULT_FILE_PATH = "d:/temp/SparkPerfTesting/temp.csv"
 
@@ -23,7 +24,7 @@ PerformanceModelParameters = collections.namedtuple(
      "s2", "s2_low", "s2_high"])
 
 
-def parse_results():
+def parse_results() -> List[PersistedRunResult]:
     raw_test_runs: List[PersistedRunResult] = []
     with open(TEMP_RESULT_FILE_PATH, 'w') as fout:
         for result in read_result_file():
@@ -38,7 +39,7 @@ def parse_results():
 def structure_test_results(
         test_runs: List[PersistedRunResult]
 ) -> Dict[str, Dict[int, List[PersistedRunResult]]]:
-    test_methods = {x.strategy_name for x in implementation_list}.union([x.strategy_name for x in test_runs])
+    test_methods = {x.strategy_name for x in pyspark_implementation_list}.union([x.strategy_name for x in test_runs])
     test_x_values = set(EXPECTED_SIZES).union([regressor_from_run_result(x) for x in test_runs])
     test_results = {method: {x: [] for x in test_x_values} for method in test_methods}
     for result in test_runs:
@@ -88,7 +89,7 @@ def analyze_run_results():
     for strategy_name in test_results:
         print("Looking to analyze %s" % strategy_name)
         cond_method = [
-            x for x in implementation_list if x.strategy_name == strategy_name][0]
+            x for x in pyspark_implementation_list if x.strategy_name == strategy_name][0]
         for regressor_value in test_results[strategy_name]:
             runs = test_results[strategy_name][regressor_value]
             ar = [x.elapsedTime for x in runs]
@@ -136,6 +137,7 @@ def analyze_run_results():
             result.b0_low, result.b0, result.b0_high,
             result.b1_low, result.b1, result.b1_high,
             result.s2_low, result.s2, result.s2_high)
+
     with open(FINAL_REPORT_FILE_PATH, 'w') as f:
         f.write(summary_status)
         f.write("\n")

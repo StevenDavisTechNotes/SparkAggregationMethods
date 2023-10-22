@@ -18,6 +18,7 @@ rm venv -r # to remove the venv folder
 rm -r *.pyc
 py -3.10 -m venv venv
 .\venv\Scripts\Activate.ps1
+python -c "import sys; print(sys.executable)"
 .\venv\Scripts\python.exe -m pip install --upgrade pip
 pip install -r .\requirements.txt
 

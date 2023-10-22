@@ -1,8 +1,12 @@
 # gc requirements.txt | sort > c:\temp\t.txt
 # pip install -r requirements.txt
 autopep8
+dask
+dask[dataframe]
+dask[distributed]
 findspark
 flake8
+ipykernel
 numba
 numpy>=1.14
 pandas>=0.23.2,<2.0

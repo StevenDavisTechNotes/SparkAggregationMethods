@@ -4,14 +4,16 @@ from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 from pyspark.sql import Row
 
+from SixFieldCommon.PySpark_SixFieldTestData import PysparkDataSet
+from SixFieldCommon.SixFieldTestData import (MAX_DATA_POINTS_PER_PARTITION,
+                                             DataPoint, ExecutionParameters)
 from Utils.TidySparkSession import TidySparkSession
-from SixFieldCommon.SixFieldTestData import MAX_DATA_POINTS_PER_PARTITION, DataPoint, DataSet, ExecutionParameters
 
 
 def vanilla_rdd_grpmap(
         _spark_session: TidySparkSession,
         _exec_params: ExecutionParameters,
-        data_set: DataSet
+        data_set: PysparkDataSet
 ) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
 
     if (

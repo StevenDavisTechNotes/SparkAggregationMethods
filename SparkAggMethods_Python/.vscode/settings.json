@@ -1,16 +1,20 @@
 {
-    "search.exclude": {
-        "**/venv": true
+    "editor.formatOnSave": true,
+    "[python]": {
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        }
     },
     "python.languageServer": "Pylance",
     "python.analysis.diagnosticMode": "workspace",
     "python.analysis.typeCheckingMode": "basic",
-    "python.formatting.autopep8Args": [
-        "--aggressive"
-    ],
     "python.testing.pytestArgs": [
         "src/UnitTests"
     ],
     "python.testing.unittestEnabled": false,
-    "python.testing.pytestEnabled": true
+    "python.testing.pytestEnabled": true,
+    "search.exclude": {
+        "**/venv": true,
+        "/old": true
+    }
 }

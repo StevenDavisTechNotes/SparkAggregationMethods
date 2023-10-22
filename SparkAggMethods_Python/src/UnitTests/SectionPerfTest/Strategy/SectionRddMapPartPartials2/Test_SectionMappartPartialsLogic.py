@@ -2,13 +2,15 @@ from typing import Iterable, List
 
 import pytest
 from pyspark.sql import SparkSession
-from SectionPerfTest.SectionRunner import spark_configs
 
-from SectionPerfTest.SectionSnippetSubtotal import CompletedStudent
-from SectionPerfTest.SectionTypeDefs import (
-    ClassLine, LabeledTypedRow, StudentHeader, StudentSummary, TrimesterFooter, TrimesterHeader, TypedLine)
-from SectionPerfTest.Strategy.SectionRddMapPartPartials import \
+from SectionPerfTest.PySparkStrategy.SectionRddMapPartPartials import \
     section_mappart_partials_logic
+from SectionPerfTest.SectionPySparkRunner import spark_configs
+from SectionPerfTest.SectionSnippetSubtotal import CompletedStudent
+from SectionPerfTest.SectionTypeDefs import (ClassLine, LabeledTypedRow,
+                                             StudentHeader, StudentSummary,
+                                             TrimesterFooter, TrimesterHeader,
+                                             TypedLine)
 from Utils.PrintObjectToFile import PrintObjectAsPythonLiteral
 from Utils.TidySparkSession import SPARK_SCRATCH_FOLDER, openSparkSession
 

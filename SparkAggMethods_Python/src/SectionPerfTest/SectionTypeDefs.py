@@ -2,10 +2,12 @@ import collections
 from dataclasses import dataclass
 from typing import Callable, Iterable, Optional, Tuple
 
+import pandas as pd
 import pyspark.sql.types as DataTypes
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 
+from PerfTestCommon import CalcEngine
 from Utils.TidySparkSession import TidySparkSession
 
 
@@ -85,6 +87,8 @@ class DataSetWithAnswer(DataSet):
 
 @dataclass(frozen=True)
 class RunResult:
+    strategy_name: str
+    engine: CalcEngine
     success: bool
     data: DataSet
     elapsed_time: float
@@ -92,11 +96,22 @@ class RunResult:
 
 
 @dataclass(frozen=True)
-class PythonTestMethod:
+class TestMethodBase:
     strategy_name: str
     language: str
     interface: str
     scale: str
+
+
+@dataclass(frozen=True)
+class DaskTestMethod(TestMethodBase):
+    delegate: Callable[
+        [TidySparkSession, DataSet],
+        Tuple[Iterable[StudentSummary] | None, pd.DataFrame | None]]
+
+
+@dataclass(frozen=True)
+class PysparkTestMethod(TestMethodBase):
     delegate: Callable[
         [TidySparkSession, DataSet],
         Tuple[Iterable[StudentSummary] | None, RDD[StudentSummary] | None, spark_DataFrame | None]]

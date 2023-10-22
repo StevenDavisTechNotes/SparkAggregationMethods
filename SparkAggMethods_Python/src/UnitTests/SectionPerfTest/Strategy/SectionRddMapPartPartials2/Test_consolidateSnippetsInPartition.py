@@ -1,12 +1,12 @@
 import pytest
 
-from SectionPerfTest.SectionSnippetSubtotal import (
-    FIRST_LAST_FIRST,
-    FIRST_LAST_LAST,
-    FIRST_LAST_NEITHER,
-    CompletedStudent,
-    StudentSnippet2)
-from SectionPerfTest.Strategy.SectionRddMapPartPartials import consolidateSnippetsInPartition
+from SectionPerfTest.PySparkStrategy.SectionRddMapPartPartials import \
+    consolidateSnippetsInPartition
+from SectionPerfTest.SectionSnippetSubtotal import (FIRST_LAST_FIRST,
+                                                    FIRST_LAST_LAST,
+                                                    FIRST_LAST_NEITHER,
+                                                    CompletedStudent,
+                                                    StudentSnippet2)
 
 
 @pytest.fixture

@@ -7,17 +7,24 @@ from typing import Dict, List
 import numpy
 from scipy.stats import norm as scipy_stats_norm  # type: ignore
 
-from PerfTestCommon import ExternalTestMethod, TestMethodDescription
-from SixFieldCommon.SixFieldTestData import PythonTestMethod
+from PerfTestCommon import (CalcEngine, ExternalTestMethod,
+                            TestMethodDescription)
+from SixFieldCommon.PySpark_SixFieldTestData import PysparkPythonTestMethod
+from VanillaPerfTest.VanillaDirectory import (pyspark_implementation_list,
+                                              scala_implementation_list)
+from VanillaPerfTest.VanillaRunResult import (EXPECTED_SIZES,
+                                              FINAL_REPORT_FILE_PATH,
+                                              SCALA_RUN_LOG_FILE_PATH,
+                                              PersistedRunResult,
+                                              regressor_from_run_result,
+                                              run_log_file_path)
 
-from VanillaPerfTest.VanillaDirectory import implementation_list, scala_implementation_list
-from VanillaPerfTest.VanillaRunResult import (EXPECTED_SIZES, FINAL_REPORT_FILE_PATH, PYTHON_RESULT_FILE_PATH,
-                                              SCALA_RESULT_FILE_PATH, PersistedRunResult, regressor_from_run_result)
 
-
-def read_python_file() -> List[PersistedRunResult]:
+def read_python_file(
+        engine: CalcEngine,
+) -> List[PersistedRunResult]:
     test_runs: List[PersistedRunResult] = []
-    with open(PYTHON_RESULT_FILE_PATH, 'r') as f:
+    with open(run_log_file_path(engine), 'r') as f:
         for textline in f:
             textline = textline.rstrip()
             if textline.startswith('#'):
@@ -38,6 +45,7 @@ def read_python_file() -> List[PersistedRunResult]:
             result = PersistedRunResult(
                 strategy_name=strategy_name,
                 language=language,
+                engine=engine,
                 strategy_w_language_name=f"{strategy_name}_{language}",
                 interface=interface,
                 dataSize=int(result_dataSize),
@@ -49,7 +57,7 @@ def read_python_file() -> List[PersistedRunResult]:
 
 def read_scala_file() -> List[PersistedRunResult]:
     test_runs: List[PersistedRunResult] = []
-    with open(SCALA_RESULT_FILE_PATH, 'r') as f:
+    with open(SCALA_RUN_LOG_FILE_PATH, 'r') as f:
         for textline in f:
             textline = textline.rstrip()
             if textline.startswith('#'):
@@ -73,6 +81,7 @@ def read_scala_file() -> List[PersistedRunResult]:
             language = 'scala'
             result = PersistedRunResult(
                 strategy_name=strategy_name,
+                engine=CalcEngine.SCALA_SPARK,
                 language=language,
                 strategy_w_language_name=f"{strategy_name}_{language}",
                 interface=interface,
@@ -85,9 +94,10 @@ def read_scala_file() -> List[PersistedRunResult]:
 
 def parse_results() -> List[PersistedRunResult]:
     cond_runs: List[PersistedRunResult] = []
-    if os.path.exists(PYTHON_RESULT_FILE_PATH):
-        cond_runs += read_python_file()
-    if os.path.exists(SCALA_RESULT_FILE_PATH):
+    for engine in [CalcEngine.PYSPARK, CalcEngine.DASK]:
+        if os.path.exists(run_log_file_path(engine)):
+            cond_runs += read_python_file(engine)
+    if os.path.exists(SCALA_RUN_LOG_FILE_PATH):
         cond_runs += read_scala_file()
     return cond_runs
 
@@ -95,7 +105,7 @@ def parse_results() -> List[PersistedRunResult]:
 def structure_test_results(
         test_runs: List[PersistedRunResult]
 ) -> Dict[str, Dict[int, List[PersistedRunResult]]]:
-    test_methods = {x.strategy_name for x in implementation_list}.union([x.strategy_name for x in test_runs])
+    test_methods = {x.strategy_name for x in pyspark_implementation_list}.union([x.strategy_name for x in test_runs])
     test_x_values = set(EXPECTED_SIZES).union([regressor_from_run_result(x) for x in test_runs])
     test_results = {method: {x: [] for x in test_x_values} for method in test_methods}
     for result in test_runs:
@@ -112,7 +122,7 @@ def make_runs_summary(
 
 
 def do_regression(
-        python_implementation_list: List[PythonTestMethod],
+        python_implementation_list: List[PysparkPythonTestMethod],
         scala_implementation_list: List[ExternalTestMethod],
         test_results: Dict[str, Dict[int, List[PersistedRunResult]]],
 ) -> str:
@@ -155,7 +165,7 @@ def analyze_run_results():
     raw_test_runs = parse_results()
     test_results = structure_test_results(raw_test_runs)
     summary_status = do_regression(
-        implementation_list,
+        pyspark_implementation_list,
         scala_implementation_list,
         test_results)
 

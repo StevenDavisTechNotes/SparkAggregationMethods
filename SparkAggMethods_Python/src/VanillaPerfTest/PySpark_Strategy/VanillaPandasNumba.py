@@ -7,16 +7,16 @@ from numba import jit, prange
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 
-from SixFieldCommon.SixFieldTestData import DataSet, ExecutionParameters
+from SixFieldCommon.PySpark_SixFieldTestData import PysparkDataSet
+from SixFieldCommon.SixFieldTestData import ExecutionParameters
 from Utils.TidySparkSession import TidySparkSession
-
 from VanillaPerfTest.VanillaDataTypes import postAggSchema, result_columns
 
 
 def vanilla_pandas_numba(
         spark_session: TidySparkSession,
         _exec_params: ExecutionParameters,
-        data_set: DataSet
+        data_set: PysparkDataSet
 ) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
     df = data_set.data.dfSrc
 

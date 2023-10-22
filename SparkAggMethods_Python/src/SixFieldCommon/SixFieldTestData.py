@@ -1,20 +1,15 @@
 import collections
 import os
-from pathlib import Path
 import pickle
 import random
 from dataclasses import dataclass
+from pathlib import Path
 
-from functools import reduce
-from typing import Callable, Tuple
-import pandas as pd
 import numpy as np
-
+import pandas as pd
 import pyspark.sql.types as DataTypes
-from pyspark import RDD, StorageLevel
-from pyspark.sql import DataFrame as spark_DataFrame
 
-from Utils.TidySparkSession import TidySparkSession
+from PerfTestCommon import CalcEngine
 from Utils.Utils import always_true, int_divide_round_up
 
 SHARED_LOCAL_TEST_DATA_FILE_LOCATION = "d:/temp/SparkPerfTesting"
@@ -52,14 +47,6 @@ class DataSetDescription:
 
 
 @dataclass(frozen=True)
-class DataSetData():
-    SrcNumPartitions: int
-    AggTgtNumPartitions: int
-    dfSrc: spark_DataFrame
-    rddSrc: RDD[DataPoint]
-
-
-@dataclass(frozen=True)
 class DataSetAnswer():
     vanilla_answer: pd.DataFrame
     bilevel_answer: pd.DataFrame
@@ -67,41 +54,14 @@ class DataSetAnswer():
 
 
 @dataclass(frozen=True)
-class DataSet():
-    description: DataSetDescription
-    data: DataSetData
-
-
-@dataclass(frozen=True)
-class DataSetWithAnswer(DataSet):
-    answer: DataSetAnswer
-
-
-@dataclass(frozen=True)
-class PythonTestMethod:
-    strategy_name: str
-    language: str
-    interface: str
-    delegate: Callable[
-        [TidySparkSession, ExecutionParameters, DataSet],
-        Tuple[RDD | None, spark_DataFrame | None]]
-
-
-@dataclass(frozen=True)
 class RunResult:
+    engine: CalcEngine
     dataSize: int
     elapsedTime: float
     recordCount: int
 
 
-def populate_data_set(
-        spark_session: TidySparkSession,
-        exec_params: ExecutionParameters,
-        size_code: str,
-        num_grp_1: int,
-        num_grp_2: int,
-        repetition: int,
-) -> DataSetWithAnswer:
+def populate_data_set_generic(exec_params, num_grp_1, num_grp_2, repetition):
     num_data_points = num_grp_1 * num_grp_2 * repetition
     # Need to split this up, upfront, into many partitions
     # to avoid memory issues and
@@ -115,7 +75,7 @@ def populate_data_set(
     staging_file_name_csv = os.path.join(
         exec_params.TestDataFolderLocation,
         "SixField_Test_Data",
-        f"SixFieldTestData_{num_grp_1}_{num_grp_2}_{repetition}.pkl")
+        f"SixFieldTestData_{num_grp_1}_{num_grp_2}_{repetition}.parquet")
     if os.path.exists(staging_file_name_csv) is False:
         generate_data_to_file(
             file_name=staging_file_name_csv,
@@ -123,9 +83,8 @@ def populate_data_set(
             numGrp2=num_grp_2,
             repetition=repetition,
         )
-    with open(staging_file_name_csv, "rb") as fh:
-        df = pickle.load(fh)
-        assert len(df) == num_data_points
+    df = pd.read_parquet(staging_file_name_csv)
+    assert len(df) == num_data_points
     vanilla_answer = pd.DataFrame.from_records([
         {
             "grp": grp,
@@ -178,64 +137,9 @@ def populate_data_set(
     print(f"Using {num_grp_1}, {num_grp_2}, {repetition} "
           f"tgt_num_partitions={src_num_partitions} "
           f"each {num_grp_1 * num_grp_2 * repetition/src_num_partitions:.1f}")
-    if num_data_points < src_num_partitions:
-        rdd_src = spark_session.spark.sparkContext.parallelize((
-            DataPoint(*r)
-            for r in df.to_records(index=False)
-        ), src_num_partitions)
-    else:
-        rdd_src = reduce(lambda lhs, rhs: lhs.union(rhs), [
-            spark_session.spark.sparkContext.parallelize((
-                DataPoint(*r)
-                for r in df[df.id % src_num_partitions == ipart]
-                .to_records(index=False)
-            ), 1)
-            for ipart in range(src_num_partitions)
-        ])
-    rdd_src.persist(StorageLevel.DISK_ONLY)
-    cnt, parts = rdd_src.count(), rdd_src.getNumPartitions()
-    print("Found rdd %i rows in %i parts ratio %.1f" % (cnt, parts, cnt / parts))
-    assert cnt == num_data_points
 
-    if len(df) < src_num_partitions:
-        df_src = (
-            spark_session.spark
-            .createDataFrame(df)
-            .repartition(src_num_partitions)
-        )
-    else:
-        df_src = reduce(lambda lhs, rhs: lhs.unionAll(rhs), [
-            spark_session.spark.createDataFrame(
-                df[df.id % src_num_partitions == ipart]
-            ).coalesce(1)
-            for ipart in range(src_num_partitions)
-        ])
-    df_src.persist(StorageLevel.DISK_ONLY)
-    cnt, parts = df_src.count(), df_src.rdd.getNumPartitions()
-    print("Found df %i rows in %i parts ratio %.1f" % (cnt, parts, cnt / parts))
-    assert cnt == num_data_points
-
-    del df
-    return DataSetWithAnswer(
-        description=DataSetDescription(
-            NumDataPoints=num_grp_1 * num_grp_2 * repetition,
-            NumGroups=num_grp_1,
-            NumSubGroups=num_grp_2,
-            SizeCode=size_code,
-            RelativeCardinalityBetweenGroupings=num_grp_2 // num_grp_1,
-        ),
-        data=DataSetData(
-            SrcNumPartitions=src_num_partitions,
-            AggTgtNumPartitions=tgt_num_partitions,
-            dfSrc=df_src,
-            rddSrc=rdd_src,
-        ),
-        answer=DataSetAnswer(
-            vanilla_answer=vanilla_answer,
-            bilevel_answer=bilevel_answer,
-            conditional_answer=conditional_answer,
-        ),
-    )
+    return num_data_points, tgt_num_partitions, src_num_partitions, df, \
+        vanilla_answer, bilevel_answer, conditional_answer
 
 
 def generate_data_to_file(
@@ -259,7 +163,7 @@ def generate_data_to_file(
     Path(file_name).parent.mkdir(parents=True, exist_ok=True)
     tmp_file_name = f'{file_name}_t'
     with open(tmp_file_name, "wb") as fh:
-        df.to_pickle(fh)
+        df.to_parquet(fh)
     os.rename(tmp_file_name, file_name)
 
 

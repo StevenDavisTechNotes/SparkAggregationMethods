@@ -1,5 +1,6 @@
-from typing import Iterable
 from dataclasses import dataclass
+from enum import Enum
+from typing import Iterable
 
 
 @dataclass(frozen=True)
@@ -15,6 +16,12 @@ class TestMethodDescription:
     raw_method_name: str
     language: str
     interface: str
+
+
+class CalcEngine(Enum):
+    PYSPARK = 'pyspark'
+    DASK = 'dask'
+    SCALA_SPARK = 'spark'
 
 
 def count_iter(

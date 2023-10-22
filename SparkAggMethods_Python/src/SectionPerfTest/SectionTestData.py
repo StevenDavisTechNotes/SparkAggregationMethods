@@ -3,10 +3,10 @@ import os
 import random
 from typing import List
 
+from SectionPerfTest.SectionTypeDefs import (DataSet, DataSetData,
+                                             DataSetDescription,
+                                             ExecutionParameters, NumDepts)
 from Utils.Utils import int_divide_round_up
-
-from SectionPerfTest.SectionTypeDefs import (
-    DataSet, DataSetData, DataSetDescription, ExecutionParameters, NumDepts)
 
 TEST_DATA_FILE_LOCATION = 'd:/temp/SparkPerfTesting'
 NUM_TRIMESTERS = 8
@@ -28,7 +28,7 @@ def AddMonths(
     return dt.date(serial // 12, serial % 12 + 1, d.day)
 
 
-def populate_data_set(
+def populate_data_files(
         filename: str,
         NumStudents: int,
         NumTrimesters: int,
@@ -77,8 +77,8 @@ def populate_data_sets(
             f"section_testdata{num_students}.csv")
         data_size = num_students * SECTION_SIZE_MAXIMUM
         if make_new_files is True or os.path.exists(filename) is False:
-            populate_data_set(filename, num_students, NUM_TRIMESTERS,
-                              NUM_CLASSES_PER_TRIMESTER, NumDepts)
+            populate_data_files(filename, num_students, NUM_TRIMESTERS,
+                                NUM_CLASSES_PER_TRIMESTER, NumDepts)
         src_num_partitions = max(
             exec_params.DefaultParallelism,
             int_divide_round_up(

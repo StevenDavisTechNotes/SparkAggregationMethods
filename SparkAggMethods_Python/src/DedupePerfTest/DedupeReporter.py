@@ -4,14 +4,17 @@ import collections
 import math
 from typing import Dict, List
 
-import scipy.stats
 import numpy
+import scipy.stats
 
+from DedupePerfTest.DedupeDirectory import pyspark_implementation_list
+from DedupePerfTest.DedupeRunResult import (EXPECTED_NUM_RECORDS,
+                                            FINAL_REPORT_FILE_PATH,
+                                            PersistedRunResult,
+                                            read_result_file,
+                                            regressor_from_run_result)
+from PerfTestCommon import CalcEngine
 from Utils.LinearRegression import linear_regression
-from DedupePerfTest.DedupeDirectory import implementation_list
-from DedupePerfTest.DedupeRunResult import (
-    EXPECTED_NUM_RECORDS, FINAL_REPORT_FILE_PATH, PersistedRunResult,
-    read_result_file, regressor_from_run_result)
 
 TEMP_RESULT_FILE_PATH = "d:/temp/SparkPerfTesting/temp.csv"
 
@@ -26,7 +29,7 @@ TestRegression = collections.namedtuple(
 def structure_test_results(
         test_runs: List[PersistedRunResult]
 ) -> Dict[str, Dict[int, List[PersistedRunResult]]]:
-    test_methods = {x.strategy_name for x in implementation_list}.union([x.strategy_name for x in test_runs])
+    test_methods = {x.strategy_name for x in pyspark_implementation_list}.union([x.strategy_name for x in test_runs])
     test_x_values = set(EXPECTED_NUM_RECORDS).union([regressor_from_run_result(x) for x in test_runs])
     test_results = {method: {x: [] for x in test_x_values} for method in test_methods}
     for result in test_runs:
@@ -42,10 +45,12 @@ def make_runs_summary(
             for strategy_name, runs_for_strategy_name in test_results.items()}
 
 
-def analyze_run_results():
+def analyze_run_results(
+        engine: CalcEngine,
+):
     raw_test_runs: List[PersistedRunResult] = []
     with open(TEMP_RESULT_FILE_PATH, 'w') as fout:
-        for result in read_result_file():
+        for result in read_result_file(engine):
             fout.write("%s,%s,%d,%d,%d,%d,%f\n" % (
                 result.strategy_name, result.interface,
                 result.numSources, result.actualNumPeople,
@@ -75,7 +80,7 @@ def analyze_run_results():
     for strategy_name in test_results:
         print("Looking to analyze %s" % strategy_name)
         test_method = [
-            x for x in implementation_list if x.strategy_name == strategy_name][0]
+            x for x in pyspark_implementation_list if x.strategy_name == strategy_name][0]
         for regressor_value in test_results[strategy_name]:
             runs = test_results[strategy_name][regressor_value]
             ar = [x.elapsedTime for x in runs]
@@ -121,4 +126,5 @@ def analyze_run_results():
 
 
 if __name__ == "__main__":
-    analyze_run_results()
+    analyze_run_results(CalcEngine.PYSPARK)
+    analyze_run_results(CalcEngine.DASK)

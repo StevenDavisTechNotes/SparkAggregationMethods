@@ -1,14 +1,16 @@
 #!python3
 # usage: cd src; python PerfTestRunner.py
 
-from BiLevelPerfTest.BiLevelRunner import main as BiLevelRunner  # noqa: F401
-from ConditionalPerfTest.CondRunner import main as CondRunner  # noqa: F401
-from VanillaPerfTest.VanillaRunner import main as VanillaRunner  # noqa: F401
-from DedupePerfTest.DedupeRunner import main as DedupeRunner  # noqa: F401
-from SectionPerfTest.SectionRunner import main as SectionRunner  # noqa: F401
+from BiLevelPerfTest import BiLevelPySparkRunner  # noqa: F401
+from ConditionalPerfTest import CondPySparkRunner  # noqa: F401
+from DedupePerfTest import DedupePySparkRunner  # noqa: F401
+from SectionPerfTest import SectionPySparkRunner  # noqa: F401
+from VanillaPerfTest import VanillaDaskRunner  # noqa: F401
+from VanillaPerfTest import VanillaPySparkRunner
 
-VanillaRunner()
-BiLevelRunner()
-CondRunner()
-SectionRunner()
-DedupeRunner()
+VanillaDaskRunner.main()
+VanillaPySparkRunner.main()
+BiLevelPySparkRunner.main()
+CondPySparkRunner.main()
+SectionPySparkRunner.main()
+DedupePySparkRunner.main()

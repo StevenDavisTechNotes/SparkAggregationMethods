@@ -3,15 +3,16 @@ from typing import Optional, Tuple
 import pyspark.sql.functions as func
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
-from SixFieldCommon.SixFieldTestData import DataSet, ExecutionParameters
 
+from SixFieldCommon.PySpark_SixFieldTestData import PysparkDataSet
+from SixFieldCommon.SixFieldTestData import ExecutionParameters
 from Utils.TidySparkSession import TidySparkSession
 
 
 def vanilla_fluent(
         spark_session: TidySparkSession,
         _exec_params: ExecutionParameters,
-        data_set: DataSet
+        data_set: PysparkDataSet
 ) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
     df = data_set.data.dfSrc
     df = (

@@ -1,29 +1,17 @@
-from dataclasses import dataclass
 import datetime
+from dataclasses import dataclass
 from typing import Dict, TextIO
 
+from PerfTestCommon import CalcEngine
 from SectionPerfTest.SectionTestData import LARGEST_EXPONENT
-from SectionPerfTest.SectionTypeDefs import DataSetDescription, RunResult, PythonTestMethod
+from SectionPerfTest.SectionTypeDefs import (DataSetDescription,
+                                             PysparkTestMethod, RunResult)
 
-
-PYTHON_RESULT_FILE_PATH = 'Results/section_runs.csv'
-FINAL_REPORT_FILE_PATH = '../Results/python/section_results_20230618.csv'
+T_PYTHON_PYSPARK_RUN_LOG_FILE_PATH = 'Results/section_pyspark_runs.csv'
+T_PYTHON_DASK_RUN_LOG_FILE_PATH = 'Results/section_dask_runs.csv'
+FINAL_REPORT_FILE_PATH = 'Results/section_results.csv'
 MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT = 5
 MAXIMUM_PROCESSABLE_SEGMENT = 10**MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT
-
-
-@dataclass(frozen=True)
-class PersistedRunResult:
-    success: bool
-    data: DataSetDescription
-    elapsed_time: float
-    record_count: int
-
-
-def regressor_from_run_result(
-        result: PersistedRunResult,
-) -> int:
-    return result.data.num_students
 
 
 LARGEST_EXPONENT_BY_METHOD_NAME: Dict[str, int] = {
@@ -41,7 +29,33 @@ LARGEST_EXPONENT_BY_METHOD_NAME: Dict[str, int] = {
 }
 
 
-def infeasible(
+@dataclass(frozen=True)
+class PersistedRunResult:
+    success: bool
+    data: DataSetDescription
+    elapsed_time: float
+    record_count: int
+
+
+def run_log_file_path(
+        engine: CalcEngine,
+) -> str:
+    match engine:
+        case  CalcEngine.PYSPARK:
+            return T_PYTHON_PYSPARK_RUN_LOG_FILE_PATH
+        case CalcEngine.DASK:
+            return T_PYTHON_DASK_RUN_LOG_FILE_PATH
+        case _:
+            raise ValueError(f"Unknown engine: {engine}")
+
+
+def regressor_from_run_result(
+        result: PersistedRunResult,
+) -> int:
+    return result.data.num_students
+
+
+def pyspark_infeasible(
         strategy: str,
         data_set: DataSetDescription,
 ) -> bool:
@@ -63,7 +77,7 @@ def write_header(
 
 
 def write_run_result(
-        test_method: PythonTestMethod,
+        test_method: PysparkTestMethod,
         result: RunResult,
         file: TextIO,
 ) -> None:

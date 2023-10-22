@@ -3,14 +3,15 @@ from typing import Optional, Tuple
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 
-from SixFieldCommon.SixFieldTestData import DataSet, ExecutionParameters
+from SixFieldCommon.PySpark_SixFieldTestData import PysparkDataSet
+from SixFieldCommon.SixFieldTestData import ExecutionParameters
 from Utils.TidySparkSession import TidySparkSession
 
 
 def vanilla_panda_cupy(
         _spark_session: TidySparkSession,
         _exec_params: ExecutionParameters,
-        _data_set: DataSet
+        _data_set: PysparkDataSet
 ) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
     # df = data_set.data.dfSrc
     # aggregates = (

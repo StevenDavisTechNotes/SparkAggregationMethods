@@ -1,42 +1,22 @@
 import collections
 import math
+import os
 
 import numpy
 import scipy.stats
-from SixFieldCommon.SixFieldTestData import RunResult
 
+from ConditionalPerfTest.CondDirectory import pyspark_implementation_list
+from ConditionalPerfTest.CondRunResult import (FINAL_REPORT_FILE_PATH,
+                                               run_log_file_path)
+from PerfTestCommon import CalcEngine
+from SixFieldCommon.SixFieldTestData import RunResult
 from Utils.LinearRegression import linear_regression
-from ConditionalPerfTest.CondDirectory import implementation_list
 
 TEMP_RESULT_FILE_PATH = "d:/temp/SparkPerfTesting/temp.csv"
 
 
 def analyze_run_results():
-    cond_runs = {}
-    with open('Results/cond_runs.csv', 'r') as f:
-        for textline in f:
-            if textline.startswith('#'):
-                print("Excluding line: "+textline)
-                continue
-            if textline.find(',') < 0:
-                print("Excluding line: "+textline)
-                continue
-            fields = textline.rstrip().split(',')
-            if len(fields) < 5:
-                fields.append('9')
-            # print("Found "+";".join(fields))
-            strategy_name, _interface, result_dataSize, result_elapsedTime, result_recordCount = tuple(
-                fields)
-            if result_recordCount != '9':
-                print("Excluding line: "+textline)
-                continue
-            if strategy_name not in cond_runs:
-                cond_runs[strategy_name] = []
-            result = RunResult(
-                dataSize=int(result_dataSize),
-                elapsedTime=float(result_elapsedTime),
-                recordCount=int(result_recordCount))
-            cond_runs[strategy_name].append(result)
+    cond_runs = read_run_files()
     CondResult = collections.namedtuple("CondResult",
                                         ["name", "interface",
                                          "b0", "b0_low", "b0_high",
@@ -58,7 +38,7 @@ def analyze_run_results():
             's2_low', 's2', 's2_high')
         for strategy_name in cond_runs:
             cond_method = [
-                x for x in implementation_list if x.strategy_name == strategy_name][0]
+                x for x in pyspark_implementation_list if x.strategy_name == strategy_name][0]
             times = cond_runs[strategy_name]
             for dataSize in set(x.dataSize for x in times):
                 ar = [x.elapsedTime for x in times if x.dataSize == dataSize]
@@ -66,7 +46,7 @@ def analyze_run_results():
                 mean = numpy.mean(ar)
                 stdev = numpy.std(ar, ddof=1)
                 rl, rh = scipy.stats.norm.interval(  # type: ignore
-                    confidence, loc=mean, scale=stdev/math.sqrt(len(ar)))
+                    confidence, loc=mean, scale=stdev / math.sqrt(len(ar)))
                 summary_status += "%s,%s,%d,%d,%f,%f,%f,%f\n" % (
                     strategy_name, cond_method.interface,
                     dataSize, numRuns, mean, stdev, rl, rh
@@ -99,8 +79,41 @@ def analyze_run_results():
                 result.b0_low, result.b0, result.b0_high,
                 result.b1_low, result.b1, result.b1_high,
                 result.s2_low, result.s2, result.s2_high)
-    with open('Results/cond_results.csv', 'wt') as f:
+    with open(FINAL_REPORT_FILE_PATH, 'wt') as f:
         f.write(summary_status)
         f.write("\n")
         f.write(regression_status)
         f.write("\n")
+
+
+def read_run_files():
+    cond_runs = {}
+    for engine in [CalcEngine.PYSPARK, CalcEngine.DASK]:
+        if not os.path.exists(run_log_file_path(engine)):
+            continue
+        with open(run_log_file_path(engine), 'r') as f:
+            for textline in f:
+                if textline.startswith('#'):
+                    print("Excluding line: " + textline)
+                    continue
+                if textline.find(',') < 0:
+                    print("Excluding line: " + textline)
+                    continue
+                fields = textline.rstrip().split(',')
+                if len(fields) < 5:
+                    fields.append('9')
+                # print("Found "+";".join(fields))
+                strategy_name, _interface, result_dataSize, result_elapsedTime, result_recordCount = tuple(
+                    fields)
+                if result_recordCount != '9':
+                    print("Excluding line: " + textline)
+                    continue
+                if strategy_name not in cond_runs:
+                    cond_runs[strategy_name] = []
+                result = RunResult(
+                    engine=engine,
+                    dataSize=int(result_dataSize),
+                    elapsedTime=float(result_elapsedTime),
+                    recordCount=int(result_recordCount))
+                cond_runs[strategy_name].append(result)
+    return cond_runs

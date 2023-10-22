@@ -61,7 +61,7 @@ class DataSet:
 
 
 @dataclass(frozen=True)
-class PythonTestMethod:
+class PysparkTestMethod:
     strategy_name: str
     language: str
     interface: str
@@ -72,5 +72,5 @@ class PythonTestMethod:
 
 @dataclass(frozen=True)
 class ItineraryItem:
-    test_method: PythonTestMethod
+    test_method: PysparkTestMethod
     data_set: DataSet

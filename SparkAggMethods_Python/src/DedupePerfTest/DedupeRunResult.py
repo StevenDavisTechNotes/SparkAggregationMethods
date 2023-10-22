@@ -1,13 +1,14 @@
-from dataclasses import dataclass
 import datetime
+from dataclasses import dataclass
 from typing import Iterable, TextIO
 
+from DedupePerfTest.DedupeDataTypes import DataSet, PysparkTestMethod
+from PerfTestCommon import CalcEngine
 from Utils.Utils import always_true
 
-from DedupePerfTest.DedupeDataTypes import DataSet, PythonTestMethod
-
-RESULT_FILE_PATH = 'Results/dedupe_runs.csv'
-FINAL_REPORT_FILE_PATH = '../Results/python/dedupe_results_20230618.csv'
+T_PYTHON_PYSPARK_RUN_LOG_FILE_PATH = 'Results/dedupe_pyspark_runs.csv'
+T_PYTHON_DASK_RUN_LOG_FILE_PATH = 'Results/dedupe_dask_runs.csv'
+FINAL_REPORT_FILE_PATH = 'Results/dedupe_results.csv'
 
 
 @dataclass(frozen=True)
@@ -50,6 +51,18 @@ EXPECTED_NUM_RECORDS = sorted([
     ))
     if num_data_points < 50200
 ])
+
+
+def run_log_file_path(
+        engine: CalcEngine,
+) -> str:
+    match engine:
+        case  CalcEngine.PYSPARK:
+            return T_PYTHON_PYSPARK_RUN_LOG_FILE_PATH
+        case CalcEngine.DASK:
+            return T_PYTHON_DASK_RUN_LOG_FILE_PATH
+        case _:
+            raise ValueError(f"Unknown engine: {engine}")
 
 
 def regressor_from_run_result(
@@ -96,7 +109,7 @@ def write_header(
 
 def write_run_result(
         success: bool,
-        test_method: PythonTestMethod,
+        test_method: PysparkTestMethod,
         result: RunResult,
         file: TextIO
 ) -> None:
@@ -112,8 +125,10 @@ def write_run_result(
     file.flush()
 
 
-def read_result_file() -> Iterable[PersistedRunResult]:
-    with open(RESULT_FILE_PATH, 'r') as f:
+def read_result_file(
+        engine: CalcEngine,
+) -> Iterable[PersistedRunResult]:
+    with open(run_log_file_path(engine), 'r') as f:
         for textline in f:
             textline = textline.rstrip()
             if textline.startswith("Working"):

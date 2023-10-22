@@ -6,7 +6,8 @@ from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 from pyspark.sql import Row
 
-from SixFieldCommon.SixFieldTestData import DataPoint, DataSet, ExecutionParameters
+from SixFieldCommon.PySpark_SixFieldTestData import PysparkDataSet
+from SixFieldCommon.SixFieldTestData import DataPoint, ExecutionParameters
 from Utils.TidySparkSession import TidySparkSession
 
 
@@ -39,7 +40,7 @@ class MutableRunningTotal:
 def vanilla_rdd_mappart(
         spark_session: TidySparkSession,
         _exec_params: ExecutionParameters,
-        data_set: DataSet
+        data_set: PysparkDataSet
 ) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
     rddSrc = data_set.data.rddSrc
     sumCount = (

@@ -1,6 +1,9 @@
 
-from SectionPerfTest.SectionSnippetSubtotal import FIRST_LAST_NEITHER, StudentSnippet2, studentSnippetFromTypedRow2
-from SectionPerfTest.SectionTypeDefs import ClassLine, NumDepts, StudentHeader, TrimesterFooter, TrimesterHeader
+from SectionPerfTest.SectionSnippetSubtotal import (
+    FIRST_LAST_NEITHER, StudentSnippet2, studentSnippetFromTypedRow2)
+from SectionPerfTest.SectionTypeDefs import (ClassLine, NumDepts,
+                                             StudentHeader, TrimesterFooter,
+                                             TrimesterHeader)
 
 
 class Test_StudentHeader:
@@ -20,8 +23,8 @@ class Test_StudentHeader:
             FirstTrimesterDate=None,
             LastTrimesterDate=None,
             LastMajor=None,
-            Credits=[0 for x in range(0, NumDepts)],
-            WeightedGradeTotal=[0 for x in range(0, NumDepts)],
+            Credits=[0 for _ in range(0, NumDepts)],
+            WeightedGradeTotal=[0 for _ in range(0, NumDepts)],
             FirstLastFlag=FIRST_LAST_NEITHER,
             FirstLineIndex=lineIndex,
             LastLineIndex=lineIndex)
@@ -49,8 +52,8 @@ class Test_TrimesterHeader:
             FirstTrimesterDate=date,
             LastTrimesterDate=date,
             LastMajor=None,
-            Credits=[0 for x in range(0, NumDepts)],
-            WeightedGradeTotal=[0 for x in range(0, NumDepts)],
+            Credits=[0 for _ in range(0, NumDepts)],
+            WeightedGradeTotal=[0 for _ in range(0, NumDepts)],
             FirstLastFlag=FIRST_LAST_NEITHER,
             FirstLineIndex=lineIndex,
             LastLineIndex=lineIndex)
@@ -111,8 +114,8 @@ class Test_TrimesterFooter:
             FirstTrimesterDate=None,
             LastTrimesterDate=None,
             LastMajor=2,
-            Credits=[0 for x in range(0, NumDepts)],
-            WeightedGradeTotal=[0 for x in range(0, NumDepts)],
+            Credits=[0 for _ in range(0, NumDepts)],
+            WeightedGradeTotal=[0 for _ in range(0, NumDepts)],
             FirstLastFlag=FIRST_LAST_NEITHER,
             FirstLineIndex=lineIndex,
             LastLineIndex=lineIndex)

@@ -1,9 +1,5 @@
-from typing import Tuple
-
-from pyspark import RDD
-from pyspark.sql import DataFrame as spark_DataFrame
-
-from SixFieldCommon.PySpark_SixFieldTestData import PysparkDataSet
+from SixFieldCommon.PySpark_SixFieldTestData import (
+    PysparkDataSet, PysparkPythonPendingAnswerSet)
 from SixFieldCommon.SixFieldTestData import ExecutionParameters
 from Utils.TidySparkSession import TidySparkSession
 
@@ -12,7 +8,7 @@ def cond_sql_null(
         spark_session: TidySparkSession,
         _exec_params: ExecutionParameters,
         data_set: PysparkDataSet,
-) -> Tuple[RDD | None, spark_DataFrame | None]:
+) -> PysparkPythonPendingAnswerSet:
     spark = spark_session.spark
     spark.catalog.dropTempView("exampledata")
     data_set.data.dfSrc.createTempView("exampledata")
@@ -24,4 +20,4 @@ def cond_sql_null(
     GROUP BY grp, subgrp
     ORDER BY grp, subgrp
     ''')
-    return (None, df)
+    return PysparkPythonPendingAnswerSet(spark_df=df)

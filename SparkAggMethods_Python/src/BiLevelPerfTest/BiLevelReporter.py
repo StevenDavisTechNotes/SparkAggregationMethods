@@ -1,10 +1,9 @@
 
-import collections
 import math
-from typing import Dict, List
+from typing import Dict, List, NamedTuple, cast
 
 import numpy
-import scipy
+import scipy.stats.norm  # type: ignore
 
 from BiLevelPerfTest.BiLevelDirectory import pyspark_implementation_list
 from BiLevelPerfTest.BiLevelRunResult import (EXPECTED_SIZES,
@@ -16,12 +15,20 @@ from Utils.LinearRegression import linear_regression
 
 TEMP_RESULT_FILE_PATH = "d:/temp/SparkPerfTesting/temp.csv"
 
-PerformanceModelParameters = collections.namedtuple(
-    "PerformanceModelParameters",
-    ["name", "interface", "run_count",
-     "b0", "b0_low", "b0_high",
-     "b1", "b1_low", "b1_high",
-     "s2", "s2_low", "s2_high"])
+
+class PerformanceModelParameters(NamedTuple):
+    name: str
+    interface: str
+    run_count: int
+    b0: float
+    b0_low: float
+    b0_high: float
+    b1: float
+    b1_low: float
+    b1_high: float
+    s2: float
+    s2_low: float
+    s2_high: float
 
 
 def parse_results() -> List[PersistedRunResult]:
@@ -57,15 +64,15 @@ def make_runs_summary(
 
 def analyze_run_results():
     raw_test_runs = parse_results()
-    test_results = structure_test_results(raw_test_runs)
-    test_runs_summary = make_runs_summary(test_results)
+    test_runs_by_startegy_by_size = structure_test_results(raw_test_runs)
+    test_runs_summary = make_runs_summary(test_runs_by_startegy_by_size)
     print("test_runs_summary", test_runs_summary)
     if any([num < 10 for details in test_runs_summary.values() for num in details.values()]):
         print("not enough data")
         return
     summary_status = ''
     regression_status = ''
-    cond_results = []
+    cond_results: list[PerformanceModelParameters] = []
     confidence = 0.95
     summary_status += "%s,%s,%s,%s,%s,%s,%s,%s\n" % (
         'Method', 'Interface',
@@ -76,42 +83,32 @@ def analyze_run_results():
         'b0_low', 'b0', 'b0_high',
         'b1_low', 'b1', 'b1_high',
         's2_low', 's2', 's2_high')
-    # f.write(("%s,%s,%s,"+"%s,%s,%s,"+"%s,%s,%s,"+"%s,%s,%s\n")%(
-    #     'RawMethod', 'interface', 'run_count',
-    #     'b0', 'b0 lo', 'b0 hi',
-    #     'b1M', 'b1M lo', 'b1M hi',
-    #     's2', 's2 lo', 's2 hi'))
-    # f.write(("%s,%s,%s,"+"%s,%s,%s,"+"%s,%s\n")% (
-    #     'RawMethod', 'interface', 'run_count',
-    #     'relCard', 'mean', 'stdev',
-    #     'rl', 'rh'
-    # ))
-    for strategy_name in test_results:
+    for strategy_name in test_runs_by_startegy_by_size:
         print("Looking to analyze %s" % strategy_name)
         cond_method = [
             x for x in pyspark_implementation_list if x.strategy_name == strategy_name][0]
-        for regressor_value in test_results[strategy_name]:
-            runs = test_results[strategy_name][regressor_value]
-            ar = [x.elapsedTime for x in runs]
-            numRuns = len(ar)
+        test_runs_by_size = test_runs_by_startegy_by_size[strategy_name]
+        for regressor_value, runs in test_runs_by_size.items():
+            ar: numpy.ndarray[float, numpy.dtype[numpy.float64]] \
+                = numpy.asarray([x.elapsedTime for x in runs], dtype=float)
+            numRuns = len(runs)
             mean = numpy.mean(ar)
-            stdev = numpy.std(ar, ddof=1)
-            rl, rh = scipy.stats.norm.interval(  # type: ignore
-                confidence, loc=mean, scale=stdev / math.sqrt(len(ar)))
-            # f.write(("%s,%s,"+"%d,%d,"+"%f,%f,%f,%f\n")%(
-            #     name, cond_method.interface,
-            #     numRuns, relCard,
-            #     mean, stdev, rl, rh
-            # ))
+            stdev = cast(float, numpy.std(ar, ddof=1))
+            rl, rh = scipy.stats.norm.interval(
+                confidence, loc=mean, scale=stdev / math.sqrt(numRuns))
             summary_status += "%s,%s,%d,%d,%f,%f,%f,%f\n" % (
                 strategy_name, cond_method.interface,
                 numRuns, regressor_value, mean, stdev, rl, rh
             )
-        times = [x for lst in test_results[strategy_name].values() for x in lst]
+        times = [x for lst in test_runs_by_size.values() for x in lst]
         x_values = [float(x.relCard) for x in times]
         y_values = [float(x.elapsedTime) for x in times]
-        (b0, (b0_low, b0_high)), (b1, (b1_low, b1_high)), (s2, (s2_low, s2_high)) = \
-            linear_regression(x_values, y_values, confidence)
+        match linear_regression(x_values, y_values, confidence):
+            case None:
+                print("No regression")
+                return
+            case (b0, (b0_low, b0_high)), (b1, (b1_low, b1_high)), (s2, (s2_low, s2_high)):
+                pass
         result = PerformanceModelParameters(
             name=cond_method.strategy_name,
             interface=cond_method.interface,
@@ -127,11 +124,6 @@ def analyze_run_results():
             s2_high=s2_high
         )
         cond_results.append(result)
-        # f.write(("%s,%s,%d,"+"%f,%f,%f,"+"%f,%f,%f,"+"%f,%f,%f\n")%(
-        #     cond_method.name, cond_method.interface, result.run_count,
-        #     result.b0, result.b0_low, result.b0_high,
-        #     result.b1*1e+6, result.b1_low*1e+6, result.b1_high*1e+6,
-        #     result.s2, result.s2_low, result.s2_high))
         regression_status += '%s,%s,%f,%f,%f,%f,%f,%f,%f,%f,%f\n' % (
             cond_method.strategy_name, cond_method.interface,
             result.b0_low, result.b0, result.b0_high,

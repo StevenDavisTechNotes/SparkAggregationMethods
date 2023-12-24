@@ -1,4 +1,5 @@
 import datetime
+import os
 from dataclasses import dataclass
 from typing import Dict, TextIO
 
@@ -6,6 +7,7 @@ from PerfTestCommon import CalcEngine
 from SectionPerfTest.SectionTestData import LARGEST_EXPONENT
 from SectionPerfTest.SectionTypeDefs import (DataSetDescription,
                                              PysparkTestMethod, RunResult)
+from Utils.Utils import root_folder_abs_path
 
 T_PYTHON_PYSPARK_RUN_LOG_FILE_PATH = 'Results/section_pyspark_runs.csv'
 T_PYTHON_DASK_RUN_LOG_FILE_PATH = 'Results/section_dask_runs.csv'
@@ -37,16 +39,19 @@ class PersistedRunResult:
     record_count: int
 
 
-def run_log_file_path(
+def derive_run_log_file_path(
         engine: CalcEngine,
 ) -> str:
     match engine:
         case  CalcEngine.PYSPARK:
-            return T_PYTHON_PYSPARK_RUN_LOG_FILE_PATH
+            run_log = T_PYTHON_PYSPARK_RUN_LOG_FILE_PATH
         case CalcEngine.DASK:
-            return T_PYTHON_DASK_RUN_LOG_FILE_PATH
+            run_log = T_PYTHON_DASK_RUN_LOG_FILE_PATH
         case _:
             raise ValueError(f"Unknown engine: {engine}")
+    return os.path.join(
+        root_folder_abs_path(),
+        run_log)
 
 
 def regressor_from_run_result(

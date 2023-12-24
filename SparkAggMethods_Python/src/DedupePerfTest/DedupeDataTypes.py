@@ -4,6 +4,7 @@ from typing import Callable, Optional, Tuple
 import pyspark.sql.types as DataTypes
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
+from pyspark.sql import Row
 
 from Utils.TidySparkSession import TidySparkSession
 
@@ -67,7 +68,7 @@ class PysparkTestMethod:
     interface: str
     delegate: Callable[
         [TidySparkSession, ExecutionParameters, DataSet],
-        Tuple[Optional[RDD], Optional[spark_DataFrame]]]
+        Tuple[Optional[RDD[Row]], Optional[spark_DataFrame]]]
 
 
 @dataclass(frozen=True)

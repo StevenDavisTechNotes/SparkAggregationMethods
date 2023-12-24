@@ -54,7 +54,7 @@ def populate_data_set_dask(
     num_data_points, tgt_num_partitions, src_num_partitions, df, \
         vanilla_answer, bilevel_answer, conditional_answer = populate_data_set_generic(
             exec_params, num_grp_1, num_grp_2, repetition)
-    df_src: dask_dataframe = from_pandas(df, chunksize=src_num_partitions)
+    df_src: dask_dataframe = from_pandas(df, npartitions=src_num_partitions)
     cnt, parts = len(df_src), len(df_src.divisions)
     print("Found rdd %i rows in %i parts ratio %.1f" % (cnt, parts, cnt / parts))
     assert cnt == num_data_points

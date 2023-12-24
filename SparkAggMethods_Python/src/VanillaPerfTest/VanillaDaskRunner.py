@@ -17,25 +17,21 @@ from SixFieldCommon.SixFieldTestData import (
 from Utils.TidySparkSession import LOCAL_NUM_EXECUTORS
 from Utils.Utils import always_true, set_random_seed
 from VanillaPerfTest.VanillaDataTypes import result_columns
-from VanillaPerfTest.VanillaDirectory import dask_implementation_list
-from VanillaPerfTest.VanillaRunResult import dask_infeasible, run_log_file_path
+from VanillaPerfTest.VanillaDirectory import (dask_implementation_list,
+                                              dask_strategy_name_list)
+from VanillaPerfTest.VanillaRunResult import (dask_infeasible,
+                                              derive_run_log_file_path)
 
 ENGINE = CalcEngine.DASK
 DEBUG_ARGS = None if False else (
     []
-    # + '--size 10k'.split()
+    + '--size 100k'.split()
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
-    # + ['--strategy',
-    #    'vanilla_sql',
-    #    'vanilla_fluent',
-    # 'vanilla_pandas',
-    # 'vanilla_pandas_numpy',
-    #    'vanilla_rdd_grpmap',
-    # 'vanilla_rdd_reduce',
-    # 'vanilla_rdd_mappart'
-    #    ]
+    + ['--strategy',
+       'da_vanilla_pandas',
+       ]
 )
 
 
@@ -62,10 +58,8 @@ def parse_args() -> Arguments:
         action=argparse.BooleanOptionalAction)
     parser.add_argument(
         '--strategy',
-        choices=dask_implementation_list,
-        default=[
-            'da_vanilla_pandas',
-        ],
+        choices=dask_strategy_name_list,
+        default=dask_strategy_name_list,
         nargs="+")
     if DEBUG_ARGS is None:
         args = parser.parse_args()
@@ -103,7 +97,7 @@ def do_test_runs(
         set_random_seed(args.random_seed)
     if args.shuffle:
         random.shuffle(itinerary)
-    with open(run_log_file_path(ENGINE), 'at+') as file:
+    with open(derive_run_log_file_path(ENGINE), 'at+') as file:
         write_header(file)
         for index, (test_method, data_set) in enumerate(itinerary):
             print("Working on %d of %d" % (index, len(itinerary)))
@@ -186,11 +180,13 @@ def test_one_step_in_itinerary(
         raise ValueError("No result returned")
     if 'var_of_E2' not in df_answer:
         df_answer['var_of_E2'] = df_answer['var_of_E']
+    df_answer.set_index(pd.Index(range(len(df_answer))), inplace=True)
     abs_diff = float(
         (data_set.answer.vanilla_answer - df_answer)
         .abs().max().max())
     status = abs_diff < 1e-12
-    assert (status is True)
+    if status is False:
+        assert (status is True)
     recordCount = len(df_answer)
     result = RunResult(
         engine=ENGINE,
@@ -203,8 +199,8 @@ def test_one_step_in_itinerary(
 def main():
     args = parse_args()
     with DaskClient(
-            processes=False,
-            asynchronous=False,
+            processes=True,
+            # asynchronous=False,
             n_workers=LOCAL_NUM_EXECUTORS,
             threads_per_worker=1,
     ) as dask_client:

@@ -2,8 +2,7 @@
 # pip install -r requirements.txt
 autopep8
 dask
-dask[dataframe]
-dask[distributed]
+dask[complete]
 findspark
 flake8
 ipykernel
@@ -19,5 +18,5 @@ pytest
 pytz 
 rope
 scipy
-snappy 
+python-snappy
 statsmodels 

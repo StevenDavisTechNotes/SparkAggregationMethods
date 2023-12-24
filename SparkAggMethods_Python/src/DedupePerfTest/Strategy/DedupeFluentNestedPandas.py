@@ -4,12 +4,12 @@ import pandas as pd
 import pyspark.sql.functions as func
 import pyspark.sql.types as DataTypes
 from pyspark.sql import DataFrame as spark_DataFrame
-from Utils.SparkUtils import dfZipWithIndex
 
-from Utils.TidySparkSession import TidySparkSession
-
+from DedupePerfTest.DedupeDataTypes import (DataSet, ExecutionParameters,
+                                            RecordSparseStruct)
 from DedupePerfTest.DedupeDomain import MatchSingleName
-from DedupePerfTest.DedupeDataTypes import DataSet, ExecutionParameters, RecordSparseStruct
+from Utils.SparkUtils import dfZipWithIndex
+from Utils.TidySparkSession import TidySparkSession
 
 
 def dedupe_pandas(
@@ -143,7 +143,7 @@ def combineComponents(
             .join(bestAddressRec)
         aggRec['RowId'] = members.RowId.min()
         aggRec['SecretKey'] = members.SecretKey.max()
-        # would love to use DataFrame.aggregate, but nullable ints
+        # would love to use DataFrame.aggregate, but nullable ints are not supported
         aggRec['FieldA'] = convertStrIntToMin(members.FieldA)
         aggRec['FieldB'] = convertStrIntToMin(members.FieldB)
         aggRec['FieldC'] = convertStrIntToMin(members.FieldC)

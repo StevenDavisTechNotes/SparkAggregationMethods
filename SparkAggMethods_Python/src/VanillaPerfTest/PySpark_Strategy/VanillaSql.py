@@ -1,9 +1,5 @@
-from typing import Optional, Tuple
-
-from pyspark import RDD
-from pyspark.sql import DataFrame as spark_DataFrame
-
-from SixFieldCommon.PySpark_SixFieldTestData import PysparkDataSet
+from SixFieldCommon.PySpark_SixFieldTestData import (
+    PysparkDataSet, PysparkPythonPendingAnswerSet)
 from SixFieldCommon.SixFieldTestData import ExecutionParameters
 from Utils.TidySparkSession import TidySparkSession
 
@@ -12,7 +8,7 @@ def vanilla_sql(
         spark_session: TidySparkSession,
         _exec_params: ExecutionParameters,
         data_set: PysparkDataSet
-) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
+) -> PysparkPythonPendingAnswerSet:
     df = data_set.data.dfSrc
     spark_session.spark.catalog.dropTempView("exampledata")
     df.createTempView("exampledata")
@@ -29,4 +25,4 @@ def vanilla_sql(
     GROUP BY grp, subgrp
     ORDER BY grp, subgrp
     ''')
-    return None, df
+    return PysparkPythonPendingAnswerSet(spark_df=df)

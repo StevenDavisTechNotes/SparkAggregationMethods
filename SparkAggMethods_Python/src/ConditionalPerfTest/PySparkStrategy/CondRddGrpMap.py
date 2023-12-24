@@ -1,12 +1,11 @@
-from typing import Iterable, Tuple
+from typing import Iterable, Tuple, cast
 
 from pyspark import RDD
-from pyspark.sql import DataFrame as spark_DataFrame
 
-from ConditionalPerfTest.CondDataTypes import GrpTotal
-from SixFieldCommon.PySpark_SixFieldTestData import PysparkDataSet
-from SixFieldCommon.SixFieldTestData import (MAX_DATA_POINTS_PER_PARTITION,
-                                             DataPoint, ExecutionParameters)
+from SixFieldCommon.PySpark_SixFieldTestData import (
+    GrpTotal, PysparkDataSet, PysparkPythonPendingAnswerSet)
+from SixFieldCommon.SixFieldTestData import (
+    MAX_DATA_POINTS_PER_SPARK_PARTITION, DataPoint, ExecutionParameters)
 from Utils.TidySparkSession import TidySparkSession
 
 
@@ -14,22 +13,23 @@ def cond_rdd_grpmap(
         spark_session: TidySparkSession,
         _exec_params: ExecutionParameters,
         data_set: PysparkDataSet,
-) -> Tuple[RDD[GrpTotal] | None, spark_DataFrame | None]:
+) -> PysparkPythonPendingAnswerSet:
     if (
             data_set.description.NumDataPoints
-            > MAX_DATA_POINTS_PER_PARTITION
+            > MAX_DATA_POINTS_PER_SPARK_PARTITION
             * data_set.description.NumGroups * data_set.description.NumSubGroups
     ):
         raise ValueError(
             "This strategy only works if all of the values per key can fit into memory at once.")
-    rddResult = (
+    rddResult = cast(
+        RDD[GrpTotal],
         data_set.data.rddSrc
         .groupBy(lambda x: (x.grp, x.subgrp))
         .map(lambda pair: processData1(pair[0], pair[1]))
         .sortByKey()  # type: ignore
         .values()
     )
-    return rddResult, None
+    return PysparkPythonPendingAnswerSet(rdd_tuple=rddResult)
 
 
 def processData1(
@@ -39,7 +39,7 @@ def processData1(
     import math
     sum_of_C = 0
     unconditional_count = 0
-    max_of_D = None
+    max_of_D: float | None = None
     cond_sum_of_E_squared = 0
     cond_sum_of_E = 0
     cond_count_of_E = 0

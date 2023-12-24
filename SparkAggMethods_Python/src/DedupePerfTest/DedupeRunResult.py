@@ -1,10 +1,11 @@
 import datetime
+import os
 from dataclasses import dataclass
 from typing import Iterable, TextIO
 
 from DedupePerfTest.DedupeDataTypes import DataSet, PysparkTestMethod
 from PerfTestCommon import CalcEngine
-from Utils.Utils import always_true
+from Utils.Utils import always_true, root_folder_abs_path
 
 T_PYTHON_PYSPARK_RUN_LOG_FILE_PATH = 'Results/dedupe_pyspark_runs.csv'
 T_PYTHON_DASK_RUN_LOG_FILE_PATH = 'Results/dedupe_dask_runs.csv'
@@ -53,16 +54,19 @@ EXPECTED_NUM_RECORDS = sorted([
 ])
 
 
-def run_log_file_path(
+def derive_run_log_file_path(
         engine: CalcEngine,
 ) -> str:
     match engine:
         case  CalcEngine.PYSPARK:
-            return T_PYTHON_PYSPARK_RUN_LOG_FILE_PATH
+            run_log = T_PYTHON_PYSPARK_RUN_LOG_FILE_PATH
         case CalcEngine.DASK:
-            return T_PYTHON_DASK_RUN_LOG_FILE_PATH
+            run_log = T_PYTHON_DASK_RUN_LOG_FILE_PATH
         case _:
             raise ValueError(f"Unknown engine: {engine}")
+    return os.path.join(
+        root_folder_abs_path(),
+        run_log)
 
 
 def regressor_from_run_result(
@@ -128,7 +132,7 @@ def write_run_result(
 def read_result_file(
         engine: CalcEngine,
 ) -> Iterable[PersistedRunResult]:
-    with open(run_log_file_path(engine), 'r') as f:
+    with open(derive_run_log_file_path(engine), 'r') as f:
         for textline in f:
             textline = textline.rstrip()
             if textline.startswith("Working"):
@@ -147,7 +151,7 @@ def read_result_file(
                 result_actualNumPeople, \
                 result_elapsedTime, result_foundNumPeople, \
                 result_IsCloudMode, result_CanAssumeNoDupesPerPartition, \
-                finishedAt, *rest \
+                _finishedAt, *_rest \
                 = tuple(fields)
             if test_status != 'success':
                 print("Excluding line: " + textline)

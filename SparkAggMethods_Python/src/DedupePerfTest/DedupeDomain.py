@@ -159,7 +159,7 @@ def FindRecordMatches_RecList(
         recordList: List[DataTypes.Row],
 ) -> List[DataTypes.Row]:
     n = len(recordList)
-    edgeList = []
+    edgeList: list[DataTypes.Row] = []
     for i in range(0, n - 1):
         irow = recordList[i]
         for j in range(i + 1, n):
@@ -198,10 +198,10 @@ FindConnectedComponents_RecList_Returns = DataTypes.ArrayType(
 
 
 def FindConnectedComponents_RecList(
-        edgeList: List,
+        edgeList: list[DataTypes.Row],
 ) -> List[DataTypes.Row]:
     # This is not optimal for large components.  See GraphFrame
-    componentForVertex = dict()
+    componentForVertex: dict[int, set[int]] = dict()
     for edge in edgeList:
         newComponent = {edge.idLeftVertex, edge.idRightVertex}
         leftIsKnown = edge.idLeftVertex in componentForVertex
@@ -218,8 +218,8 @@ def FindConnectedComponents_RecList(
                     .union(componentForVertex[edge.idRightVertex])
             for vertex in newComponent:
                 componentForVertex[vertex] = newComponent
-    knownComponents = set()
-    componentList = []
+    knownComponents: set[int] = set()
+    componentList: list[DataTypes.Row] = []
     for vertex in componentForVertex:
         if vertex not in knownComponents:
             component = componentForVertex[vertex]
@@ -247,13 +247,13 @@ def MergeItems_RecList(
         blockedDataList: List[DataTypes.Row],
         connectedComponentList: List[DataTypes.Row],
 ) -> List[DataTypes.Row]:
-    verticesInAComponent = set()
+    verticesInAComponent: set[int] = set()
     for component in connectedComponentList:
         verticesInAComponent = verticesInAComponent \
             .union(component.idVertexList)
-    returnList = []
+    returnList: list[DataTypes.Row] = []
     for component in connectedComponentList:
-        constituentList = \
+        constituentList: list[DataTypes.Row] = \
             [blockedDataList[i]
              for i in component.idVertexList]
         assert len(constituentList) > 1

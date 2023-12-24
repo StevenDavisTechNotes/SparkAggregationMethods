@@ -8,7 +8,8 @@ from SixFieldCommon.Dask_SixFieldTestData import (DaskDataSet,
                                                   DaskPythonTestMethod)
 from SixFieldCommon.PySpark_SixFieldTestData import (PysparkDataSet,
                                                      PysparkPythonTestMethod)
-from SixFieldCommon.SixFieldTestData import MAX_DATA_POINTS_PER_PARTITION
+from SixFieldCommon.SixFieldTestData import MAX_DATA_POINTS_PER_SPARK_PARTITION
+from Utils.Utils import root_folder_abs_path
 
 # RESULT_FILE_PATH = 'Results/bi_level_runs.csv'
 T_PYTHON_PYSPARK_RUN_LOG_FILE_PATH = 'Results/bi_level_pyspark_runs.csv'
@@ -38,16 +39,19 @@ class PersistedRunResult:
     recordCount: int
 
 
-def run_log_file_path(
+def derive_run_log_file_path(
         engine: CalcEngine,
 ) -> str:
     match engine:
         case  CalcEngine.PYSPARK:
-            return T_PYTHON_PYSPARK_RUN_LOG_FILE_PATH
+            run_log = T_PYTHON_PYSPARK_RUN_LOG_FILE_PATH
         case CalcEngine.DASK:
-            return T_PYTHON_DASK_RUN_LOG_FILE_PATH
+            run_log = T_PYTHON_DASK_RUN_LOG_FILE_PATH
         case _:
             raise ValueError(f"Unknown engine: {engine}")
+    return os.path.join(
+        root_folder_abs_path(),
+        run_log)
 
 
 def regressor_from_run_result(
@@ -73,7 +77,7 @@ def pyspark_infeasible(
         case 'bi_rdd_grpmap':
             return (
                 data_set.description.NumDataPoints
-                > MAX_DATA_POINTS_PER_PARTITION
+                > MAX_DATA_POINTS_PER_SPARK_PARTITION
                 * data_set.description.NumGroups)
         case _:
             return False
@@ -109,7 +113,7 @@ def write_run_result(
 
 def read_result_file() -> Iterable[PersistedRunResult]:
     for engine in [CalcEngine.PYSPARK, CalcEngine.DASK]:
-        file_path = run_log_file_path(engine)
+        file_path = derive_run_log_file_path(engine)
         if os.path.exists(file_path) is False:
             return
         with open(file_path, 'r', encoding='utf-8-sig') as f:

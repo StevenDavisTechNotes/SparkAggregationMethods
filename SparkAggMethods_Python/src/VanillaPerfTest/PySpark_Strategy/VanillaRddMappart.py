@@ -2,11 +2,10 @@ import math
 from dataclasses import dataclass
 from typing import Iterable, NamedTuple, Optional, Tuple
 
-from pyspark import RDD
-from pyspark.sql import DataFrame as spark_DataFrame
 from pyspark.sql import Row
 
-from SixFieldCommon.PySpark_SixFieldTestData import PysparkDataSet
+from SixFieldCommon.PySpark_SixFieldTestData import (
+    PysparkDataSet, PysparkPythonPendingAnswerSet)
 from SixFieldCommon.SixFieldTestData import DataPoint, ExecutionParameters
 from Utils.TidySparkSession import TidySparkSession
 
@@ -41,7 +40,7 @@ def vanilla_rdd_mappart(
         spark_session: TidySparkSession,
         _exec_params: ExecutionParameters,
         data_set: PysparkDataSet
-) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
+) -> PysparkPythonPendingAnswerSet:
     rddSrc = data_set.data.rddSrc
     sumCount = (
         rddSrc
@@ -53,7 +52,7 @@ def vanilla_rdd_mappart(
     rddResult = sumCount.sortBy(
         lambda x: (x.grp, x.subgrp),  # type: ignore
         numPartitions=data_set.data.AggTgtNumPartitions)
-    return rddResult, None
+    return PysparkPythonPendingAnswerSet(rdd_row=rddResult)
 
 
 def partitionTriage(

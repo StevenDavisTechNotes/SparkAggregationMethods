@@ -1,11 +1,8 @@
-from typing import Optional, Tuple
-
 import pyspark.sql.functions as func
-from pyspark import RDD
-from pyspark.sql import DataFrame as spark_DataFrame
 from pyspark.sql.window import Window
 
-from SixFieldCommon.PySpark_SixFieldTestData import PysparkDataSet
+from SixFieldCommon.PySpark_SixFieldTestData import (
+    PysparkDataSet, PysparkPythonPendingAnswerSet)
 from SixFieldCommon.SixFieldTestData import ExecutionParameters
 from Utils.TidySparkSession import TidySparkSession
 
@@ -14,7 +11,7 @@ def bi_fluent_window(
         _spark_session: TidySparkSession,
         _exec_params: ExecutionParameters,
         data_set: PysparkDataSet
-) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
+) -> PysparkPythonPendingAnswerSet:
     df = data_set.data.dfSrc
     window = Window \
         .partitionBy(df.grp, df.subgrp) \
@@ -46,4 +43,4 @@ def bi_fluent_window(
             func.avg(df.sub_var_of_E2).alias("avg_var_of_E2"))
     )
     df = df.orderBy(df.grp)
-    return None, df
+    return PysparkPythonPendingAnswerSet(spark_df=df)

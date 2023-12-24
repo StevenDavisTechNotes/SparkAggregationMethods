@@ -1,26 +1,27 @@
-import collections
 import math
-from typing import Iterable, Optional, Tuple
+from typing import Iterable, NamedTuple
 
-from pyspark import RDD
-from pyspark.sql import DataFrame as spark_DataFrame
 from pyspark.sql import Row
 
-from SixFieldCommon.PySpark_SixFieldTestData import PysparkDataSet
+from SixFieldCommon.PySpark_SixFieldTestData import (
+    PysparkDataSet, PysparkPythonPendingAnswerSet)
 from SixFieldCommon.SixFieldTestData import DataPoint, ExecutionParameters
 from Utils.TidySparkSession import TidySparkSession
 
-SubTotal = collections.namedtuple(
-    "SubTotal",
-    ["running_sum_of_C", "running_count", "running_max_of_D",
-     "running_sum_of_E_squared", "running_sum_of_E"])
+
+class SubTotal(NamedTuple):
+    running_count: int
+    running_sum_of_C: float
+    running_max_of_D: float | None
+    running_sum_of_E_squared: float
+    running_sum_of_E: float
 
 
 def bi_rdd_reduce2(
         spark_session: TidySparkSession,
         _exec_params: ExecutionParameters,
         data_set: PysparkDataSet
-) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
+) -> PysparkPythonPendingAnswerSet:
     rddSrc = data_set.data.rddSrc
 
     rddResult = (
@@ -33,10 +34,10 @@ def bi_rdd_reduce2(
         .map(lambda x: (x[0][0], x[1]))
         .groupByKey(numPartitions=1)
         .map(lambda x: (x[0], finalAnalytics(x[0], x[1])))
-        .sortByKey()
+        .sortByKey()  # type: ignore
         .values()
     )
-    return rddResult, None
+    return PysparkPythonPendingAnswerSet(rdd_row=rddResult)
 
 
 def mergeValue(
@@ -70,6 +71,7 @@ def mergeCombiners(
         lsub: SubTotal,
         rsub: SubTotal,
 ) -> SubTotal:
+    assert rsub.running_max_of_D is not None
     return SubTotal(
         running_sum_of_C=lsub.running_sum_of_C + rsub.running_sum_of_C,
         running_count=lsub.running_count + rsub.running_count,
@@ -93,6 +95,7 @@ def finalAnalytics(
     running_count_of_subgrp = 0
 
     for sub in iterator:
+        assert sub.running_max_of_D is not None
         count = sub.running_count
         running_sum_of_C += sub.running_sum_of_C
         running_grp_count += count

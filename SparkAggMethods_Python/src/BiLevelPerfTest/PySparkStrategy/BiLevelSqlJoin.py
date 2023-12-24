@@ -1,9 +1,5 @@
-from typing import Optional, Tuple
-
-from pyspark import RDD
-from pyspark.sql import DataFrame as spark_DataFrame
-
-from SixFieldCommon.PySpark_SixFieldTestData import PysparkDataSet
+from SixFieldCommon.PySpark_SixFieldTestData import (
+    PysparkDataSet, PysparkPythonPendingAnswerSet)
 from SixFieldCommon.SixFieldTestData import ExecutionParameters
 from Utils.TidySparkSession import TidySparkSession
 
@@ -12,7 +8,7 @@ def bi_sql_join(
         spark_session: TidySparkSession,
         _exec_params: ExecutionParameters,
         data_set: PysparkDataSet
-) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
+) -> PysparkPythonPendingAnswerSet:
     dfSrc = data_set.data.dfSrc
     spark = spark_session.spark
 
@@ -46,4 +42,4 @@ def bi_sql_join(
     GROUP BY level1.grp
     ORDER BY level1.grp
     ''')
-    return None, df
+    return PysparkPythonPendingAnswerSet(spark_df=df)

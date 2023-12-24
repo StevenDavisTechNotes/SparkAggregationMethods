@@ -1,11 +1,11 @@
 import math
-from typing import Tuple
+from typing import Tuple, cast
 
 from pyspark import RDD
-from pyspark.sql import DataFrame as spark_DataFrame
 
-from ConditionalPerfTest.CondDataTypes import GrpTotal, SubTotal
-from SixFieldCommon.PySpark_SixFieldTestData import PysparkDataSet
+from ConditionalPerfTest.CondDataTypes import SubTotal
+from SixFieldCommon.PySpark_SixFieldTestData import (
+    GrpTotal, PysparkDataSet, PysparkPythonPendingAnswerSet)
 from SixFieldCommon.SixFieldTestData import DataPoint, ExecutionParameters
 from Utils.TidySparkSession import TidySparkSession
 
@@ -14,8 +14,9 @@ def cond_rdd_reduce(
         spark_session: TidySparkSession,
         _exec_params: ExecutionParameters,
         data_set: PysparkDataSet,
-) -> Tuple[RDD[GrpTotal] | None, spark_DataFrame | None]:
-    rddSumCount = (
+) -> PysparkPythonPendingAnswerSet:
+    rddResult = cast(
+        RDD[GrpTotal],
         data_set.data.rddSrc
         .map(lambda x: ((x.grp, x.subgrp), x))
         .combineByKey(createCombiner2,
@@ -26,7 +27,7 @@ def cond_rdd_reduce(
         .sortByKey()  # type: ignore
         .values()
     )
-    return rddSumCount, None
+    return PysparkPythonPendingAnswerSet(rdd_tuple=rddResult)
 
 
 def mergeValue2(
@@ -47,12 +48,12 @@ def mergeValue2(
         running_cond_sum_of_E += v.E
         running_cond_count += 1
     return SubTotal(
-        running_sum_of_C,
-        running_uncond_count,
-        running_max_of_D,
-        running_cond_sum_of_E_squared,
-        running_cond_sum_of_E,
-        running_cond_count)
+        running_sum_of_C=running_sum_of_C,
+        running_uncond_count=running_uncond_count,
+        running_max_of_D=running_max_of_D,
+        running_cond_sum_of_E_squared=running_cond_sum_of_E_squared,
+        running_cond_sum_of_E=running_cond_sum_of_E,
+        running_cond_count=running_cond_count)
 
 
 def createCombiner2(
@@ -71,6 +72,7 @@ def mergeCombiners2(
         lsub: SubTotal,
         rsub: SubTotal,
 ) -> SubTotal:
+    assert rsub.running_max_of_D is not None
     return SubTotal(
         running_sum_of_C=lsub.running_sum_of_C + rsub.running_sum_of_C,
         running_uncond_count=lsub.running_uncond_count + rsub.running_uncond_count,

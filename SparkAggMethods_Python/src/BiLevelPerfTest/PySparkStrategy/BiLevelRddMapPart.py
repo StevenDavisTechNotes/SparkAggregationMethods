@@ -1,24 +1,23 @@
-import collections
-from typing import Dict, Iterable, Optional, Tuple
+from dataclasses import dataclass
+from typing import Dict, Iterable, NamedTuple, Tuple, cast
 
 from pyspark import RDD
-from pyspark.sql import DataFrame as spark_DataFrame
 from pyspark.sql import Row
 
-from SixFieldCommon.PySpark_SixFieldTestData import PysparkDataSet
+from SixFieldCommon.PySpark_SixFieldTestData import (
+    PysparkDataSet, PysparkPythonPendingAnswerSet)
 from SixFieldCommon.SixFieldTestData import DataPoint, ExecutionParameters
 from Utils.TidySparkSession import TidySparkSession
 
 
-class MutableGrpTotal:
-    def __init__(self, grp: int):
-        self.grp = grp
-        self.running_sum_of_C = 0
-        self.running_max_of_D = None
-        self.running_subgrp_totals = {}
-
-
+@dataclass(frozen=False)
 class MutableSubGrpTotal:
+    grp: int
+    subgrp: int
+    running_count: int = 0
+    running_sum_of_E_squared: float = 0
+    running_sum_of_E: float = 0
+
     def __init__(self, grp: int, subgrp: int):
         self.grp = grp
         self.subgrp = subgrp
@@ -27,23 +26,44 @@ class MutableSubGrpTotal:
         self.running_sum_of_E = 0
 
 
-SubTotal1 = collections.namedtuple(
-    "SubTotal1",
-    ["grp", "running_sum_of_C", "running_max_of_D",
-     "subgrp_totals"])
-SubTotal2 = collections.namedtuple(
-    "SubTotal2",
-    ["grp", "subgrp", "running_sum_of_E_squared", "running_sum_of_E", "running_count"])
+@dataclass(frozen=False)
+class MutableGrpTotal:
+    grp: int
+    running_sum_of_C: float = 0
+    running_max_of_D: float | None = None
+    running_subgrp_totals: dict[int, MutableSubGrpTotal] = dict()
+
+    def __init__(self, grp: int):
+        self.grp = grp
+        self.running_sum_of_C = 0
+        self.running_max_of_D = None
+        self.running_subgrp_totals = {}
+
+
+class SubTotal2(NamedTuple):
+    grp: int
+    subgrp: int
+    running_sum_of_E_squared: float
+    running_sum_of_E: float
+    running_count: int
+
+
+class SubTotal1(NamedTuple):
+    grp: int
+    running_sum_of_C: float
+    running_max_of_D: float
+    subgrp_totals: dict[int, SubTotal2]
 
 
 def bi_rdd_mappart(
         spark_session: TidySparkSession,
         _exec_params: ExecutionParameters,
         data_set: PysparkDataSet
-) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:  # noqa: C901
+) -> PysparkPythonPendingAnswerSet:
     rddSrc = data_set.data.rddSrc
 
-    rddResult = (
+    rddResult = cast(
+        RDD[Row],
         rddSrc
         .mapPartitions(partitionTriage)
         .groupByKey(numPartitions=data_set.data.AggTgtNumPartitions)
@@ -51,7 +71,7 @@ def bi_rdd_mappart(
         .sortByKey()  # type: ignore
         .values()
     )
-    return rddResult, None
+    return PysparkPythonPendingAnswerSet(rdd_row=rddResult)
 
 
 def partitionTriage(
@@ -78,6 +98,7 @@ def partitionTriage(
         r2.running_count += 1
     for k1 in running_grp_totals:
         r1 = running_grp_totals[k1]
+        assert r1.running_max_of_D is not None
         yield (
             k1,
             SubTotal1(
@@ -92,7 +113,10 @@ def partitionTriage(
                         running_sum_of_E_squared=r2.running_sum_of_E_squared,
                         running_sum_of_E=r2.running_sum_of_E,
                         running_count=r2.running_count)
-                    for k2, r2 in r1.running_subgrp_totals.items()}))
+                    for k2, r2 in r1.running_subgrp_totals.items()
+                }
+            )
+        )
 
 
 def mergeCombiners3(

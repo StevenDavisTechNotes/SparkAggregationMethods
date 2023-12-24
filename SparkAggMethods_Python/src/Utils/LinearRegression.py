@@ -1,10 +1,10 @@
+import statistics
 from dataclasses import dataclass
-from typing import List, Optional, Tuple
+from typing import List, Tuple
+
+import numpy
 from scipy.stats import chi2 as scipy_stats_chi2  # type: ignore
 from scipy.stats import t as scipy_stats_t  # type: ignore
-import numpy
-import statistics
-from numpy.typing import NDArray
 
 
 @dataclass(frozen=True)
@@ -24,9 +24,9 @@ class CondResult:
 
 
 LinearRegressionResult = Tuple[
-    Tuple[Optional[float], Tuple[Optional[float], Optional[float]]],
-    Tuple[Optional[float], Tuple[Optional[float], Optional[float]]],
-    Tuple[Optional[float], Tuple[Optional[float], Optional[float]]],
+    tuple[float, tuple[float, float]],
+    tuple[float, tuple[float, float]],
+    tuple[float, tuple[float, float]],
 ]
 
 # based on https://gist.github.com/riccardoscalco/5356167
@@ -36,20 +36,17 @@ def linear_regression(
         x_in: List[float],
         y_in: List[float],
         prob: float,
-) -> LinearRegressionResult:
+) -> LinearRegressionResult | None:
     """
     Return the linear regression parameters and their <prob> confidence intervals.
     ex:
     >>> linear_regression([.1,.2,.3],[10,11,11.5],0.95)
     """
-    x: NDArray = numpy.array(x_in)
-    y: NDArray = numpy.array(y_in)
+    x = numpy.array(x_in)
+    y = numpy.array(y_in)
     n = len(x)
     if n < 3:
-        return (
-            (None, (None, None)),
-            (None, (None, None)),
-            (None, (None, None)))
+        return None
 
     xy = x * y
     xx = x * x
@@ -68,19 +65,22 @@ def linear_regression(
     # confidence intervals
 
     alpha = 1 - prob
-    c1 = scipy_stats_chi2.ppf(alpha/2., n-2)
-    c2 = scipy_stats_chi2.ppf(1-alpha/2., n-2)
-    s2_low = n*s2/c2
-    s2_high = n*s2/c1
+    c1 = scipy_stats_chi2.ppf(  # type: ignore
+        alpha / 2., n - 2)
+    c2 = scipy_stats_chi2.ppf(  # type: ignore
+        1 - alpha / 2., n - 2)
+    s2_low = n * s2 / c2
+    s2_high = n * s2 / c1
     # print('the confidence interval of s2 is: ',[n*s2/c2,n*s2/c1])
 
-    c = -1 * scipy_stats_t.ppf(alpha/2., n-2)
-    bb1 = c * (s2 / ((n-2) * (xx_mean - x_mean**2)))**.5
+    c = -1 * scipy_stats_t.ppf(  # type: ignore
+        alpha / 2., n - 2)
+    bb1 = c * (s2 / ((n - 2) * (xx_mean - x_mean**2)))**.5
     # print('the confidence interval of b1 is: ',[b1-bb1,b1+bb1])
 
-    bb0 = c * ((s2 / (n-2)) * (1 + x_mean**2 / (xx_mean - x_mean**2)))**.5
+    bb0 = c * ((s2 / (n - 2)) * (1 + x_mean**2 / (xx_mean - x_mean**2)))**.5
     # print('the confidence interval of b0 is: ',[b0-bb0,b0+bb0])
     return (
-        (b0, (b0-bb0, b0+bb0)),
-        (b1, (b1-bb1, b1+bb1)),
+        (b0, (b0 - bb0, b0 + bb0)),
+        (b1, (b1 - bb1, b1 + bb1)),
         (s2, (s2_low, s2_high)))

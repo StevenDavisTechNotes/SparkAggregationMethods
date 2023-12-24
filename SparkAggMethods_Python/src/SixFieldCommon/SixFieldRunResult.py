@@ -24,7 +24,7 @@ def write_run_result(
             engine = CalcEngine.PYSPARK
         case DaskPythonTestMethod():
             engine = CalcEngine.DASK
-        case _:
+        case _:  # pylance: ignore[reportUnnecessaryComparison]
             raise ValueError(f"Unknown test_method: {test_method}")
     assert engine == result.engine
     print("%s,%s,%d,%f,%d,%s,%s," % (

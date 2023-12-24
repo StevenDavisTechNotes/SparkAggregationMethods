@@ -1,31 +1,29 @@
-from typing import Optional, Tuple
-
 import numpy
 import pandas as pd
 from numba import float64 as numba_float64
 from numba import jit, prange
-from pyspark import RDD
-from pyspark.sql import DataFrame as spark_DataFrame
 
-from SixFieldCommon.PySpark_SixFieldTestData import PysparkDataSet
+from SixFieldCommon.PySpark_SixFieldTestData import (
+    PysparkDataSet, PysparkPythonPendingAnswerSet)
 from SixFieldCommon.SixFieldTestData import ExecutionParameters
 from Utils.TidySparkSession import TidySparkSession
-from VanillaPerfTest.VanillaDataTypes import postAggSchema, result_columns
+from VanillaPerfTest.VanillaDataTypes import (pyspark_post_agg_schema,
+                                              result_columns)
 
 
 def vanilla_pandas_numba(
         spark_session: TidySparkSession,
         _exec_params: ExecutionParameters,
         data_set: PysparkDataSet
-) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
+) -> PysparkPythonPendingAnswerSet:
     df = data_set.data.dfSrc
 
     df = (
         df.groupby(df.grp, df.subgrp)
-        .applyInPandas(inner_agg_method, postAggSchema)
+        .applyInPandas(inner_agg_method, pyspark_post_agg_schema)
         .orderBy(df.grp, df.subgrp)
     )
-    return None, df
+    return PysparkPythonPendingAnswerSet(spark_df=df)
 
 
 @jit(numba_float64(numba_float64[:]), nopython=True)

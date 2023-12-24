@@ -1,10 +1,7 @@
-from typing import Tuple
-
 import pyspark.sql.functions as func
-from pyspark import RDD
-from pyspark.sql import DataFrame as spark_DataFrame
 
-from SixFieldCommon.PySpark_SixFieldTestData import PysparkDataSet
+from SixFieldCommon.PySpark_SixFieldTestData import (
+    PysparkDataSet, PysparkPythonPendingAnswerSet)
 from SixFieldCommon.SixFieldTestData import ExecutionParameters
 from Utils.TidySparkSession import TidySparkSession
 
@@ -13,7 +10,7 @@ def cond_fluent_null(
         spark_session: TidySparkSession,
         _exec_params: ExecutionParameters,
         data_set: PysparkDataSet,
-) -> Tuple[RDD | None, spark_DataFrame | None]:
+) -> PysparkPythonPendingAnswerSet:
     dfData = data_set.data.dfSrc
     dfInter = (
         dfData
@@ -25,4 +22,4 @@ def cond_fluent_null(
     )
     df = dfInter.select('grp', 'subgrp', 'mean_of_C', 'max_of_D', 'cond_var_of_E')
     df = df.orderBy(df.grp, df.subgrp)
-    return (None, df)
+    return PysparkPythonPendingAnswerSet(spark_df=df)

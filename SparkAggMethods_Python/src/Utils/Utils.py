@@ -1,7 +1,9 @@
 import multiprocessing
+import os
 import random
-import numpy
 from typing import Any
+
+import numpy
 
 
 def always_true(
@@ -26,3 +28,8 @@ def set_random_seed(
 ) -> None:
     random.seed(seed)
     numpy.random.seed(seed + 1)
+
+
+def root_folder_abs_path() -> str:
+    abs_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+    return abs_path

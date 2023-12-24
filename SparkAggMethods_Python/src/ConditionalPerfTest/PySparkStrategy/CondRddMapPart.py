@@ -1,11 +1,9 @@
 import math
 from typing import Iterable, Tuple
 
-from pyspark import RDD
-from pyspark.sql import DataFrame as spark_DataFrame
-
-from ConditionalPerfTest.CondDataTypes import GrpTotal, SubTotal
-from SixFieldCommon.PySpark_SixFieldTestData import PysparkDataSet
+from ConditionalPerfTest.CondDataTypes import SubTotal
+from SixFieldCommon.PySpark_SixFieldTestData import (
+    GrpTotal, PysparkDataSet, PysparkPythonPendingAnswerSet)
 from SixFieldCommon.SixFieldTestData import DataPoint, ExecutionParameters
 from Utils.TidySparkSession import TidySparkSession
 
@@ -14,7 +12,7 @@ def cond_rdd_mappart(
         spark_session: TidySparkSession,
         _exec_params: ExecutionParameters,
         data_set: PysparkDataSet,
-) -> Tuple[RDD[GrpTotal] | None, spark_DataFrame | None]:
+) -> PysparkPythonPendingAnswerSet:
 
     rddSumCount = (
         data_set.data.rddSrc
@@ -26,10 +24,17 @@ def cond_rdd_mappart(
         .sortByKey()  # type: ignore
         .values()
     )
-    return rddSumCount, None
+    return PysparkPythonPendingAnswerSet(rdd_tuple=rddSumCount)
 
 
 class MutableRunningTotal:
+    running_sum_of_C: float
+    running_uncond_count: int
+    running_max_of_D: float | None
+    running_cond_sum_of_E_squared: float
+    running_cond_sum_of_E: float
+    running_cond_count: int
+
     def __init__(self):
         self.running_sum_of_C = 0
         self.running_uncond_count = 0
@@ -42,8 +47,8 @@ class MutableRunningTotal:
 def partitionTriage(
         _splitIndex: int,
         iterator: Iterable[DataPoint]
-) -> Iterable[Tuple[Tuple[int, int], SubTotal]]:
-    running_subtotals = {}
+) -> Iterable[tuple[tuple[int, int], SubTotal]]:
+    running_subtotals: dict[tuple[int, int], MutableRunningTotal] = dict()
     for v in iterator:
         k = (v.grp, v.subgrp)
         if k not in running_subtotals:
@@ -62,6 +67,7 @@ def partitionTriage(
             sub.running_cond_count += 1
     for k in running_subtotals:
         sub = running_subtotals[k]
+        assert sub.running_max_of_D is not None
         yield (k, SubTotal(
             running_sum_of_C=sub.running_sum_of_C,
             running_uncond_count=sub.running_uncond_count,
@@ -79,6 +85,7 @@ def mergeCombiners3(
     for rsub in iterable:
         lsub.running_sum_of_C += rsub.running_sum_of_C
         lsub.running_uncond_count += rsub.running_uncond_count
+        assert rsub.running_max_of_D is not None
         lsub.running_max_of_D = lsub.running_max_of_D \
             if lsub.running_max_of_D is not None and \
             lsub.running_max_of_D > rsub.running_max_of_D \
@@ -87,6 +94,7 @@ def mergeCombiners3(
             rsub.running_cond_sum_of_E_squared
         lsub.running_cond_sum_of_E += rsub.running_cond_sum_of_E
         lsub.running_cond_count += rsub.running_cond_count
+    assert lsub.running_max_of_D is not None
     return SubTotal(
         running_sum_of_C=lsub.running_sum_of_C,
         running_uncond_count=lsub.running_uncond_count,

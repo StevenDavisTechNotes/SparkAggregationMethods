@@ -1,13 +1,14 @@
 import collections
 import math
 import os
+from typing import cast
 
 import numpy
 import scipy.stats
 
 from ConditionalPerfTest.CondDirectory import pyspark_implementation_list
 from ConditionalPerfTest.CondRunResult import (FINAL_REPORT_FILE_PATH,
-                                               run_log_file_path)
+                                               derive_run_log_file_path)
 from PerfTestCommon import CalcEngine
 from SixFieldCommon.SixFieldTestData import RunResult
 from Utils.LinearRegression import linear_regression
@@ -41,25 +42,26 @@ def analyze_run_results():
                 x for x in pyspark_implementation_list if x.strategy_name == strategy_name][0]
             times = cond_runs[strategy_name]
             for dataSize in set(x.dataSize for x in times):
-                ar = [x.elapsedTime for x in times if x.dataSize == dataSize]
-                numRuns = len(ar)
+                runs = [x for x in times if x.dataSize == dataSize]
+                ar: numpy.ndarray[float, numpy.dtype[numpy.float64]] \
+                    = numpy.asarray([x.elapsedTime for x in runs], dtype=float)
+                numRuns = len(runs)
                 mean = numpy.mean(ar)
-                stdev = numpy.std(ar, ddof=1)
+                stdev = cast(float, numpy.std(ar, ddof=1))
                 rl, rh = scipy.stats.norm.interval(  # type: ignore
-                    confidence, loc=mean, scale=stdev / math.sqrt(len(ar)))
+                    confidence, loc=mean, scale=stdev / math.sqrt(numRuns))
                 summary_status += "%s,%s,%d,%d,%f,%f,%f,%f\n" % (
                     strategy_name, cond_method.interface,
                     dataSize, numRuns, mean, stdev, rl, rh
                 )
             x_values = [math.log10(x.dataSize) for x in times]
             y_values = [math.log10(x.elapsedTime) for x in times]
-            (b0, (b0_low, b0_high)), (b1, (b1_low, b1_high)), (s2, (s2_low, s2_high)) = \
-                linear_regression(x_values, y_values, confidence)
-            # a = numpy.array(y_values)
-            # mean, sem, cumm_conf = numpy.mean(a), scipy.stats.sem(a, ddof=1),
-            # scipy.stats.t.ppf((1+confidence)/2., len(a)-1)
-            # rangelow, rangehigh = \
-            #     scipy.stats.t.interval(confidence, len(times)-1, loc=mean, scale=sem)
+            match linear_regression(x_values, y_values, confidence):
+                case None:
+                    print("No regression")
+                    return
+                case (b0, (b0_low, b0_high)), (b1, (b1_low, b1_high)), (s2, (s2_low, s2_high)):
+                    pass
             result = CondResult(
                 name=cond_method.strategy_name,
                 interface=cond_method.interface,
@@ -89,9 +91,10 @@ def analyze_run_results():
 def read_run_files():
     cond_runs = {}
     for engine in [CalcEngine.PYSPARK, CalcEngine.DASK]:
-        if not os.path.exists(run_log_file_path(engine)):
+        run_log_file_path = derive_run_log_file_path(engine)
+        if not os.path.exists(run_log_file_path):
             continue
-        with open(run_log_file_path(engine), 'r') as f:
+        with open(run_log_file_path, 'r') as f:
             for textline in f:
                 if textline.startswith('#'):
                     print("Excluding line: " + textline)
@@ -102,7 +105,6 @@ def read_run_files():
                 fields = textline.rstrip().split(',')
                 if len(fields) < 5:
                     fields.append('9')
-                # print("Found "+";".join(fields))
                 strategy_name, _interface, result_dataSize, result_elapsedTime, result_recordCount = tuple(
                     fields)
                 if result_recordCount != '9':

@@ -1,6 +1,9 @@
 
-from SectionPerfTest.SectionSnippetSubtotal import StudentSnippet1, studentSnippetFromTypedRow1
-from SectionPerfTest.SectionTypeDefs import ClassLine, NumDepts, StudentHeader, TrimesterFooter, TrimesterHeader
+from SectionPerfTest.SectionSnippetSubtotal import (
+    StudentSnippet1, studentSnippetFromTypedRow1)
+from SectionPerfTest.SectionTypeDefs import (ClassLine, NumDepts,
+                                             StudentHeader, TrimesterFooter,
+                                             TrimesterHeader)
 
 
 class Test_StudentHeader:
@@ -20,8 +23,8 @@ class Test_StudentHeader:
             FirstTrimesterDate=None,
             LastTrimesterDate=None,
             LastMajor=None,
-            Credits=[0 for x in range(0, NumDepts)],
-            WeightedGradeTotal=[0 for x in range(0, NumDepts)],
+            Credits=[0 for _ in range(0, NumDepts)],
+            WeightedGradeTotal=[0 for _ in range(0, NumDepts)],
             FirstLineIndex=lineIndex,
             LastLineIndex=lineIndex)
         actual = studentSnippetFromTypedRow1(
@@ -48,8 +51,8 @@ class Test_TrimesterHeader:
             FirstTrimesterDate=date,
             LastTrimesterDate=date,
             LastMajor=None,
-            Credits=[0 for x in range(0, NumDepts)],
-            WeightedGradeTotal=[0 for x in range(0, NumDepts)],
+            Credits=[0 for _ in range(0, NumDepts)],
+            WeightedGradeTotal=[0 for _ in range(0, NumDepts)],
             FirstLineIndex=lineIndex,
             LastLineIndex=lineIndex)
         actual = studentSnippetFromTypedRow1(
@@ -108,8 +111,8 @@ class Test_TrimesterFooter:
             FirstTrimesterDate=None,
             LastTrimesterDate=None,
             LastMajor=2,
-            Credits=[0 for x in range(0, NumDepts)],
-            WeightedGradeTotal=[0 for x in range(0, NumDepts)],
+            Credits=[0 for _ in range(0, NumDepts)],
+            WeightedGradeTotal=[0 for _ in range(0, NumDepts)],
             FirstLineIndex=lineIndex,
             LastLineIndex=lineIndex)
         actual = studentSnippetFromTypedRow1(
@@ -117,4 +120,3 @@ class Test_TrimesterFooter:
             rec=src,
         )
         assert expected == actual
-

@@ -1,12 +1,12 @@
-from typing import Iterable, Optional, Tuple, cast
+from typing import Iterable, cast
 
 from pyspark import RDD
-from pyspark.sql import DataFrame as spark_DataFrame
 from pyspark.sql import Row
 
-from SixFieldCommon.PySpark_SixFieldTestData import PysparkDataSet
-from SixFieldCommon.SixFieldTestData import (MAX_DATA_POINTS_PER_PARTITION,
-                                             DataPoint, ExecutionParameters)
+from SixFieldCommon.PySpark_SixFieldTestData import (
+    PysparkDataSet, PysparkPythonPendingAnswerSet)
+from SixFieldCommon.SixFieldTestData import (
+    MAX_DATA_POINTS_PER_SPARK_PARTITION, DataPoint, ExecutionParameters)
 from Utils.TidySparkSession import TidySparkSession
 
 
@@ -14,29 +14,35 @@ def bi_rdd_grpmap(
         spark_session: TidySparkSession,
         _exec_params: ExecutionParameters,
         data_set: PysparkDataSet
-) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
-    rddSrc = data_set.data.rddSrc
+) -> PysparkPythonPendingAnswerSet:
+    rddSrc: RDD[DataPoint] = data_set.data.rddSrc
 
     if (
             data_set.description.NumDataPoints
-            > MAX_DATA_POINTS_PER_PARTITION
+            > MAX_DATA_POINTS_PER_SPARK_PARTITION
             * data_set.description.NumGroups
     ):
         raise ValueError(
             "This strategy only works if all of the values per key can fit into memory at once.")
 
-    rddResult = (
+    rddResult = cast(
+        RDD[Row],
         rddSrc
-        .groupBy(lambda x: cast(int, x.grp))
+        .groupBy(lambda x: x.grp)
         .map(lambda pair: processData1(pair[0], pair[1]))
         .repartition(numPartitions=1)
         .sortByKey()  # type: ignore
         .values()
     )
-    return rddResult, None
+
+    return PysparkPythonPendingAnswerSet(rdd_row=rddResult)
 
 
 class MutableRunningTotal:
+    running_sub_sum_of_E_squared: float
+    running_sub_sum_of_E: float
+    running_sub_count: int
+
     def __init__(
             self,
             grp: int,
@@ -50,13 +56,13 @@ class MutableRunningTotal:
 def processData1(
         grp: int,
         iterator: Iterable[DataPoint]
-) -> Tuple[int, Row]:
+) -> tuple[int, Row]:
     import math
     import statistics
     running_sum_of_C = 0
     running_grp_count = 0
     running_max_of_D = None
-    running_subs_of_E = {}
+    running_subs_of_E: dict[int, MutableRunningTotal] = dict()
 
     for item in iterator:
         running_sum_of_C += item.C

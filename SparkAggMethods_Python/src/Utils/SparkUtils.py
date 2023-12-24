@@ -1,21 +1,9 @@
 
+import numpy
+import pandas as pd
 import pyspark.sql.types as DataTypes
-from pyspark import RDD
 from pyspark.sql import SparkSession
 from pyspark.sql.dataframe import DataFrame as spark_DataFrame
-
-
-class RddWithNoArgSortByKey:
-    def __init__(self, src: RDD) -> None:
-        self.src = src
-
-    def sortByKey(self) -> RDD:
-        return self.src.sortByKey()
-
-
-def cast_no_arg_sort_by_key(src: RDD) -> RddWithNoArgSortByKey:
-    return RddWithNoArgSortByKey(src)
-
 
 # from
 # https://stackoverflow.com/questions/30304810/dataframe-ified-zipwithindex/32741497#32741497
@@ -45,3 +33,29 @@ def dfZipWithIndex(
         lambda kv: ([kv[1] + offset] + list(kv[0])))
 
     return spark.createDataFrame(new_rdd, new_schema)
+
+
+def translate_spark_datatype_to_numpy(
+    spark_datatype: DataTypes.DataType
+) -> numpy.dtype:
+    if spark_datatype == DataTypes.StringType():
+        return numpy.dtype(str)
+    elif spark_datatype == DataTypes.IntegerType():
+        return numpy.dtype(int)
+    elif spark_datatype == DataTypes.DoubleType():
+        return numpy.dtype(float)
+    elif spark_datatype == DataTypes.TimestampType():
+        return numpy.dtype(numpy.datetime64)
+    else:
+        raise ValueError(
+            f"translate_spark_datatype_to_numpy: unsupported type {spark_datatype}")
+
+
+def make_empty_pd_dataframe_from_spark_types(
+    spark_schema: DataTypes.StructType
+) -> pd.DataFrame:
+    dtypes = numpy.dtype(
+        [(x.name, translate_spark_datatype_to_numpy(x.dataType)) for x in spark_schema.fields]
+    )
+    df = pd.DataFrame(numpy.empty(0, dtype=dtypes))
+    return df

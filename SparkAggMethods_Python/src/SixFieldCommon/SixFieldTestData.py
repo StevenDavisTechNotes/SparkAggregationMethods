@@ -1,9 +1,9 @@
-import collections
 import os
 import pickle
 import random
 from dataclasses import dataclass
 from pathlib import Path
+from typing import NamedTuple, cast
 
 import numpy as np
 import pandas as pd
@@ -13,7 +13,8 @@ from PerfTestCommon import CalcEngine
 from Utils.Utils import always_true, int_divide_round_up
 
 SHARED_LOCAL_TEST_DATA_FILE_LOCATION = "d:/temp/SparkPerfTesting"
-MAX_DATA_POINTS_PER_PARTITION = 5 * 10**3
+MAX_DATA_POINTS_PER_SPARK_PARTITION = 5 * 10**3
+MAX_DATA_POINTS_PER_DASK_PARTITION = 1 * 10**3
 
 
 @dataclass(frozen=True)
@@ -22,9 +23,18 @@ class ExecutionParameters:
     TestDataFolderLocation: str
 
 
-DataPoint = collections.namedtuple(
-    "DataPoint",
-    ["id", "grp", "subgrp", "A", "B", "C", "D", "E", "F"])
+class DataPoint(NamedTuple):
+    id: int
+    grp: int
+    subgrp: int
+    A: float
+    B: float
+    C: float
+    D: float
+    E: float
+    F: float
+
+
 DataPointSchema = DataTypes.StructType([
     DataTypes.StructField('id', DataTypes.IntegerType(), False),
     DataTypes.StructField('grp', DataTypes.IntegerType(), False),
@@ -61,7 +71,7 @@ class RunResult:
     recordCount: int
 
 
-def populate_data_set_generic(exec_params, num_grp_1, num_grp_2, repetition):
+def populate_data_set_generic(exec_params: ExecutionParameters, num_grp_1: int, num_grp_2: int, repetition: int):
     num_data_points = num_grp_1 * num_grp_2 * repetition
     # Need to split this up, upfront, into many partitions
     # to avoid memory issues and
@@ -71,7 +81,7 @@ def populate_data_set_generic(exec_params, num_grp_1, num_grp_2, repetition):
         exec_params.DefaultParallelism,
         int_divide_round_up(
             num_data_points,
-            MAX_DATA_POINTS_PER_PARTITION))
+            MAX_DATA_POINTS_PER_DASK_PARTITION))
     staging_file_name_csv = os.path.join(
         exec_params.TestDataFolderLocation,
         "SixField_Test_Data",
@@ -85,55 +95,69 @@ def populate_data_set_generic(exec_params, num_grp_1, num_grp_2, repetition):
         )
     df = pd.read_parquet(staging_file_name_csv)
     assert len(df) == num_data_points
-    vanilla_answer = pd.DataFrame.from_records([
-        {
-            "grp": grp,
-            "subgrp": subgrp,
-            "mean_of_C": df_cluster.C.mean(),
-            "max_of_D": df_cluster.D.max(),
-            "var_of_E": df_cluster.E.var(ddof=0),
-            "var_of_E2": df_cluster.E.var(ddof=0),
-        }
-        for grp in range(num_grp_1)
-        for subgrp in range(num_grp_2)
-        if always_true(df_cluster := df[(df.grp == grp) & (df.subgrp == subgrp)])
-    ])
-    bilevel_answer = pd.DataFrame.from_records([
-        {
-            "grp": grp,
-            "mean_of_C": df_cluster.C.mean(),
-            "max_of_D": df_cluster.D.max(),
-            "avg_var_of_E": subgroupedE.var(ddof=0).mean(),
-            "avg_var_of_E2":
-                subgroupedE
-                .agg(lambda E:
-                     ((E * E).sum() / E.count() -
-                      (E.sum() / E.count())**2))
-                .mean(),
-        }
-        for grp in range(num_grp_1)
-        if always_true(df_cluster := df[(df.grp == grp)])
-        if always_true(subgroupedE := df_cluster.groupby('subgrp')['E'])
-    ])
-    conditional_answer = pd.DataFrame.from_records([
-        {
-            "grp": grp,
-            "subgrp": subgrp,
-            "mean_of_C": df_cluster.C.mean(),
-            "max_of_D": df_cluster.D.max(),
-            "cond_var_of_E": negE.var(ddof=0),
-            "cond_var_of_E2":
+    vanilla_answer: pd.DataFrame \
+        = pd.DataFrame.from_records(  # type: ignore
+            [
+                {
+                    "grp": grp,
+                    "subgrp": subgrp,
+                    "mean_of_C": df_cluster["C"].mean(),  # type: ignore
+                    "max_of_D": df_cluster["D"].max(),  # type: ignore
+                    "var_of_E": df_cluster["E"].var(ddof=0),  # type: ignore
+                    "var_of_E2": df_cluster["E"].var(ddof=0),  # type: ignore
+                }
+                for grp in range(num_grp_1)
+                for subgrp in range(num_grp_2)
+                if always_true(df_cluster := df[(df["grp"] == grp) & (df["subgrp"] == subgrp)])
+            ])
+
+    def hand_coded_variance(E: pd.Series[float]) -> float:
+        return (
+            (E * E).sum()  # type: ignore
+            / E.count() -
+            (
+                E.sum()  # type: ignore
+                / E.count())**2
+        )
+    bilevel_answer \
+        = pd.DataFrame.from_records(  # type: ignore
+            [
+                {
+                    "grp": grp,
+                    "mean_of_C": df_cluster.C.mean(),  # type: ignore
+                    "max_of_D": df_cluster.D.max(),  # type: ignore
+                    "avg_var_of_E": subgroupedE.var(ddof=0).mean(),  # type: ignore
+                    "avg_var_of_E2":
+                    subgroupedE
+                        .agg(  # type: ignore
+                            hand_coded_variance)
+                        .mean(),  # type: ignore
+                }
+                for grp in range(num_grp_1)
+                if always_true(df_cluster := df[(df["grp"] == grp)])
+                if always_true(subgroupedE :=
+                               cast(pd.Series[float],
+                                    df_cluster.groupby(  # type: ignore
+                                   by=['subgrp'])['E']))
+            ])
+    conditional_answer = pd.DataFrame.from_records(  # type: ignore
+        [
+            {
+                "grp": grp,
+                "subgrp": subgrp,
+                "mean_of_C": df_cluster.C.mean(),  # type: ignore
+                "max_of_D": df_cluster.D.max(),  # type: ignore
+                "cond_var_of_E": negE.var(ddof=0),  # type: ignore
+                "cond_var_of_E2":
                 negE
-                .agg(lambda E: (
-                    (E * E).sum() / E.count() -
-                    (E.sum() / E.count())**2
-                )),
-        }
-        for grp in range(num_grp_1)
-        for subgrp in range(num_grp_2)
-        if always_true(df_cluster := df[(df.grp == grp) & (df.subgrp == subgrp)])
-        if always_true(negE := df_cluster[df_cluster.E < 0]['E'])
-    ])
+                .agg(  # type: ignore
+                    hand_coded_variance),
+            }
+            for grp in range(num_grp_1)
+            for subgrp in range(num_grp_2)
+            if always_true(df_cluster := df[(df["grp"] == grp) & (df["subgrp"] == subgrp)])
+            if always_true(negE := cast(pd.Series[float], df_cluster[df_cluster["E"] < 0]['E']))
+        ])
     print(f"Using {num_grp_1}, {num_grp_2}, {repetition} "
           f"tgt_num_partitions={src_num_partitions} "
           f"each {num_grp_1 * num_grp_2 * repetition/src_num_partitions:.1f}")
@@ -154,8 +178,8 @@ def generate_data_to_file(
         (i // numGrp2) % numGrp1,
         i % numGrp2,
     ] for i in range(num_data_points)]), columns=['id', 'grp', 'subgrp'], dtype=np.int32)
-    df['A'] = np.random.randint(1, repetition, num_data_points, dtype=np.int32)
-    df['B'] = np.random.randint(1, repetition, num_data_points, dtype=np.int32)
+    df['A'] = np.random.randint(1, repetition + 1, num_data_points, dtype=np.int32)
+    df['B'] = np.random.randint(1, repetition + 1, num_data_points, dtype=np.int32)
     df['C'] = np.random.uniform(1, 10, num_data_points)
     df['D'] = np.random.uniform(1, 10, num_data_points)
     df['E'] = np.random.normal(0, 10, num_data_points)

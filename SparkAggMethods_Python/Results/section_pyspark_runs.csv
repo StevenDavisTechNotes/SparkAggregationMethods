@@ -10,3 +10,8 @@ success,section_prep_groupby,df,1000,49000,49,24.144582,1000,2023-09-03T16:00:31
 success,section_prepcsv_groupby,df,1000,49000,49,14.118201,1000,2023-09-03T16:00:45.814516,
 success,section_join_groupby,df,1000,49000,49,23.409514,1000,2023-09-03T16:01:09.441988,
 success,section_join_mappart,rdd,1000,49000,49,120.719960,1000,2023-09-03T16:03:10.383547,
+ status,strategy,interface,NumStudents,dataSize,sectionMaximum,elapsedTime,recordCount,finishedAt,
+ status,strategy,interface,NumStudents,dataSize,sectionMaximum,elapsedTime,recordCount,finishedAt,
+ status,strategy,interface,NumStudents,dataSize,sectionMaximum,elapsedTime,recordCount,finishedAt,
+ status,strategy,interface,NumStudents,dataSize,sectionMaximum,elapsedTime,recordCount,finishedAt,
+success,section_prep_mappart,rdd,10,490,49,52.462168,10,2023-12-23T13:44:09.191999,

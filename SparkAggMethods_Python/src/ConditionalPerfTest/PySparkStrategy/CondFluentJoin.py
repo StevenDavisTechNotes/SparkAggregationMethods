@@ -1,10 +1,8 @@
-from typing import Tuple
 
 import pyspark.sql.functions as func
-from pyspark import RDD
-from pyspark.sql import DataFrame as spark_DataFrame
 
-from SixFieldCommon.PySpark_SixFieldTestData import PysparkDataSet
+from SixFieldCommon.PySpark_SixFieldTestData import (
+    PysparkDataSet, PysparkPythonPendingAnswerSet)
 from SixFieldCommon.SixFieldTestData import ExecutionParameters
 from Utils.TidySparkSession import TidySparkSession
 
@@ -13,7 +11,7 @@ def cond_fluent_join(
         spark_session: TidySparkSession,
         exec_params: ExecutionParameters,
         data_set: PysparkDataSet,
-) -> Tuple[RDD | None, spark_DataFrame | None]:
+) -> PysparkPythonPendingAnswerSet:
     dfData = data_set.data.dfSrc
     uncond = (
         dfData
@@ -36,4 +34,4 @@ def cond_fluent_join(
         .drop(cond.subgrp)
     )
     df = df.orderBy(df.grp, df.subgrp)
-    return (None, df)
+    return PysparkPythonPendingAnswerSet(spark_df=df)

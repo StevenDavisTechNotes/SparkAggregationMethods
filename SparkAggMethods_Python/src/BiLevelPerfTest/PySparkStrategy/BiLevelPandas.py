@@ -1,11 +1,8 @@
-from typing import Optional, Tuple
-
 import pandas as pd
-from pyspark import RDD
-from pyspark.sql import DataFrame as spark_DataFrame
 
 from BiLevelPerfTest.BiLevelDataTypes import postAggSchema, result_columns
-from SixFieldCommon.PySpark_SixFieldTestData import PysparkDataSet
+from SixFieldCommon.PySpark_SixFieldTestData import (
+    PysparkDataSet, PysparkPythonPendingAnswerSet)
 from SixFieldCommon.SixFieldTestData import ExecutionParameters
 from Utils.TidySparkSession import TidySparkSession
 
@@ -14,7 +11,7 @@ def bi_pandas(
         _spark_session: TidySparkSession,
         _exec_params: ExecutionParameters,
         data_set: PysparkDataSet
-) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
+) -> PysparkPythonPendingAnswerSet:
     df = data_set.data.dfSrc
 
     df = (
@@ -23,7 +20,7 @@ def bi_pandas(
         .applyInPandas(inner_agg_method, postAggSchema)
     )
     df = df.orderBy(df.grp)
-    return None, df
+    return PysparkPythonPendingAnswerSet(spark_df=df)
 
 
 def inner_agg_method(

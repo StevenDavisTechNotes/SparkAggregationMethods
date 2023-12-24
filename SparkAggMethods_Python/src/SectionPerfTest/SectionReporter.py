@@ -3,7 +3,7 @@
 import collections
 import math
 import os
-from typing import List
+from typing import List, cast
 
 import numpy
 import scipy.stats
@@ -12,7 +12,7 @@ from PerfTestCommon import CalcEngine
 from SectionPerfTest.SectionDirectory import (dask_implementation_list,
                                               pyspark_implementation_list)
 from SectionPerfTest.SectionRunResult import (FINAL_REPORT_FILE_PATH,
-                                              run_log_file_path)
+                                              derive_run_log_file_path)
 from SectionPerfTest.SectionTestData import DataSetDescription
 from SectionPerfTest.SectionTypeDefs import (DataSet, DataSetData,
                                              ExecutionParameters, RunResult)
@@ -69,11 +69,14 @@ def analyze_run_results():  # noqa: C901
 
             size_values = set(x.data.description.num_rows for x in times)
             for dataSize in size_values:
-                ar = [x.elapsed_time for x in times if x.data.description.num_rows == dataSize]
+                runs = [x for x in times if x.data.description.num_rows == dataSize]
+                ar: numpy.ndarray[float, numpy.dtype[numpy.float64]] \
+                    = numpy.asarray([x.elapsed_time for x in runs], dtype=float)
+                numRuns = len(runs)
                 mean = numpy.mean(ar)
-                stdev = numpy.std(ar, ddof=1)
+                stdev = cast(float, numpy.std(ar, ddof=1))
                 rl, rh = scipy.stats.norm.interval(  # type: ignore
-                    confidence, loc=mean, scale=stdev / math.sqrt(len(ar)))
+                    confidence, loc=mean, scale=stdev / math.sqrt(numRuns))
                 summary_status += ("%s,%s,%s," + "%d,%d," + "%f,%f,%f,%f\n") % (
                     test_method.strategy_name, test_method.interface, test_method.scale,
                     len(ar), dataSize,
@@ -81,13 +84,12 @@ def analyze_run_results():  # noqa: C901
                 )
             x_values = [float(x.data.description.num_rows) for x in times]
             y_values = [x.elapsed_time for x in times]
-            (b0, (b0_low, b0_high)), (b1, (b1_low, b1_high)), (s2, (s2_low, s2_high)) = \
-                linear_regression(x_values, y_values, confidence)
-            # a = numpy.array(y_values)
-            # mean, sem, cumm_conf = numpy.mean(a),
-            # scipy.stats.sem(a, ddof=1), scipy.stats.t.ppf((1+confidence)/2., len(a)-1)
-            # rangelow, rangehigh = \
-            #     scipy.stats.t.interval(confidence, len(times)-1, loc=mean, scale=sem)
+            match linear_regression(x_values, y_values, confidence):
+                case None:
+                    print("No regression")
+                    return
+                case (b0, (b0_low, b0_high)), (b1, (b1_low, b1_high)), (s2, (s2_low, s2_high)):
+                    pass
             result = TestRegression(
                 name=test_method.strategy_name,
                 interface=test_method.interface,
@@ -120,7 +122,7 @@ def read_run_results() -> List[RunResult]:
     test_runs: List[RunResult] = []
     with open('Results/temp.csv', 'w') as fout:
         for engine in [CalcEngine.PYSPARK, CalcEngine.DASK]:
-            run_log_file_path_for_engine = run_log_file_path(engine)
+            run_log_file_path_for_engine = derive_run_log_file_path(engine)
             if not os.path.exists(run_log_file_path_for_engine):
                 continue
             with open(run_log_file_path_for_engine, 'rt') as f:

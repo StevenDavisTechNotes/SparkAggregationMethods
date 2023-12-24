@@ -1,5 +1,7 @@
 from functools import reduce
-from SectionPerfTest.SectionSnippetSubtotal import FIRST_LAST_NEITHER, StudentSnippet1, mergeSnippetLists1
+
+from SectionPerfTest.SectionSnippetSubtotal import (StudentSnippet1,
+                                                    mergeSnippetLists1)
 
 
 class Test_full_set:

@@ -12,8 +12,8 @@ from SectionPerfTest.PySparkStrategy.SectionNoSparkST import \
 from SectionPerfTest.SectionDirectory import (pyspark_implementation_list,
                                               strategy_name_list)
 from SectionPerfTest.SectionRunResult import (MAXIMUM_PROCESSABLE_SEGMENT,
-                                              pyspark_infeasible,
-                                              run_log_file_path, write_header,
+                                              derive_run_log_file_path,
+                                              pyspark_infeasible, write_header,
                                               write_run_result)
 from SectionPerfTest.SectionTestData import (available_data_sizes,
                                              populate_data_sets)
@@ -25,14 +25,14 @@ from Utils.TidySparkSession import LOCAL_NUM_EXECUTORS, TidySparkSession
 from Utils.Utils import always_true, set_random_seed
 
 ENGINE = CalcEngine.PYSPARK
-DEBUG_ARGS = None if True else (
+DEBUG_ARGS = None if False else (
     []
-    # + '--size 1000'.split()
+    + '--size 10'.split()
     # + ['--no-check']
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
-    # + '--strategy section_mappart_partials'.split()
+    + '--strategy section_prep_mappart'.split()
 )
 
 
@@ -140,10 +140,7 @@ def do_test_runs(
     if args.shuffle:
         random.shuffle(itinerary)
 
-    result_log_path_name = os.path.join(
-        spark_session.python_code_root_path,
-        run_log_file_path(ENGINE))
-    with open(result_log_path_name, 'at+') as file:
+    with open(derive_run_log_file_path(ENGINE), 'at+') as file:
         write_header(file)
         for index, (test_method, data_set) in enumerate(itinerary):
             spark_session.log.info(

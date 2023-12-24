@@ -1,10 +1,7 @@
-from typing import Optional, Tuple
-
 import pyspark.sql.functions as func
-from pyspark import RDD
-from pyspark.sql import DataFrame as spark_DataFrame
 
-from SixFieldCommon.PySpark_SixFieldTestData import PysparkDataSet
+from SixFieldCommon.PySpark_SixFieldTestData import (
+    PysparkDataSet, PysparkPythonPendingAnswerSet)
 from SixFieldCommon.SixFieldTestData import ExecutionParameters
 from Utils.TidySparkSession import TidySparkSession
 
@@ -13,7 +10,7 @@ def bi_fluent_nested(
         _spark_session: TidySparkSession,
         _exec_params: ExecutionParameters,
         data_set: PysparkDataSet
-) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
+) -> PysparkPythonPendingAnswerSet:
     df = data_set.data.dfSrc
     df = (
         df
@@ -50,4 +47,4 @@ def bi_fluent_nested(
                 'avg_var_of_E', 'avg_var_of_E2')
         .orderBy(df.grp)
     )
-    return None, df
+    return PysparkPythonPendingAnswerSet(spark_df=df)

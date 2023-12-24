@@ -1,7 +1,6 @@
 import argparse
 import gc
 import math
-import os
 import random
 import time
 from dataclasses import dataclass
@@ -13,8 +12,9 @@ from DedupePerfTest.DedupeDataTypes import DataSet, ExecutionParameters
 from DedupePerfTest.DedupeDirectory import (pyspark_implementation_list,
                                             strategy_name_list)
 from DedupePerfTest.DedupeExpected import ItineraryItem, verifyCorrectness
-from DedupePerfTest.DedupeRunResult import (RunResult, infeasible,
-                                            run_log_file_path, write_header,
+from DedupePerfTest.DedupeRunResult import (RunResult,
+                                            derive_run_log_file_path,
+                                            infeasible, write_header,
                                             write_run_result)
 from DedupePerfTest.DedupeTestData import (DATA_SIZE_CODE_TO_DATA_SIZE,
                                            generate_test_data)
@@ -22,6 +22,7 @@ from PerfTestCommon import CalcEngine
 from Utils.TidySparkSession import TidySparkSession
 from Utils.Utils import always_true, set_random_seed
 
+ENGINE = CalcEngine.PYSPARK
 DEBUG_ARGS = None if True else (
     []
     # + '--size 60k'.split()
@@ -101,7 +102,7 @@ def parse_args() -> Arguments:
 
 
 def run_one_itinerary_step(
-        index: int, num_iterinary_stops, itinerary_item: ItineraryItem,
+        index: int, num_iterinary_stops: int, itinerary_item: ItineraryItem,
         args: Arguments, spark_session: TidySparkSession
 ) -> Tuple[bool, RunResult]:
     exec_params = args.exec_params
@@ -178,10 +179,7 @@ def run_tests(
         set_random_seed(args.random_seed)
     if args.shuffle is True:
         random.shuffle(itinerary)
-    result_log_path_name = os.path.join(
-        spark_session.python_code_root_path,
-        run_log_file_path(CalcEngine.PYSPARK))
-    with open(result_log_path_name, 'at+') as result_log_file:
+    with open(derive_run_log_file_path(ENGINE), 'at+') as result_log_file:
         write_header(result_log_file)
         for index, itinerary_item in enumerate(itinerary):
             success, result = run_one_itinerary_step(

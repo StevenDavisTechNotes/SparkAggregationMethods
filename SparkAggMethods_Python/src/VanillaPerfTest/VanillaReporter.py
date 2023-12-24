@@ -2,10 +2,10 @@
 # python -m VanillaPerfTest.VanillaReporter
 import math
 import os
-from typing import Dict, List
+from typing import Dict, List, cast
 
 import numpy
-from scipy.stats import norm as scipy_stats_norm  # type: ignore
+import scipy
 
 from PerfTestCommon import (CalcEngine, ExternalTestMethod,
                             TestMethodDescription)
@@ -16,15 +16,15 @@ from VanillaPerfTest.VanillaRunResult import (EXPECTED_SIZES,
                                               FINAL_REPORT_FILE_PATH,
                                               SCALA_RUN_LOG_FILE_PATH,
                                               PersistedRunResult,
-                                              regressor_from_run_result,
-                                              run_log_file_path)
+                                              derive_run_log_file_path,
+                                              regressor_from_run_result)
 
 
 def read_python_file(
         engine: CalcEngine,
 ) -> List[PersistedRunResult]:
     test_runs: List[PersistedRunResult] = []
-    with open(run_log_file_path(engine), 'r') as f:
+    with open(derive_run_log_file_path(engine), 'r') as f:
         for textline in f:
             textline = textline.rstrip()
             if textline.startswith('#'):
@@ -95,7 +95,7 @@ def read_scala_file() -> List[PersistedRunResult]:
 def parse_results() -> List[PersistedRunResult]:
     cond_runs: List[PersistedRunResult] = []
     for engine in [CalcEngine.PYSPARK, CalcEngine.DASK]:
-        if os.path.exists(run_log_file_path(engine)):
+        if os.path.exists(derive_run_log_file_path(engine)):
             cond_runs += read_python_file(engine)
     if os.path.exists(SCALA_RUN_LOG_FILE_PATH):
         cond_runs += read_scala_file()
@@ -144,12 +144,13 @@ def do_regression(
             x for x in sorted_implementation_list if x.raw_method_name == strategy_name][0]
         for regressor_value in test_results[strategy_name]:
             runs = test_results[strategy_name][regressor_value]
-            ar = [x.elapsedTime for x in runs]
-            numRuns = len(ar)
+            ar: numpy.ndarray[float, numpy.dtype[numpy.float64]] \
+                = numpy.asarray([x.elapsedTime for x in runs], dtype=float)
+            numRuns = len(runs)
             mean = numpy.mean(ar)
-            stdev = numpy.std(ar, ddof=1)
-            rl, rh = scipy_stats_norm.interval(
-                confidence, loc=mean, scale=stdev / math.sqrt(len(ar)))
+            stdev = cast(float, numpy.std(ar, ddof=1))
+            rl, rh = scipy.stats.norm.interval(  # type: ignore
+                confidence, loc=mean, scale=stdev / math.sqrt(numRuns))
             summary_status += "%s,%s,%s,%s,%s,%d,%d,%f,%f,%f,%f\n" % (
                 method.data_name,
                 method.raw_method_name,

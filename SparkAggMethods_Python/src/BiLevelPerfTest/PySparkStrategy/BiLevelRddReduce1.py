@@ -1,30 +1,31 @@
-import collections
 import math
-from typing import Optional, Tuple
+from typing import NamedTuple
 
-from pyspark import RDD
-from pyspark.sql import DataFrame as spark_DataFrame
 from pyspark.sql import Row
 
-from SixFieldCommon.PySpark_SixFieldTestData import PysparkDataSet
+from SixFieldCommon.PySpark_SixFieldTestData import (
+    PysparkDataSet, PysparkPythonPendingAnswerSet)
 from SixFieldCommon.SixFieldTestData import DataPoint, ExecutionParameters
 from Utils.TidySparkSession import TidySparkSession
 
-SubTotal1 = collections.namedtuple(
-    "SubTotal1",
-    ["running_sum_of_C", "running_max_of_D",
-     "subgrp_running_totals"])
-SubTotal2 = collections.namedtuple(
-    "SubTotal2",
-    ["running_sum_of_E_squared",
-     "running_sum_of_E", "running_count"])
+
+class SubTotal2(NamedTuple):
+    running_sum_of_E_squared: float
+    running_sum_of_E: float
+    running_count: int
+
+
+class SubTotal1(NamedTuple):
+    running_sum_of_C: float
+    running_max_of_D: float | None
+    subgrp_running_totals: dict[int, SubTotal2]
 
 
 def bi_rdd_reduce1(
         spark_session: TidySparkSession,
         _exec_params: ExecutionParameters,
         data_set: PysparkDataSet
-) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:  # noqa: C901
+) -> PysparkPythonPendingAnswerSet:
     rddSrc = data_set.data.rddSrc
 
     rddResult = (
@@ -34,10 +35,10 @@ def bi_rdd_reduce1(
                       mergeValue,
                       mergeCombiners,
                       numPartitions=data_set.data.AggTgtNumPartitions)
-        .sortByKey()
-        .map(lambda x: finalAnalytics(x[0], x[1]))
+        .sortByKey()  # type: ignore
+        .map(finalAnalytics)
     )
-    return rddResult, None
+    return PysparkPythonPendingAnswerSet(rdd_row=rddResult)
 
 
 def mergeValue(
@@ -72,7 +73,7 @@ def createCombiner(
     return mergeValue(SubTotal1(
         running_sum_of_C=0,
         running_max_of_D=None,
-        subgrp_running_totals={}), v)
+        subgrp_running_totals=dict()), v)
 
 
 def mergeCombiners(
@@ -83,7 +84,7 @@ def mergeCombiners(
     all_subgrp = set(lsub.subgrp_running_totals.keys() |
                      rsub.subgrp_running_totals.keys())
     for subgrp in all_subgrp:
-        list_of_subgrp_running_totals = []
+        list_of_subgrp_running_totals: list[SubTotal2] = []
         if subgrp in lsub.subgrp_running_totals:
             list_of_subgrp_running_totals.append(
                 lsub.subgrp_running_totals[subgrp])
@@ -104,6 +105,7 @@ def mergeCombiners(
                     x.running_count
                     for x in list_of_subgrp_running_totals))
         subgrp_running_totals[subgrp] = result
+    assert rsub.running_max_of_D is not None
     return SubTotal1(
         running_sum_of_C=lsub.running_sum_of_C + rsub.running_sum_of_C,
         running_max_of_D=lsub.running_max_of_D
@@ -119,7 +121,7 @@ def finalAnalytics(
 ) -> Row:
     import statistics
     running_grp_count = 0
-    list_of_var_of_E = []
+    list_of_var_of_E: list[float] = []
     for sub in level1.subgrp_running_totals.values():
         count = sub.running_count
         running_grp_count += count

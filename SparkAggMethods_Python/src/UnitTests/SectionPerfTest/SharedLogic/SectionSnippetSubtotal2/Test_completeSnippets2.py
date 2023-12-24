@@ -1,7 +1,9 @@
-from SectionPerfTest.SectionSnippetSubtotal import (
-    FIRST_LAST_NEITHER, CompletedStudent, StudentSnippet2, completeSnippets2)
-
 import pytest
+
+from SectionPerfTest.SectionSnippetSubtotal import (FIRST_LAST_NEITHER,
+                                                    CompletedStudent,
+                                                    StudentSnippet2,
+                                                    completeSnippets2)
 
 
 @pytest.fixture
@@ -33,7 +35,7 @@ def completed_student():
     )
 
 
-def test_full(baked_snippet, completed_student):
+def test_full(baked_snippet: StudentSnippet2, completed_student: StudentSnippet2):
     completedItems, remaining_snippets = completeSnippets2(
         baked_snippet,
         front_is_clean=True,
@@ -42,7 +44,7 @@ def test_full(baked_snippet, completed_student):
     assert remaining_snippets == []
 
 
-def test_maybe_not_done_yet(baked_snippet):
+def test_maybe_not_done_yet(baked_snippet: StudentSnippet2):
     completedItems, remaining_snippets = completeSnippets2(
         baked_snippet,
         front_is_clean=True,
@@ -51,7 +53,7 @@ def test_maybe_not_done_yet(baked_snippet):
     assert remaining_snippets == [baked_snippet]
 
 
-def test_maybe_not_started_yet(baked_snippet):
+def test_maybe_not_started_yet(baked_snippet: StudentSnippet2):
     for back_is_clean in [True, False]:
         completedItems, remaining_snippets = completeSnippets2(
             baked_snippet,

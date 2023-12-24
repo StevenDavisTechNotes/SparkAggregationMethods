@@ -6,7 +6,7 @@ from ConditionalPerfTest import CondPySparkRunner  # noqa: F401
 from DedupePerfTest import DedupePySparkRunner  # noqa: F401
 from SectionPerfTest import SectionPySparkRunner  # noqa: F401
 from VanillaPerfTest import VanillaDaskRunner  # noqa: F401
-from VanillaPerfTest import VanillaPySparkRunner
+from VanillaPerfTest import VanillaPySparkRunner  # noqa: F401
 
 VanillaDaskRunner.main()
 VanillaPySparkRunner.main()

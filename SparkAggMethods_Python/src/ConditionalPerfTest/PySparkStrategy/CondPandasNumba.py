@@ -1,15 +1,12 @@
-from typing import Tuple
-
 import numpy as np
 import pandas as pd
 from numba import float64 as numba_float64
 from numba import jit, prange
-from pyspark import RDD
-from pyspark.sql import DataFrame as spark_DataFrame
 
 from ConditionalPerfTest.CondDataTypes import (agg_columns_4, groupby_columns,
                                                postAggSchema_4)
-from SixFieldCommon.PySpark_SixFieldTestData import PysparkDataSet
+from SixFieldCommon.PySpark_SixFieldTestData import (
+    PysparkDataSet, PysparkPythonPendingAnswerSet)
 from SixFieldCommon.SixFieldTestData import ExecutionParameters
 from Utils.TidySparkSession import TidySparkSession
 
@@ -18,7 +15,7 @@ def cond_pandas_numba(
         spark_session: TidySparkSession,
         _exec_params: ExecutionParameters,
         data_set: PysparkDataSet,
-) -> Tuple[RDD | None, spark_DataFrame | None]:
+) -> PysparkPythonPendingAnswerSet:
     df = data_set.data.dfSrc
 
     df = (
@@ -27,7 +24,7 @@ def cond_pandas_numba(
         .applyInPandas(inner_agg_method, postAggSchema_4)
     )
     df = df.orderBy(df.grp, df.subgrp)
-    return None, df,
+    return PysparkPythonPendingAnswerSet(spark_df=df)
 
 
 @jit(numba_float64(numba_float64[:]), nopython=True)

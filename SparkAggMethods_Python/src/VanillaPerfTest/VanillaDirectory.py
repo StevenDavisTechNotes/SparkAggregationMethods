@@ -6,8 +6,6 @@ from SixFieldCommon.PySpark_SixFieldTestData import PysparkPythonTestMethod
 from VanillaPerfTest.Dask_Strategy.Da_VanillaPandas import da_vanilla_pandas
 from VanillaPerfTest.PySpark_Strategy.VanillaFluent import vanilla_fluent
 from VanillaPerfTest.PySpark_Strategy.VanillaPandas import vanilla_pandas
-from VanillaPerfTest.PySpark_Strategy.VanillaPandasCuda import \
-    vanilla_panda_cupy
 from VanillaPerfTest.PySpark_Strategy.VanillaPandasNumba import \
     vanilla_pandas_numba
 from VanillaPerfTest.PySpark_Strategy.VanillaPandasNumpy import \
@@ -54,11 +52,6 @@ pyspark_implementation_list: List[PysparkPythonTestMethod] = [
         interface='pandas',
         delegate=vanilla_pandas_numpy,
     ),
-    PysparkPythonTestMethod(
-        strategy_name='vanilla_panda_cupy',
-        language='python',
-        interface='panda',
-        delegate=vanilla_panda_cupy,),
     PysparkPythonTestMethod(
         strategy_name='vanilla_pandas_numba',
         language='python',

@@ -1,26 +1,23 @@
 import argparse
 import gc
-import os
 import random
 import time
 from dataclasses import dataclass
-from typing import List, Optional, TextIO, Tuple
-
-import pandas as pd
-from pyspark.sql import Row
+from typing import List, Optional, Tuple
 
 from BiLevelPerfTest.BiLevelDataTypes import result_columns
 from BiLevelPerfTest.BiLevelDirectory import (pyspark_implementation_list,
                                               strategy_name_list)
-from BiLevelPerfTest.BiLevelRunResult import (RunResult, pyspark_infeasible,
-                                              run_log_file_path, write_header,
-                                              write_run_result)
+from BiLevelPerfTest.BiLevelRunResult import (derive_run_log_file_path,
+                                              pyspark_infeasible, write_header)
 from PerfTestCommon import CalcEngine
 from SixFieldCommon.PySpark_SixFieldTestData import (PySparkDataSetWithAnswer,
                                                      PysparkPythonTestMethod,
                                                      populate_data_set_pyspark)
 from SixFieldCommon.SixFieldTestData import (
     SHARED_LOCAL_TEST_DATA_FILE_LOCATION, ExecutionParameters)
+from SixFieldCommon.SixFieldTestDataRunnerBase import \
+    test_one_step_in_itinerary
 from Utils.TidySparkSession import LOCAL_NUM_EXECUTORS, TidySparkSession
 from Utils.Utils import always_true, set_random_seed
 
@@ -114,21 +111,21 @@ def do_pyspark_test_runs(
         DefaultParallelism=2 * LOCAL_NUM_EXECUTORS,
         TestDataFolderLocation=SHARED_LOCAL_TEST_DATA_FILE_LOCATION,
     )
-    result_log_path_name = os.path.join(
-        spark_session.python_code_root_path,
-        run_log_file_path(ENGINE))
-    with open(result_log_path_name, 'at+') as file:
+    with open(derive_run_log_file_path(ENGINE), 'at+') as file:
         write_header(file)
         for index, (test_method, data_set) in enumerate(itinerary):
             spark_session.log.info("Working on %d of %d" %
                                    (index, len(itinerary)))
             print(f"Working on {test_method.strategy_name} for {data_set.description.SizeCode}")
             test_one_step_in_itinerary(
-                spark_session,
-                exec_params,
-                test_method,
-                file,
-                data_set)
+                engine=ENGINE,
+                spark_session=spark_session,
+                exec_params=exec_params,
+                test_method=test_method,
+                result_columns=result_columns,
+                file=file,
+                data_set=data_set,
+            )
             gc.collect()
             time.sleep(0.1)
 
@@ -149,9 +146,6 @@ def populate_data_sets(
         generate_single_test_data_set_simple('3_3_10',
                                              3, 3, 10 ** 1,
                                              ) if '3_3_10' in args.sizes else None,
-        # generateData(3, 3, 10**2) if '3_3_100' in args.sizes else None,
-        # generateData(3, 3, 10**3) if '3_3_1k' in args.sizes else None,
-        # generateData(3, 3, 10**4) if '3_3_10k' in args.sizes else None,
         generate_single_test_data_set_simple('3_3_100k',
                                              3, 3, 10 ** 5,
                                              ) if '3_3_100k' in args.sizes else None,
@@ -166,58 +160,6 @@ def populate_data_sets(
                                              ) if '3_3k_100' in args.sizes else None,
     ] if x is not None]
     return data_sets
-
-
-def test_one_step_in_itinerary(
-        spark_session: TidySparkSession,
-        exec_params: ExecutionParameters,
-        test_method: PysparkPythonTestMethod,
-        file: TextIO,
-        data_set: PySparkDataSetWithAnswer,
-):
-    startedTime = time.time()
-    rdd, df = test_method.delegate(
-        spark_session, exec_params, data_set)
-    if df is not None:
-        rdd = df.rdd
-    assert rdd is not None
-    if rdd.getNumPartitions() > max(data_set.data.AggTgtNumPartitions, exec_params.DefaultParallelism):
-        print(
-            f"{test_method.strategy_name} output rdd has {rdd.getNumPartitions()} partitions")
-        findings = rdd.collect()
-        print(f"size={len(findings)}!", findings)
-        exit(1)
-    if df is not None:
-        df_answer = df.toPandas()
-        finishedTime = time.time()
-    elif rdd is not None:
-        answer = rdd.collect()
-        finishedTime = time.time()
-        if len(answer) > 0:
-            exemplar = answer[0]
-            assert isinstance(exemplar, Row)
-            df_answer = pd.DataFrame.from_records(
-                [x.asDict() for x in answer])
-        else:
-            df_answer = pd.DataFrame(columns=result_columns)
-    else:
-        raise ValueError("Both df and rdd are None")
-    if 'avg_var_of_E2' not in df_answer:
-        df_answer['avg_var_of_E2'] = df_answer['avg_var_of_E']
-    abs_diff = float(
-        (data_set.answer.bilevel_answer - df_answer)
-        .abs().max().max())
-    status = abs_diff < 1e-6
-    assert (status is True)
-    recordCount = len(df_answer)
-    result = RunResult(
-        engine=ENGINE,
-        dataSize=data_set.description.NumDataPoints,
-        relCard=data_set.description.RelativeCardinalityBetweenGroupings,
-        elapsedTime=finishedTime - startedTime,
-        recordCount=recordCount)
-    write_run_result(test_method, result, file)
-    return rdd, df
 
 
 def main():

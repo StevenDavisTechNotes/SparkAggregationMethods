@@ -881,7 +881,10 @@ def student_history_trailer():
 
 
 @pytest.fixture
-def student_history_w_leader_trailer(student_history_leader, student_history, student_history_trailer):
+def student_history_w_leader_trailer(
+        student_history_leader: StudentSnippet2,
+        student_history: list[tuple[int, bool, int, StudentSnippet2]],
+        student_history_trailer: StudentSnippet2):
     return (
         [(
             0,
@@ -929,7 +932,10 @@ def completed_student():
     )
 
 
-def test_OneStudent_Pass1_NotLeaderTrailer(student_history, baked_snippet):
+def test_OneStudent_Pass1_NotLeaderTrailer(
+        student_history: list[tuple[int, bool, int, StudentSnippet2]],
+        baked_snippet: StudentSnippet2,
+):
     result = list(consolidateSnippetsInPartition(student_history))
     assert len(result) == 1
     is_complete, snippet = result[0]
@@ -938,9 +944,11 @@ def test_OneStudent_Pass1_NotLeaderTrailer(student_history, baked_snippet):
 
 
 def test_OneStudent_Pass1_W_LeaderTrailer(
-        student_history_w_leader_trailer,
-        student_history_leader, student_history_trailer,
-        completed_student):
+        student_history_w_leader_trailer: list[tuple[int, bool, int, StudentSnippet2]],
+        student_history_leader: list[tuple[int, bool, int, StudentSnippet2]],
+        student_history_trailer: list[tuple[int, bool, int, StudentSnippet2]],
+        completed_student: StudentSnippet2,
+):
     result = list(consolidateSnippetsInPartition(student_history_w_leader_trailer))
     assert len(result) == 3
 

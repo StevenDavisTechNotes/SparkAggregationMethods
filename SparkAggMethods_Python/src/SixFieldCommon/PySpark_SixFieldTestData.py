@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 from functools import reduce
-from typing import Callable, Tuple
+from typing import Any, Callable, NamedTuple, cast
 
 from pyspark import RDD, StorageLevel
 from pyspark.sql import DataFrame as spark_DataFrame
+from pyspark.sql import Row
 
 from SixFieldCommon.SixFieldTestData import (DataPoint, DataSetAnswer,
                                              DataSetDescription,
@@ -33,6 +34,29 @@ class PySparkDataSetWithAnswer(PysparkDataSet):
     answer: DataSetAnswer
 
 
+class GrpTotal(NamedTuple):
+    grp: int
+    subgrp: int
+    mean_of_C: float
+    max_of_D: float | None
+    cond_var_of_E: float
+
+
+@dataclass(frozen=True)
+class PysparkPythonPendingAnswerSet:
+    rdd_tuple: RDD[GrpTotal] | None = None
+    rdd_row:  RDD[Row] | None = None
+    spark_df: spark_DataFrame | None = None
+
+    def to_rdd(self) -> RDD[GrpTotal] | RDD[Row] | None:
+        return (
+            self.rdd_tuple if self.rdd_tuple is not None else
+            self.rdd_row if self.rdd_row is not None else
+            self.spark_df.rdd if self.spark_df is not None else
+            None
+        )
+
+
 @dataclass(frozen=True)
 class PysparkPythonTestMethod:
     strategy_name: str
@@ -40,7 +64,8 @@ class PysparkPythonTestMethod:
     interface: str
     delegate: Callable[
         [TidySparkSession, ExecutionParameters, PysparkDataSet],
-        Tuple[RDD | None, spark_DataFrame | None]]
+        PysparkPythonPendingAnswerSet]
+
 
 # endregion
 
@@ -56,17 +81,24 @@ def populate_data_set_pyspark(
     num_data_points, tgt_num_partitions, src_num_partitions, df, \
         vanilla_answer, bilevel_answer, conditional_answer = populate_data_set_generic(
             exec_params, num_grp_1, num_grp_2, repetition)
+    rdd_src: RDD[DataPoint]
     if num_data_points < src_num_partitions:
         rdd_src = spark_session.spark.sparkContext.parallelize((
-            DataPoint(*r)
-            for r in df.to_records(index=False)
+            DataPoint(*r)  # type: ignore
+            for r in cast(list[dict[str, Any]],
+                          df.to_records(  # type: ignore
+                              index=False
+            ))
         ), src_num_partitions)
     else:
-        rdd_src = reduce(lambda lhs, rhs: lhs.union(rhs), [
+        def union_rdd_set(lhs: RDD[DataPoint], rhs: RDD[DataPoint]) -> RDD[DataPoint]:
+            return lhs.union(rhs)
+        rdd_src = reduce(union_rdd_set, [
             spark_session.spark.sparkContext.parallelize((
                 DataPoint(*r)
-                for r in df[df.id % src_num_partitions == ipart]
-                .to_records(index=False)
+                for r in df[df["id"] % src_num_partitions == ipart]
+                .to_records(  # type: ignore
+                    index=False)
             ), 1)
             for ipart in range(src_num_partitions)
         ])
@@ -82,9 +114,11 @@ def populate_data_set_pyspark(
             .repartition(src_num_partitions)
         )
     else:
-        df_src = reduce(lambda lhs, rhs: lhs.unionAll(rhs), [
+        def union_all(lhs: spark_DataFrame, rhs: spark_DataFrame) -> spark_DataFrame:
+            return lhs.unionAll(rhs)
+        df_src = reduce(union_all, [
             spark_session.spark.createDataFrame(
-                df[df.id % src_num_partitions == ipart]
+                df[df["id"] % src_num_partitions == ipart]
             ).coalesce(1)
             for ipart in range(src_num_partitions)
         ])

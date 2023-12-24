@@ -1,10 +1,10 @@
 from typing import NamedTuple, Optional, Tuple
 
 from pyspark import RDD
-from pyspark.sql import DataFrame as spark_DataFrame
 from pyspark.sql import Row
 
-from SixFieldCommon.PySpark_SixFieldTestData import PysparkDataSet
+from SixFieldCommon.PySpark_SixFieldTestData import (
+    PysparkDataSet, PysparkPythonPendingAnswerSet)
 from SixFieldCommon.SixFieldTestData import DataPoint, ExecutionParameters
 from Utils.TidySparkSession import TidySparkSession
 
@@ -21,7 +21,7 @@ def vanilla_rdd_reduce(
         spark_session: TidySparkSession,
         _exec_params: ExecutionParameters,
         data_set: PysparkDataSet
-) -> Tuple[Optional[RDD], Optional[spark_DataFrame]]:
+) -> PysparkPythonPendingAnswerSet:
     sumCount: RDD[Row] = (
         data_set.data.rddSrc
         .map(lambda x: ((x.grp, x.subgrp), x))
@@ -32,7 +32,7 @@ def vanilla_rdd_reduce(
         .map(lambda kv: finalAnalytics2(kv[0], kv[1])))
     rddResult = sumCount.sortBy(
         keyfunc=lambda x: (x.grp, x.subgrp))  # type: ignore
-    return rddResult, None
+    return PysparkPythonPendingAnswerSet(rdd_row=rddResult)
 
 
 def max(

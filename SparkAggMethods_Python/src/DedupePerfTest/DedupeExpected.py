@@ -122,13 +122,13 @@ def verify_single_line(  # noqa: C901
 
 def count_in_a_partition(
         idx: int,
-        iterator: Iterable
+        iterator: Iterable[Row]
 ) -> Iterable[Tuple[int, int]]:
     yield idx, sum(1 for _ in iterator)
 
 
 def printPartitionDistribution(
-        rddout: RDD,
+        rddout: RDD[Row],
         dfout: spark_DataFrame,
 ) -> None:
     print("records per partition ",

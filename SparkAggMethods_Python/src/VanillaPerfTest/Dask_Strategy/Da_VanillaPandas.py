@@ -7,7 +7,8 @@ from dask.distributed import Client as DaskClient
 
 from SixFieldCommon.Dask_SixFieldTestData import DaskDataSet
 from SixFieldCommon.SixFieldTestData import ExecutionParameters
-from VanillaPerfTest.VanillaDataTypes import postAggSchema, result_columns
+from VanillaPerfTest.VanillaDataTypes import (dask_post_agg_schema,
+                                              result_columns)
 
 
 def da_vanilla_pandas(
@@ -20,12 +21,12 @@ def da_vanilla_pandas(
     df2 = (
         df
         .groupby([df.grp, df.subgrp])
-        .apply(inner_agg_method)  # postAggSchema
+        .apply(inner_agg_method, meta=dask_post_agg_schema)
         # dask.dataframe.groupby.Aggregation
     )
-    df3 = df2.compute().sort_index()
-    # orderBy(df.grp, df.subgrp)
-    return None, df3, None
+    df3 = df2.compute()
+    df3 = df3.sort_values(['grp', 'subgrp']).reset_index(drop=True)
+    return None, None, df3
 
 
 def inner_agg_method(

@@ -1,3 +1,5 @@
+#! python
+# usage: (cd src; python -m SectionPerfTest.SectionPySparkRunner)
 import argparse
 import gc
 import os
@@ -15,7 +17,7 @@ from SectionPerfTest.SectionRunResult import (MAXIMUM_PROCESSABLE_SEGMENT,
                                               derive_run_log_file_path,
                                               pyspark_infeasible, write_header,
                                               write_run_result)
-from SectionPerfTest.SectionTestData import (available_data_sizes,
+from SectionPerfTest.SectionTestData import (AVAILABLE_DATA_SIZES,
                                              populate_data_sets)
 from SectionPerfTest.SectionTypeDefs import (DataSetWithAnswer,
                                              ExecutionParameters,
@@ -32,7 +34,18 @@ DEBUG_ARGS = None if False else (
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
-    + '--strategy section_prep_mappart'.split()
+    # + ['--strategy',
+    #    #    'section_nospark_single_threaded',
+    #    #    'section_mappart_single_threaded',
+    #    #    'section_mappart_odd_even',
+    #    #    'section_mappart_partials',
+    #    #    'section_asymreduce_partials',
+    #    #    'section_prep_mappart',
+    #    #    'section_prep_groupby',
+    #    #    'section_prepcsv_groupby',
+    #    #    'section_join_groupby',
+    #    'section_join_mappart',
+    #    ]
 )
 
 
@@ -65,8 +78,8 @@ def parse_args() -> Arguments:
         action=argparse.BooleanOptionalAction)
     parser.add_argument(
         '--size',
-        choices=available_data_sizes,
-        default=available_data_sizes,
+        choices=AVAILABLE_DATA_SIZES,
+        default=AVAILABLE_DATA_SIZES,
         nargs="+")
     parser.add_argument(
         '--shuffle', default=True,

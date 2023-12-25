@@ -4,13 +4,13 @@ from typing import List, Tuple, cast
 from pyspark import RDD, StorageLevel
 from pyspark.sql import DataFrame as spark_DataFrame
 
-from SectionPerfTest.SectionLogic import (
-    parseLineToTypes, rddTypedWithIndexFactory)
+from SectionPerfTest.SectionLogic import (parseLineToTypes,
+                                          rddTypedWithIndexFactory)
 from SectionPerfTest.SectionSnippetSubtotal import (
     CompletedStudent, StudentSnippet1, completedFromSnippet1, gradeSummary,
     mergeSnippetLists1, studentSnippetFromTypedRow1)
-from SectionPerfTest.SectionTypeDefs import (
-    DataSet, LabeledTypedRow, StudentSummary)
+from SectionPerfTest.SectionTypeDefs import (DataSet, LabeledTypedRow,
+                                             StudentSummary)
 from Utils.NonCommutativeTreeAggregate import nonCommutativeTreeAggregate
 from Utils.TidySparkSession import TidySparkSession
 
@@ -76,6 +76,6 @@ def section_asymreduce_partials(
     rdd8: RDD[StudentSummary] = (
         rdd7
         .map(gradeSummary)
-        .sortBy(lambda x: x.StudentId)
+        .sortBy(lambda x: x.StudentId)  # pyright: ignore[reportGeneralTypeIssues]
     )
     return None, rdd8, None

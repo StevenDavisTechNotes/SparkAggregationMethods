@@ -1,9 +1,8 @@
 #!python
 # python -m SectionPerfTest.SectionReporter
-import collections
 import math
 import os
-from typing import List, cast
+from typing import List, NamedTuple, cast
 
 import numpy
 import scipy.stats
@@ -18,12 +17,21 @@ from SectionPerfTest.SectionTypeDefs import (DataSet, DataSetData,
                                              ExecutionParameters, RunResult)
 from Utils.LinearRegression import linear_regression
 
-TestRegression = collections.namedtuple(
-    "TestRegression",
-    ["name", "interface", "scale", "run_count",
-     "b0", "b0_low", "b0_high",
-     "b1", "b1_low", "b1_high",
-     "s2", "s2_low", "s2_high"])
+
+class TestRegression(NamedTuple):
+    name: str
+    interface: str
+    scale: str
+    run_count: int
+    b0: float
+    b0_low: float
+    b0_high: float
+    b1: float
+    b1_low: float
+    b1_high: float
+    s2: float
+    s2_low: float
+    s2_high: float
 
 
 def analyze_run_results():  # noqa: C901

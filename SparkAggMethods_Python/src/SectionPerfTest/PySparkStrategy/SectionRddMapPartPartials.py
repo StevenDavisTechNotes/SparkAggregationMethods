@@ -1,17 +1,23 @@
-from typing import Iterable, List, Optional, Tuple, Union, cast, Callable
+from typing import (Callable, Iterable, List, NamedTuple, Optional, Tuple,
+                    Union, cast)
 
 from pyspark import RDD, SparkContext, StorageLevel
 from pyspark.sql import DataFrame as spark_DataFrame
 
 from SectionPerfTest.SectionLogic import rddTypedWithIndexFactory
 from SectionPerfTest.SectionSnippetSubtotal import (
-    FIRST_LAST_FIRST, FIRST_LAST_LAST, FIRST_LAST_NEITHER,
-    CompletedStudent, StudentSnippet2,
-    completeSnippets2, gradeSummary, margeSnippets2, studentSnippetFromTypedRow2)
-from SectionPerfTest.SectionTypeDefs import (
-    DataSet, LabeledTypedRow, StudentSummary)
+    FIRST_LAST_FIRST, FIRST_LAST_LAST, FIRST_LAST_NEITHER, CompletedStudent,
+    StudentSnippet2, completeSnippets2, gradeSummary, margeSnippets2,
+    studentSnippetFromTypedRow2)
+from SectionPerfTest.SectionTypeDefs import (DataSet, LabeledTypedRow,
+                                             StudentSummary)
 from Utils.TidySparkSession import TidySparkSession
 from Utils.Utils import int_divide_round_up
+
+
+class StudentSnippetWIndex(NamedTuple):
+    Index: int
+    Value: StudentSnippet2
 
 
 def section_mappart_partials(
@@ -99,7 +105,7 @@ def section_mappart_partials_logic(
         rdd_accumulative_completed
         .map(gradeSummary)
         .sortBy(
-            lambda x: x.StudentId,
+            lambda x: x.StudentId,  # pyright: ignore[reportGeneralTypeIssues]
             numPartitions=min(default_parallelism, rdd_accumulative_completed.getNumPartitions()))
     )
 
@@ -115,21 +121,21 @@ def inner_iteration(
     rdd0, num_lines_in_rdd0, rdd_accumulative_completed = data_to_process
     print("passNumber", passNumber)
 
-    rdd2: RDD[LabeledTypedRow] = (
+    rdd2: RDD[StudentSnippetWIndex] = (
         rdd0
         .zipWithIndex()
-        .map(lambda pair: LabeledTypedRow(Index=pair[1], Value=pair[0]))
+        .map(lambda pair: StudentSnippetWIndex(Index=pair[1], Value=pair[0]))
     )
 
-    def key_by_function(x: LabeledTypedRow) -> Tuple[int, int]:
+    def key_by_function(x: StudentSnippetWIndex) -> Tuple[int, int]:
         return x.Index // maximum_processable_segment, x.Index % maximum_processable_segment
-    rdd3: RDD[Tuple[Tuple[int, int], LabeledTypedRow]] \
+    rdd3: RDD[Tuple[Tuple[int, int], StudentSnippetWIndex]] \
         = rdd2.keyBy(key_by_function)
 
     def partition_function(key: Tuple[int, int]) -> int:
         return key[0]
     targetNumPartitions = int_divide_round_up(num_lines_in_rdd0, maximum_processable_segment)
-    rdd4: RDD[Tuple[Tuple[int, int], LabeledTypedRow]] = (
+    rdd4: RDD[Tuple[Tuple[int, int], StudentSnippetWIndex]] = (
         rdd3.repartitionAndSortWithinPartitions(
             numPartitions=targetNumPartitions,
             partitionFunc=partition_function)  # type: ignore
@@ -139,8 +145,14 @@ def inner_iteration(
         )
     )
 
+    def mark_start_of_segment(
+            x: Tuple[Tuple[int, int], StudentSnippetWIndex]
+    ) -> Tuple[int, bool, int, StudentSnippet2]:
+        (segment_id, offset), row = x
+        return (segment_id, offset == 0, passNumber, row.Value)
+
     rdd5: RDD[Tuple[int, bool, int, StudentSnippet2]] \
-        = rdd4.map(lambda x: (x[0][0], x[0][1] == 0, passNumber, x[1].Value))
+        = rdd4.map(mark_start_of_segment)
 
     rdd6: RDD[Tuple[bool, Union[CompletedStudent, StudentSnippet2]]] \
         = rdd5.mapPartitions(consolidateSnippetsInPartition, preservesPartitioning=True)

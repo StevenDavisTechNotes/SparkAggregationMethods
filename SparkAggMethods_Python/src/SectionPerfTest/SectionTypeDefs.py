@@ -1,6 +1,5 @@
-import collections
 from dataclasses import dataclass
-from typing import Callable, Iterable, Optional, Tuple
+from typing import Callable, Iterable, NamedTuple, Optional, Tuple
 
 import pandas as pd
 import pyspark.sql.types as DataTypes
@@ -19,18 +18,40 @@ class ExecutionParameters:
 
 
 # region GenData
-StudentHeader = collections.namedtuple("StudentHeader",
-                                       ["StudentId", "StudentName"])
-TrimesterHeader = collections.namedtuple("TrimesterHeader",
-                                         ["Date", "WasAbroad"])
-ClassLine = collections.namedtuple("ClassLine",
-                                   ["Dept", "Credits", "Grade"])
-TrimesterFooter = collections.namedtuple("TrimesterFooter",
-                                         ["Major", "GPA", "Credits"])
+class StudentHeader(NamedTuple):
+    StudentId: int
+    StudentName: str
+
+
+class TrimesterHeader(NamedTuple):
+    Date: str
+    WasAbroad: bool
+
+
+class ClassLine(NamedTuple):
+    Dept: int
+    Credits: int
+    Grade: int
+
+
+class TrimesterFooter(NamedTuple):
+    Major: int
+    GPA: float
+    Credits: int
+
+
 TypedLine = StudentHeader | TrimesterHeader | ClassLine | TrimesterFooter
 
-StudentSummary = collections.namedtuple("StudentSummary",
-                                        ["StudentId", "StudentName", "SourceLines", "GPA", "Major", "MajorGPA"])
+
+class StudentSummary(NamedTuple):
+    StudentId: int
+    StudentName: str
+    SourceLines: int
+    GPA: float
+    Major: int
+    MajorGPA: float
+
+
 StudentSummaryStruct = DataTypes.StructType([
     DataTypes.StructField("StudentId", DataTypes.IntegerType(), True),
     DataTypes.StructField("StudentName", DataTypes.StringType(), True),
@@ -52,9 +73,13 @@ SparseLineSchema = DataTypes.StructType([
     DataTypes.StructField("TriGPA", DataTypes.DoubleType(), True),
     DataTypes.StructField("TriCredits", DataTypes.IntegerType(), True),
 ])
-LabeledTypedRow = collections.namedtuple(
-    "LabeledTypedRow",
-    ["Index", "Value"])
+
+
+class LabeledTypedRow(NamedTuple):
+    Index: int
+    Value: TypedLine
+
+
 NumDepts = 4
 # endregion
 

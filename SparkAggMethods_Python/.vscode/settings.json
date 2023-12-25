@@ -1,9 +1,9 @@
 {
-    "editor.formatOnSave": true,
     "[python]": {
+        "editor.formatOnSave": true,
         "editor.codeActionsOnSave": {
             "source.organizeImports": "explicit"
-        }
+        },
     },
     "python.languageServer": "Pylance",
     "python.analysis.diagnosticMode": "workspace",

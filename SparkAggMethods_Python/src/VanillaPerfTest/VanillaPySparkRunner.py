@@ -1,3 +1,5 @@
+#! python
+# usage: (cd src; python -m VanillaPerfTest.VanillaPySparkRunner)
 import argparse
 import gc
 import os
@@ -24,9 +26,9 @@ from VanillaPerfTest.VanillaRunResult import (derive_run_log_file_path,
                                               pyspark_infeasible)
 
 ENGINE = CalcEngine.PYSPARK
-DEBUG_ARGS = None if True else (
+DEBUG_ARGS = None if False else (
     []
-    # + '--size 10k'.split()
+    + '--size 10'.split()
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
@@ -125,6 +127,7 @@ def do_test_runs(
                 result_columns=result_columns,
                 file=file,
                 data_set=data_set,
+                correct_answer=data_set.answer.vanilla_answer,
             )
             gc.collect()
             time.sleep(0.1)

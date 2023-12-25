@@ -27,6 +27,7 @@ Close and reopen VSCode
 
 # Handy command lines
 flake8 .
+clear && flake8 . && pyright .
 autopep8 --recursive --diff . | findstr /i /c:'--- original/'
 autopep8 --recursive  --in-place .
 

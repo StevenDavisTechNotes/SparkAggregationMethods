@@ -1,3 +1,5 @@
+#! python
+# usage: (cd src; python -m ConditionalPerfTest.CondPySparkRunner)
 import argparse
 import gc
 import random
@@ -23,9 +25,9 @@ from Utils.TidySparkSession import LOCAL_NUM_EXECUTORS, TidySparkSession
 from Utils.Utils import always_true, set_random_seed
 
 ENGINE = CalcEngine.PYSPARK
-DEBUG_ARGS = None if True else (
+DEBUG_ARGS = None if False else (
     []
-    # + '--size 3_3_10k'.split()
+    + '--size 3_3_10'.split()
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
@@ -138,6 +140,7 @@ def do_test_runs(
                 result_columns=list(GrpTotal._fields),
                 file=file,
                 data_set=data_set,
+                correct_answer=data_set.answer.conditional_answer,
             )
             gc.collect()
             time.sleep(0.1)

@@ -1,3 +1,5 @@
+#! python
+# usage: (cd src; python -m BiLevelPerfTest.BiLevelPySparkRunner)
 import argparse
 import gc
 import random
@@ -23,12 +25,12 @@ from Utils.Utils import always_true, set_random_seed
 
 DEBUG_ARGS = None if False else (
     []
-    # + '--size 3_3_100k'.split()
+    + '--size 3_3_10'.split()
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
     # + ['--strategy',
-    #    'bi_sql_join',
+    #    #    'bi_sql_join',
     #    #    'bi_fluent_join',
     #    #    'bi_pandas',
     #    #    'bi_pandas_numba',
@@ -125,6 +127,7 @@ def do_pyspark_test_runs(
                 result_columns=result_columns,
                 file=file,
                 data_set=data_set,
+                correct_answer=data_set.answer.bilevel_answer,
             )
             gc.collect()
             time.sleep(0.1)

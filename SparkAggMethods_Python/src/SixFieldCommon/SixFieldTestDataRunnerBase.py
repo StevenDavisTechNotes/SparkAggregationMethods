@@ -29,6 +29,7 @@ def test_one_step_in_itinerary(
         result_columns: list[str],
         file: TextIO,
         data_set: PySparkDataSetWithAnswer,
+        correct_answer: pd.DataFrame
 ):
     startedTime = time.time()
     pending_result = test_method.delegate(
@@ -63,10 +64,19 @@ def test_one_step_in_itinerary(
                 df_answer = pd.DataFrame(columns=result_columns)
         case _:
             raise ValueError("Must return at least 1 type")
-    if 'var_of_E2' not in df_answer:
-        df_answer['var_of_E2'] = df_answer['var_of_E']
+    if correct_answer is data_set.answer.bilevel_answer:
+        if 'avg_var_of_E2' not in df_answer:
+            df_answer['avg_var_of_E2'] = df_answer['avg_var_of_E']
+    elif correct_answer is data_set.answer.conditional_answer:
+        if 'cond_var_of_E2' not in df_answer:
+            df_answer['cond_var_of_E2'] = df_answer['cond_var_of_E']
+    elif correct_answer is data_set.answer.vanilla_answer:
+        if 'var_of_E2' not in df_answer:
+            df_answer['var_of_E2'] = df_answer['var_of_E']
+    else:
+        raise ValueError("Must return at least 1 type")
     abs_diff = float(
-        (data_set.answer.vanilla_answer - df_answer)
+        (correct_answer - df_answer)
         .abs().max().max())
     status = abs_diff < 1e-12
     assert (status is True)

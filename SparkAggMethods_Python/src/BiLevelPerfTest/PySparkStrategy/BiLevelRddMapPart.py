@@ -26,12 +26,11 @@ class MutableSubGrpTotal:
         self.running_sum_of_E = 0
 
 
-@dataclass(frozen=False)
 class MutableGrpTotal:
     grp: int
-    running_sum_of_C: float = 0
-    running_max_of_D: float | None = None
-    running_subgrp_totals: dict[int, MutableSubGrpTotal] = dict()
+    running_sum_of_C: float
+    running_max_of_D: float | None
+    running_subgrp_totals: dict[int, MutableSubGrpTotal]
 
     def __init__(self, grp: int):
         self.grp = grp

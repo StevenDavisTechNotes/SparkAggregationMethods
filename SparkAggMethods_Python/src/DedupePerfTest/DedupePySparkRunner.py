@@ -1,3 +1,5 @@
+#! python
+# usage: (cd src; python -m DedupePerfTest.DedupePySparkRunner)
 import argparse
 import gc
 import math
@@ -23,9 +25,9 @@ from Utils.TidySparkSession import TidySparkSession
 from Utils.Utils import always_true, set_random_seed
 
 ENGINE = CalcEngine.PYSPARK
-DEBUG_ARGS = None if True else (
+DEBUG_ARGS = None if False else (
     []
-    # + '--size 60k'.split()
+    + '--size 2'.split()
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']

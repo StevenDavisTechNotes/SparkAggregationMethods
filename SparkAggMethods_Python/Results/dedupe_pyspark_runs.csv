@@ -175,3 +175,11 @@ success,dedupe_fluent_windows,fluent,6,50200,5,10000,7211.760504722595,10000,FAL
 success,dedupe_rdd_groupby,rdd,6,50200,5,10000,334.7028331756592,10000,FALSE,TRUE,2023-09-04T00:36:21.212857
 success,dedupe_rdd_mappart,rdd,6,50200,5,10000,407.6830003261566,10000,FALSE,TRUE,2023-09-04T00:43:09.177864
 success,dedupe_rdd_reduce,rdd,6,50200,5,10000,325.53313398361206,10000,FALSE,TRUE,2023-09-04T00:48:34.994596
+ result,strategy,interface,numSources,dataSize,dataSizeExp,actualNumPeople,elapsedTime,foundNumPeople,IsCloudMode,CanAssumeNoDupesPerPartition,finishedAt
+success,dedupe_pandas,pandas,2,2,0,1,4.333016395568848,1,FALSE,TRUE,2023-12-25T15:11:10.331856
+success,dedupe_fluent_nested_python,fluent,2,2,0,1,7.081915855407715,1,FALSE,TRUE,2023-12-25T15:11:17.538571
+success,dedupe_fluent_nested_withCol,fluent,2,2,0,1,25.707415342330933,1,FALSE,TRUE,2023-12-25T15:11:43.370904
+success,dedupe_fluent_windows,fluent,2,2,0,1,14.723369836807251,1,FALSE,TRUE,2023-12-25T15:11:58.225437
+success,dedupe_rdd_groupby,rdd,2,2,0,1,7.361128091812134,1,FALSE,TRUE,2023-12-25T15:12:05.720128
+success,dedupe_rdd_mappart,rdd,2,2,0,1,7.319827556610107,1,FALSE,TRUE,2023-12-25T15:12:13.164007
+success,dedupe_rdd_reduce,rdd,2,2,0,1,7.331759691238403,1,FALSE,TRUE,2023-12-25T15:12:20.621529

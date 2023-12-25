@@ -1,7 +1,6 @@
-import collections
 import math
 import os
-from typing import cast
+from typing import NamedTuple, cast
 
 import numpy
 import scipy.stats
@@ -16,13 +15,22 @@ from Utils.LinearRegression import linear_regression
 TEMP_RESULT_FILE_PATH = "d:/temp/SparkPerfTesting/temp.csv"
 
 
+class CondResult(NamedTuple):
+    name: str
+    interface: str
+    b0: float
+    b0_low: float
+    b0_high: float
+    b1: float
+    b1_low: float
+    b1_high: float
+    s2: float
+    s2_low: float
+    s2_high: float
+
+
 def analyze_run_results():
     cond_runs = read_run_files()
-    CondResult = collections.namedtuple("CondResult",
-                                        ["name", "interface",
-                                         "b0", "b0_low", "b0_high",
-                                         "b1", "b1_low", "b1_high",
-                                         "s2", "s2_low", "s2_high"])
     summary_status = ''
     regression_status = ''
     if True:
@@ -81,7 +89,7 @@ def analyze_run_results():
                 result.b0_low, result.b0, result.b0_high,
                 result.b1_low, result.b1, result.b1_high,
                 result.s2_low, result.s2, result.s2_high)
-    with open(FINAL_REPORT_FILE_PATH, 'wt') as f:
+    with open(FINAL_REPORT_FILE_PATH, 'w') as f:
         f.write(summary_status)
         f.write("\n")
         f.write(regression_status)

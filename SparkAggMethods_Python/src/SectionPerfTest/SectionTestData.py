@@ -15,7 +15,7 @@ SECTION_SIZE_MAXIMUM = (1 + NUM_TRIMESTERS * (1 + NUM_CLASSES_PER_TRIMESTER + 1)
 
 
 LARGEST_EXPONENT = 7  # some can operate at 8 or above
-available_data_sizes: List[str] = [
+AVAILABLE_DATA_SIZES: List[str] = [
     str(10**i) for i in range(0, LARGEST_EXPONENT + 1)]
 
 

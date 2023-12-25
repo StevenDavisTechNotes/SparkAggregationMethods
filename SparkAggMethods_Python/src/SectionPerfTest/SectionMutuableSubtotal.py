@@ -1,7 +1,9 @@
 from typing import Any, Dict, Iterable
 
-from SectionPerfTest.SectionTypeDefs import (
-    ClassLine, NumDepts, StudentHeader, StudentSummary, TrimesterFooter, TrimesterHeader, TypedLine)
+from SectionPerfTest.SectionTypeDefs import (ClassLine, NumDepts,
+                                             StudentHeader, StudentSummary,
+                                             TrimesterFooter, TrimesterHeader,
+                                             TypedLine)
 
 
 class MutableTrimester:
@@ -49,15 +51,14 @@ class MutableStudent:
             self.WeightedGradeTotal[dept] += trimester.WeightedGradeTotal[dept]
 
     def gradeSummary(self) -> StudentSummary:
+        assert self.LastMajor is not None
         return StudentSummary(
             StudentId=self.StudentId,
             StudentName=self.StudentName,
             SourceLines=self.SourceLines,
             Major=self.LastMajor,
             GPA=sum(self.WeightedGradeTotal) / max(1, sum(self.Credits)),
-            MajorGPA=self.WeightedGradeTotal[self.LastMajor] /
-            max(1, self.Credits[self.LastMajor])
-            if self.LastMajor is not None else None
+            MajorGPA=self.WeightedGradeTotal[self.LastMajor] / max(1, self.Credits[self.LastMajor]),
         )
 
     def _asdict(self) -> Dict[str, Any]:

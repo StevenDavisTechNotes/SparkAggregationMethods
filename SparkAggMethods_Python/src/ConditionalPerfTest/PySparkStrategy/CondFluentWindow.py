@@ -49,8 +49,8 @@ def cond_fluent_window(
              / func.sum(df.count_of_C_pre)
              ).alias("mean_of_C"),
             func.max(df.max_of_D_pre).alias("max_of_D"),
-            func.max(df.cond_var_of_E_1_pre).alias("cond_var_of_E_1"),
-            func.max(df.cond_var_of_E_2_pre2).alias("cond_var_of_E_2")
+            func.max(df.cond_var_of_E_1_pre).alias("cond_var_of_E"),
+            func.max(df.cond_var_of_E_2_pre2).alias("cond_var_of_E2")
         )
     )
     df = df.orderBy(df.grp, df.subgrp)

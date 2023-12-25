@@ -37,7 +37,7 @@ def section_prep_groupby(
     rdd = (
         df.rdd
         .map(rowToStudentSummary)
-        .sortBy(lambda x: x.StudentId)
+        .sortBy(keyfunc=lambda x: x.StudentId)  # pyright: ignore[reportGeneralTypeIssues]
     )
     return None, rdd, None
 

@@ -10,6 +10,7 @@ import pandas as pd
 import pyspark.sql.types as DataTypes
 
 from PerfTestCommon import CalcEngine
+from Utils.PandasHelpers import PandasSeriesOfFloat
 from Utils.Utils import always_true, int_divide_round_up
 
 SHARED_LOCAL_TEST_DATA_FILE_LOCATION = "d:/temp/SparkPerfTesting"
@@ -96,28 +97,25 @@ def populate_data_set_generic(exec_params: ExecutionParameters, num_grp_1: int, 
     df = pd.read_parquet(staging_file_name_csv)
     assert len(df) == num_data_points
     vanilla_answer: pd.DataFrame \
-        = pd.DataFrame.from_records(  # type: ignore
+        = pd.DataFrame.from_records(
             [
                 {
                     "grp": grp,
                     "subgrp": subgrp,
-                    "mean_of_C": df_cluster["C"].mean(),  # type: ignore
-                    "max_of_D": df_cluster["D"].max(),  # type: ignore
-                    "var_of_E": df_cluster["E"].var(ddof=0),  # type: ignore
-                    "var_of_E2": df_cluster["E"].var(ddof=0),  # type: ignore
+                    "mean_of_C": df_cluster["C"].mean(),
+                    "max_of_D": df_cluster["D"].max(),
+                    "var_of_E": df_cluster["E"].var(ddof=0),
+                    "var_of_E2": df_cluster["E"].var(ddof=0),
                 }
                 for grp in range(num_grp_1)
                 for subgrp in range(num_grp_2)
                 if always_true(df_cluster := df[(df["grp"] == grp) & (df["subgrp"] == subgrp)])
             ])
 
-    def hand_coded_variance(E: pd.Series[float]) -> float:
+    def hand_coded_variance(E: PandasSeriesOfFloat) -> float:
         return (
-            (E * E).sum()  # type: ignore
-            / E.count() -
-            (
-                E.sum()  # type: ignore
-                / E.count())**2
+            (E * E).sum() / E.count() -
+            (E.sum() / E.count())**2
         )
     bilevel_answer \
         = pd.DataFrame.from_records(  # type: ignore
@@ -136,9 +134,9 @@ def populate_data_set_generic(exec_params: ExecutionParameters, num_grp_1: int, 
                 for grp in range(num_grp_1)
                 if always_true(df_cluster := df[(df["grp"] == grp)])
                 if always_true(subgroupedE :=
-                               cast(pd.Series[float],
+                               cast(PandasSeriesOfFloat,
                                     df_cluster.groupby(  # type: ignore
-                                   by=['subgrp'])['E']))
+                                        by=['subgrp'])['E']))
             ])
     conditional_answer = pd.DataFrame.from_records(  # type: ignore
         [
@@ -156,7 +154,7 @@ def populate_data_set_generic(exec_params: ExecutionParameters, num_grp_1: int, 
             for grp in range(num_grp_1)
             for subgrp in range(num_grp_2)
             if always_true(df_cluster := df[(df["grp"] == grp) & (df["subgrp"] == subgrp)])
-            if always_true(negE := cast(pd.Series[float], df_cluster[df_cluster["E"] < 0]['E']))
+            if always_true(negE := cast(PandasSeriesOfFloat, df_cluster[df_cluster["E"] < 0]['E']))
         ])
     print(f"Using {num_grp_1}, {num_grp_2}, {repetition} "
           f"tgt_num_partitions={src_num_partitions} "

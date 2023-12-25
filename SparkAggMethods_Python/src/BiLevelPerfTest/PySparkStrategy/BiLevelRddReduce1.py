@@ -36,7 +36,7 @@ def bi_rdd_reduce1(
                       mergeCombiners,
                       numPartitions=data_set.data.AggTgtNumPartitions)
         .sortByKey()  # type: ignore
-        .map(finalAnalytics)
+        .map(lambda pair: finalAnalytics(pair[0], pair[1]))
     )
     return PysparkPythonPendingAnswerSet(rdd_row=rddResult)
 

@@ -7,6 +7,7 @@ from ConditionalPerfTest.CondDataTypes import (agg_columns_4, groupby_columns,
 from SixFieldCommon.PySpark_SixFieldTestData import (
     PysparkDataSet, PysparkPythonPendingAnswerSet)
 from SixFieldCommon.SixFieldTestData import ExecutionParameters
+from Utils.PandasHelpers import PandasSeriesOfFloat, PandasSeriesOfInt
 from Utils.TidySparkSession import TidySparkSession
 
 
@@ -27,7 +28,7 @@ def cond_pandas(
 
 
 def my_var(
-        E: pd.Series[float]
+        E: PandasSeriesOfFloat
 ) -> float:
     return (
         (E * E).sum()  # type: ignore
@@ -41,11 +42,11 @@ def my_var(
 def inner_agg_method(
         dfPartition: pd.DataFrame,
 ) -> pd.DataFrame:
-    group_key = cast(pd.Series[int], dfPartition['grp']).iloc[0]
-    subgroup_key = cast(pd.Series[int], dfPartition['subgrp']).iloc[0]
-    C = cast(pd.Series[float], dfPartition['C'])
-    D = cast(pd.Series[float], dfPartition['D'])
-    negE = cast(pd.Series[float], dfPartition[dfPartition["E"] < 0]['E'])
+    group_key = cast(PandasSeriesOfInt, dfPartition['grp']).iloc[0]
+    subgroup_key = cast(PandasSeriesOfInt, dfPartition['subgrp']).iloc[0]
+    C = cast(PandasSeriesOfFloat, dfPartition['C'])
+    D = cast(PandasSeriesOfFloat, dfPartition['D'])
+    negE = cast(PandasSeriesOfFloat, dfPartition[dfPartition["E"] < 0]['E'])
     return pd.DataFrame([[
         group_key,
         subgroup_key,

@@ -25,7 +25,7 @@ from VanillaPerfTest.VanillaRunResult import (dask_infeasible,
 ENGINE = CalcEngine.DASK
 DEBUG_ARGS = None if False else (
     []
-    + '--size 100k'.split()
+    + '--size 10k'.split()
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
@@ -194,6 +194,11 @@ def test_one_step_in_itinerary(
         elapsedTime=finishedTime - startedTime,
         recordCount=recordCount)
     write_run_result(test_method, result, file)
+
+
+def do_with_client(dask_client: DaskClient):
+    args = parse_args()
+    return do_test_runs(args, dask_client)
 
 
 def main():

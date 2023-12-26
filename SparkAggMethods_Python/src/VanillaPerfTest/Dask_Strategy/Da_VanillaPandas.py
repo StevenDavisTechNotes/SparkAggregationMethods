@@ -17,12 +17,10 @@ def da_vanilla_pandas(
         data_set: DaskDataSet
 ) -> Tuple[Optional[dask_bag], Optional[dask_dataframe], Optional[pd.DataFrame]]:
     df: dask_dataframe = data_set.data.dfSrc
-
     df2 = (
         df
         .groupby([df.grp, df.subgrp])
         .apply(inner_agg_method, meta=dask_post_agg_schema)
-        # dask.dataframe.groupby.Aggregation
     )
     df3 = df2.compute()
     df3 = df3.sort_values(['grp', 'subgrp']).reset_index(drop=True)

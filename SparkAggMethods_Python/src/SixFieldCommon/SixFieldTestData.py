@@ -15,7 +15,7 @@ from Utils.Utils import always_true, int_divide_round_up
 
 SHARED_LOCAL_TEST_DATA_FILE_LOCATION = "d:/temp/SparkPerfTesting"
 MAX_DATA_POINTS_PER_SPARK_PARTITION = 5 * 10**3
-MAX_DATA_POINTS_PER_DASK_PARTITION = 1 * 10**3
+MAX_DATA_POINTS_PER_DASK_PARTITION = 1 * 10**5
 
 
 @dataclass(frozen=True)

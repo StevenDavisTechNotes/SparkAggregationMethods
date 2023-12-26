@@ -25,7 +25,7 @@ from VanillaPerfTest.VanillaRunResult import (dask_infeasible,
 ENGINE = CalcEngine.DASK
 DEBUG_ARGS = None if False else (
     []
-    + '--size 10k'.split()
+    + '--size 100k'.split()
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']

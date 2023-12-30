@@ -26,7 +26,7 @@ def vanilla_pyspark_rdd_grp_map(
     rddResult = (
         data_set.data.rddSrc
         .groupBy(lambda x: (x.grp, x.subgrp))
-        .map(lambda pair: processData1(pair[0], pair[1]))
+        .map(lambda pair: process_data_1(pair[0], pair[1]))
         .repartition(numPartitions=1)
         .sortByKey()  # type: ignore
         .values()
@@ -34,7 +34,7 @@ def vanilla_pyspark_rdd_grp_map(
     return PysparkPythonPendingAnswerSet(rdd_row=rddResult)
 
 
-def processData1(
+def process_data_1(
         key: Tuple[int, int],
         iterator: Iterable[DataPoint],
 ) -> Tuple[Tuple[int, int], Row]:

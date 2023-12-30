@@ -9,7 +9,7 @@ from pyspark.sql.dataframe import DataFrame as spark_DataFrame
 # https://stackoverflow.com/questions/30304810/dataframe-ified-zipwithindex/32741497#32741497
 
 
-def dfZipWithIndex(
+def zip_dataframe_with_index(
     df, spark: SparkSession, offset: int = 1,
     colName: str = "rowId"
 ) -> spark_DataFrame:

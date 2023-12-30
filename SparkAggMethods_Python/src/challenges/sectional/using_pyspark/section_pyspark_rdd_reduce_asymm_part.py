@@ -5,10 +5,10 @@ from pyspark import RDD, StorageLevel
 from pyspark.sql import DataFrame as spark_DataFrame
 
 from challenges.sectional.domain_logic.section_data_parsers import (
-    parseLineToTypes, rddTypedWithIndexFactory)
+    parse_line_to_types, rdd_typed_with_index_factory)
 from challenges.sectional.domain_logic.section_snippet_subtotal_type import (
-    CompletedStudent, StudentSnippet1, completedFromSnippet1, gradeSummary,
-    mergeSnippetLists1, studentSnippetFromTypedRow1)
+    CompletedStudent, StudentSnippet1, completed_from_snippet_1, grade_summary,
+    merge_snippet_lists_1, student_snippet_from_typed_row_1)
 from challenges.sectional.section_test_data_types import (DataSet,
                                                           LabeledTypedRow,
                                                           StudentSummary)
@@ -26,20 +26,20 @@ def section_reduce_partials_broken(
     MaximumProcessableSegment = data_set.exec_params.MaximumProcessableSegment
 
     rdd1: RDD[LabeledTypedRow] \
-        = rddTypedWithIndexFactory(
+        = rdd_typed_with_index_factory(
         spark_session, filename, TargetNumPartitions)
     dataSize = rdd1.count()
     rdd2: RDD[List[StudentSnippet1]] = rdd1 \
-        .map(lambda x: [studentSnippetFromTypedRow1(x.Index, x.Value)])
+        .map(lambda x: [student_snippet_from_typed_row_1(x.Index, x.Value)])
     targetDepth = max(1, math.ceil(
         math.log(dataSize / MaximumProcessableSegment, MaximumProcessableSegment - 2)))
     students1: List[StudentSnippet1] \
         = rdd2.treeAggregate(
-        [], mergeSnippetLists1, mergeSnippetLists1, depth=targetDepth)
+        [], merge_snippet_lists_1, merge_snippet_lists_1, depth=targetDepth)
     students2: List[CompletedStudent] \
-        = [completedFromSnippet1(x) for x in students1]
+        = [completed_from_snippet_1(x) for x in students1]
     students3: List[StudentSummary] \
-        = [gradeSummary(x) for x in students2]
+        = [grade_summary(x) for x in students2]
     return students3, None, None
 
 
@@ -55,17 +55,17 @@ def section_pyspark_rdd_reduce_asymm_part(
     rdd1: RDD[str] = sc.textFile(filename, minPartitions=TargetNumPartitions)
     rdd2: RDD[Tuple[str, int]] = rdd1.zipWithIndex()
     rdd13: RDD[LabeledTypedRow] = rdd2 \
-        .map(lambda x: LabeledTypedRow(Index=x[1], Value=parseLineToTypes(x[0])))
+        .map(lambda x: LabeledTypedRow(Index=x[1], Value=parse_line_to_types(x[0])))
     rdd4: RDD[List[StudentSnippet1]] = rdd13 \
-        .map(lambda x: [studentSnippetFromTypedRow1(x.Index, x.Value)])
+        .map(lambda x: [student_snippet_from_typed_row_1(x.Index, x.Value)])
     divisionBase = 2
     targetDepth = max(1, math.ceil(
         math.log(dataSize / MaximumProcessableSegment, divisionBase)))
     rdd5: RDD[List[StudentSnippet1]] = non_commutative_tree_aggregate(
         rdd4,
         lambda: cast(List[StudentSnippet1], list()),
-        mergeSnippetLists1,
-        mergeSnippetLists1,
+        merge_snippet_lists_1,
+        merge_snippet_lists_1,
         depth=targetDepth,
         divisionBase=divisionBase,
         storage_level=StorageLevel.DISK_ONLY,
@@ -73,10 +73,10 @@ def section_pyspark_rdd_reduce_asymm_part(
     rdd6: RDD[StudentSnippet1] = rdd5 \
         .flatMap(lambda x: x)
     rdd7 = rdd6 \
-        .map(completedFromSnippet1)
+        .map(completed_from_snippet_1)
     rdd8: RDD[StudentSummary] = (
         rdd7
-        .map(gradeSummary)
+        .map(grade_summary)
         .sortBy(lambda x: x.StudentId)  # pyright: ignore[reportGeneralTypeIssues]
     )
     return None, rdd8, None

@@ -1,8 +1,8 @@
 from challenges.sectional.domain_logic.section_snippet_subtotal_type import (
-    CompletedStudent, gradeSummary)
+    CompletedStudent, grade_summary)
 from challenges.sectional.section_test_data_types import (NumDepts,
                                                           StudentSummary)
-from utils.printer import PrintObjectAsPythonLiteral
+from utils.printer import print_object_as_python_literal
 
 
 def test_gpa_math():
@@ -35,6 +35,6 @@ def test_gpa_math():
         Major=2,
         MajorGPA=4.714285714285714
     )
-    actual = gradeSummary(student)
-    PrintObjectAsPythonLiteral(actual)
+    actual = grade_summary(student)
+    print_object_as_python_literal(actual)
     assert expected == actual

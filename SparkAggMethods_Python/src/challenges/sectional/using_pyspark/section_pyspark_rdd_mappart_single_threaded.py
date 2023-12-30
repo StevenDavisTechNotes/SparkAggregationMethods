@@ -4,9 +4,9 @@ from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 
 from challenges.sectional.domain_logic.section_data_parsers import \
-    parseLineToTypes
+    parse_line_to_types
 from challenges.sectional.domain_logic.section_mutuable_subtotal_type import \
-    aggregateTypedRowsToGrades
+    aggregate_typed_rows_to_grades
 from challenges.sectional.section_test_data_types import (DataSet,
                                                           StudentSummary)
 from utils.tidy_spark_session import TidySparkSession
@@ -22,7 +22,7 @@ def section_pyspark_rdd_mappart_single_threaded(
     rdd = sc.textFile(data_set.data.test_filepath, minPartitions=1)
     rdd = (
         rdd
-        .map(parseLineToTypes)
-        .mapPartitions(aggregateTypedRowsToGrades)
+        .map(parse_line_to_types)
+        .mapPartitions(aggregate_typed_rows_to_grades)
     )
     return None, rdd, None

@@ -6,7 +6,7 @@ from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 
 from challenges.sectional.domain_logic.section_data_parsers import (
-    parseLineToRow, rowToStudentSummary)
+    parse_line_to_row, row_to_student_summary)
 from challenges.sectional.section_generate_test_data import \
     TEST_DATA_FILE_LOCATION
 from challenges.sectional.section_test_data_types import (DataSet,
@@ -29,20 +29,20 @@ def section_pyspark_df_prep_grp_csv(
         DataTypes.StructField("LineNumber", DataTypes.IntegerType(), True)] +
         SparseLineSchema.fields)
 
-    interFileName = convertToRowCsv(filename)
+    interFileName = convert_to_row_csv(filename)
     df = spark.read.format("csv") \
         .schema(SparseLineWithSectionIdLineNoSchema) \
         .load(interFileName)
     df = section_pyspark_rdd_prep_shared(df, sectionMaximum)
     rdd = (
         df.rdd
-        .map(rowToStudentSummary)
+        .map(row_to_student_summary)
         .sortBy(lambda x: x.StudentId)  # pyright: ignore[reportGeneralTypeIssues]
     )
     return None, rdd, None
 
 
-def convertToRowCsv(
+def convert_to_row_csv(
         srcFilename: str,
 ) -> str:
     destFilename = f"{TEST_DATA_FILE_LOCATION}/temp.csv"
@@ -54,7 +54,7 @@ def convertToRowCsv(
         with open(srcFilename, "r") as inf:
             for line in inf:
                 lineNumber += 1
-                row = parseLineToRow(line.strip())
+                row = parse_line_to_row(line.strip())
                 if row.StudentId is not None:
                     studentId = str(row.StudentId)
                 assert studentId is not None

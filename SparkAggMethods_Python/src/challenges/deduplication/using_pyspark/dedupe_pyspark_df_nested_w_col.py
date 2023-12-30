@@ -3,10 +3,10 @@ import pyspark.sql.functions as func
 from challenges.deduplication.dedupe_test_data_types import (
     DataSet, ExecutionParameters)
 from challenges.deduplication.domain_logic.dedupe_domain_methods import (
-    FindConnectedComponents_RecList, FindConnectedComponents_RecList_Returns,
-    FindRecordMatches_RecList, FindRecordMatches_RecList_Returns,
-    MergeItems_RecList, MergeItems_RecList_Returns, NestBlocksDataframe,
-    UnnestBlocksDataframe)
+    FindConnectedComponents_RecList_Returns, FindRecordMatches_RecList_Returns,
+    MergeItems_RecList_Returns, find_connected_components_rec_list,
+    find_record_matches_rec_list, merge_items_rec_list, nest_blocks_dataframe,
+    unnest_blocks_dataframe)
 from utils.tidy_spark_session import TidySparkSession
 
 
@@ -16,22 +16,22 @@ def dedupe_pyspark_df_nested_w_col(
         data_set: DataSet,
 ):
     dfSrc = data_set.df
-    df = NestBlocksDataframe(dfSrc, data_set.grouped_num_partitions)
+    df = nest_blocks_dataframe(dfSrc, data_set.grouped_num_partitions)
     df = df \
         .withColumn("FirstOrderEdges",
-                    func.udf(FindRecordMatches_RecList,
+                    func.udf(find_record_matches_rec_list,
                              FindRecordMatches_RecList_Returns)(
                         df.BlockedData))
     df = df \
         .withColumn("ConnectedComponents",
-                    func.udf(FindConnectedComponents_RecList,
+                    func.udf(find_connected_components_rec_list,
                              FindConnectedComponents_RecList_Returns)(
                         df.FirstOrderEdges)) \
         .drop(df.FirstOrderEdges)
     df = df \
         .withColumn("MergedItems",
-                    func.udf(MergeItems_RecList,
+                    func.udf(merge_items_rec_list,
                              MergeItems_RecList_Returns)(
                         df.BlockedData, df.ConnectedComponents))
-    df = UnnestBlocksDataframe(df)
+    df = unnest_blocks_dataframe(df)
     return None, df

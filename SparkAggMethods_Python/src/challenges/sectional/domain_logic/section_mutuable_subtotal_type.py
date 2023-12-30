@@ -15,12 +15,12 @@ class MutableTrimester:
         self.WeightedGradeTotal = [0 for x in range(0, NumDepts)]
         self.Major = None
 
-    def addClass(self, dept: int, credits: int, grade: int):
+    def add_class(self, dept: int, credits: int, grade: int):
         self.SourceLines += 1
         self.Credits[dept] += credits
         self.WeightedGradeTotal[dept] += credits * grade
 
-    def addFooter(self, major: int, gpa: float, credits: int):
+    def add_footer(self, major: int, gpa: float, credits: int):
         self.SourceLines += 1
         self.Major = major
 
@@ -45,14 +45,14 @@ class MutableStudent:
         self.Credits = [0 for x in range(0, NumDepts)]
         self.WeightedGradeTotal = [0 for x in range(0, NumDepts)]
 
-    def addTrimester(self, trimester: MutableTrimester) -> None:
+    def add_trimester(self, trimester: MutableTrimester) -> None:
         self.SourceLines += trimester.SourceLines
         self.LastMajor = trimester.Major
         for dept in range(0, NumDepts):
             self.Credits[dept] += trimester.Credits[dept]
             self.WeightedGradeTotal[dept] += trimester.WeightedGradeTotal[dept]
 
-    def gradeSummary(self) -> StudentSummary:
+    def grade_summary(self) -> StudentSummary:
         assert self.LastMajor is not None
         return StudentSummary(
             StudentId=self.StudentId,
@@ -68,7 +68,7 @@ class MutableStudent:
                 "Credits": list(self.Credits), "WGrade": list(self.WeightedGradeTotal)}
 
 
-def aggregateTypedRowsToGrades(
+def aggregate_typed_rows_to_grades(
         iterator: Iterable[TypedLine],
 ) -> Iterable[StudentSummary]:
     student: MutableStudent | None = None
@@ -77,21 +77,21 @@ def aggregateTypedRowsToGrades(
         match rec:
             case StudentHeader():
                 if student is not None:
-                    yield student.gradeSummary()
+                    yield student.grade_summary()
                 student = MutableStudent(rec.StudentId, rec.StudentName)
             case TrimesterHeader():
                 trimester = MutableTrimester(rec.Date, rec.WasAbroad)
             case ClassLine():
                 assert trimester is not None
-                trimester.addClass(rec.Dept, rec.Credits, rec.Grade)
+                trimester.add_class(rec.Dept, rec.Credits, rec.Grade)
             case TrimesterFooter():
                 assert trimester is not None
                 assert student is not None
-                trimester.addFooter(rec.Major, rec.GPA, rec.Credits)
-                student.addTrimester(trimester)
+                trimester.add_footer(rec.Major, rec.GPA, rec.Credits)
+                student.add_trimester(trimester)
                 trimester = None
             case _:
                 raise Exception(
                     f"Unknown parsed row type {rec.__class__.__name__} on line {lineno}")
     if student is not None:
-        yield student.gradeSummary()
+        yield student.grade_summary()

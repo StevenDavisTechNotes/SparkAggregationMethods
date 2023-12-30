@@ -20,7 +20,7 @@ AVAILABLE_DATA_SIZES: List[str] = [
     str(10**i) for i in range(0, LARGEST_EXPONENT + 1)]
 
 
-def AddMonths(
+def add_months(
         d: dt.date,
         add_months: int,
 ) -> dt.date:
@@ -45,7 +45,7 @@ def populate_data_files(
         for studentId in range(1, NumStudents + 1):
             f.write(f"S,{studentId},John{studentId}\n")
             for trimester in range(1, NumTrimesters + 1):
-                dated = AddMonths(dt.datetime(2017, 1, 1), trimester)
+                dated = add_months(dt.datetime(2017, 1, 1), trimester)
                 wasAbroad = random.randint(0, 10) == 0
                 major = (studentId %
                          NumDepts) if trimester > 1 else NumDepts - 1

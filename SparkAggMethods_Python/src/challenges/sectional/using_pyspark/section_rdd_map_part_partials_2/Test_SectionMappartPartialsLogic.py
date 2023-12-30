@@ -15,8 +15,8 @@ from challenges.sectional.section_test_data_types import (ClassLine,
                                                           TypedLine)
 from challenges.sectional.using_pyspark.section_pyspark_rdd_mappart_partials import \
     section_mappart_partials_logic
-from utils.printer import PrintObjectAsPythonLiteral
-from utils.tidy_spark_session import SPARK_SCRATCH_FOLDER, openSparkSession
+from utils.printer import print_object_as_python_literal
+from utils.tidy_spark_session import SPARK_SCRATCH_FOLDER, open_spark_session
 
 
 @pytest.fixture
@@ -149,7 +149,7 @@ def student_summary():
 def spark() -> Iterable[SparkSession]:
     enable_hive_support = False
     tidy_spark_session \
-        = openSparkSession(
+        = open_spark_session(
             spark_configs(1), enable_hive_support,
             SPARK_SCRATCH_FOLDER, 1)
     spark = tidy_spark_session.spark_session
@@ -158,7 +158,7 @@ def spark() -> Iterable[SparkSession]:
 
 
 class Test_section_mappart_partials_logic:
-    def test_OneStudent_Pass1_W_LeaderTrailer(
+    def test_one_student_pass_1_w_leader_trailer(
             self,
             student_history: List[TypedLine],
             student_summary: CompletedStudent,
@@ -180,10 +180,10 @@ class Test_section_mappart_partials_logic:
             maximum_processable_segment=10**5,
         )
         result = rdd.collect()
-        PrintObjectAsPythonLiteral(result)
+        print_object_as_python_literal(result)
         assert result == [student_summary]
 
-    def test_OneStudent_Split_Pass2_W_LeaderTrailer(
+    def test_one_student_split_pass2_w_leader_trailer(
             self,
             student_history: List[TypedLine],
             student_summary: CompletedStudent,
@@ -211,5 +211,5 @@ class Test_section_mappart_partials_logic:
                 maximum_processable_segment=10**5,
             )
             result = rdd.collect()
-            PrintObjectAsPythonLiteral(result)
+            print_object_as_python_literal(result)
             assert result == [student_summary]

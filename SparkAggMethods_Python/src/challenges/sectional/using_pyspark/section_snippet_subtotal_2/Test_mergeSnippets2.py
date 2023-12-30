@@ -1,7 +1,7 @@
 from functools import reduce
 
 from challenges.sectional.domain_logic.section_snippet_subtotal_type import (
-    FIRST_LAST_NEITHER, StudentSnippet2, margeSnippets2)
+    FIRST_LAST_NEITHER, StudentSnippet2, marge_snippets_2)
 
 
 class Test_full_set:
@@ -548,7 +548,7 @@ class Test_full_set:
     ]
 
     def test_start(self):
-        r = margeSnippets2(self.students[0], self.students[1])
+        r = marge_snippets_2(self.students[0], self.students[1])
         assert r == StudentSnippet2(
             FirstLastFlag=FIRST_LAST_NEITHER,
             FirstLineIndex=0,
@@ -562,7 +562,7 @@ class Test_full_set:
             WeightedGradeTotal=[0, 0, 0, 0])
 
     def test_end(self):
-        r = margeSnippets2(self.students[-2], self.students[-1])
+        r = marge_snippets_2(self.students[-2], self.students[-1])
         assert r == StudentSnippet2(
             FirstLastFlag=FIRST_LAST_NEITHER,
             FirstLineIndex=47,
@@ -576,7 +576,7 @@ class Test_full_set:
             WeightedGradeTotal=[0, 20, 0, 0])
 
     def test_full(self):
-        r = reduce(margeSnippets2, self.students)
+        r = reduce(marge_snippets_2, self.students)
         assert r == StudentSnippet2(
             FirstLastFlag=FIRST_LAST_NEITHER,
             FirstLineIndex=0,

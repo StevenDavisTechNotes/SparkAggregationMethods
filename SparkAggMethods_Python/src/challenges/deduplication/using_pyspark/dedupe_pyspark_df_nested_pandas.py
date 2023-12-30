@@ -8,8 +8,8 @@ from pyspark.sql import DataFrame as spark_DataFrame
 from challenges.deduplication.dedupe_test_data_types import (
     DataSet, ExecutionParameters, RecordSparseStruct)
 from challenges.deduplication.domain_logic.dedupe_domain_methods import \
-    MatchSingleName
-from utils.spark_helpers import dfZipWithIndex
+    match_single_name
+from utils.spark_helpers import zip_dataframe_with_index
 from utils.tidy_spark_session import TidySparkSession
 
 
@@ -22,7 +22,7 @@ def dedupe_pyspark_df_nested_pandas(
 
     spark = spark_session.spark
     numPartitions = data_params.NumExecutors
-    df: spark_DataFrame = dfZipWithIndex(dfSrc, spark=spark, colName="RowId")
+    df: spark_DataFrame = zip_dataframe_with_index(dfSrc, spark=spark, colName="RowId")
     df = df.withColumn(
         "BlockingKey",
         func.hash(
@@ -43,13 +43,13 @@ def dedupe_pyspark_df_nested_pandas(
 def inner_agg_method(
         dfGroup: pd.DataFrame,
 ) -> pd.DataFrame:
-    matched = findMatches(dfGroup)
-    connectedComponents = findComponents(matched)
-    mergedValue = combineComponents(dfGroup, connectedComponents)
+    matched = find_matches(dfGroup)
+    connectedComponents = find_components(matched)
+    mergedValue = combine_components(dfGroup, connectedComponents)
     return mergedValue
 
 
-def findMatches(
+def find_matches(
         df: pd.DataFrame,
 ) -> pd.DataFrame:
     toMatch = df[['RowId', 'SourceId', 'FirstName',
@@ -78,8 +78,8 @@ def findMatches(
         matched.apply(lambda x: ((x.RowIdL == x.RowIdR) or (
             (x.SourceIdL != x.SourceIdR) and
             (x.ZipCodeL == x.ZipCodeR) and
-            MatchSingleName(x.FirstNameL, x.FirstNameR, x.SecretKeyL, x.SecretKeyR) and
-            MatchSingleName(x.LastNameL, x.LastNameR, x.SecretKeyL, x.SecretKeyR))), axis=1)]
+            match_single_name(x.FirstNameL, x.FirstNameR, x.SecretKeyL, x.SecretKeyR) and
+            match_single_name(x.LastNameL, x.LastNameR, x.SecretKeyL, x.SecretKeyR))), axis=1)]
     badMatches = matched[matched.SecretKeyL != matched.SecretKeyR]
     if badMatches.size != 0:
         raise Exception(
@@ -88,7 +88,7 @@ def findMatches(
     return matched
 
 
-def findComponents(
+def find_components(
         matched: pd.DataFrame,
 ) -> List[str]:
     import networkx
@@ -97,11 +97,11 @@ def findComponents(
     return list(networkx.connected_components(G1))
 
 
-def combineComponents(
+def combine_components(
         df: pd.DataFrame,
         connectedComponents: List[str],
 ) -> pd.DataFrame:
-    def convertStrIntToMin(
+    def convert_str_int_to_min(
             column: pd.Series,
     ) -> str | None:
         lst = column.values.tolist()
@@ -145,12 +145,12 @@ def combineComponents(
         aggRec['RowId'] = members.RowId.min()
         aggRec['SecretKey'] = members.SecretKey.max()
         # would love to use DataFrame.aggregate, but nullable ints are not supported
-        aggRec['FieldA'] = convertStrIntToMin(members.FieldA)
-        aggRec['FieldB'] = convertStrIntToMin(members.FieldB)
-        aggRec['FieldC'] = convertStrIntToMin(members.FieldC)
-        aggRec['FieldD'] = convertStrIntToMin(members.FieldD)
-        aggRec['FieldE'] = convertStrIntToMin(members.FieldE)
-        aggRec['FieldF'] = convertStrIntToMin(members.FieldF)
+        aggRec['FieldA'] = convert_str_int_to_min(members.FieldA)
+        aggRec['FieldB'] = convert_str_int_to_min(members.FieldB)
+        aggRec['FieldC'] = convert_str_int_to_min(members.FieldC)
+        aggRec['FieldD'] = convert_str_int_to_min(members.FieldD)
+        aggRec['FieldE'] = convert_str_int_to_min(members.FieldE)
+        aggRec['FieldF'] = convert_str_int_to_min(members.FieldF)
         mergedValues = pd.concat([mergedValues, aggRec], sort=False)
 
     mergedValues = mergedValues \

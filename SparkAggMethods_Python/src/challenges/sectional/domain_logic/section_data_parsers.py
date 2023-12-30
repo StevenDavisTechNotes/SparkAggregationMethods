@@ -19,7 +19,7 @@ from utils.tidy_spark_session import TidySparkSession
 # region parsers
 
 
-def parseLineToTypes(
+def parse_line_to_types(
         line: str,
 ) -> StudentHeader | TrimesterHeader | ClassLine | TrimesterFooter:
     fields = line.rstrip().split(',')
@@ -36,7 +36,7 @@ def parseLineToTypes(
     raise Exception("Malformed data " + line)
 
 
-def parseLineToRow(
+def parse_line_to_row(
         line: str,
 ) -> Row:
     fields = line.split(',')
@@ -67,7 +67,7 @@ def parseLineToRow(
     raise Exception("Malformed data " + line)
 
 
-def dfSparseRowsFactory(
+def df_sparse_rows_factory(
         spark_session: TidySparkSession,
         filename: str,
         numPartitions: int | None = None
@@ -75,12 +75,12 @@ def dfSparseRowsFactory(
     rdd1: RDD[str] = spark_session.spark_context.textFile(
         filename, minPartitions=(numPartitions or 1))
     rdd2: RDD[Row] = rdd1 \
-        .map(parseLineToRow)
+        .map(parse_line_to_row)
     df = spark_session.spark.createDataFrame(rdd2, SparseLineSchema)
     return df
 
 
-def rddTypedWithIndexFactory(
+def rdd_typed_with_index_factory(
         spark_session: TidySparkSession,
         filename: str,
         numPartitions: int | None = None
@@ -88,7 +88,7 @@ def rddTypedWithIndexFactory(
     rdd = spark_session.spark_context.textFile(
         filename, minPartitions=(numPartitions or 1))
     rddTypedWithIndex = rdd \
-        .map(parseLineToTypes) \
+        .map(parse_line_to_types) \
         .zipWithIndex() \
         .map(lambda pair:
              LabeledTypedRow(
@@ -100,7 +100,7 @@ def rddTypedWithIndexFactory(
 # region aggregators
 
 
-def rowToStudentSummary(
+def row_to_student_summary(
         x: Row
 ) -> StudentSummary:
     return StudentSummary(
@@ -116,7 +116,7 @@ def rowToStudentSummary(
 # region Preprocessor
 
 
-def identifySectionUsingIntermediateFile(
+def identify_section_using_intermediate_file(
         srcFilename: str,
 ) -> str:
     destFilename = f"{TEST_DATA_FILE_LOCATION}/temp.csv"

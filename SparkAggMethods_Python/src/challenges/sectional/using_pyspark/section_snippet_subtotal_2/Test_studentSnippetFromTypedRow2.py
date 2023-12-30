@@ -1,6 +1,6 @@
 
 from challenges.sectional.domain_logic.section_snippet_subtotal_type import (
-    FIRST_LAST_NEITHER, StudentSnippet2, studentSnippetFromTypedRow2)
+    FIRST_LAST_NEITHER, StudentSnippet2, student_snippet_from_typed_row_2)
 from challenges.sectional.section_test_data_types import (ClassLine, NumDepts,
                                                           StudentHeader,
                                                           TrimesterFooter,
@@ -29,7 +29,7 @@ class Test_StudentHeader:
             FirstLastFlag=FIRST_LAST_NEITHER,
             FirstLineIndex=lineIndex,
             LastLineIndex=lineIndex)
-        actual = studentSnippetFromTypedRow2(
+        actual = student_snippet_from_typed_row_2(
             lineIndex=lineIndex,
             rec=src,
         )
@@ -58,7 +58,7 @@ class Test_TrimesterHeader:
             FirstLastFlag=FIRST_LAST_NEITHER,
             FirstLineIndex=lineIndex,
             LastLineIndex=lineIndex)
-        actual = studentSnippetFromTypedRow2(
+        actual = student_snippet_from_typed_row_2(
             lineIndex=lineIndex,
             rec=src,
         )
@@ -89,7 +89,7 @@ class Test_ClassLine:
             FirstLastFlag=FIRST_LAST_NEITHER,
             FirstLineIndex=lineIndex,
             LastLineIndex=lineIndex)
-        actual = studentSnippetFromTypedRow2(
+        actual = student_snippet_from_typed_row_2(
             lineIndex=lineIndex,
             rec=src,
         )
@@ -120,7 +120,7 @@ class Test_TrimesterFooter:
             FirstLastFlag=FIRST_LAST_NEITHER,
             FirstLineIndex=lineIndex,
             LastLineIndex=lineIndex)
-        actual = studentSnippetFromTypedRow2(
+        actual = student_snippet_from_typed_row_2(
             lineIndex=lineIndex,
             rec=src,
         )

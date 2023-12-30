@@ -7,7 +7,7 @@ from pyspark.sql import Row
 from challenges.deduplication.dedupe_test_data_types import (
     DataSet, ExecutionParameters)
 from challenges.deduplication.domain_logic.dedupe_domain_methods import (
-    BlockingFunction, CombineRowList, IsMatch)
+    blocking_function, combine_row_list, is_match)
 from utils.tidy_spark_session import TidySparkSession
 
 
@@ -18,17 +18,17 @@ def dedupe_pyspark_rdd_reduce(
 ):
     dfSrc = data_set.df
     numPartitions = data_set.grouped_num_partitions
-    appendRowToList = appendRowToListDisjoint \
+    appendRowToList = append_row_to_list_disjoint \
         if data_params.CanAssumeNoDupesPerPartition \
-        else appendRowToListMixed
+        else append_row_to_list_mixed
     rdd2: RDD[Tuple[int, Row]] = \
         dfSrc.rdd \
-        .keyBy(BlockingFunction)
+        .keyBy(blocking_function)
     rdd3: RDD[Tuple[int, List[Row]]] = rdd2 \
         .combineByKey(
             lambda x: [x],
             appendRowToList,
-            CombineRowLists,
+            combine_row_lists,
             numPartitions)
     rdd4: RDD[Row] = rdd3 \
         .mapPartitionsWithIndex(
@@ -40,7 +40,7 @@ def dedupe_pyspark_rdd_reduce(
     return rdd4, None
 
 
-def appendRowToListDisjoint(
+def append_row_to_list_disjoint(
         lrows: List[Row],
         rrow: Row,
 ) -> List[Row]:
@@ -48,7 +48,7 @@ def appendRowToListDisjoint(
     return lrows
 
 
-def appendRowToListMixed(
+def append_row_to_list_mixed(
         lrows: List[Row],
         rrow: Row,
 ) -> List[Row]:
@@ -56,13 +56,13 @@ def appendRowToListMixed(
     found = False
     for lindex in range(0, nInitialLRows):
         lrow = lrows[lindex]
-        if not IsMatch(
+        if not is_match(
                 lrow.FirstName, rrow.FirstName,
                 lrow.LastName, rrow.LastName,
                 lrow.ZipCode, rrow.ZipCode,
                 lrow.SecretKey, rrow.SecretKey):
             continue
-        lrows[lindex] = CombineRowList([lrow, rrow])
+        lrows[lindex] = combine_row_list([lrow, rrow])
         found = True
         break
     if not found:
@@ -70,7 +70,7 @@ def appendRowToListMixed(
     return lrows
 
 
-def CombineRowLists(
+def combine_row_lists(
         lrows: List[Row],
         rrows: List[Row],
 ) -> List[Row]:
@@ -79,13 +79,13 @@ def CombineRowLists(
         found = False
         for lindex in range(0, nInitialLRows):
             lrow = lrows[lindex]
-            if not IsMatch(
+            if not is_match(
                     lrow.FirstName, rrow.FirstName,
                     lrow.LastName, rrow.LastName,
                     lrow.ZipCode, rrow.ZipCode,
                     lrow.SecretKey, rrow.SecretKey):
                 continue
-            lrows[lindex] = CombineRowList([lrow, rrow])
+            lrows[lindex] = combine_row_list([lrow, rrow])
             found = True
             break
         if not found:

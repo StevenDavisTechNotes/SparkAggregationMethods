@@ -12,7 +12,7 @@ def always_true(
     return True
 
 
-def detectCPUs():
+def detect_cpus():
     return multiprocessing.cpu_count()
 
 

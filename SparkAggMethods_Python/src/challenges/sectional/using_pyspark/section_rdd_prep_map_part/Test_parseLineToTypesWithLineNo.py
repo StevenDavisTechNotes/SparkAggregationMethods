@@ -4,8 +4,8 @@ from challenges.sectional.section_test_data_types import (ClassLine,
                                                           TrimesterHeader,
                                                           TypedLine)
 from challenges.sectional.using_pyspark.section_pyspark_rdd_prep_mappart import \
-    parseLineToTypesWithLineNo
-from utils.printer import PrintObjectAsPythonLiteral
+    parse_line_to_types_with_line_no
+from utils.printer import print_object_as_python_literal
 
 
 def test_nominal():
@@ -75,6 +75,6 @@ def test_nominal():
         )
     ]
 
-    actual = list(map(lambda x: parseLineToTypesWithLineNo('filename', 441+x[0], x[1]), enumerate(prepped_data)))
-    PrintObjectAsPythonLiteral(actual)
+    actual = list(map(lambda x: parse_line_to_types_with_line_no('filename', 441+x[0], x[1]), enumerate(prepped_data)))
+    print_object_as_python_literal(actual)
     assert expected == actual

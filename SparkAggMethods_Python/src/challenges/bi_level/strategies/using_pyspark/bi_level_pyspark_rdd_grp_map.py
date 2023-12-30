@@ -29,7 +29,7 @@ def bi_level_pyspark_rdd_grp_map(
         RDD[Row],
         rddSrc
         .groupBy(lambda x: x.grp)
-        .map(lambda pair: processData1(pair[0], pair[1]))
+        .map(lambda pair: process_data_1(pair[0], pair[1]))
         .repartition(numPartitions=1)
         .sortByKey()  # type: ignore
         .values()
@@ -53,7 +53,7 @@ class MutableRunningTotal:
         self.running_sub_count = 0
 
 
-def processData1(
+def process_data_1(
         grp: int,
         iterator: Iterable[DataPoint]
 ) -> tuple[int, Row]:

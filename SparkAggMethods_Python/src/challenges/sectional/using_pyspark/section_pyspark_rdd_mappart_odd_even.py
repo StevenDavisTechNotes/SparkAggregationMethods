@@ -4,7 +4,7 @@ from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 
 from challenges.sectional.domain_logic.section_data_parsers import \
-    rddTypedWithIndexFactory
+    rdd_typed_with_index_factory
 from challenges.sectional.domain_logic.section_mutuable_subtotal_type import (
     MutableStudent, MutableTrimester)
 from challenges.sectional.section_test_data_types import (ClassLine, DataSet,
@@ -28,7 +28,7 @@ def section_pyspark_rdd_mappart_odd_even(
     SegmentOffset = sectionMaximum - 1
     SegmentExtra = 2 * sectionMaximum
     SegmentSize = SegmentOffset + sectionMaximum - 1 + SegmentExtra
-    rddTypedWithIndex = rddTypedWithIndexFactory(
+    rddTypedWithIndex = rdd_typed_with_index_factory(
         spark_session, filename, TargetNumPartitions)
     rddSegmentsEven = cast(Any, rddTypedWithIndex) \
         .keyBy(lambda x: (x.Index // SegmentSize, x.Index)) \
@@ -53,7 +53,7 @@ def section_pyspark_rdd_mappart_odd_even(
             numPartitions=TargetNumPartitions,
             partitionFunc=lambda x: x[0])
         .map(lambda x: x[1])
-        .mapPartitions(chooseCompleteSection)
+        .mapPartitions(choose_complete_section)
         .sortBy(lambda x: x.StudentId)
     )
     rdd = rddParallelMapPartitions
@@ -70,7 +70,7 @@ def aggregate(
         index = labeled_row.Index
         if prevIndex + 1 != index:
             if student is not None:
-                yield student.gradeSummary()
+                yield student.grade_summary()
                 student = None
         prevIndex = index
         rec = labeled_row.Value
@@ -78,7 +78,7 @@ def aggregate(
         if complete_student is not None:
             yield complete_student
     if student is not None:
-        yield student.gradeSummary()
+        yield student.grade_summary()
 
 
 def accumulate_one_line(
@@ -89,7 +89,7 @@ def accumulate_one_line(
     complete_student: Optional[StudentSummary] = None
     if isinstance(rec, StudentHeader):
         if student is not None:
-            complete_student = student.gradeSummary()
+            complete_student = student.grade_summary()
         student = MutableStudent(rec.StudentId, rec.StudentName)
     elif student is None:  # since the section may be split
         pass
@@ -98,17 +98,17 @@ def accumulate_one_line(
     elif trimester is None:  # since the section may be split
         pass
     elif isinstance(rec, ClassLine):
-        trimester.addClass(rec.Dept, rec.Credits, rec.Grade)
+        trimester.add_class(rec.Dept, rec.Credits, rec.Grade)
     elif isinstance(rec, TrimesterFooter):
-        trimester.addFooter(rec.Major, rec.GPA, rec.Credits)
-        student.addTrimester(trimester)
+        trimester.add_footer(rec.Major, rec.GPA, rec.Credits)
+        student.add_trimester(trimester)
         trimester = None
     else:
         raise Exception("Unknown parsed row type")
     return complete_student, student, trimester
 
 
-def chooseCompleteSection(
+def choose_complete_section(
         iterator: Iterable[StudentSummary]
 ) -> Iterable[StudentSummary]:
     held = None

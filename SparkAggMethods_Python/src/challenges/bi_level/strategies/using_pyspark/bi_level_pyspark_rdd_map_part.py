@@ -65,16 +65,16 @@ def bi_level_pyspark_rdd_map_part(
     rddResult = cast(
         RDD[Row],
         rddSrc
-        .mapPartitions(partitionTriage)
+        .mapPartitions(partition_triage)
         .groupByKey(numPartitions=data_set.data.AggTgtNumPartitions)
-        .map(lambda kv: (kv[0], mergeCombiners3(kv[0], kv[1])))
+        .map(lambda kv: (kv[0], merge_combiners_3(kv[0], kv[1])))
         .sortByKey()  # type: ignore
         .values()
     )
     return PysparkPythonPendingAnswerSet(rdd_row=rddResult)
 
 
-def partitionTriage(
+def partition_triage(
         iterator: Iterable[DataPoint]
 ) -> Iterable[Tuple[int, SubTotal1]]:
     running_grp_totals: Dict[int, MutableGrpTotal] = dict()
@@ -119,7 +119,7 @@ def partitionTriage(
         )
 
 
-def mergeCombiners3(
+def merge_combiners_3(
         grp: int,
         iterable: Iterable[SubTotal1]
 ) -> Row:

@@ -1,7 +1,7 @@
 from functools import reduce
 
 from challenges.sectional.domain_logic.section_snippet_subtotal_type import (
-    StudentSnippet1, mergeSnippetLists1)
+    StudentSnippet1, merge_snippet_lists_1)
 
 
 class Test_full_set:
@@ -499,7 +499,7 @@ class Test_full_set:
     ]
 
     def test_start(self):
-        r = mergeSnippetLists1([self.students[0]], [self.students[1]])
+        r = merge_snippet_lists_1([self.students[0]], [self.students[1]])
         assert r == [StudentSnippet1(
             FirstLineIndex=0,
             LastLineIndex=1,
@@ -512,7 +512,7 @@ class Test_full_set:
             WeightedGradeTotal=[0, 0, 0, 0])]
 
     def test_end(self):
-        r = mergeSnippetLists1([self.students[-2]], [self.students[-1]])
+        r = merge_snippet_lists_1([self.students[-2]], [self.students[-1]])
         assert r == [StudentSnippet1(
             FirstLineIndex=47,
             LastLineIndex=48,
@@ -525,7 +525,7 @@ class Test_full_set:
             WeightedGradeTotal=[0, 20, 0, 0])]
 
     def test_full(self):
-        r = reduce(mergeSnippetLists1, map(lambda x: [x], self.students))
+        r = reduce(merge_snippet_lists_1, map(lambda x: [x], self.students))
         assert r == [StudentSnippet1(
             FirstLineIndex=0,
             LastLineIndex=48,

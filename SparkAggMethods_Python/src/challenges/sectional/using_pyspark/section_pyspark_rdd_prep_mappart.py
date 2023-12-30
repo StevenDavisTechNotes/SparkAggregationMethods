@@ -2,9 +2,9 @@ from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 
 from challenges.sectional.domain_logic.section_data_parsers import \
-    identifySectionUsingIntermediateFile
+    identify_section_using_intermediate_file
 from challenges.sectional.domain_logic.section_mutuable_subtotal_type import \
-    aggregateTypedRowsToGrades
+    aggregate_typed_rows_to_grades
 from challenges.sectional.section_test_data_types import (ClassLine, DataSet,
                                                           StudentHeader,
                                                           StudentSummary,
@@ -22,11 +22,11 @@ def section_pyspark_rdd_prep_mappart(
     filename = data_set.data.test_filepath
     TargetNumPartitions = data_set.data.target_num_partitions
 
-    interFileName = identifySectionUsingIntermediateFile(filename)
+    interFileName = identify_section_using_intermediate_file(filename)
     rdd1: RDD[tuple[tuple[int, int], TypedLine]] = (
         sc.textFile(interFileName, TargetNumPartitions)
         .zipWithIndex()
-        .map(lambda pair: parseLineToTypesWithLineNo(filename, pair[1], pair[0]))
+        .map(lambda pair: parse_line_to_types_with_line_no(filename, pair[1], pair[0]))
     )
     rdd: RDD[StudentSummary] = (
         rdd1
@@ -35,13 +35,13 @@ def section_pyspark_rdd_prep_mappart(
             partitionFunc=lambda x: x[0],  # type: ignore
         )
         .values()
-        .mapPartitions(aggregateTypedRowsToGrades)
+        .mapPartitions(aggregate_typed_rows_to_grades)
         .sortBy(lambda x: x.StudentId)
     )
     return None, rdd, None
 
 
-def parseLineToTypesWithLineNo(
+def parse_line_to_types_with_line_no(
         filename: str,
         lineNumber: int,
         line: str,
@@ -93,4 +93,4 @@ if __name__ == "__main__":
     prepped_file_path = "D:\\temp\\SparkPerfTesting\\temp.csv"
     with open(prepped_file_path, "rt") as fh:
         for iline, line in enumerate(fh):
-            parseLineToTypesWithLineNo(prepped_file_path, iline, line.rstrip())
+            parse_line_to_types_with_line_no(prepped_file_path, iline, line.rstrip())

@@ -4,9 +4,9 @@ from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 
 from challenges.sectional.domain_logic.section_data_parsers import \
-    parseLineToTypes
+    parse_line_to_types
 from challenges.sectional.domain_logic.section_mutuable_subtotal_type import \
-    aggregateTypedRowsToGrades
+    aggregate_typed_rows_to_grades
 from challenges.sectional.section_test_data_types import (DataSet,
                                                           StudentSummary)
 from utils.tidy_spark_session import TidySparkSession
@@ -20,8 +20,8 @@ def section_nospark_logic(
             for line in fh:
                 yield line
 
-    parsed_iterable = map(parseLineToTypes, read_file())
-    return aggregateTypedRowsToGrades(parsed_iterable)
+    parsed_iterable = map(parse_line_to_types, read_file())
+    return aggregate_typed_rows_to_grades(parsed_iterable)
 
 
 def section_nospark_single_threaded(

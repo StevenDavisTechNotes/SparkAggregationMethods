@@ -22,7 +22,7 @@ class OpenSparkSession:
     log: Any
 
 
-def openSparkSession(
+def open_spark_session(
         config_dict: Dict[str, Any],
         enable_hive_support: bool,
         spark_scratch_folder: str,
@@ -83,9 +83,9 @@ class TidySparkSession:
             config_dict: Dict[str, Any],
             enable_hive_support: bool
     ):
-        self.createScratchFolder()
-        self.cleanUpScratchFolder()
-        open_session = openSparkSession(
+        self.create_scratch_folder()
+        self.clean_up_scratch_folder()
+        open_session = open_spark_session(
             config_dict=config_dict,
             enable_hive_support=enable_hive_support,
             spark_scratch_folder=SPARK_SCRATCH_FOLDER,
@@ -103,10 +103,10 @@ class TidySparkSession:
     def __exit__(self, exc_type, exc_value, exc_traceback) -> None:
         self.spark.stop()
 
-    def createScratchFolder(self) -> None:
+    def create_scratch_folder(self) -> None:
         if os.path.exists(SPARK_SCRATCH_FOLDER) is False:
             os.mkdir(SPARK_SCRATCH_FOLDER)
 
-    def cleanUpScratchFolder(self) -> None:
+    def clean_up_scratch_folder(self) -> None:
         for item in Path(SPARK_SCRATCH_FOLDER).iterdir():
             shutil.rmtree(item)

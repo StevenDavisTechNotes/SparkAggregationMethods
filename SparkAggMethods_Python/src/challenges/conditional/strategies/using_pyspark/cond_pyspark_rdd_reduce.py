@@ -20,18 +20,18 @@ def cond_pyspark_rdd_reduce(
         RDD[GrpTotal],
         data_set.data.rddSrc
         .map(lambda x: ((x.grp, x.subgrp), x))
-        .combineByKey(createCombiner2,
-                      mergeValue2,
-                      mergeCombiners2,
+        .combineByKey(create_combiner_2,
+                      merge_value_2,
+                      merge_combiners_2,
                       numPartitions=data_set.description.NumGroups * data_set.description.NumSubGroups)
-        .map(lambda kv: (kv[0], finalAnalytics2(kv[0], kv[1])))
+        .map(lambda kv: (kv[0], final_analytics_2(kv[0], kv[1])))
         .sortByKey()  # type: ignore
         .values()
     )
     return PysparkPythonPendingAnswerSet(rdd_tuple=rddResult)
 
 
-def mergeValue2(
+def merge_value_2(
         sub: SubTotal,
         v: DataPoint,
 ) -> SubTotal:
@@ -57,10 +57,10 @@ def mergeValue2(
         running_cond_count=running_cond_count)
 
 
-def createCombiner2(
+def create_combiner_2(
         v: DataPoint,
 ) -> SubTotal:
-    return mergeValue2(SubTotal(
+    return merge_value_2(SubTotal(
         running_sum_of_C=0,
         running_uncond_count=0,
         running_max_of_D=None,
@@ -69,7 +69,7 @@ def createCombiner2(
         running_cond_count=0), v)
 
 
-def mergeCombiners2(
+def merge_combiners_2(
         lsub: SubTotal,
         rsub: SubTotal,
 ) -> SubTotal:
@@ -87,7 +87,7 @@ def mergeCombiners2(
         running_cond_count=lsub.running_cond_count + rsub.running_cond_count)
 
 
-def finalAnalytics2(
+def final_analytics_2(
         key: Tuple[int, int],
         total: SubTotal,
 ) -> GrpTotal:

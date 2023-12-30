@@ -45,10 +45,10 @@ def vanilla_pyspark_rdd_mappart(
     rddSrc = data_set.data.rddSrc
     sumCount = (
         rddSrc
-        .mapPartitions(partitionTriage)
+        .mapPartitions(partition_triage)
         .groupByKey()
-        .map(lambda kv: (kv[0], mergeCombiners3(kv[0], kv[1])))
-        .map(lambda kv: finalAnalytics2(kv[0], kv[1]))
+        .map(lambda kv: (kv[0], merge_combiners_3(kv[0], kv[1])))
+        .map(lambda kv: final_analytics_2(kv[0], kv[1]))
     )
     rddResult = sumCount.sortBy(
         lambda x: (x.grp, x.subgrp),  # type: ignore
@@ -56,7 +56,7 @@ def vanilla_pyspark_rdd_mappart(
     return PysparkPythonPendingAnswerSet(rdd_row=rddResult)
 
 
-def partitionTriage(
+def partition_triage(
         iterator: Iterable[DataPoint],
 ) -> Iterable[Tuple[Tuple[int, int], SubTotal]]:
     running_subtotals = {}
@@ -93,7 +93,7 @@ def max(
     return rhs
 
 
-def mergeCombiners3(
+def merge_combiners_3(
         key: Tuple[int, int],
         iterable: Iterable[SubTotal],
 ) -> SubTotal:
@@ -113,7 +113,7 @@ def mergeCombiners3(
         running_sum_of_E=lsub.running_sum_of_E)
 
 
-def finalAnalytics2(
+def final_analytics_2(
         key: Tuple[int, int],
         final: SubTotal,
 ) -> Row:

@@ -5,11 +5,11 @@ from pyspark import RDD, SparkContext, StorageLevel
 from pyspark.sql import DataFrame as spark_DataFrame
 
 from challenges.sectional.domain_logic.section_data_parsers import \
-    rddTypedWithIndexFactory
+    rdd_typed_with_index_factory
 from challenges.sectional.domain_logic.section_snippet_subtotal_type import (
     FIRST_LAST_FIRST, FIRST_LAST_LAST, FIRST_LAST_NEITHER, CompletedStudent,
-    StudentSnippet2, completeSnippets2, gradeSummary, margeSnippets2,
-    studentSnippetFromTypedRow2)
+    StudentSnippet2, complete_snippets_2, grade_summary, marge_snippets_2,
+    student_snippet_from_typed_row_2)
 from challenges.sectional.section_test_data_types import (DataSet,
                                                           LabeledTypedRow,
                                                           StudentSummary)
@@ -32,7 +32,7 @@ def section_pyspark_rdd_mappart_partials(
     default_parallelism = data_set.exec_params.DefaultParallelism
     maximum_processable_segment = data_set.exec_params.MaximumProcessableSegment
     targetNumPartitions = int_divide_round_up(expected_row_count + 2, maximum_processable_segment)
-    rdd_orig: RDD[LabeledTypedRow] = rddTypedWithIndexFactory(spark_session, filename, targetNumPartitions)
+    rdd_orig: RDD[LabeledTypedRow] = rdd_typed_with_index_factory(spark_session, filename, targetNumPartitions)
 
     def report_num_completed(complete_count: int) -> None:
         print(f"Completed {complete_count} of {data_set.description.num_students}")
@@ -66,7 +66,7 @@ def section_mappart_partials_logic(
             numSlices=1)
         .union(
             rdd_orig
-            .map(lambda x: studentSnippetFromTypedRow2(x.Index, x.Value)))
+            .map(lambda x: student_snippet_from_typed_row_2(x.Index, x.Value)))
         .union(
             sc.parallelize([
                 StudentSnippet2(
@@ -105,7 +105,7 @@ def section_mappart_partials_logic(
             raise RecursionError("Too many passes")
     rdd_answer: RDD[StudentSummary] = (
         rdd_accumulative_completed
-        .map(gradeSummary)
+        .map(grade_summary)
         .sortBy(
             lambda x: x.StudentId,  # pyright: ignore[reportGeneralTypeIssues]
             numPartitions=min(default_parallelism, rdd_accumulative_completed.getNumPartitions()))
@@ -157,7 +157,7 @@ def inner_iteration(
         = rdd4.map(mark_start_of_segment)
 
     rdd6: RDD[Tuple[bool, Union[CompletedStudent, StudentSnippet2]]] \
-        = rdd5.mapPartitions(consolidateSnippetsInPartition, preservesPartitioning=True)
+        = rdd5.mapPartitions(consolidate_snippets_in_partition, preservesPartitioning=True)
     rdd6.persist(StorageLevel.DISK_ONLY)
     try:
 
@@ -195,7 +195,7 @@ def inner_iteration(
         rdd6.unpersist()
 
 
-def consolidateSnippetsInPartition(
+def consolidate_snippets_in_partition(
         iter: Iterable[Tuple[int, bool, int, StudentSnippet2]]
 ) -> Iterable[Tuple[bool, Union[CompletedStudent, StudentSnippet2]]]:
     front_is_clean: bool = False
@@ -212,7 +212,7 @@ def consolidateSnippetsInPartition(
                 (rMember.FirstLastFlag == FIRST_LAST_LAST)
                 or (rMember.StudentId is not None)
             ):
-                completedItems, remaining_snippets = completeSnippets2(
+                completedItems, remaining_snippets = complete_snippets_2(
                     building_snippet, front_is_clean=front_is_clean, back_is_clean=True)
                 for item in completedItems:
                     yield True, item
@@ -227,6 +227,6 @@ def consolidateSnippetsInPartition(
         if building_snippet is None:
             building_snippet = rMember
         else:
-            building_snippet = margeSnippets2(building_snippet, rMember)
+            building_snippet = marge_snippets_2(building_snippet, rMember)
     if building_snippet is not None:
         yield False, building_snippet

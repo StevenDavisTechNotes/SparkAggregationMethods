@@ -4,7 +4,7 @@ from challenges.sectional.domain_logic.section_snippet_subtotal_type import (
     FIRST_LAST_FIRST, FIRST_LAST_LAST, FIRST_LAST_NEITHER, CompletedStudent,
     StudentSnippet2)
 from challenges.sectional.using_pyspark.section_pyspark_rdd_mappart_partials import \
-    consolidateSnippetsInPartition
+    consolidate_snippets_in_partition
 
 
 @pytest.fixture
@@ -930,24 +930,24 @@ def completed_student():
     )
 
 
-def test_OneStudent_Pass1_NotLeaderTrailer(
+def test_one_student_pass_1_not_leader_trailer(
         student_history: list[tuple[int, bool, int, StudentSnippet2]],
         baked_snippet: StudentSnippet2,
 ):
-    result = list(consolidateSnippetsInPartition(student_history))
+    result = list(consolidate_snippets_in_partition(student_history))
     assert len(result) == 1
     is_complete, snippet = result[0]
     assert is_complete is False
     assert snippet == baked_snippet
 
 
-def test_OneStudent_Pass1_W_LeaderTrailer(
+def test_one_student_pass_1_w_leader_trailer(
         student_history_w_leader_trailer: list[tuple[int, bool, int, StudentSnippet2]],
         student_history_leader: list[tuple[int, bool, int, StudentSnippet2]],
         student_history_trailer: list[tuple[int, bool, int, StudentSnippet2]],
         completed_student: StudentSnippet2,
 ):
-    result = list(consolidateSnippetsInPartition(student_history_w_leader_trailer))
+    result = list(consolidate_snippets_in_partition(student_history_w_leader_trailer))
     assert len(result) == 3
 
     is_complete, snippet = result[0]

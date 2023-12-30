@@ -17,11 +17,11 @@ def cond_pyspark_rdd_map_part(
 
     rddSumCount = (
         data_set.data.rddSrc
-        .mapPartitionsWithIndex(partitionTriage)
+        .mapPartitionsWithIndex(partition_triage)
         .groupByKey(
             numPartitions=data_set.description.NumGroups * data_set.description.NumSubGroups)
-        .map(lambda kv: (kv[0], mergeCombiners3(kv[0], kv[1])))
-        .map(lambda kv: (kv[0], finalAnalytics2(kv[0], kv[1])))
+        .map(lambda kv: (kv[0], merge_combiners_3(kv[0], kv[1])))
+        .map(lambda kv: (kv[0], final_analytics_2(kv[0], kv[1])))
         .sortByKey()  # type: ignore
         .values()
     )
@@ -45,7 +45,7 @@ class MutableRunningTotal:
         self.running_cond_count = 0
 
 
-def partitionTriage(
+def partition_triage(
         _splitIndex: int,
         iterator: Iterable[DataPoint]
 ) -> Iterable[tuple[tuple[int, int], SubTotal]]:
@@ -78,7 +78,7 @@ def partitionTriage(
             running_cond_count=sub.running_cond_count))
 
 
-def mergeCombiners3(
+def merge_combiners_3(
         _key: Tuple[int, int],
         iterable: Iterable[SubTotal],
 ) -> SubTotal:
@@ -105,7 +105,7 @@ def mergeCombiners3(
         running_cond_count=lsub.running_cond_count)
 
 
-def finalAnalytics2(
+def final_analytics_2(
         key: Tuple[int, int],
         total: SubTotal,
 ) -> GrpTotal:

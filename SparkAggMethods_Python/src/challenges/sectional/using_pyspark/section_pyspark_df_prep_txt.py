@@ -6,7 +6,7 @@ from pyspark.sql import DataFrame as spark_DataFrame
 from pyspark.sql import Row
 
 from challenges.sectional.domain_logic.section_data_parsers import (
-    identifySectionUsingIntermediateFile, rowToStudentSummary)
+    identify_section_using_intermediate_file, row_to_student_summary)
 from challenges.sectional.section_test_data_types import (DataSet,
                                                           SparseLineSchema,
                                                           StudentSummary)
@@ -29,21 +29,21 @@ def section_pyspark_df_prep_txt(
         DataTypes.StructField("LineNumber", DataTypes.IntegerType(), True)] +
         SparseLineSchema.fields)
 
-    interFileName = identifySectionUsingIntermediateFile(filename)
+    interFileName = identify_section_using_intermediate_file(filename)
     rdd = sc.textFile(interFileName, data_set.data.target_num_partitions) \
         .zipWithIndex() \
-        .map(parseLineToRowWithLineNo)
+        .map(parse_line_to_row_with_line_no)
     df = spark.createDataFrame(rdd, SparseLineWithSectionIdLineNoSchema)
     df = section_pyspark_rdd_prep_shared(df, sectionMaximum)
     rdd = (
         df.rdd
-        .map(rowToStudentSummary)
+        .map(row_to_student_summary)
         .sortBy(keyfunc=lambda x: x.StudentId)  # pyright: ignore[reportGeneralTypeIssues]
     )
     return None, rdd, None
 
 
-def parseLineToRowWithLineNo(
+def parse_line_to_row_with_line_no(
         arg: Tuple[str, int],
 ) -> Row:
     lineNumber = int(arg[1])

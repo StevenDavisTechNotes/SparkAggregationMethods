@@ -20,7 +20,7 @@ from challenges.deduplication.dedupe_strategy_directory import (
 from challenges.deduplication.dedupe_test_data_types import (
     DataSet, ExecutionParameters)
 from challenges.deduplication.domain_logic.dedupe_expected_results import (
-    ItineraryItem, verifyCorrectness)
+    ItineraryItem, verify_correctness)
 from perf_test_common import CalcEngine
 from utils.tidy_spark_session import TidySparkSession
 from utils.utils import always_true, set_random_seed
@@ -144,7 +144,7 @@ def run_one_itinerary_step(
         success = False
     elapsedTime = time.time() - startedTime
     foundNumPeople = len(foundPeople)
-    success = verifyCorrectness(itinerary_item, foundPeople)
+    success = verify_correctness(itinerary_item, foundPeople)
     assert success is True
     result = RunResult(
         numSources=itinerary_item.data_set.num_sources,

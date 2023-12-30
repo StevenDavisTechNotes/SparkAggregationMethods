@@ -16,7 +16,7 @@ MatchThreshold = 0.9
 T = TypeVar('T', bound=Union[float, str])
 
 
-def MinNotNull(
+def min_not_null(
         lst: List[Optional[T]]
 ) -> Optional[T]:
     filteredList: List[T] = [
@@ -25,7 +25,7 @@ def MinNotNull(
         if len(filteredList) > 0 else None
 
 
-def FirstNotNull(
+def first_not_null(
         lst: List[Optional[T]]
 ) -> Optional[T]:
     for x in lst:
@@ -36,7 +36,7 @@ def FirstNotNull(
 # region IsMatch
 
 
-def IsMatch(
+def is_match(
         iFirstName: str,
         jFirstName: str,
         iLastName: str,
@@ -77,7 +77,7 @@ def IsMatch(
     return True
 
 
-def MatchSingleName(
+def match_single_name(
         lhs: str,
         rhs: str,
         iSecretKey: int,
@@ -98,12 +98,12 @@ def MatchSingleName(
 MatchSingleName_Returns = DataTypes.BooleanType()
 
 udfMatchSingleName = func.udf(
-    MatchSingleName, MatchSingleName_Returns)
+    match_single_name, MatchSingleName_Returns)
 # endregion
 # region Shared blockprocessing
 
 
-def NestBlocksDataframe(
+def nest_blocks_dataframe(
         df: spark_DataFrame,
         grouped_num_partitions: int,
 ) -> spark_DataFrame:
@@ -123,7 +123,7 @@ def NestBlocksDataframe(
     return df
 
 
-def UnnestBlocksDataframe(
+def unnest_blocks_dataframe(
         df: spark_DataFrame,
 ) -> spark_DataFrame:
     df = (
@@ -136,7 +136,7 @@ def UnnestBlocksDataframe(
     return df
 
 
-def BlockingFunction(
+def blocking_function(
         x: DataTypes.Row
 ) -> int:
     return hash((
@@ -155,7 +155,7 @@ FindRecordMatches_RecList_Returns = DataTypes.ArrayType(
     ]))
 
 
-def FindRecordMatches_RecList(
+def find_record_matches_rec_list(
         recordList: List[DataTypes.Row],
 ) -> List[DataTypes.Row]:
     n = len(recordList)
@@ -166,7 +166,7 @@ def FindRecordMatches_RecList(
             jrow = recordList[j]
             if irow.SourceId == jrow.SourceId:
                 continue
-            if IsMatch(
+            if is_match(
                     irow.FirstName, jrow.FirstName,
                     irow.LastName, jrow.LastName,
                     irow.ZipCode, jrow.ZipCode,
@@ -197,7 +197,7 @@ FindConnectedComponents_RecList_Returns = DataTypes.ArrayType(
     ]))
 
 
-def FindConnectedComponents_RecList(
+def find_connected_components_rec_list(
         edgeList: list[DataTypes.Row],
 ) -> List[DataTypes.Row]:
     # This is not optimal for large components.  See GraphFrame
@@ -243,7 +243,7 @@ MergeItems_RecList_Returns = DataTypes.ArrayType(
                                DataTypes.StringType(), False),]))
 
 
-def MergeItems_RecList(
+def merge_items_rec_list(
         blockedDataList: List[DataTypes.Row],
         connectedComponentList: List[DataTypes.Row],
 ) -> List[DataTypes.Row]:
@@ -257,7 +257,7 @@ def MergeItems_RecList(
             [blockedDataList[i]
              for i in component.idVertexList]
         assert len(constituentList) > 1
-        returnList.append(CombineRowList(constituentList))
+        returnList.append(combine_row_list(constituentList))
     for idx, rec in enumerate(blockedDataList):
         if idx in verticesInAComponent:
             continue
@@ -265,7 +265,7 @@ def MergeItems_RecList(
     return returnList
 
 
-def CombineRowList(
+def combine_row_list(
         constituentList: List[DataTypes.Row],
 ) -> DataTypes.Row:
     mutableRec: Dict[str, Union[str, int, None]] = constituentList[0].asDict()
@@ -296,17 +296,17 @@ def CombineRowList(
             mutableRec['City'] = contributor.City
             mutableRec['ZipCode'] = contributor.ZipCode
     mutableRec['FieldA'] = \
-        MinNotNull([x.FieldA for x in constituentList])
+        min_not_null([x.FieldA for x in constituentList])
     mutableRec['FieldB'] = \
-        MinNotNull([x.FieldB for x in constituentList])
+        min_not_null([x.FieldB for x in constituentList])
     mutableRec['FieldC'] = \
-        MinNotNull([x.FieldC for x in constituentList])
+        min_not_null([x.FieldC for x in constituentList])
     mutableRec['FieldD'] = \
-        MinNotNull([x.FieldD for x in constituentList])
+        min_not_null([x.FieldD for x in constituentList])
     mutableRec['FieldE'] = \
-        MinNotNull([x.FieldE for x in constituentList])
+        min_not_null([x.FieldE for x in constituentList])
     mutableRec['FieldF'] = \
-        MinNotNull([x.FieldF for x in constituentList])
+        min_not_null([x.FieldF for x in constituentList])
     if 'BlockingKey' in mutableRec:
         row = DataTypes.Row(*(
             mutableRec['FirstName'],
@@ -348,13 +348,13 @@ def CombineRowList(
 SinglePass_RecList_DF_Returns = MergeItems_RecList_Returns
 
 
-def SinglePass_RecList(
+def single_pass_rec_list(
         blockedData: List[DataTypes.Row],
 ) -> List[DataTypes.Row]:
-    firstOrderEdges = FindRecordMatches_RecList(blockedData)
-    connectedComponents = FindConnectedComponents_RecList(firstOrderEdges)
+    firstOrderEdges = find_record_matches_rec_list(blockedData)
+    connectedComponents = find_connected_components_rec_list(firstOrderEdges)
     firstOrderEdges = None
-    mergedItems = MergeItems_RecList(blockedData, connectedComponents)
+    mergedItems = merge_items_rec_list(blockedData, connectedComponents)
     return mergedItems
 
 # endregion

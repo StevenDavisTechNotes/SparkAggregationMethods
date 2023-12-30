@@ -14,21 +14,21 @@ def non_commutative_tree_aggregate(
         divisionBase: int = 2,
         storage_level: Optional[StorageLevel] = None,
 ) -> RDD[T]:
-    def aggregatePartition(
+    def aggregate_partition(
             ipart: int,
             iterator: Iterable[tuple[int, T]],
     ) -> Iterable[tuple[int, T]]:
-        return full_aggregatePartition(ipart, iterator, zeroValueFactory, seqOp)
+        return full_aggregate_partition(ipart, iterator, zeroValueFactory, seqOp)
 
-    def combineInPartition(
+    def combine_in_partition(
             ipart: int,
             iterator: Iterable[tuple[tuple[int, int], tuple[int, T]]],
     ) -> Iterable[tuple[int, T]]:
-        return full_combineInPartition(ipart, iterator, zeroValueFactory, combOp)
+        return full_combine_in_partition(ipart, iterator, zeroValueFactory, combOp)
 
     def process_rdd(rdd_loop: RDD[Tuple[int, T]], numRows: int, idepth: int,
                     divisionBase: int) -> RDD[Tuple[int, T]]:
-        return full_process_rdd(rdd_loop, numRows, idepth, divisionBase, combineInPartition)
+        return full_process_rdd(rdd_loop, numRows, idepth, divisionBase, combine_in_partition)
 
     persistedRDD = rdd1
     if storage_level is not None:
@@ -41,7 +41,7 @@ def non_commutative_tree_aggregate(
         persistedRDD.unpersist()
     persistedRDD = rdd2
     rdd3: RDD[tuple[int, T]] = rdd2.map(lambda x: (x[1], x[0]))
-    rdd_loop: RDD[tuple[int, T]] = rdd3.mapPartitionsWithIndex(aggregatePartition)
+    rdd_loop: RDD[tuple[int, T]] = rdd3.mapPartitionsWithIndex(aggregate_partition)
     for idepth in range(depth - 1, -1, -1):
         rdd_loop = process_rdd(rdd_loop, numRows, idepth, divisionBase)
     rdd8: RDD[T] = rdd_loop \
@@ -49,7 +49,7 @@ def non_commutative_tree_aggregate(
     return rdd8
 
 
-def full_aggregatePartition(
+def full_aggregate_partition(
         ipart: int,
         iterator: Iterable[tuple[int, T]],
         zeroValueFactory: Callable[[], T],
@@ -64,7 +64,7 @@ def full_aggregatePartition(
         yield (lastindex, acc)
 
 
-def full_combineInPartition(
+def full_combine_in_partition(
         ipart: int,
         iterator: Iterable[tuple[tuple[int, int], tuple[int, T]]],
         zeroValueFactory: Callable[[], T],

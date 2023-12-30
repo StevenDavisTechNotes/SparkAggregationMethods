@@ -8,7 +8,7 @@ from pyspark.sql import Row
 from pyspark.sql.window import Window
 
 from challenges.sectional.domain_logic.section_data_parsers import (
-    parseLineToRow, rowToStudentSummary)
+    parse_line_to_row, row_to_student_summary)
 from challenges.sectional.section_test_data_types import (DataSet,
                                                           SparseLineSchema,
                                                           StudentSummary)
@@ -29,7 +29,7 @@ def section_join_groupby(
     rdd = (
         rdd
         .zipWithIndex()
-        .map(lambda x: withIndexColumn(x[1], parseLineToRow(x[0]))))
+        .map(lambda x: with_index_column(x[1], parse_line_to_row(x[0]))))
     SparseLineWithLineNoSchema = DataTypes.StructType([
         DataTypes.StructField("LineNumber", DataTypes.IntegerType(), True)] +
         SparseLineSchema.fields)
@@ -108,11 +108,11 @@ def section_join_groupby(
         .drop(df.MajorCredits)
         .sort(df.StudentId)
     )
-    rdd = df.rdd.map(rowToStudentSummary)
+    rdd = df.rdd.map(row_to_student_summary)
     return None, rdd, None
 
 
-def withIndexColumn(
+def with_index_column(
         lineNumber: int,
         row: Row,
 ) -> Row:

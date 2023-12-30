@@ -47,7 +47,7 @@ class CompletedStudent(NamedTuple):
     LastLineIndex: int
 
 
-def studentSnippetFromTypedRow1(
+def student_snippet_from_typed_row_1(
     lineIndex: int,
     rec: TypedLine,
 ) -> StudentSnippet1:
@@ -104,7 +104,7 @@ def studentSnippetFromTypedRow1(
             raise Exception("Unknown parsed row type")
 
 
-def studentSnippetFromTypedRow2(
+def student_snippet_from_typed_row_2(
     lineIndex: int,
     rec: TypedLine,
 ) -> StudentSnippet2:
@@ -165,7 +165,7 @@ def studentSnippetFromTypedRow2(
             raise Exception("Unknown parsed row type")
 
 
-def completedFromSnippet1(
+def completed_from_snippet_1(
         lhs: StudentSnippet1,
 ) -> CompletedStudent:
     assert lhs.StudentId is not None
@@ -181,7 +181,7 @@ def completedFromSnippet1(
         LastLineIndex=lhs.LastLineIndex)
 
 
-def completedFromSnippet2(
+def completed_from_snippet_2(
         lhs: StudentSnippet2,
 ) -> CompletedStudent:
     assert lhs.StudentId is not None
@@ -199,7 +199,7 @@ def completedFromSnippet2(
         LastLineIndex=lhs.LastLineIndex)
 
 
-def margeSnippets2(
+def marge_snippets_2(
         lhs: StudentSnippet2,
         rhs: StudentSnippet2
 ) -> StudentSnippet2:
@@ -236,18 +236,18 @@ def margeSnippets2(
         LastLineIndex=rhs.LastLineIndex)
 
 
-def completeSnippets2(
+def complete_snippets_2(
         building_snippet: StudentSnippet2,
         front_is_clean: bool,
         back_is_clean: bool,
 ) -> tuple[List[CompletedStudent], List[StudentSnippet2]]:
     # assert front_is_clean == (building_snippet.StudentId is not None)
     if front_is_clean and back_is_clean:
-        return [completedFromSnippet2(building_snippet)], []
+        return [completed_from_snippet_2(building_snippet)], []
     return [], [building_snippet]
 
 
-def mergeSnippetLists1(
+def merge_snippet_lists_1(
         lhgroup: List[StudentSnippet1],
         rhgroup: List[StudentSnippet1]
 ) -> List[StudentSnippet1]:
@@ -284,7 +284,7 @@ def mergeSnippetLists1(
     return lhgroup
 
 
-def gradeSummary(
+def grade_summary(
         x: CompletedStudent
 ) -> StudentSummary:
     assert x.LastMajor is not None

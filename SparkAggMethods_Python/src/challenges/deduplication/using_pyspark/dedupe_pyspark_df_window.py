@@ -6,7 +6,7 @@ from challenges.deduplication.dedupe_test_data_types import (
     DataSet, ExecutionParameters)
 from challenges.deduplication.domain_logic.dedupe_domain_methods import \
     udfMatchSingleName
-from utils.spark_helpers import dfZipWithIndex
+from utils.spark_helpers import zip_dataframe_with_index
 from utils.tidy_spark_session import TidySparkSession
 
 
@@ -20,7 +20,7 @@ def dedupe_pyspark_df_window(
     numPartitions = max(
         4 * data_params.NumExecutors,  # cross product
         data_set.grouped_num_partitions)
-    df = dfZipWithIndex(dfSrc, spark=spark_session.spark, colName="RowId")
+    df = zip_dataframe_with_index(dfSrc, spark=spark_session.spark, colName="RowId")
     df = df \
         .withColumn("BlockingKey",
                     func.hash(

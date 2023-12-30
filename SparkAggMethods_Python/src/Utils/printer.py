@@ -1,7 +1,8 @@
 import io
 import os
 import re
-from typing import Any, TextIO, Optional, List, cast
+from typing import Any, List, Optional, TextIO, cast
+
 import prettyprinter
 
 
@@ -75,7 +76,7 @@ def pprints(
         fh.write(text)
 
 
-def PrintObjectAsPythonLiteral(
+def print_object_as_python_literal(
         rows: Any,
         suffix: str = "",
 ) -> None:
@@ -83,7 +84,7 @@ def PrintObjectAsPythonLiteral(
         pprints(rows, fh)
 
 
-def PrintText(
+def print_text(
         src: str,
         suffix: str = "",
 ) -> None:

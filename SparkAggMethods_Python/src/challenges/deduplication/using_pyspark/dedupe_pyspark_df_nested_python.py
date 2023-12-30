@@ -3,8 +3,8 @@ import pyspark.sql.functions as func
 from challenges.deduplication.dedupe_test_data_types import (
     DataSet, ExecutionParameters)
 from challenges.deduplication.domain_logic.dedupe_domain_methods import (
-    NestBlocksDataframe, SinglePass_RecList, SinglePass_RecList_DF_Returns,
-    UnnestBlocksDataframe)
+    SinglePass_RecList_DF_Returns, nest_blocks_dataframe, single_pass_rec_list,
+    unnest_blocks_dataframe)
 from utils.tidy_spark_session import TidySparkSession
 
 
@@ -14,11 +14,11 @@ def dedupe_pyspark_df_nested_python(
         data_set: DataSet,
 ):
     dfSrc = data_set.df
-    df = NestBlocksDataframe(dfSrc, data_set.grouped_num_partitions)
+    df = nest_blocks_dataframe(dfSrc, data_set.grouped_num_partitions)
     df = df \
         .withColumn("MergedItems",
-                    func.udf(SinglePass_RecList,
+                    func.udf(single_pass_rec_list,
                              SinglePass_RecList_DF_Returns)(
                         df.BlockedData))
-    df = UnnestBlocksDataframe(df)
+    df = unnest_blocks_dataframe(df)
     return None, df

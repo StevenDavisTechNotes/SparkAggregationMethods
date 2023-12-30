@@ -26,11 +26,11 @@ def vanilla_pyspark_rdd_reduce(
     sumCount: RDD[Row] = (
         data_set.data.rddSrc
         .map(lambda x: ((x.grp, x.subgrp), x))
-        .combineByKey(createCombiner2,
-                      mergeValue2,
-                      mergeCombiners2,
+        .combineByKey(create_combiner_2,
+                      merge_value_2,
+                      merge_combiners_2,
                       numPartitions=data_set.data.AggTgtNumPartitions)
-        .map(lambda kv: finalAnalytics2(kv[0], kv[1])))
+        .map(lambda kv: final_analytics_2(kv[0], kv[1])))
     rddResult = sumCount.sortBy(
         keyfunc=lambda x: (x.grp, x.subgrp))  # type: ignore
     return PysparkPythonPendingAnswerSet(rdd_row=rddResult)
@@ -49,7 +49,7 @@ def max(
     return rhs
 
 
-def createAccumulator() -> SubTotalDC:
+def create_accumulator() -> SubTotalDC:
     return SubTotalDC(
         running_sum_of_C=0,
         running_count=0,
@@ -58,7 +58,7 @@ def createAccumulator() -> SubTotalDC:
         running_sum_of_E=0)
 
 
-def mergeValue2(
+def merge_value_2(
         sub: SubTotalDC,
         v: DataPoint,
 ) -> SubTotalDC:
@@ -72,13 +72,13 @@ def mergeValue2(
         running_sum_of_E=running_sum_of_E)
 
 
-def createCombiner2(
+def create_combiner_2(
         v: DataPoint,
 ) -> SubTotalDC:
-    return mergeValue2(createAccumulator(), v)
+    return merge_value_2(create_accumulator(), v)
 
 
-def mergeCombiners2(
+def merge_combiners_2(
         lsub: SubTotalDC,
         rsub: SubTotalDC,
 ) -> SubTotalDC:
@@ -92,7 +92,7 @@ def mergeCombiners2(
     )
 
 
-def finalAnalytics2(
+def final_analytics_2(
         key: Tuple[int, int],
         total: SubTotalDC,
 ) -> Row:

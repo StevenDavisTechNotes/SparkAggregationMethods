@@ -4,12 +4,12 @@ from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
 from pyspark.sql import Row
 
-from challenges.deduplication.dedupe_generate_test_data import nameHash
+from challenges.deduplication.dedupe_generate_test_data import name_hash
 from challenges.deduplication.dedupe_test_data_types import (
     ItineraryItem, RecordSparseStruct)
 
 
-def arrangeFieldOrder(
+def arrange_field_order(
         rec: Row,
 ) -> Row:
     row = Row(*(
@@ -29,7 +29,7 @@ def arrangeFieldOrder(
     return row
 
 
-def verifyCorrectness(
+def verify_correctness(
         itinerary_items: ItineraryItem,
         lst: List[Row],
 ):
@@ -63,12 +63,12 @@ def verify_single_line(  # noqa: C901
         index: int,
         row: Row) -> None:
     i = index + 1
-    if f"FFFFFFA{i}_{nameHash(i)}" != row.FirstName:
+    if f"FFFFFFA{i}_{name_hash(i)}" != row.FirstName:
         raise Exception(
-            f"{i}: FFFFFFA{i}_{nameHash(i)} != {row.FirstName}")
-    if f'LLLLLLA{i}_{nameHash(i)}' != row.LastName:
+            f"{i}: FFFFFFA{i}_{name_hash(i)} != {row.FirstName}")
+    if f'LLLLLLA{i}_{name_hash(i)}' != row.LastName:
         raise Exception(
-            f'{i}: LLLLLLA{i}_{nameHash(i)} != {row.LastName}')
+            f'{i}: LLLLLLA{i}_{name_hash(i)} != {row.LastName}')
     if f'{i} Main St' != row.StreetAddress:
         raise Exception(f'{i} Main St != row.StreetAddress')
     if 'Plaineville ME' != row.City:
@@ -128,7 +128,7 @@ def count_in_a_partition(
     yield idx, sum(1 for _ in iterator)
 
 
-def printPartitionDistribution(
+def print_partition_distribution(
         rddout: RDD[Row],
         dfout: spark_DataFrame,
 ) -> None:

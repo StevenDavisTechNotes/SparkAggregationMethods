@@ -53,7 +53,7 @@ def derive_file_path(
     return root_path + "/Dedupe_Field%s%d.csv" % (source_code, num_people)
 
 
-def nameHash(
+def name_hash(
         i: int,
 ) -> str:
     return hashlib.sha512(str(i).encode('utf8')).hexdigest()
@@ -65,8 +65,8 @@ def line(
 ) -> str:
     letter = misspelledLetter
     v = f"""
-FFFFFF{letter}{i}_{nameHash(i)},
-LLLLLL{letter}{i}_{nameHash(i)},
+FFFFFF{letter}{i}_{name_hash(i)},
+LLLLLL{letter}{i}_{name_hash(i)},
 {i} Main St,Plaineville ME,
 {(i-1)%100:05d},
 {i},

@@ -28,20 +28,20 @@ def bi_level_pyspark_rdd_reduce_2(
     rddResult = (
         rddSrc
         .map(lambda x: ((x.grp, x.subgrp), x))
-        .combineByKey(createCombiner,
-                      mergeValue,
-                      mergeCombiners,
+        .combineByKey(create_combiner,
+                      merge_value,
+                      merge_combiners,
                       numPartitions=data_set.data.AggTgtNumPartitions)
         .map(lambda x: (x[0][0], x[1]))
         .groupByKey(numPartitions=1)
-        .map(lambda x: (x[0], finalAnalytics(x[0], x[1])))
+        .map(lambda x: (x[0], final_analytics(x[0], x[1])))
         .sortByKey()  # type: ignore
         .values()
     )
     return PysparkPythonPendingAnswerSet(rdd_row=rddResult)
 
 
-def mergeValue(
+def merge_value(
         pre: SubTotal,
         v: DataPoint,
 ) -> SubTotal:
@@ -57,10 +57,10 @@ def mergeValue(
         running_sum_of_E=pre.running_sum_of_E + v.E)
 
 
-def createCombiner(
+def create_combiner(
         v: DataPoint,
 ) -> SubTotal:
-    return mergeValue(SubTotal(
+    return merge_value(SubTotal(
         running_sum_of_C=0,
         running_count=0,
         running_max_of_D=None,
@@ -68,7 +68,7 @@ def createCombiner(
         running_sum_of_E=0), v)
 
 
-def mergeCombiners(
+def merge_combiners(
         lsub: SubTotal,
         rsub: SubTotal,
 ) -> SubTotal:
@@ -85,7 +85,7 @@ def mergeCombiners(
         running_sum_of_E=lsub.running_sum_of_E + rsub.running_sum_of_E)
 
 
-def finalAnalytics(
+def final_analytics(
         grp: int,
         iterator: Iterable[SubTotal]
 ) -> Row:

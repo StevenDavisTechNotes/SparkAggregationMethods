@@ -1,6 +1,6 @@
 
 from challenges.sectional.domain_logic.section_snippet_subtotal_type import (
-    StudentSnippet1, studentSnippetFromTypedRow1)
+    StudentSnippet1, student_snippet_from_typed_row_1)
 from challenges.sectional.section_test_data_types import (ClassLine, NumDepts,
                                                           StudentHeader,
                                                           TrimesterFooter,
@@ -28,7 +28,7 @@ class Test_StudentHeader:
             WeightedGradeTotal=[0 for _ in range(0, NumDepts)],
             FirstLineIndex=lineIndex,
             LastLineIndex=lineIndex)
-        actual = studentSnippetFromTypedRow1(
+        actual = student_snippet_from_typed_row_1(
             lineIndex=lineIndex,
             rec=src,
         )
@@ -56,7 +56,7 @@ class Test_TrimesterHeader:
             WeightedGradeTotal=[0 for _ in range(0, NumDepts)],
             FirstLineIndex=lineIndex,
             LastLineIndex=lineIndex)
-        actual = studentSnippetFromTypedRow1(
+        actual = student_snippet_from_typed_row_1(
             lineIndex=lineIndex,
             rec=src,
         )
@@ -86,7 +86,7 @@ class Test_ClassLine:
             WeightedGradeTotal=[(credits * grade if x == dept else 0) for x in range(0, NumDepts)],
             FirstLineIndex=lineIndex,
             LastLineIndex=lineIndex)
-        actual = studentSnippetFromTypedRow1(
+        actual = student_snippet_from_typed_row_1(
             lineIndex=lineIndex,
             rec=src,
         )
@@ -116,7 +116,7 @@ class Test_TrimesterFooter:
             WeightedGradeTotal=[0 for _ in range(0, NumDepts)],
             FirstLineIndex=lineIndex,
             LastLineIndex=lineIndex)
-        actual = studentSnippetFromTypedRow1(
+        actual = student_snippet_from_typed_row_1(
             lineIndex=lineIndex,
             rec=src,
         )

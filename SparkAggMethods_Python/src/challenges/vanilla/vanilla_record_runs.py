@@ -56,7 +56,9 @@ def dask_infeasible(
     match strategy_name:
         case 'da_vanilla_pandas':
             return (
-                data_set.description.NumDataPoints // data_set.description.NumGroups // data_set.description.NumSubGroups
+                data_set.description.NumDataPoints
+                // data_set.description.NumGroups
+                // data_set.description.NumSubGroups
                 > 10**4
             )
         case _:

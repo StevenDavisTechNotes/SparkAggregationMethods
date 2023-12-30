@@ -6,6 +6,7 @@ dask[complete]
 findspark
 flake8
 ipykernel
+networkx
 numba
 numpy>=1.14
 pandas>=0.23.2,<2.0

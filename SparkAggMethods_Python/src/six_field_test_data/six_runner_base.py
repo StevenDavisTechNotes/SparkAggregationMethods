@@ -12,7 +12,7 @@ from six_field_test_data.six_generate_test_data_using_pyspark import (
 from six_field_test_data.six_run_result_types import write_run_result
 from six_field_test_data.six_test_data_types import (ExecutionParameters,
                                                      RunResult)
-from utils.TidySparkSession import TidySparkSession
+from utils.tidy_spark_session import TidySparkSession
 
 
 def to_some_rdd(result: PysparkPythonPendingAnswerSet) -> Optional[RDD]:

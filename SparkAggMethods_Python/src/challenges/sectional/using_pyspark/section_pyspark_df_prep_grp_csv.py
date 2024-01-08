@@ -1,17 +1,13 @@
 import os
-from typing import List, Tuple
 
 import pyspark.sql.types as DataTypes
-from pyspark import RDD
-from pyspark.sql import DataFrame as spark_DataFrame
 
 from challenges.sectional.domain_logic.section_data_parsers import (
     parse_line_to_row, row_to_student_summary)
 from challenges.sectional.section_generate_test_data import \
     TEST_DATA_FILE_LOCATION
-from challenges.sectional.section_test_data_types import (DataSet,
-                                                          SparseLineSchema,
-                                                          StudentSummary)
+from challenges.sectional.section_test_data_types import (
+    DataSet, PysparkPythonPendingAnswerSet, SparseLineSchema)
 from challenges.sectional.using_pyspark.section_pyspark_rdd_prep_shared import \
     section_pyspark_rdd_prep_shared
 from utils.tidy_spark_session import TidySparkSession
@@ -20,7 +16,10 @@ from utils.tidy_spark_session import TidySparkSession
 def section_pyspark_df_prep_grp_csv(
         spark_session: TidySparkSession,
         data_set: DataSet,
-) -> Tuple[List[StudentSummary] | None, RDD | None, spark_DataFrame | None]:
+) -> PysparkPythonPendingAnswerSet:
+    if data_set.description.num_students > pow(10, 8-1):
+        # times out
+        return PysparkPythonPendingAnswerSet(feasible=False)
     spark = spark_session.spark
     sectionMaximum = data_set.data.section_maximum
     filename = data_set.data.test_filepath
@@ -39,7 +38,7 @@ def section_pyspark_df_prep_grp_csv(
         .map(row_to_student_summary)
         .sortBy(lambda x: x.StudentId)  # pyright: ignore[reportGeneralTypeIssues]
     )
-    return None, rdd, None
+    return PysparkPythonPendingAnswerSet(rdd_tuple=rdd)
 
 
 def convert_to_row_csv(

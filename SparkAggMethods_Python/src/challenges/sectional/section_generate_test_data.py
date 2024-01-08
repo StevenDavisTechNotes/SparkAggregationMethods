@@ -1,7 +1,6 @@
 import datetime as dt
 import os
 import random
-from typing import List
 
 from challenges.sectional.section_test_data_types import (DataSet, DataSetData,
                                                           DataSetDescription,
@@ -16,7 +15,7 @@ SECTION_SIZE_MAXIMUM = (1 + NUM_TRIMESTERS * (1 + NUM_CLASSES_PER_TRIMESTER + 1)
 
 
 LARGEST_EXPONENT = 7  # some can operate at 8 or above
-AVAILABLE_DATA_SIZES: List[str] = [
+AVAILABLE_DATA_SIZES: list[str] = [
     str(10**i) for i in range(0, LARGEST_EXPONENT + 1)]
 
 
@@ -67,8 +66,8 @@ def populate_data_files(
 def populate_data_sets(
         exec_params: ExecutionParameters,
         make_new_files: bool,
-) -> List[DataSet]:
-    datasets: List[DataSet] = []
+) -> list[DataSet]:
+    datasets: list[DataSet] = []
     num_students = 1
     for i_scale in range(0, LARGEST_EXPONENT + 1):
         num_students = 10**i_scale

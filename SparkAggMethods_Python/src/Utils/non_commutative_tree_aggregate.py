@@ -1,4 +1,4 @@
-from typing import Callable, Iterable, Optional, Tuple, TypeVar, cast
+from typing import Callable, Iterable, Optional, TypeVar, cast
 
 from pyspark import RDD, StorageLevel
 
@@ -26,8 +26,8 @@ def non_commutative_tree_aggregate(
     ) -> Iterable[tuple[int, T]]:
         return full_combine_in_partition(ipart, iterator, zeroValueFactory, combOp)
 
-    def process_rdd(rdd_loop: RDD[Tuple[int, T]], numRows: int, idepth: int,
-                    divisionBase: int) -> RDD[Tuple[int, T]]:
+    def process_rdd(rdd_loop: RDD[tuple[int, T]], numRows: int, idepth: int,
+                    divisionBase: int) -> RDD[tuple[int, T]]:
         return full_process_rdd(rdd_loop, numRows, idepth, divisionBase, combine_in_partition)
 
     persistedRDD = rdd1
@@ -80,26 +80,26 @@ def full_combine_in_partition(
 
 
 def full_process_rdd(
-        rdd_loop: RDD[Tuple[int, T]],
+        rdd_loop: RDD[tuple[int, T]],
         numRows: int,
         idepth: int,
         divisionBase: int,
-        combineInPartition: Callable[[int, Iterable[Tuple[Tuple[int, int], Tuple[int, T]]]], Iterable[Tuple[int, T]]],
-) -> RDD[Tuple[int, T]]:
+        combineInPartition: Callable[[int, Iterable[tuple[tuple[int, int], tuple[int, T]]]], Iterable[tuple[int, T]]],
+) -> RDD[tuple[int, T]]:
     rdd_loop.localCheckpoint()
     numSegments = pow(divisionBase, idepth)
     if numSegments >= numRows:
         return rdd_loop
     segmentSize = (numRows + numSegments - 1) // numSegments
-    rdd5: RDD[Tuple[Tuple[int, int], Tuple[int, T]]] = rdd_loop \
+    rdd5: RDD[tuple[tuple[int, int], tuple[int, T]]] = rdd_loop \
         .keyBy(lambda x: (x[0] // segmentSize, x[0] % segmentSize))
     rdd6 = cast(
-        RDD[Tuple[Tuple[int, int], Tuple[int, T]]],
+        RDD[tuple[tuple[int, int], tuple[int, T]]],
         rdd5
         .repartitionAndSortWithinPartitions(
             numPartitions=numSegments,
             partitionFunc=lambda x: x[0])  # type: ignore
     )
-    rdd7: RDD[Tuple[int, T]] = rdd6 \
+    rdd7: RDD[tuple[int, T]] = rdd6 \
         .mapPartitionsWithIndex(combineInPartition)
     return rdd7

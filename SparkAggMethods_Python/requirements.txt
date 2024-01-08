@@ -7,17 +7,15 @@ findspark
 flake8
 ipykernel
 networkx
-numba
-numpy>=1.14
-pandas>=0.23.2,<2.0
+# numba Not compatible with python 3.12 yet
+numpy
+pandas
 prettyprinter
 psutil 
-pyarrow>=1.0.0
-Py4J>=0.10.9.3
-pyspark==3.3.2
+pyarrow
+Py4J
+pyspark[pandas_on_spark,sql]==3.4.2
 pytest
 pytz 
-rope
 scipy
-python-snappy
 statsmodels 

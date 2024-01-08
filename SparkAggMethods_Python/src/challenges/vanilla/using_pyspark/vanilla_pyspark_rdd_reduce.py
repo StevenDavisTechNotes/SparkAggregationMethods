@@ -1,4 +1,4 @@
-from typing import NamedTuple, Optional, Tuple
+from typing import NamedTuple, Optional
 
 from pyspark import RDD
 from pyspark.sql import Row
@@ -93,7 +93,7 @@ def merge_combiners_2(
 
 
 def final_analytics_2(
-        key: Tuple[int, int],
+        key: tuple[int, int],
         total: SubTotalDC,
 ) -> Row:
     sum_of_C = total.running_sum_of_C

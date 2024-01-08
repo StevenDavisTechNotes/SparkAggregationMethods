@@ -1,23 +1,22 @@
 from pyspark import RDD
-from pyspark.sql import DataFrame as spark_DataFrame
 
 from challenges.sectional.domain_logic.section_data_parsers import \
     identify_section_using_intermediate_file
 from challenges.sectional.domain_logic.section_mutuable_subtotal_type import \
     aggregate_typed_rows_to_grades
-from challenges.sectional.section_test_data_types import (ClassLine, DataSet,
-                                                          StudentHeader,
-                                                          StudentSummary,
-                                                          TrimesterFooter,
-                                                          TrimesterHeader,
-                                                          TypedLine)
+from challenges.sectional.section_test_data_types import (
+    ClassLine, DataSet, PysparkPythonPendingAnswerSet, StudentHeader,
+    StudentSummary, TrimesterFooter, TrimesterHeader, TypedLine)
 from utils.tidy_spark_session import TidySparkSession
 
 
 def section_pyspark_rdd_prep_mappart(
         spark_session: TidySparkSession,
         data_set: DataSet,
-) -> tuple[list[StudentSummary] | None, RDD[StudentSummary] | None, spark_DataFrame | None]:
+) -> PysparkPythonPendingAnswerSet:
+    if data_set.description.num_students > pow(10, 8 - 1):
+        # takes too long
+        return PysparkPythonPendingAnswerSet(feasible=False)
     sc = spark_session.spark_context
     filename = data_set.data.test_filepath
     TargetNumPartitions = data_set.data.target_num_partitions
@@ -38,7 +37,7 @@ def section_pyspark_rdd_prep_mappart(
         .mapPartitions(aggregate_typed_rows_to_grades)
         .sortBy(lambda x: x.StudentId)
     )
-    return None, rdd, None
+    return PysparkPythonPendingAnswerSet(rdd_tuple=rdd)
 
 
 def parse_line_to_types_with_line_no(

@@ -2,7 +2,7 @@
 # python -m VanillaPerfTest.VanillaReporter
 import math
 import os
-from typing import Dict, List, cast
+from typing import cast
 
 import numpy
 import scipy
@@ -23,8 +23,8 @@ from six_field_test_data.six_generate_test_data_using_pyspark import \
 
 def read_python_file(
         engine: CalcEngine,
-) -> List[PersistedRunResult]:
-    test_runs: List[PersistedRunResult] = []
+) -> list[PersistedRunResult]:
+    test_runs: list[PersistedRunResult] = []
     with open(derive_run_log_file_path(engine), 'r') as f:
         for textline in f:
             textline = textline.rstrip()
@@ -56,8 +56,8 @@ def read_python_file(
     return test_runs
 
 
-def read_scala_file() -> List[PersistedRunResult]:
-    test_runs: List[PersistedRunResult] = []
+def read_scala_file() -> list[PersistedRunResult]:
+    test_runs: list[PersistedRunResult] = []
     with open(SCALA_RUN_LOG_FILE_PATH, 'r') as f:
         for textline in f:
             textline = textline.rstrip()
@@ -93,8 +93,8 @@ def read_scala_file() -> List[PersistedRunResult]:
     return test_runs
 
 
-def parse_results() -> List[PersistedRunResult]:
-    cond_runs: List[PersistedRunResult] = []
+def parse_results() -> list[PersistedRunResult]:
+    cond_runs: list[PersistedRunResult] = []
     for engine in [CalcEngine.PYSPARK, CalcEngine.DASK]:
         if os.path.exists(derive_run_log_file_path(engine)):
             cond_runs += read_python_file(engine)
@@ -104,8 +104,8 @@ def parse_results() -> List[PersistedRunResult]:
 
 
 def structure_test_results(
-        test_runs: List[PersistedRunResult]
-) -> Dict[str, Dict[int, List[PersistedRunResult]]]:
+        test_runs: list[PersistedRunResult]
+) -> dict[str, dict[int, list[PersistedRunResult]]]:
     test_methods = {x.strategy_name for x in pyspark_implementation_list}.union([x.strategy_name for x in test_runs])
     test_x_values = set(EXPECTED_SIZES).union([regressor_from_run_result(x) for x in test_runs])
     test_results = {method: {x: [] for x in test_x_values} for method in test_methods}
@@ -115,17 +115,17 @@ def structure_test_results(
 
 
 def make_runs_summary(
-        test_results: Dict[str, Dict[int, List[PersistedRunResult]]],
-) -> Dict[str, Dict[int, int]]:
+        test_results: dict[str, dict[int, list[PersistedRunResult]]],
+) -> dict[str, dict[int, int]]:
     return {strategy_name:
             {x_variable: len(runs) for x_variable, runs in runs_for_strategy_name.items()}
             for strategy_name, runs_for_strategy_name in test_results.items()}
 
 
 def do_regression(
-        python_implementation_list: List[PysparkPythonTestMethod],
-        scala_implementation_list: List[ExternalTestMethod],
-        test_results: Dict[str, Dict[int, List[PersistedRunResult]]],
+        python_implementation_list: list[PysparkPythonTestMethod],
+        scala_implementation_list: list[ExternalTestMethod],
+        test_results: dict[str, dict[int, list[PersistedRunResult]]],
 ) -> str:
     summary_status = ''
     confidence = 0.95

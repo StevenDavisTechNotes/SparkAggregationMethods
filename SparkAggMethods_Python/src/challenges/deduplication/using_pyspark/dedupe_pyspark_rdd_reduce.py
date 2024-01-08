@@ -1,11 +1,10 @@
 from itertools import chain
-from typing import List, Tuple
 
 from pyspark import RDD
 from pyspark.sql import Row
 
 from challenges.deduplication.dedupe_test_data_types import (
-    DataSet, ExecutionParameters)
+    DataSet, ExecutionParameters, PysparkPythonPendingAnswerSet)
 from challenges.deduplication.domain_logic.dedupe_domain_methods import (
     blocking_function, combine_row_list, is_match)
 from utils.tidy_spark_session import TidySparkSession
@@ -15,16 +14,18 @@ def dedupe_pyspark_rdd_reduce(
         _spark_session: TidySparkSession,
         data_params: ExecutionParameters,
         data_set: DataSet,
-):
+) -> PysparkPythonPendingAnswerSet:
+    if data_set.data_size > 502000:
+        return PysparkPythonPendingAnswerSet(feasible=False)
     dfSrc = data_set.df
     numPartitions = data_set.grouped_num_partitions
     appendRowToList = append_row_to_list_disjoint \
         if data_params.CanAssumeNoDupesPerPartition \
         else append_row_to_list_mixed
-    rdd2: RDD[Tuple[int, Row]] = \
+    rdd2: RDD[tuple[int, Row]] = \
         dfSrc.rdd \
         .keyBy(blocking_function)
-    rdd3: RDD[Tuple[int, List[Row]]] = rdd2 \
+    rdd3: RDD[tuple[int, list[Row]]] = rdd2 \
         .combineByKey(
             lambda x: [x],
             appendRowToList,
@@ -37,21 +38,21 @@ def dedupe_pyspark_rdd_reduce(
                 iterator
             ))
     )
-    return rdd4, None
+    return PysparkPythonPendingAnswerSet(rdd_row=rdd4)
 
 
 def append_row_to_list_disjoint(
-        lrows: List[Row],
+        lrows: list[Row],
         rrow: Row,
-) -> List[Row]:
+) -> list[Row]:
     lrows.append(rrow)
     return lrows
 
 
 def append_row_to_list_mixed(
-        lrows: List[Row],
+        lrows: list[Row],
         rrow: Row,
-) -> List[Row]:
+) -> list[Row]:
     nInitialLRows = len(lrows)  # no need to test for matches in r
     found = False
     for lindex in range(0, nInitialLRows):
@@ -71,9 +72,9 @@ def append_row_to_list_mixed(
 
 
 def combine_row_lists(
-        lrows: List[Row],
-        rrows: List[Row],
-) -> List[Row]:
+        lrows: list[Row],
+        rrows: list[Row],
+) -> list[Row]:
     nInitialLRows = len(lrows)  # no need to test for matches in r
     for rindex, rrow in enumerate(rrows):
         found = False

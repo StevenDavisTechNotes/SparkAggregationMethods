@@ -1,8 +1,6 @@
-from typing import (Callable, Iterable, List, NamedTuple, Optional, Tuple,
-                    Union, cast)
+from typing import Callable, Iterable, NamedTuple, Optional, Union, cast
 
 from pyspark import RDD, SparkContext, StorageLevel
-from pyspark.sql import DataFrame as spark_DataFrame
 
 from challenges.sectional.domain_logic.section_data_parsers import \
     rdd_typed_with_index_factory
@@ -10,9 +8,8 @@ from challenges.sectional.domain_logic.section_snippet_subtotal_type import (
     FIRST_LAST_FIRST, FIRST_LAST_LAST, FIRST_LAST_NEITHER, CompletedStudent,
     StudentSnippet2, complete_snippets_2, grade_summary, marge_snippets_2,
     student_snippet_from_typed_row_2)
-from challenges.sectional.section_test_data_types import (DataSet,
-                                                          LabeledTypedRow,
-                                                          StudentSummary)
+from challenges.sectional.section_test_data_types import (
+    DataSet, LabeledTypedRow, PysparkPythonPendingAnswerSet, StudentSummary)
 from utils.tidy_spark_session import TidySparkSession
 from utils.utils import int_divide_round_up
 
@@ -25,7 +22,10 @@ class StudentSnippetWIndex(NamedTuple):
 def section_pyspark_rdd_mappart_partials(
         spark_session: TidySparkSession,
         data_set: DataSet,
-) -> Tuple[List[StudentSummary] | None, RDD | None, spark_DataFrame | None]:
+) -> PysparkPythonPendingAnswerSet:
+    if data_set.description.num_students > pow(10, 5-1):
+        # unrealiable in local mode
+        return PysparkPythonPendingAnswerSet(feasible=False)
     sc = spark_session.spark_context
     expected_row_count = data_set.description.num_rows
     filename = data_set.data.test_filepath
@@ -44,7 +44,7 @@ def section_pyspark_rdd_mappart_partials(
         maximum_processable_segment=maximum_processable_segment,
         report_num_completed=report_num_completed,
     )
-    return None, rdd_answer, None
+    return PysparkPythonPendingAnswerSet(rdd_tuple=rdd_answer)
 
 
 def section_mappart_partials_logic(
@@ -75,7 +75,7 @@ def section_mappart_partials_logic(
                     LastLineIndex=num_lines_in_orig)],
                 numSlices=1))
     )
-    data_to_process: Tuple[RDD[StudentSnippet2], int, RDD[CompletedStudent]] \
+    data_to_process: tuple[RDD[StudentSnippet2], int, RDD[CompletedStudent]] \
         = (rdd_start, num_lines_in_orig + 2, rdd_accumulative_completed)
 
     passNumber = 0
@@ -116,10 +116,10 @@ def section_mappart_partials_logic(
 
 def inner_iteration(
         passNumber: int,
-        data_to_process: Tuple[RDD[StudentSnippet2], int, RDD[CompletedStudent]],
+        data_to_process: tuple[RDD[StudentSnippet2], int, RDD[CompletedStudent]],
         maximum_processable_segment: int,
         report_num_completed: Optional[Callable[[int], None]] = None,
-) -> Tuple[Optional[RDD[StudentSnippet2]], int, RDD[CompletedStudent]]:
+) -> tuple[Optional[RDD[StudentSnippet2]], int, RDD[CompletedStudent]]:
     rdd0, num_lines_in_rdd0, rdd_accumulative_completed = data_to_process
     print("passNumber", passNumber)
 
@@ -129,15 +129,15 @@ def inner_iteration(
         .map(lambda pair: StudentSnippetWIndex(Index=pair[1], Value=pair[0]))
     )
 
-    def key_by_function(x: StudentSnippetWIndex) -> Tuple[int, int]:
+    def key_by_function(x: StudentSnippetWIndex) -> tuple[int, int]:
         return x.Index // maximum_processable_segment, x.Index % maximum_processable_segment
-    rdd3: RDD[Tuple[Tuple[int, int], StudentSnippetWIndex]] \
+    rdd3: RDD[tuple[tuple[int, int], StudentSnippetWIndex]] \
         = rdd2.keyBy(key_by_function)
 
-    def partition_function(key: Tuple[int, int]) -> int:
+    def partition_function(key: tuple[int, int]) -> int:
         return key[0]
     targetNumPartitions = int_divide_round_up(num_lines_in_rdd0, maximum_processable_segment)
-    rdd4: RDD[Tuple[Tuple[int, int], StudentSnippetWIndex]] = (
+    rdd4: RDD[tuple[tuple[int, int], StudentSnippetWIndex]] = (
         rdd3.repartitionAndSortWithinPartitions(
             numPartitions=targetNumPartitions,
             partitionFunc=partition_function)  # type: ignore
@@ -148,15 +148,15 @@ def inner_iteration(
     )
 
     def mark_start_of_segment(
-            x: Tuple[Tuple[int, int], StudentSnippetWIndex]
-    ) -> Tuple[int, bool, int, StudentSnippet2]:
+            x: tuple[tuple[int, int], StudentSnippetWIndex]
+    ) -> tuple[int, bool, int, StudentSnippet2]:
         (segment_id, offset), row = x
         return (segment_id, offset == 0, passNumber, row.Value)
 
-    rdd5: RDD[Tuple[int, bool, int, StudentSnippet2]] \
+    rdd5: RDD[tuple[int, bool, int, StudentSnippet2]] \
         = rdd4.map(mark_start_of_segment)
 
-    rdd6: RDD[Tuple[bool, Union[CompletedStudent, StudentSnippet2]]] \
+    rdd6: RDD[tuple[bool, Union[CompletedStudent, StudentSnippet2]]] \
         = rdd5.mapPartitions(consolidate_snippets_in_partition, preservesPartitioning=True)
     rdd6.persist(StorageLevel.DISK_ONLY)
     try:
@@ -196,8 +196,8 @@ def inner_iteration(
 
 
 def consolidate_snippets_in_partition(
-        iter: Iterable[Tuple[int, bool, int, StudentSnippet2]]
-) -> Iterable[Tuple[bool, Union[CompletedStudent, StudentSnippet2]]]:
+        iter: Iterable[tuple[int, bool, int, StudentSnippet2]]
+) -> Iterable[tuple[bool, Union[CompletedStudent, StudentSnippet2]]]:
     front_is_clean: bool = False
     building_snippet: Optional[StudentSnippet2] = None
 

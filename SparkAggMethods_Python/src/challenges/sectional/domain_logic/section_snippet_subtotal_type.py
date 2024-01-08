@@ -1,4 +1,4 @@
-from typing import List, NamedTuple, Optional
+from typing import NamedTuple, Optional
 
 from challenges.sectional.section_test_data_types import (ClassLine, NumDepts,
                                                           StudentHeader,
@@ -18,8 +18,8 @@ class StudentSnippet1(NamedTuple):
     FirstTrimesterDate: Optional[str]
     LastTrimesterDate: Optional[str]
     LastMajor: Optional[int]
-    Credits: List[int]
-    WeightedGradeTotal: List[int]
+    Credits: list[int]
+    WeightedGradeTotal: list[int]
     FirstLineIndex: int
     LastLineIndex: int
 
@@ -33,16 +33,16 @@ class StudentSnippet2(NamedTuple):
     FirstTrimesterDate: Optional[str] = None
     LastTrimesterDate: Optional[str] = None
     LastMajor: Optional[int] = None
-    Credits: Optional[List[int]] = None
-    WeightedGradeTotal: Optional[List[int]] = None
+    Credits: Optional[list[int]] = None
+    WeightedGradeTotal: Optional[list[int]] = None
 
 
 class CompletedStudent(NamedTuple):
     StudentId: int
     StudentName: str
     LastMajor: int
-    Credits: List[int]
-    WeightedGradeTotal: List[int]
+    Credits: list[int]
+    WeightedGradeTotal: list[int]
     FirstLineIndex: int
     LastLineIndex: int
 
@@ -240,17 +240,16 @@ def complete_snippets_2(
         building_snippet: StudentSnippet2,
         front_is_clean: bool,
         back_is_clean: bool,
-) -> tuple[List[CompletedStudent], List[StudentSnippet2]]:
-    # assert front_is_clean == (building_snippet.StudentId is not None)
+) -> tuple[list[CompletedStudent], list[StudentSnippet2]]:
     if front_is_clean and back_is_clean:
         return [completed_from_snippet_2(building_snippet)], []
     return [], [building_snippet]
 
 
 def merge_snippet_lists_1(
-        lhgroup: List[StudentSnippet1],
-        rhgroup: List[StudentSnippet1]
-) -> List[StudentSnippet1]:
+        lhgroup: list[StudentSnippet1],
+        rhgroup: list[StudentSnippet1]
+) -> list[StudentSnippet1]:
     if len(lhgroup) == 0:
         return rhgroup
     for rhs in rhgroup:

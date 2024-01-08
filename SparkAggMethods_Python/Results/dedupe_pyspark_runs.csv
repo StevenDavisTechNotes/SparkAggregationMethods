@@ -183,3 +183,21 @@ success,dedupe_fluent_windows,fluent,2,2,0,1,14.723369836807251,1,FALSE,TRUE,202
 success,dedupe_rdd_groupby,rdd,2,2,0,1,7.361128091812134,1,FALSE,TRUE,2023-12-25T15:12:05.720128
 success,dedupe_rdd_mappart,rdd,2,2,0,1,7.319827556610107,1,FALSE,TRUE,2023-12-25T15:12:13.164007
 success,dedupe_rdd_reduce,rdd,2,2,0,1,7.331759691238403,1,FALSE,TRUE,2023-12-25T15:12:20.621529
+ result,strategy,interface,numSources,dataSize,dataSizeExp,actualNumPeople,elapsedTime,foundNumPeople,IsCloudMode,CanAssumeNoDupesPerPartition,finishedAt
+success,dedupe_pandas,pandas,2,2,0,1,3.435338258743286,1,FALSE,TRUE,2023-12-30T11:18:52.580279
+success,dedupe_fluent_nested_python,fluent,2,2,0,1,6.733180522918701,1,FALSE,TRUE,2023-12-30T11:18:59.436248
+success,dedupe_fluent_nested_withCol,fluent,2,2,0,1,25.406729698181152,1,FALSE,TRUE,2023-12-30T11:19:24.960744
+success,dedupe_fluent_windows,fluent,2,2,0,1,14.395800352096558,1,FALSE,TRUE,2023-12-30T11:19:39.482492
+success,dedupe_rdd_groupby,rdd,2,2,0,1,7.138030529022217,1,FALSE,TRUE,2023-12-30T11:19:46.749353
+success,dedupe_rdd_mappart,rdd,2,2,0,1,7.2217857837677,1,FALSE,TRUE,2023-12-30T11:19:54.096442
+success,dedupe_rdd_reduce,rdd,2,2,0,1,7.230281114578247,1,FALSE,TRUE,2023-12-30T11:20:01.453646
+ result,strategy,interface,numSources,dataSize,dataSizeExp,actualNumPeople,elapsedTime,foundNumPeople,IsCloudMode,CanAssumeNoDupesPerPartition,finishedAt
+success,dedupe_pandas,pandas,2,2,0,1,3.6364667415618896,1,FALSE,TRUE,2023-12-30T11:55:02.989381
+ result,strategy,interface,numSources,dataSize,dataSizeExp,actualNumPeople,elapsedTime,foundNumPeople,IsCloudMode,CanAssumeNoDupesPerPartition,finishedAt
+success,dedupe_pyspark_df_nested_pandas,pandas,2,2,0,1,3.3951058387756348,1,FALSE,TRUE,2024-01-07T16:15:26.098393
+success,dedupe_pyspark_df_nested_python,fluent,2,2,0,1,7.667065620422363,1,FALSE,TRUE,2024-01-07T16:15:33.895622
+success,dedupe_pyspark_df_nested_w_col,fluent,2,2,0,1,30.081928968429565,1,FALSE,TRUE,2024-01-07T16:16:04.108155
+success,dedupe_pyspark_df_window,fluent,2,2,0,1,15.792253494262695,1,FALSE,TRUE,2024-01-07T16:16:20.031797
+success,dedupe_pyspark_rdd_grp,rdd,2,2,0,1,8.36967396736145,1,FALSE,TRUE,2024-01-07T16:16:28.539036
+success,dedupe_pyspark_rdd_map_part,rdd,2,2,0,1,8.108246326446533,1,FALSE,TRUE,2024-01-07T16:16:36.776749
+success,dedupe_pyspark_rdd_reduce,rdd,2,2,0,1,7.8595287799835205,1,FALSE,TRUE,2024-01-07T16:16:44.767454

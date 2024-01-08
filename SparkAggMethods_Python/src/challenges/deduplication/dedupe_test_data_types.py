@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Callable, Optional, Tuple
+from typing import Callable
 
 import pyspark.sql.types as DataTypes
 from pyspark import RDD
@@ -16,22 +16,6 @@ class ExecutionParameters:
     CanAssumeNoDupesPerPartition: bool
     DefaultParallelism: int
     TestDataFolderLocation: str
-
-
-# @dataclass(frozen=True)
-# class DataPoint():
-#     FirstName: str
-#     LastName: str
-#     StreetAddress: Optional[str]
-#     City: str
-#     ZipCode: str
-#     SecretKey: int
-#     FieldA: Optional[str]
-#     FieldB: Optional[str]
-#     FieldC: Optional[str]
-#     FieldD: Optional[str]
-#     FieldE: Optional[str]
-#     FieldF: Optional[str]
 
 
 # region data structure
@@ -62,13 +46,29 @@ class DataSet:
 
 
 @dataclass(frozen=True)
+class PysparkPythonPendingAnswerSet:
+    feasible: bool = True
+    rdd_row:  RDD[Row] | None = None
+    spark_df: spark_DataFrame | None = None
+
+    def to_rdd(self) -> RDD[Row] | None:
+        assert self.feasible is False
+        return (
+            self.rdd_row if self.rdd_row is not None else
+            self.spark_df.rdd if self.spark_df is not None else
+            None
+        )
+
+
+@dataclass(frozen=True)
 class PysparkTestMethod:
+    original_strategy_name: str
     strategy_name: str
     language: str
     interface: str
     delegate: Callable[
         [TidySparkSession, ExecutionParameters, DataSet],
-        Tuple[Optional[RDD[Row]], Optional[spark_DataFrame]]]
+        PysparkPythonPendingAnswerSet]
 
 
 @dataclass(frozen=True)

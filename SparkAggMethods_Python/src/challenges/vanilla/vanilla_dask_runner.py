@@ -1,16 +1,17 @@
+#! python
+# usage: (cd src; python -m challenges.vanilla.vanilla_dask_runner)
 import argparse
 import gc
 import random
 import time
-from typing import List, NamedTuple, Optional, TextIO, Tuple
+from typing import NamedTuple, Optional, TextIO
 
 import pandas as pd
 from dask.distributed import Client as DaskClient
 
-from challenges.vanilla.vanilla_record_runs import (dask_infeasible,
-                                                    derive_run_log_file_path)
+from challenges.vanilla.vanilla_record_runs import derive_run_log_file_path
 from challenges.vanilla.vanilla_strategy_directory import (
-    dask_implementation_list, dask_strategy_name_list)
+    DASK_STRATEGY_NAME_LIST, dask_implementation_list)
 from challenges.vanilla.vanilla_test_data_types import result_columns
 from perf_test_common import CalcEngine
 from six_field_test_data.six_generate_test_data_using_dask import (
@@ -25,7 +26,7 @@ from utils.utils import always_true, set_random_seed
 ENGINE = CalcEngine.DASK
 DEBUG_ARGS = None if False else (
     []
-    + '--size 100k'.split()
+    + '--size 10'.split()
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
@@ -39,8 +40,8 @@ class Arguments(NamedTuple):
     num_runs: int
     random_seed: Optional[int]
     shuffle: bool
-    sizes: List[str]
-    strategies: List[str]
+    sizes: list[str]
+    strategies: list[str]
     exec_params: ExecutionParameters
 
 
@@ -51,15 +52,15 @@ def parse_args() -> Arguments:
     parser.add_argument(
         '--size',
         choices=['1', '10', '100', '1k', '10k', '100k'],
-        default=['10', '100', '1k', '10k', '100k'],
+        default=['1', '10', '100', '1k', '10k', '100k'],
         nargs="+")
     parser.add_argument(
         '--shuffle', default=True,
         action=argparse.BooleanOptionalAction)
     parser.add_argument(
         '--strategy',
-        choices=dask_strategy_name_list,
-        default=dask_strategy_name_list,
+        choices=DASK_STRATEGY_NAME_LIST,
+        default=DASK_STRATEGY_NAME_LIST,
         nargs="+")
     if DEBUG_ARGS is None:
         args = parser.parse_args()
@@ -85,12 +86,11 @@ def do_test_runs(
     data_sets = populate_data_sets(args, )
     keyed_implementation_list = {
         x.strategy_name: x for x in dask_implementation_list}
-    itinerary: List[Tuple[DaskPythonTestMethod, DaskDataSetWithAnswer]] = [
+    itinerary: list[tuple[DaskPythonTestMethod, DaskDataSetWithAnswer]] = [
         (test_method, data_set)
         for strategy in args.strategies
         if always_true(test_method := keyed_implementation_list[strategy])
         for data_set in data_sets
-        if not dask_infeasible(strategy, data_set)
         for _ in range(0, args.num_runs)
     ]
     if args.random_seed is not None:
@@ -109,7 +109,7 @@ def do_test_runs(
 
 def populate_data_sets(
         args: Arguments,
-) -> List[DaskDataSetWithAnswer]:
+) -> list[DaskDataSetWithAnswer]:
 
     def generate_single_test_data_set_simple(
             code: str,
@@ -149,9 +149,12 @@ def test_one_step_in_itinerary(
         data_set: DaskDataSetWithAnswer,
 ):
     startedTime = time.time()
-    bag, ddf, pdf = test_method.delegate(
+    pending_answer_set = test_method.delegate(
         dask_client, exec_params, data_set)
-    if bag is not None:
+    if pending_answer_set.feasible is False:
+        return
+    if pending_answer_set.bag is not None:
+        bag = pending_answer_set.bag
         if bag.npartitions > max(data_set.data.AggTgtNumPartitions, exec_params.DefaultParallelism):
             print(
                 f"{test_method.strategy_name} output rdd has {bag.npartitions} partitions")
@@ -164,7 +167,8 @@ def test_one_step_in_itinerary(
             df_answer = pd.DataFrame.from_records([x.asDict() for x in lst_answer])
         else:
             df_answer = pd.DataFrame(columns=result_columns)
-    elif ddf is not None:
+    elif pending_answer_set.dask_df is not None:
+        ddf = pending_answer_set.dask_df
         if ddf.npartitions > max(data_set.data.AggTgtNumPartitions, exec_params.DefaultParallelism):
             print(
                 f"{test_method.strategy_name} output rdd has {ddf.npartitions} partitions")
@@ -173,8 +177,8 @@ def test_one_step_in_itinerary(
             exit(1)
         df_answer = ddf.compute()
         finishedTime = time.time()
-    elif pdf is not None:
-        df_answer = pdf
+    elif pending_answer_set.panda_df is not None:
+        df_answer = pending_answer_set.panda_df
         finishedTime = time.time()
     else:
         raise ValueError("No result returned")
@@ -205,7 +209,6 @@ def main():
     args = parse_args()
     with DaskClient(
             processes=True,
-            # asynchronous=False,
             n_workers=LOCAL_NUM_EXECUTORS,
             threads_per_worker=1,
     ) as dask_client:

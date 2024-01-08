@@ -1,5 +1,5 @@
 import math
-from typing import Tuple, cast
+from typing import cast
 
 from pyspark import RDD
 
@@ -88,7 +88,7 @@ def merge_combiners_2(
 
 
 def final_analytics_2(
-        key: Tuple[int, int],
+        key: tuple[int, int],
         total: SubTotal,
 ) -> GrpTotal:
     sum_of_C = total.running_sum_of_C

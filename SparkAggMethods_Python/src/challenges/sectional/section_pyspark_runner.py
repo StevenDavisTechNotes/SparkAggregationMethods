@@ -1,20 +1,22 @@
 #! python
-# usage: (cd src; python -m challenges.sectional.SectionPySparkRunner)
+# usage: (cd src; python -m challenges.sectional.section_pyspark_runner)
 import argparse
 import gc
 import os
 import random
 import time
 from dataclasses import dataclass
-from typing import Dict, List, Optional, TextIO, Tuple
+from typing import Iterable, Optional, TextIO
+
+from pyspark import RDD
 
 from challenges.sectional.section_generate_test_data import (
     AVAILABLE_DATA_SIZES, populate_data_sets)
 from challenges.sectional.section_record_runs import (
-    MAXIMUM_PROCESSABLE_SEGMENT, derive_run_log_file_path, pyspark_infeasible,
-    write_header, write_run_result)
+    MAXIMUM_PROCESSABLE_SEGMENT, derive_run_log_file_path, write_header,
+    write_run_result)
 from challenges.sectional.section_strategy_directory import (
-    pyspark_implementation_list, strategy_name_list)
+    STRATEGY_NAME_LIST, pyspark_implementation_list)
 from challenges.sectional.section_test_data_types import (DataSetWithAnswer,
                                                           ExecutionParameters,
                                                           PysparkTestMethod,
@@ -60,8 +62,8 @@ class Arguments:
     num_runs: int
     random_seed: Optional[int]
     shuffle: bool
-    sizes: List[str]
-    strategies: List[str]
+    sizes: list[str]
+    strategies: list[str]
     exec_params: ExecutionParameters
 
 
@@ -86,8 +88,8 @@ def parse_args() -> Arguments:
         action=argparse.BooleanOptionalAction)
     parser.add_argument(
         '--strategy',
-        choices=strategy_name_list,
-        default=strategy_name_list,
+        choices=STRATEGY_NAME_LIST,
+        default=STRATEGY_NAME_LIST,
         nargs="+")
     if DEBUG_ARGS is None:
         args = parser.parse_args()
@@ -140,12 +142,11 @@ def do_test_runs(
         for x in data_sets_w_answers}
     keyed_implementation_list = {
         x.strategy_name: x for x in pyspark_implementation_list}
-    itinerary: List[Tuple[PysparkTestMethod, DataSetWithAnswer]] = [
+    itinerary: list[tuple[PysparkTestMethod, DataSetWithAnswer]] = [
         (test_method, data_set)
         for strategy in args.strategies
         if always_true(test_method := keyed_implementation_list[strategy])
         for data_set in keyed_data_sets.values()
-        if not pyspark_infeasible(strategy, data_set.description)
         for _ in range(0, args.num_runs)
     ]
     if args.random_seed is not None:
@@ -173,22 +174,28 @@ def run_one_itinerary_step(
         data_set: DataSetWithAnswer,
 ):
     startedTime = time.time()
-    found_students_iterable, rdd, df = test_method.delegate(spark_session, data_set)
+    answer_set = test_method.delegate(spark_session, data_set)
     num_students_found: int
-    if found_students_iterable is not None:
-        pass
-    elif rdd is not None:
+    if answer_set.feasible is False:
+        return "infeasible"
+    found_students_iterable: Iterable[StudentSummary]
+    rdd: RDD | None = None
+    if answer_set.iter_tuple is not None:
+        found_students_iterable = answer_set.iter_tuple
+    elif answer_set.rdd_tuple is not None:
+        rdd = answer_set.rdd_tuple
         print(f"output rdd has {rdd.getNumPartitions()} partitions")
         count = rdd.count()
         print("Got a count", count)
         found_students_iterable = rdd.toLocalIterator()
-    elif df is not None:
+    elif answer_set.spark_df is not None:
+        df = answer_set.spark_df
         print(f"output rdd has {df.rdd.getNumPartitions()} partitions")
         rdd = df.rdd
         found_students_iterable = [StudentSummary(*x) for x in rdd.toLocalIterator()]
     else:
         raise ValueError("Not data returned")
-    concrete_students: Optional[List[StudentSummary]]
+    concrete_students: Optional[list[StudentSummary]]
     if args.check_answers:
         concrete_students = list(found_students_iterable)
         num_students_found = len(concrete_students)
@@ -218,7 +225,7 @@ def run_one_itinerary_step(
 
 def verify_correctness(
     data_set: DataSetWithAnswer,
-    found_students: Optional[List[StudentSummary]],
+    found_students: Optional[list[StudentSummary]],
     num_students_found: int,
     check_answers: bool,
 ) -> bool:
@@ -227,7 +234,7 @@ def verify_correctness(
         return num_students_found == data_set.description.num_students
     assert data_set.answer_generator is not None
     assert found_students is not None
-    correct_answer: List[StudentSummary] = list(data_set.answer_generator())
+    correct_answer: list[StudentSummary] = list(data_set.answer_generator())
     actual_num_students = data_set.description.num_rows // data_set.data.section_maximum
     assert actual_num_students == len(correct_answer)
     if num_students_found != data_set.description.num_students:
@@ -248,7 +255,7 @@ def verify_correctness(
 
 def spark_configs(
         default_parallelism: int,
-) -> Dict[str, str | int]:
+) -> dict[str, str | int]:
     return {
         "spark.sql.shuffle.partitions": default_parallelism,
         "spark.default.parallelism": default_parallelism,

@@ -35,6 +35,8 @@ def test_one_step_in_itinerary(
     startedTime = time.time()
     pending_result = test_method.delegate(
         spark_session, exec_params, data_set)
+    if pending_result.feasible is False:
+        return
     rdd_some = to_some_rdd(pending_result)
     if rdd_some is None:
         raise ValueError("Must return at least 1 type")
@@ -51,7 +53,7 @@ def test_one_step_in_itinerary(
             if len(answer) > 0:
                 df_answer = pd.DataFrame.from_records([x._asdict() for x in answer])
             else:
-                df_answer = pd.DataFrame(columns=result_columns)
+                df_answer = pd.DataFrame(data=[], columns=result_columns)
         case PysparkPythonPendingAnswerSet(spark_df=spark_df) if spark_df is not None:
             df_answer = spark_df.toPandas()
             finishedTime = time.time()
@@ -62,7 +64,7 @@ def test_one_step_in_itinerary(
                 assert isinstance(answer[0], Row)
                 df_answer = pd.DataFrame.from_records([x.asDict() for x in answer])
             else:
-                df_answer = pd.DataFrame(columns=result_columns)
+                df_answer = pd.DataFrame(data=[], columns=result_columns)
         case _:
             raise ValueError("Must return at least 1 type")
     if correct_answer is data_set.answer.bilevel_answer:

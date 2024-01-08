@@ -44,11 +44,13 @@ class GrpTotal(NamedTuple):
 
 @dataclass(frozen=True)
 class PysparkPythonPendingAnswerSet:
+    feasible: bool = True
     rdd_tuple: RDD[GrpTotal] | None = None
     rdd_row:  RDD[Row] | None = None
     spark_df: spark_DataFrame | None = None
 
     def to_rdd(self) -> RDD[GrpTotal] | RDD[Row] | None:
+        assert self.feasible is False
         return (
             self.rdd_tuple if self.rdd_tuple is not None else
             self.rdd_row if self.rdd_row is not None else
@@ -63,6 +65,7 @@ class PysparkPythonTestMethod:
     strategy_name: str
     language: str
     interface: str
+    only_when_gpu_testing: bool
     delegate: Callable[
         [TidySparkSession, ExecutionParameters, PysparkDataSet],
         PysparkPythonPendingAnswerSet]

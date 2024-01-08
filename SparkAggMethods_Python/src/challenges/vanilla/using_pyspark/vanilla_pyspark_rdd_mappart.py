@@ -1,6 +1,6 @@
 import math
 from dataclasses import dataclass
-from typing import Iterable, NamedTuple, Optional, Tuple
+from typing import Iterable, NamedTuple, Optional
 
 from pyspark.sql import Row
 
@@ -58,7 +58,7 @@ def vanilla_pyspark_rdd_mappart(
 
 def partition_triage(
         iterator: Iterable[DataPoint],
-) -> Iterable[Tuple[Tuple[int, int], SubTotal]]:
+) -> Iterable[tuple[tuple[int, int], SubTotal]]:
     running_subtotals = {}
     for v in iterator:
         k = (v.grp, v.subgrp)
@@ -94,7 +94,7 @@ def max(
 
 
 def merge_combiners_3(
-        key: Tuple[int, int],
+        key: tuple[int, int],
         iterable: Iterable[SubTotal],
 ) -> SubTotal:
     lsub = MutableRunningTotal.zero()
@@ -114,7 +114,7 @@ def merge_combiners_3(
 
 
 def final_analytics_2(
-        key: Tuple[int, int],
+        key: tuple[int, int],
         final: SubTotal,
 ) -> Row:
     sum_of_C = final.running_sum_of_C

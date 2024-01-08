@@ -1,5 +1,5 @@
 import math
-from typing import Iterable, Tuple
+from typing import Iterable
 
 from challenges.conditional.conditional_test_data_types import SubTotal
 from six_field_test_data.six_generate_test_data_using_pyspark import (
@@ -79,7 +79,7 @@ def partition_triage(
 
 
 def merge_combiners_3(
-        _key: Tuple[int, int],
+        _key: tuple[int, int],
         iterable: Iterable[SubTotal],
 ) -> SubTotal:
     lsub = MutableRunningTotal()
@@ -106,7 +106,7 @@ def merge_combiners_3(
 
 
 def final_analytics_2(
-        key: Tuple[int, int],
+        key: tuple[int, int],
         total: SubTotal,
 ) -> GrpTotal:
     sum_of_C = total.running_sum_of_C

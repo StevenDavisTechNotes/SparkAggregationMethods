@@ -1,4 +1,4 @@
-from typing import Any, Dict, Iterable
+from typing import Any, Iterable
 
 from challenges.sectional.section_test_data_types import (ClassLine, NumDepts,
                                                           StudentHeader,
@@ -63,7 +63,7 @@ class MutableStudent:
             MajorGPA=self.WeightedGradeTotal[self.LastMajor] / max(1, self.Credits[self.LastMajor]),
         )
 
-    def _asdict(self) -> Dict[str, Any]:
+    def _asdict(self) -> dict[str, Any]:
         return {"StudentId": self.StudentId, "LastMajor": self.LastMajor, "SourceLines": self.SourceLines,
                 "Credits": list(self.Credits), "WGrade": list(self.WeightedGradeTotal)}
 

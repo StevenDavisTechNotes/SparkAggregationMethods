@@ -1,10 +1,9 @@
-
-from typing import Iterable, List, Tuple
+from typing import Iterable
 
 from pyspark.sql import Row
 
 from challenges.deduplication.dedupe_test_data_types import (
-    DataSet, ExecutionParameters)
+    DataSet, ExecutionParameters, PysparkPythonPendingAnswerSet)
 from challenges.deduplication.domain_logic.dedupe_domain_methods import (
     blocking_function, combine_row_list, is_match)
 from utils.tidy_spark_session import TidySparkSession
@@ -14,7 +13,9 @@ def dedupe_pyspark_rdd_map_part(
         spark_session: TidySparkSession,
         data_params: ExecutionParameters,
         data_set: DataSet,
-):
+) -> PysparkPythonPendingAnswerSet:
+    if data_set.data_size > 502000:
+        return PysparkPythonPendingAnswerSet(feasible=False)
     dfSrc = data_set.df
 
     rdd = (
@@ -23,11 +24,11 @@ def dedupe_pyspark_rdd_map_part(
         .partitionBy(data_set.grouped_num_partitions)
         .mapPartitions(core_mappart)
     )
-    return rdd, None
+    return PysparkPythonPendingAnswerSet(rdd_row=rdd)
 
 
 def add_row_to_row_list(
-        rows: List[Row],
+        rows: list[Row],
         jrow: Row
 ) -> Iterable[Row]:
     found = False
@@ -47,7 +48,7 @@ def add_row_to_row_list(
 
 
 def core_mappart(
-        iterator: Iterable[Tuple[int, Row]],
+        iterator: Iterable[tuple[int, Row]],
 ) -> Iterable[Row]:
     store = {}
     for kv in iterator:

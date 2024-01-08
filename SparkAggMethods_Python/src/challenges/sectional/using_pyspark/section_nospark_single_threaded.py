@@ -1,14 +1,11 @@
-from typing import Iterable, Tuple
-
-from pyspark import RDD
-from pyspark.sql import DataFrame as spark_DataFrame
+from typing import Iterable
 
 from challenges.sectional.domain_logic.section_data_parsers import \
     parse_line_to_types
 from challenges.sectional.domain_logic.section_mutuable_subtotal_type import \
     aggregate_typed_rows_to_grades
-from challenges.sectional.section_test_data_types import (DataSet,
-                                                          StudentSummary)
+from challenges.sectional.section_test_data_types import (
+    DataSet, PysparkPythonPendingAnswerSet, StudentSummary)
 from utils.tidy_spark_session import TidySparkSession
 
 
@@ -27,5 +24,6 @@ def section_nospark_logic(
 def section_nospark_single_threaded(
     _spark_session: TidySparkSession,
     data_set: DataSet,
-) -> Tuple[Iterable[StudentSummary] | None, RDD | None, spark_DataFrame | None]:
-    return section_nospark_logic(data_set), None, None
+) -> PysparkPythonPendingAnswerSet:
+    iter = section_nospark_logic(data_set)
+    return PysparkPythonPendingAnswerSet(iter_tuple=iter)

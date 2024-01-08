@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Callable, Iterable, NamedTuple, Optional, Tuple
+from typing import Callable, Iterable, NamedTuple, Optional
 
 import pandas as pd
 import pyspark.sql.types as DataTypes
@@ -129,14 +129,23 @@ class TestMethodBase:
 
 
 @dataclass(frozen=True)
+class PysparkPythonPendingAnswerSet:
+    feasible: bool = True
+    iter_tuple: Iterable[StudentSummary] | None = None
+    rdd_tuple: RDD[StudentSummary] | None = None
+    spark_df: spark_DataFrame | None = None
+
+
+@dataclass(frozen=True)
 class DaskTestMethod(TestMethodBase):
     delegate: Callable[
         [TidySparkSession, DataSet],
-        Tuple[Iterable[StudentSummary] | None, pd.DataFrame | None]]
+        tuple[Iterable[StudentSummary] | None, pd.DataFrame | None]]
 
 
 @dataclass(frozen=True)
 class PysparkTestMethod(TestMethodBase):
+    original_strategy_name: str
     delegate: Callable[
         [TidySparkSession, DataSet],
-        Tuple[Iterable[StudentSummary] | None, RDD[StudentSummary] | None, spark_DataFrame | None]]
+        PysparkPythonPendingAnswerSet]

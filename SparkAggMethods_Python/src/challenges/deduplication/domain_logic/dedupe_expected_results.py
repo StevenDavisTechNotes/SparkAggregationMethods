@@ -1,4 +1,4 @@
-from typing import Iterable, List, Tuple
+from typing import Iterable
 
 from pyspark import RDD
 from pyspark.sql import DataFrame as spark_DataFrame
@@ -31,7 +31,7 @@ def arrange_field_order(
 
 def verify_correctness(
         itinerary_items: ItineraryItem,
-        lst: List[Row],
+        lst: list[Row],
 ):
     try:
         lst.sort(key=lambda x: int(x.FieldA))
@@ -73,8 +73,8 @@ def verify_single_line(  # noqa: C901
         raise Exception(f'{i} Main St != row.StreetAddress')
     if 'Plaineville ME' != row.City:
         raise Exception('{i}: Plaineville ME != {row.City}')
-    if f'{(i-1)%100:05d}' != row.ZipCode:
-        raise Exception(f'{(i-1)%100:05d} != {row.ZipCode}')
+    if f'{(i-1) % 100:05d}' != row.ZipCode:
+        raise Exception(f'{(i-1) % 100:05d} != {row.ZipCode}')
     if i != row.SecretKey:
         raise Exception(f'{i}: {i} != SecretKey={row.SecretKey}')
     if f'{i*2}' != row.FieldA:
@@ -124,7 +124,7 @@ def verify_single_line(  # noqa: C901
 def count_in_a_partition(
         idx: int,
         iterator: Iterable[Row]
-) -> Iterable[Tuple[int, int]]:
+) -> Iterable[tuple[int, int]]:
     yield idx, sum(1 for _ in iterator)
 
 

@@ -1,15 +1,15 @@
 import io
 import os
 import re
-from typing import Any, List, Optional, TextIO, cast
+from typing import Any, Optional, TextIO, cast
 
 import prettyprinter
 
 
 def install_extras(
-        include: Optional[List[str]] = None,
+        include: Optional[list[str]] = None,
         *,
-        exclude: List[str] = [],
+        exclude: list[str] = [],
         raise_on_error: bool = True,
         warn_on_error: bool = False) -> None:
     prettyprinter.install_extras(

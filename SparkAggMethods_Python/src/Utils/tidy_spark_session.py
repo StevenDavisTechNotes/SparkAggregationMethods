@@ -2,7 +2,7 @@ import os
 import shutil
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, cast
+from typing import Any, cast
 
 import findspark
 from pyspark import SparkContext
@@ -23,7 +23,7 @@ class OpenSparkSession:
 
 
 def open_spark_session(
-        config_dict: Dict[str, Any],
+        config_dict: dict[str, Any],
         enable_hive_support: bool,
         spark_scratch_folder: str,
         local_num_executors: int,
@@ -39,7 +39,7 @@ def open_spark_session(
     spark = (
         SparkSession
         .builder
-        .appName("PerfTestApp")
+        .appName("PerfTestApp")  # pyright: ignore[reportGeneralTypeIssues]
         .master(f"local[{local_num_executors}]")
         .config("spark.pyspark.python", path_to_python_interpreter)
         .config("spark.ui.enabled", "false")
@@ -80,7 +80,7 @@ class TidySparkSession:
 
     def __init__(
             self,
-            config_dict: Dict[str, Any],
+            config_dict: dict[str, Any],
             enable_hive_support: bool
     ):
         self.create_scratch_folder()

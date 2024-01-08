@@ -2,7 +2,7 @@
 # python -m SectionPerfTest.SectionReporter
 import math
 import os
-from typing import List, NamedTuple, cast
+from typing import NamedTuple, cast
 
 import numpy
 import scipy.stats
@@ -127,8 +127,8 @@ def analyze_run_results():  # noqa: C901
         f.write("\n")
 
 
-def read_run_results() -> List[RunResult]:
-    test_runs: List[RunResult] = []
+def read_run_results() -> list[RunResult]:
+    test_runs: list[RunResult] = []
     with open('results/temp.csv', 'w') as fout:
         for engine in [CalcEngine.PYSPARK, CalcEngine.DASK]:
             run_log_file_path_for_engine = derive_run_log_file_path(engine)
@@ -143,7 +143,7 @@ def read_run_results() -> List[RunResult]:
                     if textline.find(',') < 0:
                         print("Excluding line: " + textline)
                         continue
-                    fields: List[str] = textline.rstrip().split(',')
+                    fields: list[str] = textline.rstrip().split(',')
                     test_status, test_method_name, test_method_interface, \
                         result_num_students, \
                         result_dataSize, result_section_maximum, \

@@ -1,5 +1,3 @@
-from typing import List
-
 from challenges.vanilla.using_dask.vanilla_dask_grp_pandas import \
     da_vanilla_pandas
 from challenges.vanilla.using_pyspark.vanilla_pyspark_df_grp_builtin import \
@@ -22,72 +20,80 @@ from six_field_test_data.six_generate_test_data_using_dask import \
     DaskPythonTestMethod
 from six_field_test_data.six_generate_test_data_using_pyspark import \
     PysparkPythonTestMethod
-from utils.inspection import nameof
+from utils.inspection import nameof_function
 
-dask_implementation_list: List[DaskPythonTestMethod] = [
+dask_implementation_list: list[DaskPythonTestMethod] = [
     DaskPythonTestMethod(
-        strategy_name=nameof(da_vanilla_pandas),
+        strategy_name=nameof_function(da_vanilla_pandas),
         language='python',
         interface='da_pandas',
         delegate=da_vanilla_pandas,
     ),
 ]
 
-pyspark_implementation_list: List[PysparkPythonTestMethod] = [
+pyspark_implementation_list: list[PysparkPythonTestMethod] = [
     PysparkPythonTestMethod(
         original_strategy_name='vanilla_sql',
-        strategy_name=nameof(vanilla_sql),
+        strategy_name=nameof_function(vanilla_sql),
         language='python',
         interface='sql',
+        only_when_gpu_testing=False,
         delegate=vanilla_sql
     ),
     PysparkPythonTestMethod(
         original_strategy_name='vanilla_fluent',
-        strategy_name=nameof(vanilla_pyspark_df_grp_builtin),
+        strategy_name=nameof_function(vanilla_pyspark_df_grp_builtin),
         language='python',
         interface='sql',
+        only_when_gpu_testing=False,
         delegate=vanilla_pyspark_df_grp_builtin,
     ),
     PysparkPythonTestMethod(
         original_strategy_name='vanilla_pandas',
-        strategy_name=nameof(vanilla_pyspark_df_grp_pandas),
+        strategy_name=nameof_function(vanilla_pyspark_df_grp_pandas),
         language='python',
         interface='pandas',
+        only_when_gpu_testing=False,
         delegate=vanilla_pyspark_df_grp_pandas,
     ),
     PysparkPythonTestMethod(
         original_strategy_name='vanilla_pandas_numpy',
-        strategy_name=nameof(vanilla_pyspark_df_grp_pandas_numpy),
+        strategy_name=nameof_function(vanilla_pyspark_df_grp_pandas_numpy),
         language='python',
         interface='pandas',
+        only_when_gpu_testing=False,
         delegate=vanilla_pyspark_df_grp_pandas_numpy,
     ),
     PysparkPythonTestMethod(
         original_strategy_name='vanilla_pandas_numba',
-        strategy_name=nameof(vanilla_pyspark_df_grp_pandas_numba),
+        strategy_name=nameof_function(vanilla_pyspark_df_grp_pandas_numba),
         language='python',
         interface='pandas',
+        only_when_gpu_testing=True,
         delegate=vanilla_pyspark_df_grp_pandas_numba,
     ),
     PysparkPythonTestMethod(
         original_strategy_name='vanilla_rdd_grpmap',
-        strategy_name=nameof(vanilla_pyspark_rdd_grp_map),
+        strategy_name=nameof_function(vanilla_pyspark_rdd_grp_map),
         language='python',
         interface='rdd',
+        only_when_gpu_testing=False,
         delegate=vanilla_pyspark_rdd_grp_map,
     ),
     PysparkPythonTestMethod(
         original_strategy_name='vanilla_rdd_reduce',
-        strategy_name=nameof(vanilla_pyspark_rdd_reduce),
+        strategy_name=nameof_function(vanilla_pyspark_rdd_reduce),
         language='python',
         interface='rdd',
+        only_when_gpu_testing=False,
         delegate=vanilla_pyspark_rdd_reduce,
     ),
     PysparkPythonTestMethod(
         original_strategy_name='vanilla_rdd_mappart',
-        strategy_name=nameof(vanilla_pyspark_rdd_mappart),
+        strategy_name=nameof_function(vanilla_pyspark_rdd_mappart),
         language='python',
         interface='rdd',
+        only_when_gpu_testing=False,
         delegate=vanilla_pyspark_rdd_mappart,
     ),
 ]
@@ -118,5 +124,5 @@ scala_implementation_list = [
         interface='rdd'),
 ]
 
-dask_strategy_name_list = [x.strategy_name for x in dask_implementation_list]
-pyspark_strategy_name_list = [x.strategy_name for x in pyspark_implementation_list]
+DASK_STRATEGY_NAME_LIST = [x.strategy_name for x in dask_implementation_list]
+PYSPARK_STRATEGY_NAME_LIST = [x.strategy_name for x in pyspark_implementation_list]

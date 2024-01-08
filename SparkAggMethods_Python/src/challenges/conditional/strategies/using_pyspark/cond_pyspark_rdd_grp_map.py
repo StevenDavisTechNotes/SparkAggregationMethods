@@ -1,4 +1,4 @@
-from typing import Iterable, Tuple, cast
+from typing import Iterable, cast
 
 from pyspark import RDD
 
@@ -33,9 +33,9 @@ def cond_pyspark_rdd_grp_map(
 
 
 def process_data_1(
-        key: Tuple[int, int],
+        key: tuple[int, int],
         iterator: Iterable[DataPoint],
-) -> Tuple[Tuple[int, int], GrpTotal]:
+) -> tuple[tuple[int, int], GrpTotal]:
     import math
     sum_of_C = 0
     unconditional_count = 0

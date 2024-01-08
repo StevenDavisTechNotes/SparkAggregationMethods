@@ -1,5 +1,5 @@
 
-from typing import Dict, List, Optional, TypeVar, Union
+from typing import Optional, TypeVar, Union
 
 import pyspark.sql.functions as func
 import pyspark.sql.types as DataTypes
@@ -17,16 +17,16 @@ T = TypeVar('T', bound=Union[float, str])
 
 
 def min_not_null(
-        lst: List[Optional[T]]
+        lst: list[Optional[T]]
 ) -> Optional[T]:
-    filteredList: List[T] = [
+    filteredList: list[T] = [
         x for x in lst if x is not None]
     return min(filteredList) \
         if len(filteredList) > 0 else None
 
 
 def first_not_null(
-        lst: List[Optional[T]]
+        lst: list[Optional[T]]
 ) -> Optional[T]:
     for x in lst:
         if x is not None:
@@ -143,7 +143,6 @@ def blocking_function(
         int(x.ZipCode), x.FirstName[0], x.LastName[0]))
 
 
-# FindRecordMatches_RecList
 FindRecordMatches_RecList_Returns = DataTypes.ArrayType(
     DataTypes.StructType([
         DataTypes.StructField(
@@ -156,8 +155,8 @@ FindRecordMatches_RecList_Returns = DataTypes.ArrayType(
 
 
 def find_record_matches_rec_list(
-        recordList: List[DataTypes.Row],
-) -> List[DataTypes.Row]:
+        recordList: list[DataTypes.Row],
+) -> list[DataTypes.Row]:
     n = len(recordList)
     edgeList: list[DataTypes.Row] = []
     for i in range(0, n - 1):
@@ -182,7 +181,6 @@ def find_record_matches_rec_list(
     return edgeList
 
 
-# FindConnectedComponents_RecList
 FindConnectedComponents_RecList_Returns = DataTypes.ArrayType(
     DataTypes.StructType([
         DataTypes.StructField(
@@ -199,7 +197,7 @@ FindConnectedComponents_RecList_Returns = DataTypes.ArrayType(
 
 def find_connected_components_rec_list(
         edgeList: list[DataTypes.Row],
-) -> List[DataTypes.Row]:
+) -> list[DataTypes.Row]:
     # This is not optimal for large components.  See GraphFrame
     componentForVertex: dict[int, set[int]] = dict()
     for edge in edgeList:
@@ -233,7 +231,6 @@ def find_connected_components_rec_list(
     return componentList
 
 
-# MergeItems_RecList
 MergeItems_RecList_Returns = DataTypes.ArrayType(
     DataTypes.StructType(
         RecordSparseStruct.fields +
@@ -244,9 +241,9 @@ MergeItems_RecList_Returns = DataTypes.ArrayType(
 
 
 def merge_items_rec_list(
-        blockedDataList: List[DataTypes.Row],
-        connectedComponentList: List[DataTypes.Row],
-) -> List[DataTypes.Row]:
+        blockedDataList: list[DataTypes.Row],
+        connectedComponentList: list[DataTypes.Row],
+) -> list[DataTypes.Row]:
     verticesInAComponent: set[int] = set()
     for component in connectedComponentList:
         verticesInAComponent = verticesInAComponent \
@@ -266,9 +263,9 @@ def merge_items_rec_list(
 
 
 def combine_row_list(
-        constituentList: List[DataTypes.Row],
+        constituentList: list[DataTypes.Row],
 ) -> DataTypes.Row:
-    mutableRec: Dict[str, Union[str, int, None]] = constituentList[0].asDict()
+    mutableRec: dict[str, Union[str, int, None]] = constituentList[0].asDict()
     mutableRec['SourceId'] = None
     bestNumNameParts = 0
     for contributor in constituentList:
@@ -349,8 +346,8 @@ SinglePass_RecList_DF_Returns = MergeItems_RecList_Returns
 
 
 def single_pass_rec_list(
-        blockedData: List[DataTypes.Row],
-) -> List[DataTypes.Row]:
+        blockedData: list[DataTypes.Row],
+) -> list[DataTypes.Row]:
     firstOrderEdges = find_record_matches_rec_list(blockedData)
     connectedComponents = find_connected_components_rec_list(firstOrderEdges)
     firstOrderEdges = None

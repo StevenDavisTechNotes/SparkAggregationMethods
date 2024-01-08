@@ -22,8 +22,8 @@ def bi_level_pyspark_rdd_grp_map(
             > MAX_DATA_POINTS_PER_SPARK_PARTITION
             * data_set.description.NumGroups
     ):
-        raise ValueError(
-            "This strategy only works if all of the values per key can fit into memory at once.")
+        # This strategy only works if all of the values per key can fit into memory at once.
+        return PysparkPythonPendingAnswerSet(feasible=False)
 
     rddResult = cast(
         RDD[Row],

@@ -1,6 +1,6 @@
 
 import math
-from typing import Dict, List, NamedTuple, cast
+from typing import NamedTuple, cast
 
 import numpy
 import scipy.stats.norm  # type: ignore
@@ -30,8 +30,8 @@ class PerformanceModelParameters(NamedTuple):
     s2_high: float
 
 
-def parse_results() -> List[PersistedRunResult]:
-    raw_test_runs: List[PersistedRunResult] = []
+def parse_results() -> list[PersistedRunResult]:
+    raw_test_runs: list[PersistedRunResult] = []
     with open(TEMP_RESULT_FILE_PATH, 'w') as fout:
         for result in read_result_file():
             raw_test_runs.append(result)
@@ -43,8 +43,8 @@ def parse_results() -> List[PersistedRunResult]:
 
 
 def structure_test_results(
-        test_runs: List[PersistedRunResult]
-) -> Dict[str, Dict[int, List[PersistedRunResult]]]:
+        test_runs: list[PersistedRunResult]
+) -> dict[str, dict[int, list[PersistedRunResult]]]:
     test_methods = {x.strategy_name for x in pyspark_implementation_list}.union([x.strategy_name for x in test_runs])
     test_x_values = set(EXPECTED_SIZES).union([regressor_from_run_result(x) for x in test_runs])
     test_results = {method: {x: [] for x in test_x_values} for method in test_methods}
@@ -54,8 +54,8 @@ def structure_test_results(
 
 
 def make_runs_summary(
-        test_results: Dict[str, Dict[int, List[PersistedRunResult]]]
-) -> Dict[str, Dict[int, int]]:
+        test_results: dict[str, dict[int, list[PersistedRunResult]]]
+) -> dict[str, dict[int, int]]:
     return {strategy_name:
             {x_variable: len(runs) for x_variable, runs in runs_for_strategy_name.items()}
             for strategy_name, runs_for_strategy_name in test_results.items()}

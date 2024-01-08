@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Callable, Tuple
+from typing import Callable
 
 import pandas as pd
 from dask.bag.core import Bag as dask_bag
@@ -34,13 +34,21 @@ class DaskDataSetWithAnswer(DaskDataSet):
 
 
 @dataclass(frozen=True)
+class DaskPythonPendingAnswerSet:
+    feasible: bool = True
+    bag: dask_bag | None = None
+    dask_df: dask_dataframe | None = None
+    panda_df: pd.DataFrame | None = None
+
+
+@dataclass(frozen=True)
 class DaskPythonTestMethod:
     strategy_name: str
     language: str
     interface: str
     delegate: Callable[
         [DaskClient, ExecutionParameters, DaskDataSet],
-        Tuple[dask_bag | None, dask_dataframe | None, pd.DataFrame | None]]
+        DaskPythonPendingAnswerSet]
 
 # endregion
 

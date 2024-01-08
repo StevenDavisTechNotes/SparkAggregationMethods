@@ -1,4 +1,4 @@
-from typing import Iterable, Tuple
+from typing import Iterable
 
 from pyspark.sql import Row
 
@@ -20,8 +20,8 @@ def vanilla_pyspark_rdd_grp_map(
             > MAX_DATA_POINTS_PER_SPARK_PARTITION
             * data_set.description.NumGroups * data_set.description.NumSubGroups
     ):
-        raise ValueError(
-            "This strategy only works if all of the values per key can fit into memory at once.")
+        # This strategy only works if all of the values per key can fit into memory at once.
+        return PysparkPythonPendingAnswerSet(feasible=False)
 
     rddResult = (
         data_set.data.rddSrc
@@ -35,9 +35,9 @@ def vanilla_pyspark_rdd_grp_map(
 
 
 def process_data_1(
-        key: Tuple[int, int],
+        key: tuple[int, int],
         iterator: Iterable[DataPoint],
-) -> Tuple[Tuple[int, int], Row]:
+) -> tuple[tuple[int, int], Row]:
     import math
     sum_of_C = 0
     count = 0

@@ -3,8 +3,7 @@ import os
 from dataclasses import dataclass
 from typing import Iterable, TextIO
 
-from challenges.deduplication.dedupe_test_data_types import (DataSet,
-                                                             PysparkTestMethod)
+from challenges.deduplication.dedupe_test_data_types import PysparkTestMethod
 from perf_test_common import CalcEngine
 from utils.utils import always_true, root_folder_abs_path
 
@@ -74,29 +73,6 @@ def regressor_from_run_result(
         result: PersistedRunResult,
 ) -> int:
     return result.dataSize
-
-
-def infeasible(
-        strategy_name: str,
-        data_set: DataSet,
-) -> bool:
-    match strategy_name:
-        case 'dedupe_pandas':
-            return data_set.data_size > 50200
-        case 'dedupe_fluent_nested_python':
-            return data_set.data_size > 502000  # 20200
-        case 'dedupe_fluent_nested_withCol':
-            return data_set.data_size > 20200
-        case 'dedupe_fluent_windows':
-            return data_set.data_size > 50200  # 20200
-        case 'dedupe_rdd_groupby':
-            return data_set.data_size > 50200  # takes too long otherwise
-        case 'dedupe_rdd_mappart':
-            return data_set.data_size > 502000  # takes too long otherwise
-        case 'dedupe_rdd_reduce':
-            return data_set.data_size > 502000  # takes too long otherwise
-        case _:
-            raise ValueError(f"Unknown strategy: {strategy_name}")
 
 
 def write_header(

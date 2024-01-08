@@ -5,12 +5,11 @@ import gc
 import random
 import time
 from dataclasses import dataclass
-from typing import List, Optional, Tuple
+from typing import Optional
 
-from challenges.bi_level.bi_level_record_runs import (derive_run_log_file_path,
-                                                      pyspark_infeasible)
+from challenges.bi_level.bi_level_record_runs import derive_run_log_file_path
 from challenges.bi_level.bi_level_strategy_directory import (
-    pyspark_implementation_list, strategy_name_list)
+    STRATEGY_NAME_LIST, pyspark_implementation_list)
 from challenges.bi_level.bi_level_test_data_types import result_columns
 from perf_test_common import CalcEngine
 from six_field_test_data.six_generate_test_data_using_pyspark import (
@@ -51,8 +50,8 @@ class Arguments:
     num_runs: int
     random_seed: Optional[int]
     shuffle: bool
-    sizes: List[str]
-    strategies: List[str]
+    sizes: list[str]
+    strategies: list[str]
     exec_params: ExecutionParameters
 
 
@@ -70,8 +69,12 @@ def parse_args() -> Arguments:
         action=argparse.BooleanOptionalAction)
     parser.add_argument(
         '--strategy',
-        choices=strategy_name_list,
-        default=strategy_name_list,
+        choices=STRATEGY_NAME_LIST,
+        default=[
+            x.strategy_name
+            for x in pyspark_implementation_list
+            if not x.only_when_gpu_testing
+        ],
         nargs="+")
     if DEBUG_ARGS is None:
         args = parser.parse_args()
@@ -97,12 +100,11 @@ def do_pyspark_test_runs(
     data_sets = populate_data_sets(args, spark_session)
     keyed_implementation_list = {
         x.strategy_name: x for x in pyspark_implementation_list}
-    itinerary: List[Tuple[PysparkPythonTestMethod, PySparkDataSetWithAnswer]] = [
+    itinerary: list[tuple[PysparkPythonTestMethod, PySparkDataSetWithAnswer]] = [
         (test_method, data_set)
         for strategy in args.strategies
         if always_true(test_method := keyed_implementation_list[strategy])
         for data_set in data_sets
-        if not pyspark_infeasible(strategy, data_set)
         for _ in range(0, args.num_runs)
     ]
     if args.random_seed is not None:
@@ -136,7 +138,7 @@ def do_pyspark_test_runs(
 def populate_data_sets(
         args: Arguments,
         spark_session: TidySparkSession,
-) -> List[PySparkDataSetWithAnswer]:
+) -> list[PySparkDataSetWithAnswer]:
 
     def generate_single_test_data_set_simple(
             code: str, num_grp_1: int, num_grp_2: int, num_data_points: int

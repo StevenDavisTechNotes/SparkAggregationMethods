@@ -3,7 +3,6 @@ import os
 from dataclasses import dataclass
 from functools import reduce
 from pathlib import Path
-from typing import List
 
 import pyspark.sql.functions as func
 from pyspark.sql import DataFrame as spark_DataFrame
@@ -68,7 +67,7 @@ def line(
 FFFFFF{letter}{i}_{name_hash(i)},
 LLLLLL{letter}{i}_{name_hash(i)},
 {i} Main St,Plaineville ME,
-{(i-1)%100:05d},
+{(i-1) % 100:05d},
 {i},
 {i*2 if letter == "A" else ''},
 {i*3 if letter == "B" else ''},
@@ -82,20 +81,20 @@ LLLLLL{letter}{i}_{name_hash(i)},
 
 
 def generate_test_data(
-    data_size_code_list: List[str],
+    data_size_code_list: list[str],
     spark: SparkSession,
     exec_params: ExecutionParameters
-) -> List[DataSet]:
+) -> list[DataSet]:
     root_path = os.path.join(
         exec_params.TestDataFolderLocation, "Dedupe_Test_Data")
     source_codes = ['A', 'B', 'C', 'D', 'E', 'F']
 
     Path(root_path).mkdir(parents=True, exist_ok=True)
-    all_data_sets: List[DataSet] = []
+    all_data_sets: list[DataSet] = []
     target_data_size_list = [DATA_SIZE_CODE_TO_DATA_SIZE[x] for x in data_size_code_list]
     for num_people in sorted({x.num_people for x in target_data_size_list}):
         generate_data_files(root_path, source_codes, num_people)
-        single_source_data_frames: List[spark_DataFrame]
+        single_source_data_frames: list[spark_DataFrame]
         if exec_params.CanAssumeNoDupesPerPartition:
             single_source_data_frames = [
                 (spark.read
@@ -153,7 +152,7 @@ def generate_test_data(
 
 def generate_data_files(
         root_path: str,
-        source_codes: List[str],
+        source_codes: list[str],
         num_people: int,
 ) -> None:
     for source_code in source_codes:

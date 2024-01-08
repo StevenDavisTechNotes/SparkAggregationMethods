@@ -5,7 +5,6 @@ import pyspark.sql.types as DataTypes
 from pyspark.sql import SparkSession
 from pyspark.sql.dataframe import DataFrame as spark_DataFrame
 
-# from
 # https://stackoverflow.com/questions/30304810/dataframe-ified-zipwithindex/32741497#32741497
 
 

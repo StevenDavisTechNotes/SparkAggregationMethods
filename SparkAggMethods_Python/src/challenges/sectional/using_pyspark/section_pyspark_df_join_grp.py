@@ -1,24 +1,23 @@
-from typing import List, Tuple
-
 import pyspark.sql.functions as func
 import pyspark.sql.types as DataTypes
-from pyspark import RDD
-from pyspark.sql import DataFrame as spark_DataFrame
 from pyspark.sql import Row
 from pyspark.sql.window import Window
 
 from challenges.sectional.domain_logic.section_data_parsers import (
     parse_line_to_row, row_to_student_summary)
-from challenges.sectional.section_test_data_types import (DataSet,
-                                                          SparseLineSchema,
-                                                          StudentSummary)
+from challenges.sectional.section_record_runs import \
+    MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT
+from challenges.sectional.section_test_data_types import (
+    DataSet, PysparkPythonPendingAnswerSet, SparseLineSchema)
 from utils.tidy_spark_session import TidySparkSession
 
 
 def section_join_groupby(
         spark_session: TidySparkSession,
         data_set: DataSet,
-) -> Tuple[List[StudentSummary] | None, RDD | None, spark_DataFrame | None]:
+) -> PysparkPythonPendingAnswerSet:
+    if data_set.description.num_students > pow(10, MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT - 1):
+        return PysparkPythonPendingAnswerSet(feasible=False)
     sc = spark_session.spark_context
     spark = spark_session.spark
     sectionMaximum = data_set.data.section_maximum
@@ -109,7 +108,7 @@ def section_join_groupby(
         .sort(df.StudentId)
     )
     rdd = df.rdd.map(row_to_student_summary)
-    return None, rdd, None
+    return PysparkPythonPendingAnswerSet(rdd_tuple=rdd)
 
 
 def with_index_column(

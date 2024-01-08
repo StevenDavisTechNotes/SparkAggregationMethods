@@ -1,4 +1,4 @@
-from typing import Iterable, List
+from typing import Iterable
 
 import pytest
 from pyspark.sql import SparkSession
@@ -20,7 +20,7 @@ from utils.tidy_spark_session import SPARK_SCRATCH_FOLDER, open_spark_session
 
 
 @pytest.fixture
-def student_history() -> List[TypedLine]:
+def student_history() -> list[TypedLine]:
     return [
         StudentHeader(
             StudentId=1,
@@ -160,7 +160,7 @@ def spark() -> Iterable[SparkSession]:
 class Test_section_mappart_partials_logic:
     def test_one_student_pass_1_w_leader_trailer(
             self,
-            student_history: List[TypedLine],
+            student_history: list[TypedLine],
             student_summary: CompletedStudent,
             spark: SparkSession,
     ) -> None:
@@ -185,7 +185,7 @@ class Test_section_mappart_partials_logic:
 
     def test_one_student_split_pass2_w_leader_trailer(
             self,
-            student_history: List[TypedLine],
+            student_history: list[TypedLine],
             student_summary: CompletedStudent,
             spark: SparkSession,
     ) -> None:

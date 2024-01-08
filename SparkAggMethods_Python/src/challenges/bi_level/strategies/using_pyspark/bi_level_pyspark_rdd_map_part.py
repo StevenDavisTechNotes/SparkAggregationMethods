@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, Iterable, NamedTuple, Tuple, cast
+from typing import Iterable, NamedTuple, cast
 
 from pyspark import RDD
 from pyspark.sql import Row
@@ -76,8 +76,8 @@ def bi_level_pyspark_rdd_map_part(
 
 def partition_triage(
         iterator: Iterable[DataPoint]
-) -> Iterable[Tuple[int, SubTotal1]]:
-    running_grp_totals: Dict[int, MutableGrpTotal] = dict()
+) -> Iterable[tuple[int, SubTotal1]]:
+    running_grp_totals: dict[int, MutableGrpTotal] = dict()
     for v in iterator:
         k1 = v.grp
         if k1 not in running_grp_totals:

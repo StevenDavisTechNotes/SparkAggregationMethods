@@ -1,6 +1,5 @@
 import statistics
 from dataclasses import dataclass
-from typing import List, Tuple
 
 import numpy
 from scipy.stats import chi2 as scipy_stats_chi2  # type: ignore
@@ -23,7 +22,7 @@ class CondResult:
     s2: RegressionRange
 
 
-LinearRegressionResult = Tuple[
+LinearRegressionResult = tuple[
     tuple[float, tuple[float, float]],
     tuple[float, tuple[float, float]],
     tuple[float, tuple[float, float]],
@@ -33,8 +32,8 @@ LinearRegressionResult = Tuple[
 
 
 def linear_regression(
-        x_in: List[float],
-        y_in: List[float],
+        x_in: list[float],
+        y_in: list[float],
         prob: float,
 ) -> LinearRegressionResult | None:
     """
@@ -71,15 +70,12 @@ def linear_regression(
         1 - alpha / 2., n - 2)
     s2_low = n * s2 / c2
     s2_high = n * s2 / c1
-    # print('the confidence interval of s2 is: ',[n*s2/c2,n*s2/c1])
 
     c = -1 * scipy_stats_t.ppf(  # type: ignore
         alpha / 2., n - 2)
     bb1 = c * (s2 / ((n - 2) * (xx_mean - x_mean**2)))**.5
-    # print('the confidence interval of b1 is: ',[b1-bb1,b1+bb1])
 
     bb0 = c * ((s2 / (n - 2)) * (1 + x_mean**2 / (xx_mean - x_mean**2)))**.5
-    # print('the confidence interval of b0 is: ',[b0-bb0,b0+bb0])
     return (
         (b0, (b0 - bb0, b0 + bb0)),
         (b1, (b1 - bb1, b1 + bb1)),

@@ -4,8 +4,8 @@ import pyspark.sql.types as DataTypes
 from pyspark.sql import DataFrame as spark_DataFrame
 
 from challenges.deduplication.dedupe_test_data_types import (
-    DataSet, ExecutionParameters, PysparkPythonPendingAnswerSet,
-    RecordSparseStruct)
+    DataSet, ExecutionParameters, RecordSparseStruct,
+    TPysparkPythonPendingAnswerSet)
 from challenges.deduplication.domain_logic.dedupe_domain_methods import \
     match_single_name
 from utils.spark_helpers import zip_dataframe_with_index
@@ -16,10 +16,10 @@ def dedupe_pyspark_df_nested_pandas(
         spark_session: TidySparkSession,
         data_params: ExecutionParameters,
         data_set: DataSet,
-) -> PysparkPythonPendingAnswerSet:
+) -> TPysparkPythonPendingAnswerSet:
     dfSrc = data_set.df
     if data_set.data_size > 50200:
-        return PysparkPythonPendingAnswerSet(feasible=False)
+        return "infeasible"
 
     spark = spark_session.spark
     numPartitions = data_params.NumExecutors
@@ -38,7 +38,7 @@ def dedupe_pyspark_df_nested_pandas(
         .groupBy(df.BlockingKey)
         .applyInPandas(inner_agg_method, RecordSparseStruct)
     )
-    return PysparkPythonPendingAnswerSet(spark_df=df)
+    return df
 
 
 def inner_agg_method(

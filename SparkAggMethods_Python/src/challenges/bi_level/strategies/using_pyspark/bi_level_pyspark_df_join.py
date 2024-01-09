@@ -1,7 +1,7 @@
 import pyspark.sql.functions as func
 
 from six_field_test_data.six_generate_test_data_using_pyspark import (
-    PysparkDataSet, PysparkPythonPendingAnswerSet)
+    PysparkDataSet, TPysparkPythonPendingAnswerSet)
 from six_field_test_data.six_test_data_types import ExecutionParameters
 from utils.tidy_spark_session import TidySparkSession
 
@@ -10,9 +10,9 @@ def bi_level_pyspark_df_join(
         _spark_session: TidySparkSession,
         _exec_params: ExecutionParameters,
         data_set: PysparkDataSet
-) -> PysparkPythonPendingAnswerSet:
+) -> TPysparkPythonPendingAnswerSet:
     df = data_set.data.dfSrc
-    level1 = (
+    df1 = (
         df
         .groupBy(df.grp)
         .agg(
@@ -20,7 +20,7 @@ def bi_level_pyspark_df_join(
             func.max(df.D).alias("max_of_D")
         )
     )
-    level2 = (
+    df2 = (
         df
         .groupBy(df.grp, df.subgrp)
         .agg(
@@ -31,16 +31,16 @@ def bi_level_pyspark_df_join(
             ).alias("var_of_E2")
         )
     )
-    level3 = (
-        level2
-        .join(level1, "grp")
-        .groupBy(level1.grp)
+    df3 = (
+        df2
+        .join(df1, "grp")
+        .groupBy(df1.grp)
         .agg(
-            func.last(level1.mean_of_C).alias("mean_of_C"),
-            func.last(level1.max_of_D).alias("max_of_D"),
-            func.avg(level2.var_of_E).alias("avg_var_of_E"),
-            func.avg(level2.var_of_E2).alias("avg_var_of_E2")
+            func.last(df1.mean_of_C).alias("mean_of_C"),
+            func.last(df1.max_of_D).alias("max_of_D"),
+            func.avg(df2.var_of_E).alias("avg_var_of_E"),
+            func.avg(df2.var_of_E2).alias("avg_var_of_E2")
         )
     )
-    level4 = level3.orderBy(level3.grp)
-    return PysparkPythonPendingAnswerSet(spark_df=level4)
+    level4 = df3.orderBy(df3.grp)
+    return level4

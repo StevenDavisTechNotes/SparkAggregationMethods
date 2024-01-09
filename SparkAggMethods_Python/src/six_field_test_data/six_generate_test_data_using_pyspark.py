@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from functools import reduce
-from typing import Any, Callable, NamedTuple, cast
+from typing import Any, Callable, Literal, NamedTuple, cast
 
 from pyspark import RDD, StorageLevel
 from pyspark.sql import DataFrame as spark_DataFrame
@@ -42,21 +42,7 @@ class GrpTotal(NamedTuple):
     cond_var_of_E: float
 
 
-@dataclass(frozen=True)
-class PysparkPythonPendingAnswerSet:
-    feasible: bool = True
-    rdd_tuple: RDD[GrpTotal] | None = None
-    rdd_row:  RDD[Row] | None = None
-    spark_df: spark_DataFrame | None = None
-
-    def to_rdd(self) -> RDD[GrpTotal] | RDD[Row] | None:
-        assert self.feasible is False
-        return (
-            self.rdd_tuple if self.rdd_tuple is not None else
-            self.rdd_row if self.rdd_row is not None else
-            self.spark_df.rdd if self.spark_df is not None else
-            None
-        )
+TPysparkPythonPendingAnswerSet = Literal["infeasible"] | RDD[GrpTotal] | RDD[Row] | spark_DataFrame
 
 
 @dataclass(frozen=True)
@@ -68,7 +54,7 @@ class PysparkPythonTestMethod:
     only_when_gpu_testing: bool
     delegate: Callable[
         [TidySparkSession, ExecutionParameters, PysparkDataSet],
-        PysparkPythonPendingAnswerSet]
+        TPysparkPythonPendingAnswerSet]
 
 
 # endregion

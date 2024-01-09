@@ -8,16 +8,16 @@ from challenges.sectional.domain_logic.section_data_parsers import (
 from challenges.sectional.section_record_runs import \
     MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT
 from challenges.sectional.section_test_data_types import (
-    DataSet, PysparkPythonPendingAnswerSet, SparseLineSchema)
+    DataSet, SparseLineSchema, TPysparkPythonPendingAnswerSet)
 from utils.tidy_spark_session import TidySparkSession
 
 
 def section_join_groupby(
         spark_session: TidySparkSession,
         data_set: DataSet,
-) -> PysparkPythonPendingAnswerSet:
+) -> TPysparkPythonPendingAnswerSet:
     if data_set.description.num_students > pow(10, MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT - 1):
-        return PysparkPythonPendingAnswerSet(feasible=False)
+        return "infeasible"
     sc = spark_session.spark_context
     spark = spark_session.spark
     sectionMaximum = data_set.data.section_maximum
@@ -108,7 +108,7 @@ def section_join_groupby(
         .sort(df.StudentId)
     )
     rdd = df.rdd.map(row_to_student_summary)
-    return PysparkPythonPendingAnswerSet(rdd_tuple=rdd)
+    return rdd
 
 
 def with_index_column(

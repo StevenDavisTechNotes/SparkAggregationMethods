@@ -3,7 +3,7 @@ from typing import Iterable
 from pyspark.sql import Row
 
 from challenges.deduplication.dedupe_test_data_types import (
-    DataSet, ExecutionParameters, PysparkPythonPendingAnswerSet)
+    DataSet, ExecutionParameters, TPysparkPythonPendingAnswerSet)
 from challenges.deduplication.domain_logic.dedupe_domain_methods import (
     blocking_function, combine_row_list, is_match)
 from utils.tidy_spark_session import TidySparkSession
@@ -13,9 +13,9 @@ def dedupe_pyspark_rdd_map_part(
         spark_session: TidySparkSession,
         data_params: ExecutionParameters,
         data_set: DataSet,
-) -> PysparkPythonPendingAnswerSet:
+) -> TPysparkPythonPendingAnswerSet:
     if data_set.data_size > 502000:
-        return PysparkPythonPendingAnswerSet(feasible=False)
+        return "infeasible"
     dfSrc = data_set.df
 
     rdd = (
@@ -24,7 +24,7 @@ def dedupe_pyspark_rdd_map_part(
         .partitionBy(data_set.grouped_num_partitions)
         .mapPartitions(core_mappart)
     )
-    return PysparkPythonPendingAnswerSet(rdd_row=rdd)
+    return rdd
 
 
 def add_row_to_row_list(

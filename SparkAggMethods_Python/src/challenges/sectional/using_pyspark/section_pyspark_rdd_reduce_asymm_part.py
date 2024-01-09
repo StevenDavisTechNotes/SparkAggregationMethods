@@ -9,7 +9,7 @@ from challenges.sectional.domain_logic.section_snippet_subtotal_type import (
     CompletedStudent, StudentSnippet1, completed_from_snippet_1, grade_summary,
     merge_snippet_lists_1, student_snippet_from_typed_row_1)
 from challenges.sectional.section_test_data_types import (
-    DataSet, LabeledTypedRow, PysparkPythonPendingAnswerSet, StudentSummary)
+    DataSet, LabeledTypedRow, StudentSummary, TPysparkPythonPendingAnswerSet)
 from utils.non_commutative_tree_aggregate import non_commutative_tree_aggregate
 from utils.tidy_spark_session import TidySparkSession
 
@@ -17,7 +17,7 @@ from utils.tidy_spark_session import TidySparkSession
 def section_reduce_partials_broken(
         spark_session: TidySparkSession,
         data_set: DataSet,
-) -> PysparkPythonPendingAnswerSet:
+) -> TPysparkPythonPendingAnswerSet:
     dataSize = data_set.description.num_rows
     filename = data_set.data.test_filepath
     TargetNumPartitions = data_set.data.target_num_partitions
@@ -38,16 +38,16 @@ def section_reduce_partials_broken(
         = [completed_from_snippet_1(x) for x in students1]
     students3: list[StudentSummary] \
         = [grade_summary(x) for x in students2]
-    return PysparkPythonPendingAnswerSet(iter_tuple=students3)
+    return students3
 
 
 def section_pyspark_rdd_reduce_asymm_part(
         spark_session: TidySparkSession,
         data_set: DataSet,
-) -> PysparkPythonPendingAnswerSet:
+) -> TPysparkPythonPendingAnswerSet:
     if data_set.description.num_students > pow(10, 7 - 1):
         # unrealiable
-        return PysparkPythonPendingAnswerSet(feasible=False)
+        return "infeasible"
     sc = spark_session.spark_context
     dataSize = data_set.description.num_rows
     filename = data_set.data.test_filepath
@@ -80,4 +80,4 @@ def section_pyspark_rdd_reduce_asymm_part(
         .map(grade_summary)
         .sortBy(lambda x: x.StudentId)  # pyright: ignore[reportGeneralTypeIssues]
     )
-    return PysparkPythonPendingAnswerSet(rdd_tuple=rdd8)
+    return rdd8

@@ -4,7 +4,7 @@ from pyspark import RDD
 from pyspark.sql import Row
 
 from challenges.deduplication.dedupe_test_data_types import (
-    DataSet, ExecutionParameters, PysparkPythonPendingAnswerSet)
+    DataSet, ExecutionParameters, TPysparkPythonPendingAnswerSet)
 from challenges.deduplication.domain_logic.dedupe_domain_methods import (
     blocking_function, combine_row_list, is_match)
 from utils.tidy_spark_session import TidySparkSession
@@ -14,9 +14,9 @@ def dedupe_pyspark_rdd_reduce(
         _spark_session: TidySparkSession,
         data_params: ExecutionParameters,
         data_set: DataSet,
-) -> PysparkPythonPendingAnswerSet:
+) -> TPysparkPythonPendingAnswerSet:
     if data_set.data_size > 502000:
-        return PysparkPythonPendingAnswerSet(feasible=False)
+        return "infeasible"
     dfSrc = data_set.df
     numPartitions = data_set.grouped_num_partitions
     appendRowToList = append_row_to_list_disjoint \
@@ -38,7 +38,7 @@ def dedupe_pyspark_rdd_reduce(
                 iterator
             ))
     )
-    return PysparkPythonPendingAnswerSet(rdd_row=rdd4)
+    return rdd4
 
 
 def append_row_to_list_disjoint(

@@ -7,6 +7,8 @@ import time
 from typing import NamedTuple, Optional, TextIO
 
 import pandas as pd
+from dask.bag.core import Bag as dask_bag
+from dask.dataframe.core import DataFrame as dask_dataframe
 from dask.distributed import Client as DaskClient
 
 from challenges.vanilla.vanilla_record_runs import derive_run_log_file_path
@@ -149,39 +151,36 @@ def test_one_step_in_itinerary(
         data_set: DaskDataSetWithAnswer,
 ):
     startedTime = time.time()
-    pending_answer_set = test_method.delegate(
-        dask_client, exec_params, data_set)
-    if pending_answer_set.feasible is False:
-        return
-    if pending_answer_set.bag is not None:
-        bag = pending_answer_set.bag
-        if bag.npartitions > max(data_set.data.AggTgtNumPartitions, exec_params.DefaultParallelism):
-            print(
-                f"{test_method.strategy_name} output rdd has {bag.npartitions} partitions")
-            findings = bag.compute()
-            print(f"size={len(findings)}, ", findings)
-            exit(1)
-        lst_answer = bag.compute()
-        finishedTime = time.time()
-        if len(lst_answer) > 0:
-            df_answer = pd.DataFrame.from_records([x.asDict() for x in lst_answer])
-        else:
-            df_answer = pd.DataFrame(columns=result_columns)
-    elif pending_answer_set.dask_df is not None:
-        ddf = pending_answer_set.dask_df
-        if ddf.npartitions > max(data_set.data.AggTgtNumPartitions, exec_params.DefaultParallelism):
-            print(
-                f"{test_method.strategy_name} output rdd has {ddf.npartitions} partitions")
-            findings = ddf.compute()
-            print(f"size={len(findings)}, ", findings)
-            exit(1)
-        df_answer = ddf.compute()
-        finishedTime = time.time()
-    elif pending_answer_set.panda_df is not None:
-        df_answer = pending_answer_set.panda_df
-        finishedTime = time.time()
-    else:
-        raise ValueError("No result returned")
+    df_answer: pd.DataFrame
+    match test_method.delegate(dask_client, exec_params, data_set):
+        case dask_bag() as bag:
+            if bag.npartitions > max(data_set.data.AggTgtNumPartitions, exec_params.DefaultParallelism):
+                print(
+                    f"{test_method.strategy_name} output rdd has {bag.npartitions} partitions")
+                findings = bag.compute()
+                print(f"size={len(findings)}, ", findings)
+                exit(1)
+            lst_answer = bag.compute()
+            finishedTime = time.time()
+            if len(lst_answer) > 0:
+                df_answer = pd.DataFrame.from_records([x.asDict() for x in lst_answer])
+            else:
+                df_answer = pd.DataFrame(columns=result_columns)
+        case dask_dataframe() as ddf:
+            if ddf.npartitions > max(data_set.data.AggTgtNumPartitions, exec_params.DefaultParallelism):
+                print(
+                    f"{test_method.strategy_name} output rdd has {ddf.npartitions} partitions")
+                findings = ddf.compute()
+                print(f"size={len(findings)}, ", findings)
+                exit(1)
+            df_answer = ddf.compute()
+            finishedTime = time.time()
+        case pd.DataFrame() as df_answer:
+            finishedTime = time.time()
+        case "infeasible":
+            return
+        case _:
+            raise ValueError("No result returned")
     if 'var_of_E2' not in df_answer:
         df_answer['var_of_E2'] = df_answer['var_of_E']
     df_answer.set_index(pd.Index(range(len(df_answer))), inplace=True)

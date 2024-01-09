@@ -7,18 +7,19 @@ from challenges.sectional.domain_logic.section_data_parsers import \
 from challenges.sectional.domain_logic.section_mutuable_subtotal_type import (
     MutableStudent, MutableTrimester)
 from challenges.sectional.section_test_data_types import (
-    ClassLine, DataSet, LabeledTypedRow, PysparkPythonPendingAnswerSet,
-    StudentHeader, StudentSummary, TrimesterFooter, TrimesterHeader, TypedLine)
+    ClassLine, DataSet, LabeledTypedRow, StudentHeader, StudentSummary,
+    TPysparkPythonPendingAnswerSet, TrimesterFooter, TrimesterHeader,
+    TypedLine)
 from utils.tidy_spark_session import TidySparkSession
 
 
 def section_pyspark_rdd_join_mappart(
         spark_session: TidySparkSession,
         data_set: DataSet,
-) -> PysparkPythonPendingAnswerSet:
+) -> TPysparkPythonPendingAnswerSet:
     if data_set.description.num_students > pow(10, 7-1):
         # times out
-        return PysparkPythonPendingAnswerSet(feasible=False)
+        return "infeasible"
     sc = spark_session.spark_context
     rdd1: RDD[LabeledTypedRow] \
         = rdd_typed_with_index_factory(
@@ -72,7 +73,7 @@ def section_pyspark_rdd_join_mappart(
         .mapPartitions(extract_student_summary)
         .sortBy(lambda x: x.StudentId)  # pyright: ignore[reportGeneralTypeIssues]
     )
-    return PysparkPythonPendingAnswerSet(rdd_tuple=rdd18)
+    return rdd18
 
 
 def extract_student_summary(

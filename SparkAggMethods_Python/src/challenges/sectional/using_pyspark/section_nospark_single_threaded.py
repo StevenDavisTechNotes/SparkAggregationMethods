@@ -5,7 +5,7 @@ from challenges.sectional.domain_logic.section_data_parsers import \
 from challenges.sectional.domain_logic.section_mutuable_subtotal_type import \
     aggregate_typed_rows_to_grades
 from challenges.sectional.section_test_data_types import (
-    DataSet, PysparkPythonPendingAnswerSet, StudentSummary)
+    DataSet, StudentSummary, TPysparkPythonPendingAnswerSet)
 from utils.tidy_spark_session import TidySparkSession
 
 
@@ -24,6 +24,5 @@ def section_nospark_logic(
 def section_nospark_single_threaded(
     _spark_session: TidySparkSession,
     data_set: DataSet,
-) -> PysparkPythonPendingAnswerSet:
-    iter = section_nospark_logic(data_set)
-    return PysparkPythonPendingAnswerSet(iter_tuple=iter)
+) -> TPysparkPythonPendingAnswerSet:
+    return list(section_nospark_logic(data_set))

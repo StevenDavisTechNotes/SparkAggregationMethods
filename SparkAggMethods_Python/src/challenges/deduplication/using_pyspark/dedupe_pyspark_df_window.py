@@ -3,7 +3,7 @@ import pyspark.sql.types as DataTypes
 from pyspark.sql import Window
 
 from challenges.deduplication.dedupe_test_data_types import (
-    DataSet, ExecutionParameters, PysparkPythonPendingAnswerSet)
+    DataSet, ExecutionParameters, TPysparkPythonPendingAnswerSet)
 from challenges.deduplication.domain_logic.dedupe_domain_methods import \
     udfMatchSingleName
 from utils.spark_helpers import zip_dataframe_with_index
@@ -14,9 +14,9 @@ def dedupe_pyspark_df_window(
         spark_session: TidySparkSession,
         data_params: ExecutionParameters,
         data_set: DataSet,
-) -> PysparkPythonPendingAnswerSet:
+) -> TPysparkPythonPendingAnswerSet:
     if data_set.data_size > 50200:
-        return PysparkPythonPendingAnswerSet(feasible=False)
+        return "infeasible"
     dfSrc = data_set.df
 
     numPartitions = max(
@@ -128,4 +128,4 @@ def dedupe_pyspark_df_window(
             func.min(df.FieldF).alias("FieldF")) \
         .drop(df.GroupId) \
         .repartition(2 * data_params.NumExecutors)
-    return PysparkPythonPendingAnswerSet(spark_df=df)
+    return df

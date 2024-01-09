@@ -1,5 +1,5 @@
 #! python
-# usage: python -m perf_test_runner_for_dask
+# usage: cd src; python -m perf_test_runner_for_dask
 from dask.distributed import Client as DaskClient
 
 from challenges.vanilla import vanilla_dask_runner  # noqa: F401

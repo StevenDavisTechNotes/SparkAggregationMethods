@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Callable, Iterable, NamedTuple, Optional
+from typing import Callable, Iterable, Literal, NamedTuple, Optional
 
 import pandas as pd
 import pyspark.sql.types as DataTypes
@@ -128,19 +128,18 @@ class TestMethodBase:
     scale: str
 
 
-@dataclass(frozen=True)
-class PysparkPythonPendingAnswerSet:
-    feasible: bool = True
-    iter_tuple: Iterable[StudentSummary] | None = None
-    rdd_tuple: RDD[StudentSummary] | None = None
-    spark_df: spark_DataFrame | None = None
+TDaskPythonPendingAnswerSet = (
+    Literal["infeasible"] | list[StudentSummary] | pd.DataFrame)
+
+TPysparkPythonPendingAnswerSet = (
+    Literal["infeasible"] | list[StudentSummary] | RDD[StudentSummary] | spark_DataFrame)
 
 
 @dataclass(frozen=True)
 class DaskTestMethod(TestMethodBase):
     delegate: Callable[
         [TidySparkSession, DataSet],
-        tuple[Iterable[StudentSummary] | None, pd.DataFrame | None]]
+        TDaskPythonPendingAnswerSet]
 
 
 @dataclass(frozen=True)
@@ -148,4 +147,4 @@ class PysparkTestMethod(TestMethodBase):
     original_strategy_name: str
     delegate: Callable[
         [TidySparkSession, DataSet],
-        PysparkPythonPendingAnswerSet]
+        TPysparkPythonPendingAnswerSet]

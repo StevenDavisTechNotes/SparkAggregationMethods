@@ -1,25 +1,18 @@
 import time
-from typing import Optional, TextIO
+from typing import TextIO
 
 import pandas as pd
 from pyspark import RDD
+from pyspark.sql import DataFrame as spark_DataFrame
 from pyspark.sql import Row
 
 from perf_test_common import CalcEngine
 from six_field_test_data.six_generate_test_data_using_pyspark import (
-    PySparkDataSetWithAnswer, PysparkPythonPendingAnswerSet,
-    PysparkPythonTestMethod)
+    PySparkDataSetWithAnswer, PysparkPythonTestMethod)
 from six_field_test_data.six_run_result_types import write_run_result
 from six_field_test_data.six_test_data_types import (ExecutionParameters,
                                                      RunResult)
 from utils.tidy_spark_session import TidySparkSession
-
-
-def to_some_rdd(result: PysparkPythonPendingAnswerSet) -> Optional[RDD]:
-    return (
-        result.rdd_tuple or result.rdd_row or
-        (result.spark_df.rdd if result.spark_df is not None else None)
-    )
 
 
 def test_one_step_in_itinerary(
@@ -32,39 +25,37 @@ def test_one_step_in_itinerary(
         data_set: PySparkDataSetWithAnswer,
         correct_answer: pd.DataFrame
 ):
+    def check_partitions(rdd: RDD):
+        if rdd.getNumPartitions() > max(data_set.data.AggTgtNumPartitions, exec_params.DefaultParallelism):
+            print(
+                f"{test_method.strategy_name} output rdd has {rdd.getNumPartitions()} partitions")
+            findings = rdd.collect()
+            print(f"size={len(findings)}, ", findings)
+            exit(1)
+
     startedTime = time.time()
-    pending_result = test_method.delegate(
-        spark_session, exec_params, data_set)
-    if pending_result.feasible is False:
-        return
-    rdd_some = to_some_rdd(pending_result)
-    if rdd_some is None:
-        raise ValueError("Must return at least 1 type")
-    if rdd_some.getNumPartitions() > max(data_set.data.AggTgtNumPartitions, exec_params.DefaultParallelism):
-        print(
-            f"{test_method.strategy_name} output rdd has {rdd_some.getNumPartitions()} partitions")
-        findings = rdd_some.collect()
-        print(f"size={len(findings)}, ", findings)
-        exit(1)
-    match pending_result:
-        case PysparkPythonPendingAnswerSet(rdd_tuple=rdd_tuple) if rdd_tuple is not None:
-            answer = rdd_tuple.collect()
-            finishedTime = time.time()
-            if len(answer) > 0:
-                df_answer = pd.DataFrame.from_records([x._asdict() for x in answer])
-            else:
-                df_answer = pd.DataFrame(data=[], columns=result_columns)
-        case PysparkPythonPendingAnswerSet(spark_df=spark_df) if spark_df is not None:
+    rdd_some: RDD
+    match test_method.delegate(
+            spark_session, exec_params, data_set):
+        case spark_DataFrame() as spark_df:
+            rdd_some = spark_df.rdd
+            check_partitions(rdd_some)
             df_answer = spark_df.toPandas()
             finishedTime = time.time()
-        case PysparkPythonPendingAnswerSet(rdd_row=rdd_row) if rdd_row is not None:
-            answer = rdd_row.collect()
+        case RDD() as rdd_some:
+            check_partitions(rdd_some)
+            answer = rdd_some.collect()
             finishedTime = time.time()
-            if len(answer) > 0:
-                assert isinstance(answer[0], Row)
-                df_answer = pd.DataFrame.from_records([x.asDict() for x in answer])
-            else:
+            if len(answer) == 0:
                 df_answer = pd.DataFrame(data=[], columns=result_columns)
+            else:
+                match answer[0]:
+                    case Row():
+                        df_answer = pd.DataFrame.from_records([x.asDict() for x in answer])
+                    case _:
+                        df_answer = pd.DataFrame.from_records([x._asdict() for x in answer])
+        case "infeasible":
+            return
         case _:
             raise ValueError("Must return at least 1 type")
     if correct_answer is data_set.answer.bilevel_answer:

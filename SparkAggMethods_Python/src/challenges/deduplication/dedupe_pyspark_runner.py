@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from typing import Literal, Optional
 
 from pyspark import RDD
+from pyspark.sql import DataFrame as spark_DataFrame
 from pyspark.sql import Row
 
 from challenges.deduplication.dedupe_generate_test_data import (
@@ -117,17 +118,17 @@ def run_one_itinerary_step(
           (test_method.strategy_name, itinerary_item.data_set.num_people, itinerary_item.data_set.data_size))
     success = True
     try:
-        answer_set = test_method.delegate(
-            spark_session, exec_params, itinerary_item.data_set)
-        if answer_set.feasible is False:
-            return "infeasible"
         rddout: RDD[Row]
-        if answer_set.rdd_row is not None:
-            rddout = answer_set.rdd_row
-        elif answer_set.spark_df is not None:
-            rddout = answer_set.spark_df.rdd
-        else:
-            raise Exception(f"{itinerary_item.test_method.strategy_name} dit not returning anything")
+        match test_method.delegate(
+                spark_session, exec_params, itinerary_item.data_set):
+            case RDD() as rdd_row:
+                rddout = rdd_row
+            case spark_DataFrame() as spark_df:
+                rddout = spark_df.rdd
+            case "infeasible":
+                return "infeasible"
+            case _:
+                raise Exception(f"{itinerary_item.test_method.strategy_name} dit not returning anything")
         print("NumPartitions: in vs out ",
               itinerary_item.data_set.df.rdd.getNumPartitions(),
               rddout.getNumPartitions())
@@ -193,12 +194,12 @@ def run_tests(
                     itinerary_item=itinerary_item,
                     args=args,
                     spark_session=spark_session):
-                case "infeasible":
-                    pass
                 case (success, result):
                     write_run_result(success, itinerary_item.test_method, result, result_log_file)
                     gc.collect()
                     time.sleep(0.1)
+                case "infeasible":
+                    pass
             print("")
 
 

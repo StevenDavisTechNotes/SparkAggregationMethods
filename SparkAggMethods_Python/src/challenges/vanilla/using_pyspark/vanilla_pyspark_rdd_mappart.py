@@ -5,7 +5,7 @@ from typing import Iterable, NamedTuple, Optional
 from pyspark.sql import Row
 
 from six_field_test_data.six_generate_test_data_using_pyspark import (
-    PysparkDataSet, PysparkPythonPendingAnswerSet)
+    PysparkDataSet, TPysparkPythonPendingAnswerSet)
 from six_field_test_data.six_test_data_types import (DataPoint,
                                                      ExecutionParameters)
 from utils.tidy_spark_session import TidySparkSession
@@ -41,7 +41,7 @@ def vanilla_pyspark_rdd_mappart(
         spark_session: TidySparkSession,
         _exec_params: ExecutionParameters,
         data_set: PysparkDataSet
-) -> PysparkPythonPendingAnswerSet:
+) -> TPysparkPythonPendingAnswerSet:
     rddSrc = data_set.data.rddSrc
     sumCount = (
         rddSrc
@@ -53,7 +53,7 @@ def vanilla_pyspark_rdd_mappart(
     rddResult = sumCount.sortBy(
         lambda x: (x.grp, x.subgrp),  # type: ignore
         numPartitions=data_set.data.AggTgtNumPartitions)
-    return PysparkPythonPendingAnswerSet(rdd_row=rddResult)
+    return rddResult
 
 
 def partition_triage(

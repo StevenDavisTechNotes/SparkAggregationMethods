@@ -2,7 +2,7 @@ import pyspark.sql.functions as func
 from pyspark.sql.window import Window
 
 from six_field_test_data.six_generate_test_data_using_pyspark import (
-    PysparkDataSet, PysparkPythonPendingAnswerSet)
+    PysparkDataSet, TPysparkPythonPendingAnswerSet)
 from six_field_test_data.six_test_data_types import ExecutionParameters
 from utils.tidy_spark_session import TidySparkSession
 
@@ -11,7 +11,7 @@ def cond_pyspark_df_window(
         spark_session: TidySparkSession,
         _exec_params: ExecutionParameters,
         data_set: PysparkDataSet,
-) -> PysparkPythonPendingAnswerSet:
+) -> TPysparkPythonPendingAnswerSet:
     df = data_set.data.dfSrc
     df = df \
         .withColumn("cond", func.when(df.E < 0, -1).otherwise(+1))
@@ -54,4 +54,4 @@ def cond_pyspark_df_window(
         )
     )
     df = df.orderBy(df.grp, df.subgrp)
-    return PysparkPythonPendingAnswerSet(spark_df=df)
+    return df

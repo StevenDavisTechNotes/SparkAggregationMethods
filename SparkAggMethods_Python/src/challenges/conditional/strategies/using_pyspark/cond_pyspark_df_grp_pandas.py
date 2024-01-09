@@ -5,7 +5,7 @@ import pandas as pd
 from challenges.conditional.conditional_test_data_types import (
     agg_columns_4, groupby_columns, postAggSchema_4)
 from six_field_test_data.six_generate_test_data_using_pyspark import (
-    PysparkDataSet, PysparkPythonPendingAnswerSet)
+    PysparkDataSet, TPysparkPythonPendingAnswerSet)
 from six_field_test_data.six_test_data_types import ExecutionParameters
 from utils.pandas_helpers import PandasSeriesOfFloat, PandasSeriesOfInt
 from utils.tidy_spark_session import TidySparkSession
@@ -15,7 +15,7 @@ def cond_pyspark_df_grp_pandas(
         spark_session: TidySparkSession,
         _exec_params: ExecutionParameters,
         data_set: PysparkDataSet,
-) -> PysparkPythonPendingAnswerSet:
+) -> TPysparkPythonPendingAnswerSet:
     df = data_set.data.dfSrc
 
     df = (
@@ -24,7 +24,7 @@ def cond_pyspark_df_grp_pandas(
         .applyInPandas(inner_agg_method, postAggSchema_4)
     )
     df = df.orderBy(df.grp, df.subgrp)
-    return PysparkPythonPendingAnswerSet(spark_df=df)
+    return df
 
 
 def my_var(

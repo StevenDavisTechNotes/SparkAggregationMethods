@@ -5,7 +5,7 @@ from dask.distributed import Client as DaskClient
 from challenges.vanilla.vanilla_test_data_types import (dask_post_agg_schema,
                                                         result_columns)
 from six_field_test_data.six_generate_test_data_using_dask import (
-    DaskDataSet, DaskPythonPendingAnswerSet)
+    DaskDataSet, TDaskPythonPendingAnswerSet)
 from six_field_test_data.six_test_data_types import ExecutionParameters
 
 
@@ -13,14 +13,14 @@ def da_vanilla_pandas(
         dask_client: DaskClient,
         _exec_params: ExecutionParameters,
         data_set: DaskDataSet
-) -> DaskPythonPendingAnswerSet:
+) -> TDaskPythonPendingAnswerSet:
     if (
         data_set.description.NumDataPoints
         // data_set.description.NumGroups
         // data_set.description.NumSubGroups
         > 10**4
     ):
-        return DaskPythonPendingAnswerSet(feasible=False)
+        return "infeasible"
     df: dask_dataframe = data_set.data.dfSrc
     df2 = (
         df
@@ -32,7 +32,7 @@ def da_vanilla_pandas(
         .sort_index()
         .reset_index(drop=True)
     )
-    return DaskPythonPendingAnswerSet(panda_df=df3)
+    return df3
 
 
 def inner_agg_method(

@@ -4,7 +4,7 @@ from pyspark import RDD
 from pyspark.sql import Row
 
 from six_field_test_data.six_generate_test_data_using_pyspark import (
-    PysparkDataSet, PysparkPythonPendingAnswerSet)
+    PysparkDataSet, TPysparkPythonPendingAnswerSet)
 from six_field_test_data.six_test_data_types import (
     MAX_DATA_POINTS_PER_SPARK_PARTITION, DataPoint, ExecutionParameters)
 from utils.tidy_spark_session import TidySparkSession
@@ -14,7 +14,7 @@ def bi_level_pyspark_rdd_grp_map(
         spark_session: TidySparkSession,
         _exec_params: ExecutionParameters,
         data_set: PysparkDataSet
-) -> PysparkPythonPendingAnswerSet:
+) -> TPysparkPythonPendingAnswerSet:
     rddSrc: RDD[DataPoint] = data_set.data.rddSrc
 
     if (
@@ -23,7 +23,7 @@ def bi_level_pyspark_rdd_grp_map(
             * data_set.description.NumGroups
     ):
         # This strategy only works if all of the values per key can fit into memory at once.
-        return PysparkPythonPendingAnswerSet(feasible=False)
+        return "infeasible"
 
     rddResult = cast(
         RDD[Row],
@@ -35,7 +35,7 @@ def bi_level_pyspark_rdd_grp_map(
         .values()
     )
 
-    return PysparkPythonPendingAnswerSet(rdd_row=rddResult)
+    return rddResult
 
 
 class MutableRunningTotal:

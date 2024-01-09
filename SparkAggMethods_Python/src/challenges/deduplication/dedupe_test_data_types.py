@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Callable
+from typing import Callable, Literal
 
 import pyspark.sql.types as DataTypes
 from pyspark import RDD
@@ -45,19 +45,7 @@ class DataSet:
     df: spark_DataFrame
 
 
-@dataclass(frozen=True)
-class PysparkPythonPendingAnswerSet:
-    feasible: bool = True
-    rdd_row:  RDD[Row] | None = None
-    spark_df: spark_DataFrame | None = None
-
-    def to_rdd(self) -> RDD[Row] | None:
-        assert self.feasible is False
-        return (
-            self.rdd_row if self.rdd_row is not None else
-            self.spark_df.rdd if self.spark_df is not None else
-            None
-        )
+TPysparkPythonPendingAnswerSet = Literal["infeasible"] | RDD[Row] | spark_DataFrame
 
 
 @dataclass(frozen=True)
@@ -68,7 +56,7 @@ class PysparkTestMethod:
     interface: str
     delegate: Callable[
         [TidySparkSession, ExecutionParameters, DataSet],
-        PysparkPythonPendingAnswerSet]
+        TPysparkPythonPendingAnswerSet]
 
 
 @dataclass(frozen=True)

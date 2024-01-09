@@ -3,7 +3,7 @@ from typing import Iterable
 from pyspark.sql import Row
 
 from six_field_test_data.six_generate_test_data_using_pyspark import (
-    PysparkDataSet, PysparkPythonPendingAnswerSet)
+    PysparkDataSet, TPysparkPythonPendingAnswerSet)
 from six_field_test_data.six_test_data_types import (
     MAX_DATA_POINTS_PER_SPARK_PARTITION, DataPoint, ExecutionParameters)
 from utils.tidy_spark_session import TidySparkSession
@@ -13,7 +13,7 @@ def vanilla_pyspark_rdd_grp_map(
         _spark_session: TidySparkSession,
         _exec_params: ExecutionParameters,
         data_set: PysparkDataSet
-) -> PysparkPythonPendingAnswerSet:
+) -> TPysparkPythonPendingAnswerSet:
 
     if (
             data_set.description.NumDataPoints
@@ -21,7 +21,7 @@ def vanilla_pyspark_rdd_grp_map(
             * data_set.description.NumGroups * data_set.description.NumSubGroups
     ):
         # This strategy only works if all of the values per key can fit into memory at once.
-        return PysparkPythonPendingAnswerSet(feasible=False)
+        return "infeasible"
 
     rddResult = (
         data_set.data.rddSrc
@@ -31,7 +31,7 @@ def vanilla_pyspark_rdd_grp_map(
         .sortByKey()  # type: ignore
         .values()
     )
-    return PysparkPythonPendingAnswerSet(rdd_row=rddResult)
+    return rddResult
 
 
 def process_data_1(

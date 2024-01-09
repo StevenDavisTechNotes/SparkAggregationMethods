@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from typing import Iterable, Optional, TextIO
 
 from pyspark import RDD
+from pyspark.sql import DataFrame as spark_DataFrame
 
 from challenges.sectional.section_generate_test_data import (
     AVAILABLE_DATA_SIZES, populate_data_sets)
@@ -174,27 +175,25 @@ def run_one_itinerary_step(
         data_set: DataSetWithAnswer,
 ):
     startedTime = time.time()
-    answer_set = test_method.delegate(spark_session, data_set)
     num_students_found: int
-    if answer_set.feasible is False:
-        return "infeasible"
-    found_students_iterable: Iterable[StudentSummary]
     rdd: RDD | None = None
-    if answer_set.iter_tuple is not None:
-        found_students_iterable = answer_set.iter_tuple
-    elif answer_set.rdd_tuple is not None:
-        rdd = answer_set.rdd_tuple
-        print(f"output rdd has {rdd.getNumPartitions()} partitions")
-        count = rdd.count()
-        print("Got a count", count)
-        found_students_iterable = rdd.toLocalIterator()
-    elif answer_set.spark_df is not None:
-        df = answer_set.spark_df
-        print(f"output rdd has {df.rdd.getNumPartitions()} partitions")
-        rdd = df.rdd
-        found_students_iterable = [StudentSummary(*x) for x in rdd.toLocalIterator()]
-    else:
-        raise ValueError("Not data returned")
+    found_students_iterable: Iterable[StudentSummary]
+    match test_method.delegate(spark_session, data_set):
+        case spark_DataFrame() as df:
+            print(f"output rdd has {df.rdd.getNumPartitions()} partitions")
+            rdd = df.rdd
+            found_students_iterable = [StudentSummary(*x) for x in rdd.toLocalIterator()]
+        case RDD() as rdd:
+            print(f"output rdd has {rdd.getNumPartitions()} partitions")
+            count = rdd.count()
+            print("Got a count", count)
+            found_students_iterable = rdd.toLocalIterator()
+        case "infeasible":
+            return "infeasible"
+        case list() as iter_tuple:
+            found_students_iterable = iter_tuple
+        case _:
+            raise ValueError("Unexpected return type")
     concrete_students: Optional[list[StudentSummary]]
     if args.check_answers:
         concrete_students = list(found_students_iterable)

@@ -1,7 +1,7 @@
 import pyspark.sql.functions as func
 
 from six_field_test_data.six_generate_test_data_using_pyspark import (
-    PysparkDataSet, PysparkPythonPendingAnswerSet)
+    PysparkDataSet, TPysparkPythonPendingAnswerSet)
 from six_field_test_data.six_test_data_types import ExecutionParameters
 from utils.tidy_spark_session import TidySparkSession
 
@@ -10,7 +10,7 @@ def bi_level_pyspark_df_nested(
         _spark_session: TidySparkSession,
         _exec_params: ExecutionParameters,
         data_set: PysparkDataSet
-) -> PysparkPythonPendingAnswerSet:
+) -> TPysparkPythonPendingAnswerSet:
     df = data_set.data.dfSrc
     df = (
         df
@@ -47,4 +47,4 @@ def bi_level_pyspark_df_nested(
                 'avg_var_of_E', 'avg_var_of_E2')
         .orderBy(df.grp)
     )
-    return PysparkPythonPendingAnswerSet(spark_df=df)
+    return df

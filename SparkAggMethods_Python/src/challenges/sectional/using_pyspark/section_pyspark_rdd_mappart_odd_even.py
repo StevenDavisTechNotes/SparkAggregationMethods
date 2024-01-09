@@ -5,18 +5,19 @@ from challenges.sectional.domain_logic.section_data_parsers import \
 from challenges.sectional.domain_logic.section_mutuable_subtotal_type import (
     MutableStudent, MutableTrimester)
 from challenges.sectional.section_test_data_types import (
-    ClassLine, DataSet, LabeledTypedRow, PysparkPythonPendingAnswerSet,
-    StudentHeader, StudentSummary, TrimesterFooter, TrimesterHeader, TypedLine)
+    ClassLine, DataSet, LabeledTypedRow, StudentHeader, StudentSummary,
+    TPysparkPythonPendingAnswerSet, TrimesterFooter, TrimesterHeader,
+    TypedLine)
 from utils.tidy_spark_session import TidySparkSession
 
 
 def section_pyspark_rdd_mappart_odd_even(
         spark_session: TidySparkSession,
         data_set: DataSet,
-) -> PysparkPythonPendingAnswerSet:
+) -> TPysparkPythonPendingAnswerSet:
     if data_set.description.num_students > pow(10, 7-1):
         # unrealiable
-        return PysparkPythonPendingAnswerSet(feasible=False)
+        return "infeasible"
     sectionMaximum = data_set.data.section_maximum
     filename = data_set.data.test_filepath
     TargetNumPartitions = data_set.data.target_num_partitions
@@ -52,8 +53,7 @@ def section_pyspark_rdd_mappart_odd_even(
         .mapPartitions(choose_complete_section)
         .sortBy(lambda x: x.StudentId)
     )
-    rdd = rddParallelMapPartitions
-    return PysparkPythonPendingAnswerSet(rdd_tuple=rdd)
+    return rddParallelMapPartitions
 
 
 def aggregate(

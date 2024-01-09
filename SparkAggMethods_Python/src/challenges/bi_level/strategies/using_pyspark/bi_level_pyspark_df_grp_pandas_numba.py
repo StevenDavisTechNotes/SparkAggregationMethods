@@ -4,7 +4,7 @@ import pandas as pd
 from challenges.bi_level.bi_level_test_data_types import (postAggSchema,
                                                           result_columns)
 from six_field_test_data.six_generate_test_data_using_pyspark import (
-    PysparkDataSet, PysparkPythonPendingAnswerSet)
+    PysparkDataSet, TPysparkPythonPendingAnswerSet)
 from six_field_test_data.six_test_data_types import ExecutionParameters
 from utils.tidy_spark_session import TidySparkSession
 
@@ -42,10 +42,9 @@ def bi_level_pyspark_df_grp_pandas_numba(
         spark_session: TidySparkSession,
         _exec_params: ExecutionParameters,
         data_set: PysparkDataSet
-) -> PysparkPythonPendingAnswerSet:
+) -> TPysparkPythonPendingAnswerSet:
     if numba is None:
-        return PysparkPythonPendingAnswerSet(
-            feasible=False)
+        return "infeasible"
     df = data_set.data.dfSrc
     df = (
         df
@@ -53,7 +52,7 @@ def bi_level_pyspark_df_grp_pandas_numba(
         .applyInPandas(inner_agg_method, postAggSchema)
     )
     df = df.orderBy(df.grp)
-    return PysparkPythonPendingAnswerSet(spark_df=df)
+    return df
 
 
 def inner_agg_method(

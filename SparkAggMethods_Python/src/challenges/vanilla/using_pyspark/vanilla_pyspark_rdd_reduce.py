@@ -4,7 +4,7 @@ from pyspark import RDD
 from pyspark.sql import Row
 
 from six_field_test_data.six_generate_test_data_using_pyspark import (
-    PysparkDataSet, PysparkPythonPendingAnswerSet)
+    PysparkDataSet, TPysparkPythonPendingAnswerSet)
 from six_field_test_data.six_test_data_types import (DataPoint,
                                                      ExecutionParameters)
 from utils.tidy_spark_session import TidySparkSession
@@ -22,7 +22,7 @@ def vanilla_pyspark_rdd_reduce(
         spark_session: TidySparkSession,
         _exec_params: ExecutionParameters,
         data_set: PysparkDataSet
-) -> PysparkPythonPendingAnswerSet:
+) -> TPysparkPythonPendingAnswerSet:
     sumCount: RDD[Row] = (
         data_set.data.rddSrc
         .map(lambda x: ((x.grp, x.subgrp), x))
@@ -33,7 +33,7 @@ def vanilla_pyspark_rdd_reduce(
         .map(lambda kv: final_analytics_2(kv[0], kv[1])))
     rddResult = sumCount.sortBy(
         keyfunc=lambda x: (x.grp, x.subgrp))  # type: ignore
-    return PysparkPythonPendingAnswerSet(rdd_row=rddResult)
+    return rddResult
 
 
 def max(

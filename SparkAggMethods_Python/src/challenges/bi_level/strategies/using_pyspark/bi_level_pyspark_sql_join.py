@@ -1,5 +1,5 @@
 from six_field_test_data.six_generate_test_data_using_pyspark import (
-    PysparkDataSet, PysparkPythonPendingAnswerSet)
+    PysparkDataSet, TPysparkPythonPendingAnswerSet)
 from six_field_test_data.six_test_data_types import ExecutionParameters
 from utils.tidy_spark_session import TidySparkSession
 
@@ -8,7 +8,7 @@ def bi_level_pyspark_sql_join(
         spark_session: TidySparkSession,
         _exec_params: ExecutionParameters,
         data_set: PysparkDataSet
-) -> PysparkPythonPendingAnswerSet:
+) -> TPysparkPythonPendingAnswerSet:
     dfSrc = data_set.data.dfSrc
     spark = spark_session.spark
 
@@ -42,4 +42,4 @@ def bi_level_pyspark_sql_join(
     GROUP BY level1.grp
     ORDER BY level1.grp
     ''')
-    return PysparkPythonPendingAnswerSet(spark_df=df)
+    return df

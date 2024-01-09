@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Callable
+from typing import Callable, Literal
 
 import pandas as pd
 from dask.bag.core import Bag as dask_bag
@@ -33,12 +33,7 @@ class DaskDataSetWithAnswer(DaskDataSet):
     answer: DataSetAnswer
 
 
-@dataclass(frozen=True)
-class DaskPythonPendingAnswerSet:
-    feasible: bool = True
-    bag: dask_bag | None = None
-    dask_df: dask_dataframe | None = None
-    panda_df: pd.DataFrame | None = None
+TDaskPythonPendingAnswerSet = Literal["infeasible"] | dask_bag | dask_dataframe | pd.DataFrame
 
 
 @dataclass(frozen=True)
@@ -48,7 +43,7 @@ class DaskPythonTestMethod:
     interface: str
     delegate: Callable[
         [DaskClient, ExecutionParameters, DaskDataSet],
-        DaskPythonPendingAnswerSet]
+        TDaskPythonPendingAnswerSet]
 
 # endregion
 

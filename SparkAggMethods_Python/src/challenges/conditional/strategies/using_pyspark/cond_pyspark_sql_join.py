@@ -1,6 +1,6 @@
 
 from six_field_test_data.six_generate_test_data_using_pyspark import (
-    PysparkDataSet, PysparkPythonPendingAnswerSet)
+    PysparkDataSet, TPysparkPythonPendingAnswerSet)
 from six_field_test_data.six_test_data_types import ExecutionParameters
 from utils.tidy_spark_session import TidySparkSession
 
@@ -9,7 +9,7 @@ def cond_pyspark_sql_join(
         spark_session: TidySparkSession,
         _exec_params: ExecutionParameters,
         data_set: PysparkDataSet,
-) -> PysparkPythonPendingAnswerSet:
+) -> TPysparkPythonPendingAnswerSet:
     spark = spark_session.spark
     spark.catalog.dropTempView("exampledata")
     data_set.data.dfSrc.createTempView("exampledata")
@@ -54,4 +54,4 @@ def cond_pyspark_sql_join(
             AND unconditional.subgrp = conditional.subgrp
     ORDER BY grp, subgrp
     ''')
-    return PysparkPythonPendingAnswerSet(spark_df=df)
+    return df

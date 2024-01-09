@@ -2,7 +2,7 @@
 import pyspark.sql.functions as func
 
 from six_field_test_data.six_generate_test_data_using_pyspark import (
-    PysparkDataSet, PysparkPythonPendingAnswerSet)
+    PysparkDataSet, TPysparkPythonPendingAnswerSet)
 from six_field_test_data.six_test_data_types import ExecutionParameters
 from utils.tidy_spark_session import TidySparkSession
 
@@ -11,7 +11,7 @@ def cond_pyspark_df_nested(
         spark_session: TidySparkSession,
         _exec_params: ExecutionParameters,
         data_set: PysparkDataSet,
-) -> PysparkPythonPendingAnswerSet:
+) -> TPysparkPythonPendingAnswerSet:
     dfData = data_set.data.dfSrc
     dfInter = dfData\
         .withColumn('cond', func.when(dfData.E < 0, -1).otherwise(1))
@@ -46,4 +46,4 @@ def cond_pyspark_df_nested(
     dfResult = dfInter.select('grp', 'subgrp', 'mean_of_C', 'mean_of_C2', 'wrong_mean_of_C',
                               'max_of_D', 'cond_var_of_E')
     dfResult = dfResult.orderBy(dfResult.grp, dfResult.subgrp)
-    return PysparkPythonPendingAnswerSet(spark_df=dfResult)
+    return dfResult

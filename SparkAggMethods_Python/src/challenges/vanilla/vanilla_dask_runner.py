@@ -33,7 +33,8 @@ DEBUG_ARGS = None if False else (
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
     + ['--strategy',
-       'da_vanilla_pandas',
+       #    'vanilla_dask_ddf_grp_apply',
+       'vanilla_dask_ddf_grp_udaf',
        ]
 )
 
@@ -85,7 +86,7 @@ def do_test_runs(
         args: Arguments,
         dask_client: DaskClient,
 ) -> None:
-    data_sets = populate_data_sets(args, )
+    data_sets = populate_data_sets(args)
     keyed_implementation_list = {
         x.strategy_name: x for x in dask_implementation_list}
     itinerary: list[tuple[DaskPythonTestMethod, DaskDataSetWithAnswer]] = [

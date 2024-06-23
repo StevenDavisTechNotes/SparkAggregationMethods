@@ -1,5 +1,7 @@
-from challenges.vanilla.using_dask.vanilla_dask_grp_pandas import \
-    da_vanilla_pandas
+from challenges.vanilla.using_dask.vanilla_dask_ddf_grp_apply import \
+    vanilla_dask_ddf_grp_apply
+from challenges.vanilla.using_dask.vanilla_dask_ddf_grp_udaf import \
+    vanilla_dask_ddf_grp_udaf
 from challenges.vanilla.using_pyspark.vanilla_pyspark_df_grp_builtin import \
     vanilla_pyspark_df_grp_builtin
 from challenges.vanilla.using_pyspark.vanilla_pyspark_df_grp_pandas import \
@@ -20,21 +22,27 @@ from six_field_test_data.six_generate_test_data_using_dask import \
     DaskPythonTestMethod
 from six_field_test_data.six_generate_test_data_using_pyspark import \
     PysparkPythonTestMethod
-from utils.inspection import nameof_function
+from utils.inspection import name_of_function
 
 dask_implementation_list: list[DaskPythonTestMethod] = [
     DaskPythonTestMethod(
-        strategy_name=nameof_function(da_vanilla_pandas),
+        strategy_name=name_of_function(vanilla_dask_ddf_grp_apply),
         language='python',
-        interface='da_pandas',
-        delegate=da_vanilla_pandas,
+        interface='ddf',
+        delegate=vanilla_dask_ddf_grp_apply,
+    ),
+    DaskPythonTestMethod(
+        strategy_name=name_of_function(vanilla_dask_ddf_grp_udaf),
+        language='python',
+        interface='ddf',
+        delegate=vanilla_dask_ddf_grp_udaf,
     ),
 ]
 
 pyspark_implementation_list: list[PysparkPythonTestMethod] = [
     PysparkPythonTestMethod(
         original_strategy_name='vanilla_sql',
-        strategy_name=nameof_function(vanilla_sql),
+        strategy_name=name_of_function(vanilla_sql),
         language='python',
         interface='sql',
         only_when_gpu_testing=False,
@@ -42,7 +50,7 @@ pyspark_implementation_list: list[PysparkPythonTestMethod] = [
     ),
     PysparkPythonTestMethod(
         original_strategy_name='vanilla_fluent',
-        strategy_name=nameof_function(vanilla_pyspark_df_grp_builtin),
+        strategy_name=name_of_function(vanilla_pyspark_df_grp_builtin),
         language='python',
         interface='sql',
         only_when_gpu_testing=False,
@@ -50,7 +58,7 @@ pyspark_implementation_list: list[PysparkPythonTestMethod] = [
     ),
     PysparkPythonTestMethod(
         original_strategy_name='vanilla_pandas',
-        strategy_name=nameof_function(vanilla_pyspark_df_grp_pandas),
+        strategy_name=name_of_function(vanilla_pyspark_df_grp_pandas),
         language='python',
         interface='pandas',
         only_when_gpu_testing=False,
@@ -58,7 +66,7 @@ pyspark_implementation_list: list[PysparkPythonTestMethod] = [
     ),
     PysparkPythonTestMethod(
         original_strategy_name='vanilla_pandas_numpy',
-        strategy_name=nameof_function(vanilla_pyspark_df_grp_pandas_numpy),
+        strategy_name=name_of_function(vanilla_pyspark_df_grp_pandas_numpy),
         language='python',
         interface='pandas',
         only_when_gpu_testing=False,
@@ -66,7 +74,7 @@ pyspark_implementation_list: list[PysparkPythonTestMethod] = [
     ),
     PysparkPythonTestMethod(
         original_strategy_name='vanilla_pandas_numba',
-        strategy_name=nameof_function(vanilla_pyspark_df_grp_pandas_numba),
+        strategy_name=name_of_function(vanilla_pyspark_df_grp_pandas_numba),
         language='python',
         interface='pandas',
         only_when_gpu_testing=True,
@@ -74,7 +82,7 @@ pyspark_implementation_list: list[PysparkPythonTestMethod] = [
     ),
     PysparkPythonTestMethod(
         original_strategy_name='vanilla_rdd_grpmap',
-        strategy_name=nameof_function(vanilla_pyspark_rdd_grp_map),
+        strategy_name=name_of_function(vanilla_pyspark_rdd_grp_map),
         language='python',
         interface='rdd',
         only_when_gpu_testing=False,
@@ -82,7 +90,7 @@ pyspark_implementation_list: list[PysparkPythonTestMethod] = [
     ),
     PysparkPythonTestMethod(
         original_strategy_name='vanilla_rdd_reduce',
-        strategy_name=nameof_function(vanilla_pyspark_rdd_reduce),
+        strategy_name=name_of_function(vanilla_pyspark_rdd_reduce),
         language='python',
         interface='rdd',
         only_when_gpu_testing=False,
@@ -90,7 +98,7 @@ pyspark_implementation_list: list[PysparkPythonTestMethod] = [
     ),
     PysparkPythonTestMethod(
         original_strategy_name='vanilla_rdd_mappart',
-        strategy_name=nameof_function(vanilla_pyspark_rdd_mappart),
+        strategy_name=name_of_function(vanilla_pyspark_rdd_mappart),
         language='python',
         interface='rdd',
         only_when_gpu_testing=False,

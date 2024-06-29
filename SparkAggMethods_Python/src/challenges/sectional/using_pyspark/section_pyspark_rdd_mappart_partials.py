@@ -9,8 +9,7 @@ from challenges.sectional.domain_logic.section_snippet_subtotal_type import (
     StudentSnippet2, complete_snippets_2, grade_summary, marge_snippets_2,
     student_snippet_from_typed_row_2)
 from challenges.sectional.section_test_data_types import (
-    DataSet, LabeledTypedRow, StudentSummary,
-    TChallengePendingAnswerPythonPyspark)
+    DataSet, LabeledTypedRow, StudentSummary, TChallengePythonPysparkAnswer)
 from utils.tidy_spark_session import TidySparkSession
 from utils.utils import int_divide_round_up
 
@@ -23,7 +22,7 @@ class StudentSnippetWIndex(NamedTuple):
 def section_pyspark_rdd_mappart_partials(
         spark_session: TidySparkSession,
         data_set: DataSet,
-) -> TChallengePendingAnswerPythonPyspark:
+) -> TChallengePythonPysparkAnswer:
     if data_set.description.num_students > pow(10, 5-1):
         # unreliable in local mode
         return "infeasible"

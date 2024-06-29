@@ -4,7 +4,7 @@ from six_field_test_data.six_test_data_types import ExecutionParameters
 from utils.tidy_spark_session import TidySparkSession
 
 
-def vanilla_pyspark_sql(
+def vanilla_dask_sql(
         spark_session: TidySparkSession,
         exec_params: ExecutionParameters,
         data_set: DataSetPyspark

@@ -20,17 +20,21 @@ from challenges.bi_level.strategies.using_pyspark.bi_level_pyspark_sql_join impo
     bi_level_pyspark_sql_join
 from challenges.bi_level.strategies.using_pyspark.bi_level_pyspark_sql_nested import \
     bi_level_pyspark_sql_nested
-from six_field_test_data.six_generate_test_data_using_pyspark import \
+from six_field_test_data.six_generate_test_data import \
     ChallengeMethodPythonPysparkRegistration
 from utils.inspection import name_of_function
 
-pyspark_implementation_list: list[ChallengeMethodPythonPysparkRegistration] = [
+# solutions_using_dask: list[ChallengeMethodPythonDaskRegistration] = [
+# ]
+# solutions_using_python_only: list[ChallengeMethodPythonOnlyRegistration] = [
+# ]
+solutions_using_pyspark: list[ChallengeMethodPythonPysparkRegistration] = [
     ChallengeMethodPythonPysparkRegistration(
         original_strategy_name='bi_sql_join',
         strategy_name=name_of_function(bi_level_pyspark_sql_join),
         language='python',
         interface='sql',
-        only_when_gpu_testing=False,
+        requires_gpu=False,
         delegate=bi_level_pyspark_sql_join
     ),
     ChallengeMethodPythonPysparkRegistration(
@@ -38,7 +42,7 @@ pyspark_implementation_list: list[ChallengeMethodPythonPysparkRegistration] = [
         strategy_name=name_of_function(bi_level_pyspark_df_join),
         language='python',
         interface='fluent',
-        only_when_gpu_testing=False,
+        requires_gpu=False,
         delegate=bi_level_pyspark_df_join
     ),
     ChallengeMethodPythonPysparkRegistration(
@@ -46,7 +50,7 @@ pyspark_implementation_list: list[ChallengeMethodPythonPysparkRegistration] = [
         strategy_name=name_of_function(bi_level_pyspark_df_grp_pandas),
         language='python',
         interface='pandas',
-        only_when_gpu_testing=False,
+        requires_gpu=False,
         delegate=bi_level_pyspark_df_grp_pandas
     ),
     ChallengeMethodPythonPysparkRegistration(
@@ -54,7 +58,7 @@ pyspark_implementation_list: list[ChallengeMethodPythonPysparkRegistration] = [
         strategy_name=name_of_function(bi_level_pyspark_df_grp_pandas_numba),
         language='python',
         interface='pandas',
-        only_when_gpu_testing=True,
+        requires_gpu=True,
         delegate=bi_level_pyspark_df_grp_pandas_numba
     ),
     ChallengeMethodPythonPysparkRegistration(
@@ -62,7 +66,7 @@ pyspark_implementation_list: list[ChallengeMethodPythonPysparkRegistration] = [
         strategy_name=name_of_function(bi_level_pyspark_sql_nested),
         language='python',
         interface='sql',
-        only_when_gpu_testing=False,
+        requires_gpu=False,
         delegate=bi_level_pyspark_sql_nested
     ),
     ChallengeMethodPythonPysparkRegistration(
@@ -70,7 +74,7 @@ pyspark_implementation_list: list[ChallengeMethodPythonPysparkRegistration] = [
         strategy_name=name_of_function(bi_level_pyspark_df_nested),
         language='python',
         interface='fluent',
-        only_when_gpu_testing=False,
+        requires_gpu=False,
         delegate=bi_level_pyspark_df_nested
     ),
     ChallengeMethodPythonPysparkRegistration(
@@ -78,7 +82,7 @@ pyspark_implementation_list: list[ChallengeMethodPythonPysparkRegistration] = [
         strategy_name=name_of_function(bi_level_pyspark_df_window),
         language='python',
         interface='fluent',
-        only_when_gpu_testing=False,
+        requires_gpu=False,
         delegate=bi_level_pyspark_df_window
     ),
     ChallengeMethodPythonPysparkRegistration(
@@ -86,7 +90,7 @@ pyspark_implementation_list: list[ChallengeMethodPythonPysparkRegistration] = [
         strategy_name=name_of_function(bi_level_pyspark_rdd_grp_map),
         language='python',
         interface='rdd',
-        only_when_gpu_testing=False,
+        requires_gpu=False,
         delegate=bi_level_pyspark_rdd_grp_map
     ),
     ChallengeMethodPythonPysparkRegistration(
@@ -94,7 +98,7 @@ pyspark_implementation_list: list[ChallengeMethodPythonPysparkRegistration] = [
         strategy_name=name_of_function(bi_level_pyspark_rdd_reduce_1),
         language='python',
         interface='rdd',
-        only_when_gpu_testing=False,
+        requires_gpu=False,
         delegate=bi_level_pyspark_rdd_reduce_1
     ),
     ChallengeMethodPythonPysparkRegistration(
@@ -102,7 +106,7 @@ pyspark_implementation_list: list[ChallengeMethodPythonPysparkRegistration] = [
         strategy_name=name_of_function(bi_level_pyspark_rdd_reduce_2),
         language='python',
         interface='rdd',
-        only_when_gpu_testing=False,
+        requires_gpu=False,
         delegate=bi_level_pyspark_rdd_reduce_2
     ),
     ChallengeMethodPythonPysparkRegistration(
@@ -110,10 +114,10 @@ pyspark_implementation_list: list[ChallengeMethodPythonPysparkRegistration] = [
         strategy_name=name_of_function(bi_level_pyspark_rdd_map_part),
         language='python',
         interface='rdd',
-        only_when_gpu_testing=False,
+        requires_gpu=False,
         delegate=bi_level_pyspark_rdd_map_part
     ),
 ]
 
 
-STRATEGY_NAME_LIST = [x.strategy_name for x in pyspark_implementation_list]
+STRATEGY_NAME_LIST = [x.strategy_name for x in solutions_using_pyspark]

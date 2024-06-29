@@ -2,10 +2,10 @@ import datetime
 from typing import TextIO
 
 from perf_test_common import CalcEngine
-from six_field_test_data.six_generate_test_data_using_dask import \
-    ChallengeMethodPythonDaskRegistration
-from six_field_test_data.six_generate_test_data_using_pyspark import \
-    ChallengeMethodPythonPysparkRegistration
+from six_field_test_data.six_generate_test_data import (
+    ChallengeMethodPythonDaskRegistration,
+    ChallengeMethodPythonOnlyRegistration,
+    ChallengeMethodPythonPysparkRegistration)
 from six_field_test_data.six_test_data_types import RunResult
 
 
@@ -17,7 +17,9 @@ def write_header(
 
 
 def write_run_result(
-        challenge_method_registration: ChallengeMethodPythonPysparkRegistration | ChallengeMethodPythonDaskRegistration,
+        challenge_method_registration:
+        ChallengeMethodPythonOnlyRegistration
+        | ChallengeMethodPythonPysparkRegistration | ChallengeMethodPythonDaskRegistration,
         result: RunResult,
         file: TextIO,
 ) -> None:

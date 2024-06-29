@@ -6,15 +6,14 @@ from challenges.sectional.domain_logic.section_mutable_subtotal_type import (
     MutableStudent, MutableTrimester)
 from challenges.sectional.section_test_data_types import (
     ClassLine, DataSet, LabeledTypedRow, StudentHeader, StudentSummary,
-    TChallengePendingAnswerPythonPyspark, TrimesterFooter, TrimesterHeader,
-    TypedLine)
+    TChallengePythonPysparkAnswer, TrimesterFooter, TrimesterHeader, TypedLine)
 from utils.tidy_spark_session import TidySparkSession
 
 
 def section_pyspark_rdd_mappart_odd_even(
         spark_session: TidySparkSession,
         data_set: DataSet,
-) -> TChallengePendingAnswerPythonPyspark:
+) -> TChallengePythonPysparkAnswer:
     if data_set.description.num_students > pow(10, 7-1):
         # unreliable
         return "infeasible"

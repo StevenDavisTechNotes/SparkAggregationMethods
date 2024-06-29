@@ -4,7 +4,7 @@ from pyspark.sql import Row
 from challenges.sectional.domain_logic.section_data_parsers import (
     identify_section_using_intermediate_file, row_to_student_summary)
 from challenges.sectional.section_test_data_types import (
-    DataSet, SparseLineSchema, TChallengePendingAnswerPythonPyspark)
+    DataSet, SparseLineSchema, TChallengePythonPysparkAnswer)
 from challenges.sectional.using_pyspark.section_pyspark_rdd_prep_shared import \
     section_pyspark_rdd_prep_shared
 from utils.tidy_spark_session import TidySparkSession
@@ -13,7 +13,7 @@ from utils.tidy_spark_session import TidySparkSession
 def section_pyspark_df_prep_txt(
         spark_session: TidySparkSession,
         data_set: DataSet,
-) -> TChallengePendingAnswerPythonPyspark:
+) -> TChallengePythonPysparkAnswer:
     if data_set.description.num_students > pow(10, 8-1):
         # times out
         return "infeasible"

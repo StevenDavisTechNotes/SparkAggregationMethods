@@ -1,5 +1,5 @@
 #! python
-# usage: cd src; python -m perf_test_runner_for_dask
+# usage: python -m perf_test_runner_for_dask
 from dask.distributed import Client as DaskClient
 
 from challenges.vanilla import vanilla_dask_runner  # noqa: F401
@@ -13,6 +13,7 @@ def main():
             threads_per_worker=1,
     ) as dask_client:
         vanilla_dask_runner.do_with_client(dask_client)
+    print("Done!")
 
 
 if __name__ == "__main__":

@@ -11,7 +11,7 @@ from challenges.sectional.section_generate_test_data import DataSetDescription
 from challenges.sectional.section_record_runs import (FINAL_REPORT_FILE_PATH,
                                                       derive_run_log_file_path)
 from challenges.sectional.section_strategy_directory import (
-    dask_implementation_list, pyspark_implementation_list)
+    solutions_using_dask, solutions_using_pyspark, solutions_using_python_only)
 from challenges.sectional.section_test_data_types import (DataSet, DataSetData,
                                                           ExecutionParameters,
                                                           RunResult)
@@ -74,8 +74,9 @@ def analyze_run_results():  # noqa: C901
             if len(times) == 0:
                 continue
             challenge_method_registration = (
-                [x for x in pyspark_implementation_list if x.strategy_name == strategy_name]
-                + [x for x in dask_implementation_list if x.strategy_name == strategy_name])[0]
+                [x for x in solutions_using_dask if x.strategy_name == strategy_name]
+                + [x for x in solutions_using_pyspark if x.strategy_name == strategy_name]
+                + [x for x in solutions_using_python_only if x.strategy_name == strategy_name])[0]
 
             size_values = set(x.data.description.num_rows for x in times)
             for dataSize in size_values:

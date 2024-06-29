@@ -128,10 +128,10 @@ class TestMethodBase:
     scale: str
 
 
-TChallengeAnswerPythonDask = (
+TChallengePythonAnswer = (
     Literal["infeasible"] | list[StudentSummary] | pd.DataFrame)
 
-TChallengePendingAnswerPythonPyspark = (
+TChallengePythonPysparkAnswer = (
     Literal["infeasible"] | list[StudentSummary] | RDD[StudentSummary] | PySparkDataFrame)
 
 
@@ -141,11 +141,12 @@ class IChallengeMethodPythonDaskRegistration(Protocol):
         *,
         spark_session: TidySparkSession,
         data_set: DataSet
-    ) -> TChallengeAnswerPythonDask: ...
+    ) -> TChallengePythonAnswer: ...
 
 
 @dataclass(frozen=True)
 class ChallengeMethodDaskRegistration(TestMethodBase):
+    requires_gpu: bool
     delegate: IChallengeMethodPythonDaskRegistration
 
 
@@ -155,10 +156,25 @@ class IChallengeMethodPythonPysparkRegistration(Protocol):
         *,
         spark_session: TidySparkSession,
         data_set: DataSet
-    ) -> TChallengePendingAnswerPythonPyspark: ...
+    ) -> TChallengePythonPysparkAnswer: ...
 
 
 @dataclass(frozen=True)
 class ChallengeMethodPysparkRegistration(TestMethodBase):
     original_strategy_name: str
+    requires_gpu: bool
     delegate: IChallengeMethodPythonPysparkRegistration
+
+
+class IChallengeMethodPythonOnlyRegistration(Protocol):
+    def __call__(
+        self,
+        *,
+        data_set: DataSet
+    ) -> TChallengePythonAnswer: ...
+
+
+@dataclass(frozen=True)
+class ChallengeMethodPythonOnlyRegistration(TestMethodBase):
+    requires_gpu: bool
+    delegate: IChallengeMethodPythonOnlyRegistration

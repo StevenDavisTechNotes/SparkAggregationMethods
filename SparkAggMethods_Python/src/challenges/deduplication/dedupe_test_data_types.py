@@ -64,6 +64,7 @@ class ChallengeMethodPythonPysparkRegistration:
     strategy_name: str
     language: str
     interface: str
+    requires_gpu: bool
     delegate: IChallengeMethodPythonPyspark
 
 

@@ -1,50 +1,58 @@
 #! python
-# usage: python -m challenges.vanilla.vanilla_dask_runner
-
+# usage: python -m challenges.vanilla.vanilla_pyspark_runner
 import argparse
 import gc
+import logging
+import os
 import random
 import time
-from typing import NamedTuple
-
-from dask.distributed import Client as DaskClient
+from dataclasses import dataclass
+from typing import Optional
 
 from challenges.vanilla.vanilla_record_runs import derive_run_log_file_path
 from challenges.vanilla.vanilla_strategy_directory import (
-    DASK_STRATEGY_NAME_LIST, solutions_using_dask)
+    PYSPARK_STRATEGY_NAME_LIST, solutions_using_pyspark,
+    solutions_using_python_only)
 from perf_test_common import CalcEngine
 from six_field_test_data.six_generate_test_data import (
-    ChallengeMethodPythonDaskRegistration, DaskDataSetWithAnswer,
-    populate_data_set_dask)
+    ChallengeMethodPythonOnlyRegistration, DataSetPythonOnlyWithAnswer,
+    populate_data_set_python_only)
 from six_field_test_data.six_run_result_types import write_header
-from six_field_test_data.six_runner_base import test_one_step_in_dask_itinerary
+from six_field_test_data.six_runner_base import \
+    test_one_step_in_python_only_itinerary
 from six_field_test_data.six_test_data_types import (
     SHARED_LOCAL_TEST_DATA_FILE_LOCATION, Challenge, ExecutionParameters)
-from utils.tidy_spark_session import LOCAL_NUM_EXECUTORS
+from utils.tidy_spark_session import get_python_code_root_path
 from utils.utils import always_true, set_random_seed
 
-ENGINE = CalcEngine.DASK
+logger = logging.getLogger(__name__)
+ENGINE = CalcEngine.PYTHON_ONLY
 CHALLENGE = Challenge.VANILLA
 DEBUG_ARGS = None if False else (
     []
-    # + '--size 10'.split()
+    + '--size 10'.split()
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
-    #     + ['--strategy',
-    #           'vanilla_dask_ddf_grp_apply',
-    #           'vanilla_dask_ddf_grp_udaf',
-    #        ]
+    # + ['--strategy',
+    #    'vanilla_pyspark_sql',
+    #    #    'vanilla_df_fluent',
+    #    # 'vanilla_df_grp_pandas',
+    #    # 'vanilla_df_grp_pandas_numpy',
+    #    #    'vanilla_rdd_grpmap',
+    #    # 'vanilla_rdd_reduce',
+    #    # 'vanilla_rdd_mappart'
+    #    ]
 )
 
 
-class Arguments(NamedTuple):
-    have_gpu: bool
+@dataclass(frozen=True)
+class Arguments:
     num_runs: int
-    random_seed: int | None
+    random_seed: Optional[int]
     shuffle: bool
     sizes: list[str]
-    strategies: list[str]
+    strategy_names: list[str]
     exec_params: ExecutionParameters
 
 
@@ -55,29 +63,28 @@ def parse_args() -> Arguments:
     parser.add_argument(
         '--size',
         choices=['1', '10', '100', '1k', '10k', '100k'],
-        default=['1', '10', '100', '1k', '10k', '100k'],
+        default=['10', '100', '1k', '10k', '100k'],
         nargs="+")
     parser.add_argument(
         '--shuffle', default=True,
         action=argparse.BooleanOptionalAction)
     parser.add_argument(
         '--strategy',
-        choices=DASK_STRATEGY_NAME_LIST,
-        default=DASK_STRATEGY_NAME_LIST,
+        choices=PYSPARK_STRATEGY_NAME_LIST,
+        default=[x.strategy_name for x in solutions_using_pyspark],
         nargs="+")
     if DEBUG_ARGS is None:
         args = parser.parse_args()
     else:
         args = parser.parse_args(DEBUG_ARGS)
     return Arguments(
-        have_gpu=args.have_gpu,
         num_runs=args.runs,
         random_seed=args.random_seed,
         shuffle=args.shuffle,
         sizes=args.size,
-        strategies=args.strategy,
+        strategy_names=args.strategy,
         exec_params=ExecutionParameters(
-            DefaultParallelism=2 * LOCAL_NUM_EXECUTORS,
+            DefaultParallelism=1,
             TestDataFolderLocation=SHARED_LOCAL_TEST_DATA_FILE_LOCATION,
         ),
     )
@@ -85,16 +92,14 @@ def parse_args() -> Arguments:
 
 def do_test_runs(
         args: Arguments,
-        dask_client: DaskClient,
 ) -> None:
     data_sets = populate_data_sets(args)
     keyed_implementation_list = {
-        x.strategy_name: x for x in solutions_using_dask}
-    itinerary: list[tuple[ChallengeMethodPythonDaskRegistration, DaskDataSetWithAnswer]] = [
+        x.strategy_name: x for x in solutions_using_python_only}
+    itinerary: list[tuple[ChallengeMethodPythonOnlyRegistration, DataSetPythonOnlyWithAnswer]] = [
         (challenge_method_registration, data_set)
-        for strategy in args.strategies
+        for strategy in args.strategy_names
         if always_true(challenge_method_registration := keyed_implementation_list[strategy])
-        if (args.have_gpu or not challenge_method_registration.requires_gpu)
         for data_set in data_sets
         for _ in range(0, args.num_runs)
     ]
@@ -102,18 +107,22 @@ def do_test_runs(
         set_random_seed(args.random_seed)
     if args.shuffle:
         random.shuffle(itinerary)
-    with open(derive_run_log_file_path(ENGINE), 'at+') as file:
+    result_log_path_name = os.path.join(
+        get_python_code_root_path(),
+        derive_run_log_file_path(ENGINE))
+    with open(result_log_path_name, 'at+') as file:
         write_header(file)
         for index, (challenge_method_registration, data_set) in enumerate(itinerary):
-            print("Working on %d of %d" % (index, len(itinerary)))
+            logger.info(
+                "Working on %d of %d" % (index, len(itinerary)))
             print(f"Working on {challenge_method_registration.strategy_name} for {data_set.description.SizeCode}")
-            test_one_step_in_dask_itinerary(
+            test_one_step_in_python_only_itinerary(
                 challenge=CHALLENGE,
-                dask_client=dask_client,
                 exec_params=args.exec_params,
                 challenge_method_registration=challenge_method_registration,
                 file=file,
                 data_set=data_set,
+                correct_answer=data_set.answer,
             )
             gc.collect()
             time.sleep(0.1)
@@ -121,17 +130,21 @@ def do_test_runs(
 
 def populate_data_sets(
         args: Arguments,
-) -> list[DaskDataSetWithAnswer]:
+) -> list[DataSetPythonOnlyWithAnswer]:
 
     def generate_single_test_data_set_simple(
             code: str,
             num_grp_1:
             int, num_grp_2: int,
             num_data_points: int
-    ) -> DaskDataSetWithAnswer:
-        return populate_data_set_dask(
-            args.exec_params,
-            code, num_grp_1, num_grp_2, num_data_points)
+    ) -> DataSetPythonOnlyWithAnswer:
+        return populate_data_set_python_only(
+            exec_params=args.exec_params,
+            size_code=code,
+            num_grp_1=num_grp_1,
+            num_grp_2=num_grp_2,
+            repetition=num_data_points,
+        )
 
     data_sets = [x for x in [
         generate_single_test_data_set_simple('1', 3, 3, 10 ** 0,
@@ -153,18 +166,9 @@ def populate_data_sets(
     return data_sets
 
 
-def do_with_client(dask_client: DaskClient):
-    args = parse_args()
-    return do_test_runs(args, dask_client)
-
-
 def main():
-    with DaskClient(
-            processes=True,
-            n_workers=LOCAL_NUM_EXECUTORS,
-            threads_per_worker=1,
-    ) as dask_client:
-        do_with_client(dask_client)
+    args = parse_args()
+    do_test_runs(args)
     print("Done!")
 
 

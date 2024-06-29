@@ -2,8 +2,8 @@ from typing import Iterable
 
 from pyspark.sql import Row
 
-from six_field_test_data.six_generate_test_data_using_pyspark import (
-    PysparkDataSet, TChallengePendingAnswerPythonPyspark)
+from six_field_test_data.six_generate_test_data import (
+    DataSetPyspark, TChallengePendingAnswerPythonPyspark)
 from six_field_test_data.six_test_data_types import (
     MAX_DATA_POINTS_PER_SPARK_PARTITION, DataPoint, ExecutionParameters)
 from utils.tidy_spark_session import TidySparkSession
@@ -12,7 +12,7 @@ from utils.tidy_spark_session import TidySparkSession
 def vanilla_pyspark_rdd_grp_map(
         spark_session: TidySparkSession,
         exec_params: ExecutionParameters,
-        data_set: PysparkDataSet
+        data_set: DataSetPyspark
 ) -> TChallengePendingAnswerPythonPyspark:
 
     if (

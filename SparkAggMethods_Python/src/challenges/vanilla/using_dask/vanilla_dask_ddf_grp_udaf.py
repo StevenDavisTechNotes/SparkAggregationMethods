@@ -1,13 +1,13 @@
 import numpy
 import pandas as pd
 from dask.dataframe import groupby
-from dask.dataframe.core import DataFrame as dask_dataframe
+from dask.dataframe.core import DataFrame as DaskDataFrame
 from dask.distributed import Client as DaskClient
 from pandas.core.groupby.generic import SeriesGroupBy
 
 from challenges.vanilla.vanilla_test_data_types import agg_columns
-from six_field_test_data.six_generate_test_data_using_dask import (
-    DaskDataSet, TDaskPythonPendingAnswerSet)
+from six_field_test_data.six_generate_test_data import (
+    DaskDataSet, TChallengeAnswerPythonDask)
 from six_field_test_data.six_test_data_types import ExecutionParameters
 
 
@@ -27,9 +27,9 @@ def ddof_0_do_finalize(count: pd.Series, sum: pd.Series, sum2: pd.Series):
 
 def vanilla_dask_ddf_grp_udaf(
         dask_client: DaskClient,
-        _exec_params: ExecutionParameters,
+        exec_params: ExecutionParameters,
         data_set: DaskDataSet
-) -> TDaskPythonPendingAnswerSet:
+) -> TChallengeAnswerPythonDask:
     if (
         data_set.description.NumDataPoints
         // data_set.description.NumGroups
@@ -37,7 +37,7 @@ def vanilla_dask_ddf_grp_udaf(
         > 10**4
     ):
         return "infeasible"
-    df: dask_dataframe = data_set.data.dfSrc
+    df: DaskDataFrame = data_set.data.df_src
     custom_var_ddof_0 = groupby.Aggregation(
         name='custom_var_ddof_0',
         chunk=ddof_0_do_chunk,

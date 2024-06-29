@@ -1,5 +1,5 @@
 #! python
-# usage: (cd src; python -m challenges.sectional.section_pyspark_runner)
+# usage: python -m challenges.sectional.section_pyspark_runner
 # cSpell: ignore wasb, sparkperftesting, Reqs
 import argparse
 import gc
@@ -18,7 +18,7 @@ from challenges.sectional.section_record_runs import (
     MAXIMUM_PROCESSABLE_SEGMENT, derive_run_log_file_path, write_header,
     write_run_result)
 from challenges.sectional.section_strategy_directory import (
-    STRATEGY_NAME_LIST, pyspark_implementation_list)
+    STRATEGY_NAME_LIST, solutions_using_pyspark)
 from challenges.sectional.section_test_data_types import (
     ChallengeMethodPysparkRegistration, DataSetWithAnswer, ExecutionParameters,
     RunResult, StudentSummary)
@@ -63,15 +63,14 @@ class Arguments:
     random_seed: Optional[int]
     shuffle: bool
     sizes: list[str]
-    strategies: list[str]
+    strategy_names: list[str]
     exec_params: ExecutionParameters
 
 
 def parse_args() -> Arguments:
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '--check', default=True,
-        action=argparse.BooleanOptionalAction)
+    parser.add_argument('--check', default=True, action=argparse.BooleanOptionalAction,
+                        help="When debugging skipping this will speed up the startup")
     parser.add_argument('--random-seed', type=int)
     parser.add_argument('--runs', type=int, default=30)
     parser.add_argument(
@@ -102,7 +101,7 @@ def parse_args() -> Arguments:
         random_seed=args.random_seed,
         shuffle=args.shuffle,
         sizes=args.size,
-        strategies=args.strategy,
+        strategy_names=args.strategy,
         exec_params=ExecutionParameters(
             default_parallelism=2 * LOCAL_NUM_EXECUTORS,
             test_data_folder_location=LOCAL_TEST_DATA_FILE_LOCATION,
@@ -141,10 +140,10 @@ def do_test_runs(
         str(x.description.num_students): x
         for x in data_sets_w_answers}
     keyed_implementation_list = {
-        x.strategy_name: x for x in pyspark_implementation_list}
+        x.strategy_name: x for x in solutions_using_pyspark}
     itinerary: list[tuple[ChallengeMethodPysparkRegistration, DataSetWithAnswer]] = [
         (challenge_method_registration, data_set)
-        for strategy in args.strategies
+        for strategy in args.strategy_names
         if always_true(challenge_method_registration := keyed_implementation_list[strategy])
         for data_set in keyed_data_sets.values()
         for _ in range(0, args.num_runs)
@@ -265,7 +264,6 @@ def spark_configs(
         "spark.executor.memory": "3g",
         "spark.executor.memoryOverhead": "1g",
         "spark.port.maxRetries": "1",
-        "spark.rpc.retry.wait": "120s",
         "spark.reducer.maxReqsInFlight": "1",
         "spark.executor.heartbeatInterval": "3600s",
         "spark.network.timeout": "36000s",

@@ -7,6 +7,7 @@ from dask.dataframe.core import DataFrame as DaskDataFrame
 from dask.dataframe.io.io import from_pandas
 from dask.distributed import Client as DaskClient
 
+from perf_test_common import CalcEngine
 from six_field_test_data.six_test_data_types import (DataSetAnswer,
                                                      DataSetDescription,
                                                      ExecutionParameters,
@@ -51,6 +52,7 @@ class ChallengeMethodPythonDaskRegistration:
     strategy_name: str
     language: str
     interface: str
+    requires_gpu: bool
     delegate: IChallengeMethodPythonDask
 
 # endregion
@@ -63,14 +65,12 @@ def populate_data_set_dask(
         num_grp_2: int,
         repetition: int,
 ) -> DaskDataSetWithAnswer:
-    num_data_points, tgt_num_partitions, src_num_partitions, df, \
-        vanilla_answer, bilevel_answer, conditional_answer = populate_data_set_generic(
-            exec_params, num_grp_1, num_grp_2, repetition)
-    df_src: DaskDataFrame = from_pandas(df, npartitions=src_num_partitions)
+    raw_data = populate_data_set_generic(
+        CalcEngine.DASK, exec_params, num_grp_1, num_grp_2, repetition)
+    df_src: DaskDataFrame = from_pandas(raw_data.dfSrc, npartitions=raw_data.src_num_partitions)
     cnt, parts = len(df_src), len(df_src.divisions)
     print("Found rdd %i rows in %i parts ratio %.1f" % (cnt, parts, cnt / parts))
-    assert cnt == num_data_points
-    del df
+    assert cnt == raw_data.num_data_points
     return DaskDataSetWithAnswer(
         description=DataSetDescription(
             NumDataPoints=num_grp_1 * num_grp_2 * repetition,
@@ -80,13 +80,13 @@ def populate_data_set_dask(
             RelativeCardinalityBetweenGroupings=num_grp_2 // num_grp_1,
         ),
         data=DaskDataSetData(
-            src_num_partitions=src_num_partitions,
-            agg_tgt_num_partitions=tgt_num_partitions,
+            src_num_partitions=raw_data.src_num_partitions,
+            agg_tgt_num_partitions=raw_data.tgt_num_partitions,
             df_src=df_src,
         ),
         answer=DataSetAnswer(
-            vanilla_answer=vanilla_answer,
-            bilevel_answer=bilevel_answer,
-            conditional_answer=conditional_answer,
+            vanilla_answer=raw_data.vanilla_answer,
+            bilevel_answer=raw_data.bilevel_answer,
+            conditional_answer=raw_data.conditional_answer,
         ),
     )

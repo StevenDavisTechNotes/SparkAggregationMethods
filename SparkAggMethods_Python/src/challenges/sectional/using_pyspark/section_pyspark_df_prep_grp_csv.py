@@ -8,8 +8,7 @@ from challenges.sectional.domain_logic.section_data_parsers import (
 from challenges.sectional.section_generate_test_data import \
     TEST_DATA_FILE_LOCATION
 from challenges.sectional.section_test_data_types import (
-    DataSet, SparseLineSchema, StudentSummary,
-    TChallengePendingAnswerPythonPyspark)
+    DataSet, SparseLineSchema, StudentSummary, TChallengePythonPysparkAnswer)
 from challenges.sectional.using_pyspark.section_pyspark_rdd_prep_shared import \
     section_pyspark_rdd_prep_shared
 from utils.tidy_spark_session import TidySparkSession
@@ -18,7 +17,7 @@ from utils.tidy_spark_session import TidySparkSession
 def section_pyspark_df_prep_grp_csv(
         spark_session: TidySparkSession,
         data_set: DataSet,
-) -> TChallengePendingAnswerPythonPyspark:
+) -> TChallengePythonPysparkAnswer:
     if data_set.description.num_students > pow(10, 8-1):
         # times out
         return "infeasible"

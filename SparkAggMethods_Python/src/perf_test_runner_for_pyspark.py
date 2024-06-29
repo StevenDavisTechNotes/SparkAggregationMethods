@@ -1,11 +1,11 @@
-#!python3
-# usage: cd src; python -m perf_test_runner_for_pyspark
+#!python
+# usage: python -m perf_test_runner_for_pyspark
 
-from challenges.bi_level import bi_level_pyspark_runner  # noqa: F401
-from challenges.conditional import conditional_pyspark_runner  # noqa: F401
-from challenges.deduplication import dedupe_pyspark_runner  # noqa: F401
-from challenges.sectional import section_pyspark_runner  # noqa: F401
-from challenges.vanilla import vanilla_pyspark_runner  # noqa: F401
+from challenges.bi_level import bi_level_pyspark_runner
+from challenges.conditional import conditional_pyspark_runner
+from challenges.deduplication import dedupe_pyspark_runner
+from challenges.sectional import section_pyspark_runner
+from challenges.vanilla import vanilla_pyspark_runner
 
 vanilla_pyspark_runner.main()
 bi_level_pyspark_runner.main()

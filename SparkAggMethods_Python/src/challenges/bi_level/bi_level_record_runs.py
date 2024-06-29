@@ -4,10 +4,9 @@ from dataclasses import dataclass
 from typing import Iterable, TextIO
 
 from perf_test_common import CalcEngine
-from six_field_test_data.six_generate_test_data_using_dask import \
-    ChallengeMethodPythonDaskRegistration
-from six_field_test_data.six_generate_test_data_using_pyspark import \
-    ChallengeMethodPythonPysparkRegistration
+from six_field_test_data.six_generate_test_data import (
+    ChallengeMethodPythonDaskRegistration,
+    ChallengeMethodPythonPysparkRegistration)
 from utils.utils import root_folder_abs_path
 
 T_PYTHON_PYSPARK_RUN_LOG_FILE_PATH = 'results/bi_level_pyspark_runs.csv'

@@ -18,7 +18,7 @@ from challenges.deduplication.dedupe_generate_test_data import (
 from challenges.deduplication.dedupe_record_runs import (
     RunResult, derive_run_log_file_path, write_header, write_run_result)
 from challenges.deduplication.dedupe_strategy_directory import (
-    STRATEGY_NAME_LIST, pyspark_implementation_list)
+    STRATEGY_NAME_LIST, solutions_using_pyspark)
 from challenges.deduplication.dedupe_test_data_types import (
     DataSet, ExecutionParameters)
 from challenges.deduplication.domain_logic.dedupe_expected_results import (
@@ -47,7 +47,7 @@ class Arguments:
     random_seed: Optional[int]
     shuffle: bool
     sizes: list[str]
-    strategies: list[str]
+    strategy_names: list[str]
     exec_params: ExecutionParameters
 
 
@@ -96,7 +96,7 @@ def parse_args() -> Arguments:
         random_seed=args.random_seed,
         shuffle=args.shuffle,
         sizes=args.size,
-        strategies=args.strategy,
+        strategy_names=args.strategy,
         exec_params=ExecutionParameters(
             InCloudMode=in_cloud_mode,
             NumExecutors=num_executors,
@@ -177,13 +177,13 @@ def run_tests(
         spark_session: TidySparkSession,
 ):
     keyed_implementation_list = {
-        x.strategy_name: x for x in pyspark_implementation_list}
+        x.strategy_name: x for x in solutions_using_pyspark}
     itinerary: list[ItineraryItem] = [
         ItineraryItem(
             challenge_method_registration=challenge_method_registration,
             data_set=data_set,
         )
-        for strategy in args.strategies
+        for strategy in args.strategy_names
         if always_true(challenge_method_registration := keyed_implementation_list[strategy])
         for data_set in data_sets
         for _ in range(args.num_runs)
@@ -226,7 +226,6 @@ def main():
         "spark.default.parallelism": args.exec_params.DefaultParallelism,
         "spark.python.worker.reuse": "false",
         "spark.port.maxRetries": "1",
-        "spark.rpc.retry.wait": "10s",
         "spark.reducer.maxReqsInFlight": "1",
         "spark.storage.blockManagerHeartbeatTimeoutMs": "7200s",
         "spark.executor.heartbeatInterval": "3600s",

@@ -2,8 +2,8 @@ import pandas as pd
 
 from challenges.bi_level.bi_level_test_data_types import (postAggSchema,
                                                           result_columns)
-from six_field_test_data.six_generate_test_data_using_pyspark import (
-    PysparkDataSet, TChallengePendingAnswerPythonPyspark)
+from six_field_test_data.six_generate_test_data import (
+    DataSetPyspark, TChallengePendingAnswerPythonPyspark)
 from six_field_test_data.six_test_data_types import ExecutionParameters
 from utils.tidy_spark_session import TidySparkSession
 
@@ -11,7 +11,7 @@ from utils.tidy_spark_session import TidySparkSession
 def bi_level_pyspark_df_grp_pandas(
         spark_session: TidySparkSession,
         exec_params: ExecutionParameters,
-        data_set: PysparkDataSet
+        data_set: DataSetPyspark
 ) -> TChallengePendingAnswerPythonPyspark:
     df = data_set.data.dfSrc
 

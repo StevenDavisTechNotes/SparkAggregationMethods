@@ -1,20 +1,23 @@
 {
     "[python]": {
+        "editor.defaultFormatter": "ms-python.autopep8",
         "editor.formatOnSave": true,
         "editor.codeActionsOnSave": {
             "source.organizeImports": "explicit"
-        },
+        }
     },
-    "python.languageServer": "Pylance",
+    "editor.codeActionsOnSave": {
+        "source.formatOnSave": "explicit"
+    },
+    "python.analysis.autoFormatStrings": false,
     "python.analysis.diagnosticMode": "workspace",
+    "python.analysis.diagnosticSeverityOverrides": {},
+    "python.analysis.stubPath": "src\\typings",
     "python.analysis.typeCheckingMode": "basic",
-    "python.testing.pytestArgs": [
-        "src/UnitTests"
-    ],
+    "python.languageServer": "Pylance",
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
     "search.exclude": {
-        "/venv": true,
-        "/__pycahce__": true
+        "/venv": true
     }
 }

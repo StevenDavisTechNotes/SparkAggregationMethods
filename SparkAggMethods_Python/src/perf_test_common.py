@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from enum import Enum
+from enum import StrEnum
 from typing import Iterable
 
 
@@ -18,9 +18,10 @@ class ChallengeMethodDescription:
     interface: str
 
 
-class CalcEngine(Enum):
-    PYSPARK = 'pyspark'
+class CalcEngine(StrEnum):
     DASK = 'dask'
+    PYSPARK = 'pyspark'
+    PYTHON_ONLY = 'python_only'
     SCALA_SPARK = 'spark'
 
 

@@ -9,8 +9,7 @@ from challenges.sectional.domain_logic.section_snippet_subtotal_type import (
     CompletedStudent, StudentSnippet1, completed_from_snippet_1, grade_summary,
     merge_snippet_lists_1, student_snippet_from_typed_row_1)
 from challenges.sectional.section_test_data_types import (
-    DataSet, LabeledTypedRow, StudentSummary,
-    TChallengePendingAnswerPythonPyspark)
+    DataSet, LabeledTypedRow, StudentSummary, TChallengePythonPysparkAnswer)
 from utils.non_commutative_tree_aggregate import non_commutative_tree_aggregate
 from utils.tidy_spark_session import TidySparkSession
 
@@ -18,7 +17,7 @@ from utils.tidy_spark_session import TidySparkSession
 def section_reduce_partials_broken(
         spark_session: TidySparkSession,
         data_set: DataSet,
-) -> TChallengePendingAnswerPythonPyspark:
+) -> TChallengePythonPysparkAnswer:
     dataSize = data_set.description.num_rows
     filename = data_set.data.test_filepath
     TargetNumPartitions = data_set.data.target_num_partitions
@@ -45,7 +44,7 @@ def section_reduce_partials_broken(
 def section_pyspark_rdd_reduce_asymm_part(
         spark_session: TidySparkSession,
         data_set: DataSet,
-) -> TChallengePendingAnswerPythonPyspark:
+) -> TChallengePythonPysparkAnswer:
     if data_set.description.num_students > pow(10, 7 - 1):
         # unreliable
         return "infeasible"

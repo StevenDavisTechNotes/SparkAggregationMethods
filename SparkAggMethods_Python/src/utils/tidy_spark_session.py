@@ -12,9 +12,13 @@ SPARK_SCRATCH_FOLDER = "D:\\temp\\spark_scratch"
 LOCAL_NUM_EXECUTORS = 7
 
 
+def get_python_code_root_path() -> str:
+    return str(Path(os.path.abspath(__file__)).parent.parent.parent)
+
+
 @dataclass(frozen=True)
 class OpenSparkSession:
-    python_code_root_path: str
+    # python_code_root_path: str
     python_interpreter_path: str
     python_src_code_path: str
     spark_session: SparkSession
@@ -29,7 +33,7 @@ def open_spark_session(
         local_num_executors: int,
 ) -> OpenSparkSession:
     findspark.init()
-    python_code_root_path = str(Path(os.path.abspath(__file__)).parent.parent.parent)
+    python_code_root_path = get_python_code_root_path()
     python_src_code_path = os.path.join(python_code_root_path, "src")
     path_to_python_interpreter = os.path.join(
         python_code_root_path, "venv", "scripts", "python.exe")
@@ -63,7 +67,7 @@ def open_spark_session(
             spark_scratch_folder,
             "SectionAggCheckpoint"))
     return OpenSparkSession(
-        python_code_root_path=python_code_root_path,
+        # python_code_root_path=python_code_root_path,
         python_interpreter_path=path_to_python_interpreter,
         python_src_code_path=python_src_code_path,
         spark_session=spark_session,
@@ -92,7 +96,7 @@ class TidySparkSession:
             enable_hive_support=enable_hive_support,
             spark_scratch_folder=SPARK_SCRATCH_FOLDER,
             local_num_executors=LOCAL_NUM_EXECUTORS)
-        self.python_code_root_path = open_session.python_code_root_path
+        self.python_code_root_path = get_python_code_root_path()
         self.python_interpreter_path = open_session.python_interpreter_path
         self.python_src_code_path = open_session.python_src_code_path
         self.spark = open_session.spark_session

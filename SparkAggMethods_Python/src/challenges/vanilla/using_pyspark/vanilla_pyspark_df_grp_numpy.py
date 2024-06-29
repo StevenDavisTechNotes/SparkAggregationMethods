@@ -1,43 +1,28 @@
-import math
-
+import numpy
 import pandas as pd
 
-from challenges.conditional.conditional_test_data_types import (
-    agg_columns_4, groupby_columns, postAggSchema_4)
+from challenges.vanilla.vanilla_test_data_types import (
+    pyspark_post_agg_schema, result_columns)
 from six_field_test_data.six_generate_test_data import (
     DataSetPyspark, TChallengePendingAnswerPythonPyspark)
 from six_field_test_data.six_test_data_types import ExecutionParameters
 from utils.tidy_spark_session import TidySparkSession
 
 
-def cond_pyspark_df_grp_pandas(
+def vanilla_pyspark_df_grp_numpy(
         spark_session: TidySparkSession,
         exec_params: ExecutionParameters,
-        data_set: DataSetPyspark,
+        data_set: DataSetPyspark
 ) -> TChallengePendingAnswerPythonPyspark:
-    df = data_set.data.dfSrc
 
+    df = data_set.data.dfSrc
     df = (
         df
         .groupBy(df.grp, df.subgrp)
-        .applyInPandas(inner_agg_method, postAggSchema_4)
+        .applyInPandas(inner_agg_method, pyspark_post_agg_schema)
     )
     df = df.orderBy(df.grp, df.subgrp)
     return df
-
-
-def my_var(
-        column: pd.Series,
-) -> float:
-    n = len(column)
-    return (
-        (
-            (column * column).sum() / n -
-            (column.sum() / n)**2
-        )
-        if n > 0 else
-        math.nan
-    )
 
 
 def inner_agg_method(
@@ -47,12 +32,13 @@ def inner_agg_method(
     subgroup_key = dfPartition['subgrp'].iloc[0]
     C = dfPartition['C']
     D = dfPartition['D']
-    negE = dfPartition[dfPartition["E"] < 0]['E']
+    E = dfPartition['E']
     return pd.DataFrame([[
         group_key,
         subgroup_key,
-        C.mean(),
-        D.max(),
-        negE.var(ddof=0),
-        negE.agg(my_var),
-    ]], columns=groupby_columns + agg_columns_4)
+        numpy.mean(C),
+        numpy.max(D),
+        numpy.var(E),
+        numpy.inner(E, E) / E.count()
+        - (numpy.sum(E) / E.count())**2,  # type: ignore
+    ]], columns=result_columns)

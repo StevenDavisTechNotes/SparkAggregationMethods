@@ -16,12 +16,18 @@ from challenges.deduplication.using_pyspark.dedupe_pyspark_rdd_reduce import \
     dedupe_pyspark_rdd_reduce
 from utils.inspection import name_of_function
 
-pyspark_implementation_list: list[ChallengeMethodPythonPysparkRegistration] = [
+# solutions_using_dask: list[ChallengeMethodPythonDaskRegistration] = [
+# ]
+# solutions_using_python_only: list[ChallengeMethodPythonOnlyRegistration] = [
+# ]
+
+solutions_using_pyspark: list[ChallengeMethodPythonPysparkRegistration] = [
     ChallengeMethodPythonPysparkRegistration(
         original_strategy_name='dedupe_pandas',
         strategy_name=name_of_function(dedupe_pyspark_df_nested_pandas),
         language='python',
         interface='pandas',
+        requires_gpu=False,
         delegate=dedupe_pyspark_df_nested_pandas,
     ),
     ChallengeMethodPythonPysparkRegistration(
@@ -29,6 +35,7 @@ pyspark_implementation_list: list[ChallengeMethodPythonPysparkRegistration] = [
         strategy_name=name_of_function(dedupe_pyspark_df_nested_python),
         language='python',
         interface='fluent',
+        requires_gpu=False,
         delegate=dedupe_pyspark_df_nested_python,
     ),
     ChallengeMethodPythonPysparkRegistration(
@@ -36,6 +43,8 @@ pyspark_implementation_list: list[ChallengeMethodPythonPysparkRegistration] = [
         strategy_name=name_of_function(dedupe_pyspark_df_nested_w_col),
         language='python',
         interface='fluent',
+
+        requires_gpu=False,
         delegate=dedupe_pyspark_df_nested_w_col,
     ),
     ChallengeMethodPythonPysparkRegistration(
@@ -43,6 +52,8 @@ pyspark_implementation_list: list[ChallengeMethodPythonPysparkRegistration] = [
         strategy_name=name_of_function(dedupe_pyspark_df_window),
         language='python',
         interface='fluent',
+
+        requires_gpu=False,
         delegate=dedupe_pyspark_df_window,
     ),
     ChallengeMethodPythonPysparkRegistration(
@@ -50,6 +61,8 @@ pyspark_implementation_list: list[ChallengeMethodPythonPysparkRegistration] = [
         strategy_name=name_of_function(dedupe_pyspark_rdd_grp),
         language='python',
         interface='rdd',
+
+        requires_gpu=False,
         delegate=dedupe_pyspark_rdd_grp,
     ),
     ChallengeMethodPythonPysparkRegistration(
@@ -57,6 +70,8 @@ pyspark_implementation_list: list[ChallengeMethodPythonPysparkRegistration] = [
         strategy_name=name_of_function(dedupe_pyspark_rdd_map_part),
         language='python',
         interface='rdd',
+
+        requires_gpu=False,
         delegate=dedupe_pyspark_rdd_map_part,
     ),
     ChallengeMethodPythonPysparkRegistration(
@@ -64,8 +79,10 @@ pyspark_implementation_list: list[ChallengeMethodPythonPysparkRegistration] = [
         strategy_name=name_of_function(dedupe_pyspark_rdd_reduce),
         language='python',
         interface='rdd',
+
+        requires_gpu=False,
         delegate=dedupe_pyspark_rdd_reduce,
     ),
 ]
 
-STRATEGY_NAME_LIST = [x.strategy_name for x in pyspark_implementation_list]
+STRATEGY_NAME_LIST = [x.strategy_name for x in solutions_using_pyspark]

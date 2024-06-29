@@ -3,8 +3,8 @@ from typing import Iterable, NamedTuple
 
 from pyspark.sql import Row
 
-from six_field_test_data.six_generate_test_data_using_pyspark import (
-    PysparkDataSet, TChallengePendingAnswerPythonPyspark)
+from six_field_test_data.six_generate_test_data import (
+    DataSetPyspark, TChallengePendingAnswerPythonPyspark)
 from six_field_test_data.six_test_data_types import (DataPoint,
                                                      ExecutionParameters)
 from utils.tidy_spark_session import TidySparkSession
@@ -21,7 +21,7 @@ class SubTotal(NamedTuple):
 def bi_level_pyspark_rdd_reduce_2(
         spark_session: TidySparkSession,
         exec_params: ExecutionParameters,
-        data_set: PysparkDataSet
+        data_set: DataSetPyspark
 ) -> TChallengePendingAnswerPythonPyspark:
     rddSrc = data_set.data.rddSrc
 

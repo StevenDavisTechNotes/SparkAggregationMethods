@@ -5,14 +5,14 @@ from challenges.sectional.domain_logic.section_mutable_subtotal_type import \
 from challenges.sectional.section_record_runs import \
     MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT
 from challenges.sectional.section_test_data_types import (
-    DataSet, TChallengePendingAnswerPythonPyspark)
+    DataSet, TChallengePythonPysparkAnswer)
 from utils.tidy_spark_session import TidySparkSession
 
 
 def section_pyspark_rdd_mappart_single_threaded(
         spark_session: TidySparkSession,
         data_set: DataSet,
-) -> TChallengePendingAnswerPythonPyspark:
+) -> TChallengePythonPysparkAnswer:
     if data_set.description.num_students > pow(10, MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT-1):
         # unreliable
         return "infeasible"

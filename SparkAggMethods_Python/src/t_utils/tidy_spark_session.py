@@ -37,15 +37,17 @@ def open_spark_session(
     os.environ["PYSPARK_DRIVER_PYTHON"] = path_to_python_interpreter
     os.environ["SPARK_LOCAL_DIRS"] = spark_scratch_folder
     spark = (
+        # cSpell: disable
         SparkSession
         .builder
-        .appName("PerfTestApp")  # pyright: ignore[reportGeneralTypeIssues]
+        .appName("PerfTestApp")  # pyright: ignore[reportAttributeAccessIssue]
         .master(f"local[{local_num_executors}]")
         .config("spark.pyspark.python", path_to_python_interpreter)
         .config("spark.ui.enabled", "false")
         .config('spark.hadoop.mapreduce.fileoutputcommitter.algorithm.version', 2)
         .config("spark.sql.execution.arrow.pyspark.enabled", "true")
         .config("spark.rdd.compress", "false")
+        # cSpell: enable
     )
     for key, value in config_dict.items():
         spark = spark.config(key, value)
@@ -81,7 +83,7 @@ class TidySparkSession:
     def __init__(
             self,
             config_dict: dict[str, Any],
-            enable_hive_support: bool
+            enable_hive_support: bool,
     ):
         self.create_scratch_folder()
         self.clean_up_scratch_folder()

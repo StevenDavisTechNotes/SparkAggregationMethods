@@ -1,7 +1,7 @@
 import pyspark.sql.types as DataTypes
 
 from six_field_test_data.six_test_data_types import DataPointSchema
-from utils.spark_helpers import make_empty_pd_dataframe_from_spark_types
+from t_utils.spark_helpers import make_empty_pd_dataframe_from_spark_types
 
 groupby_columns = ['grp', 'subgrp']
 agg_columns_non_null = ['mean_of_C', 'max_of_D']

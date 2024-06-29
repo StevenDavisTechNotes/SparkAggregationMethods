@@ -4,19 +4,19 @@ from pyspark import RDD
 
 from challenges.sectional.domain_logic.section_data_parsers import \
     rdd_typed_with_index_factory
-from challenges.sectional.domain_logic.section_mutuable_subtotal_type import (
+from challenges.sectional.domain_logic.section_mutable_subtotal_type import (
     MutableStudent, MutableTrimester)
 from challenges.sectional.section_test_data_types import (
     ClassLine, DataSet, LabeledTypedRow, StudentHeader, StudentSummary,
-    TPysparkPythonPendingAnswerSet, TrimesterFooter, TrimesterHeader,
+    TChallengePendingAnswerPythonPyspark, TrimesterFooter, TrimesterHeader,
     TypedLine)
-from utils.tidy_spark_session import TidySparkSession
+from t_utils.tidy_spark_session import TidySparkSession
 
 
 def section_pyspark_rdd_join_mappart(
         spark_session: TidySparkSession,
         data_set: DataSet,
-) -> TPysparkPythonPendingAnswerSet:
+) -> TChallengePendingAnswerPythonPyspark:
     if data_set.description.num_students > pow(10, 7-1):
         # times out
         return "infeasible"
@@ -71,7 +71,7 @@ def section_pyspark_rdd_join_mappart(
     rdd18: RDD[StudentSummary] = (
         rdd17
         .mapPartitions(extract_student_summary)
-        .sortBy(lambda x: x.StudentId)  # pyright: ignore[reportGeneralTypeIssues]
+        .sortBy(lambda x: x.StudentId)  # pyright: ignore[reportArgumentType]
     )
     return rdd18
 

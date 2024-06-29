@@ -4,14 +4,14 @@ from typing import Iterable
 
 
 @dataclass(frozen=True)
-class ExternalTestMethod:
+class ChallengeMethodExternalRegistration:
     strategy_name: str
     language: str
     interface: str
 
 
 @dataclass(frozen=True)
-class TestMethodDescription:
+class ChallengeMethodDescription:
     data_name: str
     raw_method_name: str
     language: str

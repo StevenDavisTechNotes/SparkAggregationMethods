@@ -13,14 +13,14 @@ from challenges.bi_level.bi_level_strategy_directory import (
 from challenges.bi_level.bi_level_test_data_types import result_columns
 from perf_test_common import CalcEngine
 from six_field_test_data.six_generate_test_data_using_pyspark import (
-    PySparkDataSetWithAnswer, PysparkPythonTestMethod,
+    ChallengeMethodPythonPysparkRegistration, PySparkDataSetWithAnswer,
     populate_data_set_pyspark)
 from six_field_test_data.six_run_result_types import write_header
 from six_field_test_data.six_runner_base import test_one_step_in_itinerary
 from six_field_test_data.six_test_data_types import (
     SHARED_LOCAL_TEST_DATA_FILE_LOCATION, ExecutionParameters)
-from utils.tidy_spark_session import LOCAL_NUM_EXECUTORS, TidySparkSession
-from utils.utils import always_true, set_random_seed
+from t_utils.t_utils import always_true, set_random_seed
+from t_utils.tidy_spark_session import LOCAL_NUM_EXECUTORS, TidySparkSession
 
 DEBUG_ARGS = None if False else (
     []
@@ -100,10 +100,10 @@ def do_pyspark_test_runs(
     data_sets = populate_data_sets(args, spark_session)
     keyed_implementation_list = {
         x.strategy_name: x for x in pyspark_implementation_list}
-    itinerary: list[tuple[PysparkPythonTestMethod, PySparkDataSetWithAnswer]] = [
-        (test_method, data_set)
+    itinerary: list[tuple[ChallengeMethodPythonPysparkRegistration, PySparkDataSetWithAnswer]] = [
+        (challenge_method_registration, data_set)
         for strategy in args.strategies
-        if always_true(test_method := keyed_implementation_list[strategy])
+        if always_true(challenge_method_registration := keyed_implementation_list[strategy])
         for data_set in data_sets
         for _ in range(0, args.num_runs)
     ]
@@ -117,15 +117,15 @@ def do_pyspark_test_runs(
     )
     with open(derive_run_log_file_path(ENGINE), 'at+') as file:
         write_header(file)
-        for index, (test_method, data_set) in enumerate(itinerary):
+        for index, (challenge_method_registration, data_set) in enumerate(itinerary):
             spark_session.log.info("Working on %d of %d" %
                                    (index, len(itinerary)))
-            print(f"Working on {test_method.strategy_name} for {data_set.description.SizeCode}")
+            print(f"Working on {challenge_method_registration.strategy_name} for {data_set.description.SizeCode}")
             test_one_step_in_itinerary(
                 engine=ENGINE,
                 spark_session=spark_session,
                 exec_params=exec_params,
-                test_method=test_method,
+                challenge_method_registration=challenge_method_registration,
                 result_columns=result_columns,
                 file=file,
                 data_set=data_set,

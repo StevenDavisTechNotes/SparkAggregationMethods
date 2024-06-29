@@ -4,10 +4,10 @@ from typing import NamedTuple
 from pyspark.sql import Row
 
 from six_field_test_data.six_generate_test_data_using_pyspark import (
-    PysparkDataSet, TPysparkPythonPendingAnswerSet)
+    PysparkDataSet, TChallengePendingAnswerPythonPyspark)
 from six_field_test_data.six_test_data_types import (DataPoint,
                                                      ExecutionParameters)
-from utils.tidy_spark_session import TidySparkSession
+from t_utils.tidy_spark_session import TidySparkSession
 
 
 class SubTotal2(NamedTuple):
@@ -24,9 +24,9 @@ class SubTotal1(NamedTuple):
 
 def bi_level_pyspark_rdd_reduce_1(
         spark_session: TidySparkSession,
-        _exec_params: ExecutionParameters,
+        exec_params: ExecutionParameters,
         data_set: PysparkDataSet
-) -> TPysparkPythonPendingAnswerSet:
+) -> TChallengePendingAnswerPythonPyspark:
     rddSrc = data_set.data.rddSrc
 
     rddResult = (
@@ -54,11 +54,11 @@ def merge_value(
                 running_sum_of_E=0,
                 running_count=0
         )
-    subsub = subgrp_running_totals[v.subgrp]
+    sub_sub = subgrp_running_totals[v.subgrp]
     subgrp_running_totals[v.subgrp] = SubTotal2(
-        subsub.running_sum_of_E_squared + v.E * v.E,
-        subsub.running_sum_of_E + v.E,
-        subsub.running_count + 1)
+        sub_sub.running_sum_of_E_squared + v.E * v.E,
+        sub_sub.running_sum_of_E + v.E,
+        sub_sub.running_count + 1)
     return SubTotal1(
         running_sum_of_C=pre.running_sum_of_C + v.C,
         running_max_of_D=pre.running_max_of_D

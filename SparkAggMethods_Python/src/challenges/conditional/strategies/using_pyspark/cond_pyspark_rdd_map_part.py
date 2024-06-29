@@ -3,17 +3,17 @@ from typing import Iterable
 
 from challenges.conditional.conditional_test_data_types import SubTotal
 from six_field_test_data.six_generate_test_data_using_pyspark import (
-    GrpTotal, PysparkDataSet, TPysparkPythonPendingAnswerSet)
+    GrpTotal, PysparkDataSet, TChallengePendingAnswerPythonPyspark)
 from six_field_test_data.six_test_data_types import (DataPoint,
                                                      ExecutionParameters)
-from utils.tidy_spark_session import TidySparkSession
+from t_utils.tidy_spark_session import TidySparkSession
 
 
 def cond_pyspark_rdd_map_part(
         spark_session: TidySparkSession,
-        _exec_params: ExecutionParameters,
+        exec_params: ExecutionParameters,
         data_set: PysparkDataSet,
-) -> TPysparkPythonPendingAnswerSet:
+) -> TChallengePendingAnswerPythonPyspark:
 
     rddSumCount = (
         data_set.data.rddSrc

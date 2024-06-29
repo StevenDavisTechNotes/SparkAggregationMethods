@@ -1,19 +1,19 @@
 from six_field_test_data.six_generate_test_data_using_pyspark import (
-    PysparkDataSet, TPysparkPythonPendingAnswerSet)
+    PysparkDataSet, TChallengePendingAnswerPythonPyspark)
 from six_field_test_data.six_test_data_types import ExecutionParameters
-from utils.tidy_spark_session import TidySparkSession
+from t_utils.tidy_spark_session import TidySparkSession
 
 
 def bi_level_pyspark_sql_join(
         spark_session: TidySparkSession,
-        _exec_params: ExecutionParameters,
+        exec_params: ExecutionParameters,
         data_set: PysparkDataSet
-) -> TPysparkPythonPendingAnswerSet:
+) -> TChallengePendingAnswerPythonPyspark:
     dfSrc = data_set.data.dfSrc
     spark = spark_session.spark
 
-    spark.catalog.dropTempView("exampledata")
-    dfSrc.createTempView("exampledata")
+    spark.catalog.dropTempView("example_data")
+    dfSrc.createTempView("example_data")
     df = spark.sql('''
     SELECT
         level1.grp,
@@ -25,7 +25,7 @@ def bi_level_pyspark_sql_join(
         (SELECT
             grp, AVG(C) mean_of_C, MAX(D) max_of_D
         FROM
-            exampledata
+            example_data
         GROUP BY grp) AS level1
             LEFT JOIN
         (SELECT
@@ -35,7 +35,7 @@ def bi_level_pyspark_sql_join(
                 (SUM(E * E) /COUNT(E) -
                 POWER(AVG(E), 2)) var_of_E2
             FROM
-                exampledata
+                example_data
             GROUP BY grp , subgrp
         ) AS level2
             ON level1.grp = level2.grp

@@ -4,10 +4,10 @@ from pyspark import RDD
 from pyspark.sql import Row
 
 from six_field_test_data.six_generate_test_data_using_pyspark import (
-    PysparkDataSet, TPysparkPythonPendingAnswerSet)
+    PysparkDataSet, TChallengePendingAnswerPythonPyspark)
 from six_field_test_data.six_test_data_types import (DataPoint,
                                                      ExecutionParameters)
-from utils.tidy_spark_session import TidySparkSession
+from t_utils.tidy_spark_session import TidySparkSession
 
 
 class SubTotalDC(NamedTuple):
@@ -20,9 +20,9 @@ class SubTotalDC(NamedTuple):
 
 def vanilla_pyspark_rdd_reduce(
         spark_session: TidySparkSession,
-        _exec_params: ExecutionParameters,
+        exec_params: ExecutionParameters,
         data_set: PysparkDataSet
-) -> TPysparkPythonPendingAnswerSet:
+) -> TChallengePendingAnswerPythonPyspark:
     sumCount: RDD[Row] = (
         data_set.data.rddSrc
         .map(lambda x: ((x.grp, x.subgrp), x))

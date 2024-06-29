@@ -2,7 +2,7 @@ import os
 from dataclasses import dataclass
 
 from perf_test_common import CalcEngine
-from utils.utils import root_folder_abs_path
+from t_utils.t_utils import root_folder_abs_path
 
 T_PYTHON_PYSPARK_RUN_LOG_FILE_PATH = 'results/conditional_pyspark_runs.csv'
 T_PYTHON_DASK_RUN_LOG_FILE_PATH = 'results/conditional_dask_runs.csv'

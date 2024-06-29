@@ -2,7 +2,7 @@ import os
 import re
 
 from pyspark import RDD
-from pyspark.sql import DataFrame as spark_DataFrame
+from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import Row
 
 from challenges.sectional.section_generate_test_data import \
@@ -14,7 +14,7 @@ from challenges.sectional.section_test_data_types import (ClassLine,
                                                           StudentSummary,
                                                           TrimesterFooter,
                                                           TrimesterHeader)
-from utils.tidy_spark_session import TidySparkSession
+from t_utils.tidy_spark_session import TidySparkSession
 
 # region parsers
 
@@ -71,7 +71,7 @@ def df_sparse_rows_factory(
         spark_session: TidySparkSession,
         filename: str,
         numPartitions: int | None = None
-) -> spark_DataFrame:
+) -> PySparkDataFrame:
     rdd1: RDD[str] = spark_session.spark_context.textFile(
         filename, minPartitions=(numPartitions or 1))
     rdd2: RDD[Row] = rdd1 \
@@ -117,19 +117,19 @@ def row_to_student_summary(
 
 
 def identify_section_using_intermediate_file(
-        srcFilename: str,
+        src_file_path: str,
 ) -> str:
-    destFilename = f"{TEST_DATA_FILE_LOCATION}/temp.csv"
-    if os.path.exists(destFilename):
-        os.unlink(destFilename)
-    reExtraType = re.compile("^S,")
-    sectionId = -1
-    with open(destFilename, "w") as outf:
-        with open(srcFilename, "r") as inf:
-            for line in inf:
-                if reExtraType.match(line):
-                    sectionId += 1
-                assert sectionId >= 0
-                outf.write(f"{sectionId},{line}")
-    return destFilename
+    dest_file_path = f"{TEST_DATA_FILE_LOCATION}/temp.csv"
+    if os.path.exists(dest_file_path):
+        os.unlink(dest_file_path)
+    extra_type_pattern = re.compile("^S,")
+    section_id = -1
+    with open(dest_file_path, "w") as out_fh:
+        with open(src_file_path, "r") as in_fh:
+            for line in in_fh:
+                if extra_type_pattern.match(line):
+                    section_id += 1
+                assert section_id >= 0
+                out_fh.write(f"{section_id},{line}")
+    return dest_file_path
 # endregion

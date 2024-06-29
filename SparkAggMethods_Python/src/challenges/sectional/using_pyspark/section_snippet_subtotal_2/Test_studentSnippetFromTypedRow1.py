@@ -1,7 +1,8 @@
 
 from challenges.sectional.domain_logic.section_snippet_subtotal_type import (
     StudentSnippet1, student_snippet_from_typed_row_1)
-from challenges.sectional.section_test_data_types import (ClassLine, NumDepts,
+from challenges.sectional.section_test_data_types import (ClassLine,
+                                                          NumDepartments,
                                                           StudentHeader,
                                                           TrimesterFooter,
                                                           TrimesterHeader)
@@ -24,8 +25,8 @@ class Test_StudentHeader:
             FirstTrimesterDate=None,
             LastTrimesterDate=None,
             LastMajor=None,
-            Credits=[0 for _ in range(0, NumDepts)],
-            WeightedGradeTotal=[0 for _ in range(0, NumDepts)],
+            Credits=[0 for _ in range(0, NumDepartments)],
+            WeightedGradeTotal=[0 for _ in range(0, NumDepartments)],
             FirstLineIndex=lineIndex,
             LastLineIndex=lineIndex)
         actual = student_snippet_from_typed_row_1(
@@ -52,8 +53,8 @@ class Test_TrimesterHeader:
             FirstTrimesterDate=date,
             LastTrimesterDate=date,
             LastMajor=None,
-            Credits=[0 for _ in range(0, NumDepts)],
-            WeightedGradeTotal=[0 for _ in range(0, NumDepts)],
+            Credits=[0 for _ in range(0, NumDepartments)],
+            WeightedGradeTotal=[0 for _ in range(0, NumDepartments)],
             FirstLineIndex=lineIndex,
             LastLineIndex=lineIndex)
         actual = student_snippet_from_typed_row_1(
@@ -82,8 +83,8 @@ class Test_ClassLine:
             FirstTrimesterDate=None,
             LastTrimesterDate=None,
             LastMajor=None,
-            Credits=[(credits if x == dept else 0) for x in range(0, NumDepts)],
-            WeightedGradeTotal=[(credits * grade if x == dept else 0) for x in range(0, NumDepts)],
+            Credits=[(credits if x == dept else 0) for x in range(0, NumDepartments)],
+            WeightedGradeTotal=[(credits * grade if x == dept else 0) for x in range(0, NumDepartments)],
             FirstLineIndex=lineIndex,
             LastLineIndex=lineIndex)
         actual = student_snippet_from_typed_row_1(
@@ -112,8 +113,8 @@ class Test_TrimesterFooter:
             FirstTrimesterDate=None,
             LastTrimesterDate=None,
             LastMajor=2,
-            Credits=[0 for _ in range(0, NumDepts)],
-            WeightedGradeTotal=[0 for _ in range(0, NumDepts)],
+            Credits=[0 for _ in range(0, NumDepartments)],
+            WeightedGradeTotal=[0 for _ in range(0, NumDepartments)],
             FirstLineIndex=lineIndex,
             LastLineIndex=lineIndex)
         actual = student_snippet_from_typed_row_1(

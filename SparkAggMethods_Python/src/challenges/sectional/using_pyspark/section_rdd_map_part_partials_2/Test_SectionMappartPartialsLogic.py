@@ -15,8 +15,8 @@ from challenges.sectional.section_test_data_types import (ClassLine,
                                                           TypedLine)
 from challenges.sectional.using_pyspark.section_pyspark_rdd_mappart_partials import \
     section_mappart_partials_logic
-from utils.printer import print_object_as_python_literal
-from utils.tidy_spark_session import SPARK_SCRATCH_FOLDER, open_spark_session
+from t_utils.printer import print_object_as_python_literal
+from t_utils.tidy_spark_session import SPARK_SCRATCH_FOLDER, open_spark_session
 
 
 @pytest.fixture
@@ -190,13 +190,13 @@ class Test_section_mappart_partials_logic:
             spark: SparkSession,
     ) -> None:
         # split from 1 row in the first segment
-        # to only 1 row in the second segument
-        for num_rows_in_first_segement in range(1, len(student_history)):
+        # to only 1 row in the second segment
+        for num_rows_in_first_segment in range(1, len(student_history)):
             sc = spark.sparkContext
             rdd_orig = (
-                sc.parallelize(student_history[0:num_rows_in_first_segement], numSlices=1)
+                sc.parallelize(student_history[0:num_rows_in_first_segment], numSlices=1)
                 .union(
-                    sc.parallelize(student_history[num_rows_in_first_segement:], numSlices=1)
+                    sc.parallelize(student_history[num_rows_in_first_segment:], numSlices=1)
                 )
                 .zipWithIndex()
                 .map(lambda pair:

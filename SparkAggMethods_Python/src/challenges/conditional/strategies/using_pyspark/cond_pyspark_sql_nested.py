@@ -1,17 +1,17 @@
 from six_field_test_data.six_generate_test_data_using_pyspark import (
-    PysparkDataSet, TPysparkPythonPendingAnswerSet)
+    PysparkDataSet, TChallengePendingAnswerPythonPyspark)
 from six_field_test_data.six_test_data_types import ExecutionParameters
-from utils.tidy_spark_session import TidySparkSession
+from t_utils.tidy_spark_session import TidySparkSession
 
 
 def cond_pyspark_sql_nested(
         spark_session: TidySparkSession,
-        _exec_params: ExecutionParameters,
+        exec_params: ExecutionParameters,
         data_set: PysparkDataSet,
-) -> TPysparkPythonPendingAnswerSet:
+) -> TChallengePendingAnswerPythonPyspark:
     spark = spark_session.spark
-    spark.catalog.dropTempView("exampledata")
-    data_set.data.dfSrc.createTempView("exampledata")
+    spark.catalog.dropTempView("example_data")
+    data_set.data.dfSrc.createTempView("example_data")
     df = spark.sql('''
     SELECT
             grp, subgrp,
@@ -40,7 +40,7 @@ def cond_pyspark_sql_nested(
                     sum(E * E) as sub_sum_of_E_squared,
                     sum(E) as sub_sum_of_E
                 FROM
-                    exampledata
+                    example_data
                 GROUP BY grp, subgrp, e<0) sub1
         GROUP BY grp, subgrp) sub2
     ORDER BY grp, subgrp

@@ -16,7 +16,7 @@ from challenges.sectional.section_test_data_types import (DataSet, DataSetData,
                                                           ExecutionParameters,
                                                           RunResult)
 from perf_test_common import CalcEngine
-from utils.linear_regression import linear_regression
+from t_utils.linear_regression import linear_regression
 
 
 class TestRegression(NamedTuple):
@@ -57,24 +57,25 @@ def analyze_run_results():  # noqa: C901
 
     test_strategy_names = sorted({x.strategy_name for x in test_runs})
     for strategy_name in test_strategy_names:
-        results_for_staregy = [x for x in test_runs if x.strategy_name == strategy_name]
-        test_engines = {x.engine for x in results_for_staregy}
+        results_for_strategy = [x for x in test_runs if x.strategy_name == strategy_name]
+        test_engines = {x.engine for x in results_for_strategy}
         for engine in test_engines:
-            times = [x for x in results_for_staregy if x.engine == engine]
+            times = [x for x in results_for_strategy if x.engine == engine]
             if len(times) == 0:
                 continue
             if len(times) < 10:
                 print(f"not enough data {test_strategy_names}/{engine.value}")
                 return
     for strategy_name in test_strategy_names:
-        results_for_staregy = [x for x in test_runs if x.strategy_name == strategy_name]
-        test_engines = {x.engine for x in results_for_staregy}
+        results_for_strategy = [x for x in test_runs if x.strategy_name == strategy_name]
+        test_engines = {x.engine for x in results_for_strategy}
         for engine in test_engines:
-            times = [x for x in results_for_staregy if x.engine == engine]
+            times = [x for x in results_for_strategy if x.engine == engine]
             if len(times) == 0:
                 continue
-            test_method = ([x for x in pyspark_implementation_list if x.strategy_name == strategy_name]
-                           + [x for x in dask_implementation_list if x.strategy_name == strategy_name])[0]
+            challenge_method_registration = (
+                [x for x in pyspark_implementation_list if x.strategy_name == strategy_name]
+                + [x for x in dask_implementation_list if x.strategy_name == strategy_name])[0]
 
             size_values = set(x.data.description.num_rows for x in times)
             for dataSize in size_values:
@@ -87,7 +88,9 @@ def analyze_run_results():  # noqa: C901
                 rl, rh = scipy.stats.norm.interval(  # type: ignore
                     confidence, loc=mean, scale=stdev / math.sqrt(numRuns))
                 summary_status += ("%s,%s,%s," + "%d,%d," + "%f,%f,%f,%f\n") % (
-                    test_method.strategy_name, test_method.interface, test_method.scale,
+                    challenge_method_registration.strategy_name,
+                    challenge_method_registration.interface,
+                    challenge_method_registration.scale,
                     len(ar), dataSize,
                     mean, stdev, rl, rh
                 )
@@ -100,9 +103,9 @@ def analyze_run_results():  # noqa: C901
                 case (b0, (b0_low, b0_high)), (b1, (b1_low, b1_high)), (s2, (s2_low, s2_high)):
                     pass
             result = TestRegression(
-                name=test_method.strategy_name,
-                interface=test_method.interface,
-                scale=test_method.scale,
+                name=challenge_method_registration.strategy_name,
+                interface=challenge_method_registration.interface,
+                scale=challenge_method_registration.scale,
                 run_count=len(times),
                 b0=b0,
                 b0_low=b0_low,
@@ -116,7 +119,10 @@ def analyze_run_results():  # noqa: C901
             )
             test_results.append(result)
             regression_status += ("%s,%s,%s,%d," + "%f,%f,%f," + "%f,%f,%f," + "%f,%f,%f\n") % (
-                test_method.strategy_name, test_method.interface, test_method.scale, result.run_count,
+                challenge_method_registration.strategy_name,
+                challenge_method_registration.interface,
+                challenge_method_registration.scale,
+                result.run_count,
                 result.b0, result.b0_low, result.b0_high,
                 result.b1 * 1e+6, result.b1_low * 1e+6, result.b1_high * 1e+6,
                 result.s2, result.s2_low, result.s2_high)
@@ -129,21 +135,21 @@ def analyze_run_results():  # noqa: C901
 
 def read_run_results() -> list[RunResult]:
     test_runs: list[RunResult] = []
-    with open('results/temp.csv', 'w') as fout:
+    with open('results/temp.csv', 'w') as out_fh:
         for engine in [CalcEngine.PYSPARK, CalcEngine.DASK]:
             run_log_file_path_for_engine = derive_run_log_file_path(engine)
             if not os.path.exists(run_log_file_path_for_engine):
                 continue
             with open(run_log_file_path_for_engine, 'rt') as f:
-                for textline in f:
-                    textline = textline.rstrip()
-                    if textline.startswith("Working"):
-                        print("Excluding line: " + textline)
+                for line in f:
+                    line = line.rstrip()
+                    if line.startswith("Working"):
+                        print("Excluding line: " + line)
                         continue
-                    if textline.find(',') < 0:
-                        print("Excluding line: " + textline)
+                    if line.find(',') < 0:
+                        print("Excluding line: " + line)
                         continue
-                    fields: list[str] = textline.rstrip().split(',')
+                    fields: list[str] = line.rstrip().split(',')
                     test_status, test_method_name, test_method_interface, \
                         result_num_students, \
                         result_dataSize, result_section_maximum, \
@@ -151,7 +157,7 @@ def read_run_results() -> list[RunResult]:
                         _finished_at \
                         = tuple(fields)
                     if test_status != 'success':
-                        print("Excluding line: " + textline)
+                        print("Excluding line: " + line)
                         continue
                     result = RunResult(
                         strategy_name=test_method_name,
@@ -169,15 +175,15 @@ def read_run_results() -> list[RunResult]:
                                 target_num_partitions=-1,
                             ),
                             exec_params=ExecutionParameters(
-                                DefaultParallelism=-1,
-                                MaximumProcessableSegment=-1,
-                                TestDataFolderLocation="N/A",
+                                default_parallelism=-1,
+                                maximum_processable_segment=-1,
+                                test_data_folder_location="N/A",
                             )
                         ),
                         elapsed_time=float(result_elapsedTime),
                         record_count=int(result_recordCount))
                     test_runs.append(result)
-                    fout.write("%s,%s,%s,%d,%d,%f,%s\n" % (
+                    out_fh.write("%s,%s,%s,%d,%d,%f,%s\n" % (
                         engine.value,
                         test_method_name, test_method_interface,
                         result.data.description.num_rows // result.data.data.section_maximum,

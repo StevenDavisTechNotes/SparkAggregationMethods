@@ -10,8 +10,8 @@ import pandas as pd
 import pyspark.sql.types as DataTypes
 
 from perf_test_common import CalcEngine
-from utils.pandas_helpers import PandasSeriesOfFloat
-from utils.utils import always_true, int_divide_round_up
+from t_utils.pandas_helpers import PandasSeriesOfFloat
+from t_utils.t_utils import always_true, int_divide_round_up
 
 SHARED_LOCAL_TEST_DATA_FILE_LOCATION = "d:/temp/SparkPerfTesting"
 MAX_DATA_POINTS_PER_SPARK_PARTITION = 5 * 10**3
@@ -124,16 +124,16 @@ def populate_data_set_generic(exec_params: ExecutionParameters, num_grp_1: int, 
                     "grp": grp,
                     "mean_of_C": df_cluster.C.mean(),  # type: ignore
                     "max_of_D": df_cluster.D.max(),  # type: ignore
-                    "avg_var_of_E": subgroupedE.var(ddof=0).mean(),  # type: ignore
+                    "avg_var_of_E": sub_group_e.var(ddof=0).mean(),  # type: ignore
                     "avg_var_of_E2":
-                    subgroupedE
+                    sub_group_e
                         .agg(  # type: ignore
                             hand_coded_variance)
                         .mean(),  # type: ignore
                 }
                 for grp in range(num_grp_1)
                 if always_true(df_cluster := df[(df["grp"] == grp)])
-                if always_true(subgroupedE :=
+                if always_true(sub_group_e :=
                                cast(PandasSeriesOfFloat,
                                     df_cluster.groupby(  # type: ignore
                                         by=['subgrp'])['E']))

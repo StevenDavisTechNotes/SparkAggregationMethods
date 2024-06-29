@@ -1,3 +1,4 @@
+# cSpell: ignore Plaineville
 import hashlib
 import os
 from dataclasses import dataclass
@@ -5,16 +6,16 @@ from functools import reduce
 from pathlib import Path
 
 import pyspark.sql.functions as func
-from pyspark.sql import DataFrame as spark_DataFrame
+from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import SparkSession
 
 from challenges.deduplication.dedupe_test_data_types import (
     DataSet, ExecutionParameters, RecordSparseStruct)
-from utils.utils import always_true, int_divide_round_up
+from t_utils.t_utils import always_true, int_divide_round_up
 
 
 @dataclass(frozen=True)
-class DataSetDiscription:
+class DataSetDescription:
     code: str
     num_people: int
     num_b_recs: int
@@ -24,7 +25,7 @@ class DataSetDiscription:
 
 MAX_EXPONENT = 5
 DATA_SIZE_CODE_TO_DATA_SIZE = {
-    data_size_code: DataSetDiscription(
+    data_size_code: DataSetDescription(
         code=data_size_code,
         num_people=num_people,
         num_b_recs=num_b_recs,
@@ -94,7 +95,7 @@ def generate_test_data(
     target_data_size_list = [DATA_SIZE_CODE_TO_DATA_SIZE[x] for x in data_size_code_list]
     for num_people in sorted({x.num_people for x in target_data_size_list}):
         generate_data_files(root_path, source_codes, num_people)
-        single_source_data_frames: list[spark_DataFrame]
+        single_source_data_frames: list[PySparkDataFrame]
         if exec_params.CanAssumeNoDupesPerPartition:
             single_source_data_frames = [
                 (spark.read
@@ -102,8 +103,8 @@ def generate_test_data(
                      derive_file_path(root_path, source_code, num_people),
                      schema=RecordSparseStruct)
                  .coalesce(1)
-                 .withColumn("SourceId", func.lit(isource)))
-                for isource, source_code in enumerate(source_codes)
+                 .withColumn("SourceId", func.lit(i_source)))
+                for i_source, source_code in enumerate(source_codes)
             ]
         else:
             single_source_data_frames = [
@@ -111,11 +112,11 @@ def generate_test_data(
                  .csv(
                      derive_file_path(root_path, source_code, num_people),
                      schema=RecordSparseStruct)
-                 .withColumn("SourceId", func.lit(isource)))
-                for isource, source_code in enumerate(source_codes)
+                 .withColumn("SourceId", func.lit(i_source)))
+                for i_source, source_code in enumerate(source_codes)
             ]
 
-        def combine_sources(num: int) -> spark_DataFrame:
+        def combine_sources(num: int) -> PySparkDataFrame:
             return reduce(
                 lambda dfA, dfB: dfA.unionAll(dfB),
                 [single_source_data_frames[i] for i in range(num)]

@@ -1,29 +1,29 @@
 import pandas as pd
 import pyspark.sql.functions as func
 import pyspark.sql.types as DataTypes
-from pyspark.sql import DataFrame as spark_DataFrame
+from pyspark.sql import DataFrame as PySparkDataFrame
 
 from challenges.deduplication.dedupe_test_data_types import (
     DataSet, ExecutionParameters, RecordSparseStruct,
-    TPysparkPythonPendingAnswerSet)
+    TChallengePendingAnswerPythonPyspark)
 from challenges.deduplication.domain_logic.dedupe_domain_methods import \
     match_single_name
-from utils.spark_helpers import zip_dataframe_with_index
-from utils.tidy_spark_session import TidySparkSession
+from t_utils.spark_helpers import zip_dataframe_with_index
+from t_utils.tidy_spark_session import TidySparkSession
 
 
 def dedupe_pyspark_df_nested_pandas(
         spark_session: TidySparkSession,
-        data_params: ExecutionParameters,
+        exec_params: ExecutionParameters,
         data_set: DataSet,
-) -> TPysparkPythonPendingAnswerSet:
+) -> TChallengePendingAnswerPythonPyspark:
     dfSrc = data_set.df
     if data_set.data_size > 50200:
         return "infeasible"
 
     spark = spark_session.spark
-    numPartitions = data_params.NumExecutors
-    df: spark_DataFrame = zip_dataframe_with_index(dfSrc, spark=spark, colName="RowId")
+    numPartitions = exec_params.NumExecutors
+    df: PySparkDataFrame = zip_dataframe_with_index(dfSrc, spark=spark, colName="RowId")
     df = df.withColumn(
         "BlockingKey",
         func.hash(

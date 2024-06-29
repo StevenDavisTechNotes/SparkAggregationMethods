@@ -1,5 +1,5 @@
 #! python
-# usage: (cd src; python -m challenges.vanilla.vanilla_dask_runner)
+# usage: python -m challenges.vanilla.vanilla_dask_runner
 import argparse
 import gc
 import random
@@ -7,8 +7,8 @@ import time
 from typing import NamedTuple, Optional, TextIO
 
 import pandas as pd
-from dask.bag.core import Bag as dask_bag
-from dask.dataframe.core import DataFrame as dask_dataframe
+from dask.bag.core import Bag as DaskBag
+from dask.dataframe.core import DataFrame as DaskDataFrame
 from dask.distributed import Client as DaskClient
 
 from challenges.vanilla.vanilla_record_runs import derive_run_log_file_path
@@ -17,23 +17,24 @@ from challenges.vanilla.vanilla_strategy_directory import (
 from challenges.vanilla.vanilla_test_data_types import result_columns
 from perf_test_common import CalcEngine
 from six_field_test_data.six_generate_test_data_using_dask import (
-    DaskDataSetWithAnswer, DaskPythonTestMethod, populate_data_set_dask)
+    ChallengeMethodPythonDaskRegistration, DaskDataSetWithAnswer,
+    populate_data_set_dask)
 from six_field_test_data.six_run_result_types import (write_header,
                                                       write_run_result)
 from six_field_test_data.six_test_data_types import (
     SHARED_LOCAL_TEST_DATA_FILE_LOCATION, ExecutionParameters, RunResult)
-from utils.tidy_spark_session import LOCAL_NUM_EXECUTORS
-from utils.utils import always_true, set_random_seed
+from t_utils.t_utils import always_true, set_random_seed
+from t_utils.tidy_spark_session import LOCAL_NUM_EXECUTORS
 
 ENGINE = CalcEngine.DASK
 DEBUG_ARGS = None if False else (
     []
-    + '--size 10'.split()
+    # + '--size 10'.split()
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
     + ['--strategy',
-       #    'vanilla_dask_ddf_grp_apply',
+       'vanilla_dask_ddf_grp_apply',
        'vanilla_dask_ddf_grp_udaf',
        ]
 )
@@ -89,10 +90,10 @@ def do_test_runs(
     data_sets = populate_data_sets(args)
     keyed_implementation_list = {
         x.strategy_name: x for x in dask_implementation_list}
-    itinerary: list[tuple[DaskPythonTestMethod, DaskDataSetWithAnswer]] = [
-        (test_method, data_set)
+    itinerary: list[tuple[ChallengeMethodPythonDaskRegistration, DaskDataSetWithAnswer]] = [
+        (challenge_method_registration, data_set)
         for strategy in args.strategies
-        if always_true(test_method := keyed_implementation_list[strategy])
+        if always_true(challenge_method_registration := keyed_implementation_list[strategy])
         for data_set in data_sets
         for _ in range(0, args.num_runs)
     ]
@@ -102,10 +103,10 @@ def do_test_runs(
         random.shuffle(itinerary)
     with open(derive_run_log_file_path(ENGINE), 'at+') as file:
         write_header(file)
-        for index, (test_method, data_set) in enumerate(itinerary):
+        for index, (challenge_method_registration, data_set) in enumerate(itinerary):
             print("Working on %d of %d" % (index, len(itinerary)))
-            print(f"Working on {test_method.strategy_name} for {data_set.description.SizeCode}")
-            test_one_step_in_itinerary(dask_client, args.exec_params, test_method, file, data_set)
+            print(f"Working on {challenge_method_registration.strategy_name} for {data_set.description.SizeCode}")
+            test_one_step_in_itinerary(dask_client, args.exec_params, challenge_method_registration, file, data_set)
             gc.collect()
             time.sleep(0.1)
 
@@ -147,17 +148,21 @@ def populate_data_sets(
 def test_one_step_in_itinerary(
         dask_client: DaskClient,
         exec_params: ExecutionParameters,
-        test_method: DaskPythonTestMethod,
+        challenge_method_registration: ChallengeMethodPythonDaskRegistration,
         file: TextIO,
         data_set: DaskDataSetWithAnswer,
 ):
     startedTime = time.time()
     df_answer: pd.DataFrame
-    match test_method.delegate(dask_client, exec_params, data_set):
-        case dask_bag() as bag:
-            if bag.npartitions > max(data_set.data.AggTgtNumPartitions, exec_params.DefaultParallelism):
+    match challenge_method_registration.delegate(
+        dask_client=dask_client,
+        exec_params=exec_params,
+        data_set=data_set,
+    ):
+        case DaskBag() as bag:
+            if bag.npartitions > max(data_set.data.agg_tgt_num_partitions, exec_params.DefaultParallelism):
                 print(
-                    f"{test_method.strategy_name} output rdd has {bag.npartitions} partitions")
+                    f"{challenge_method_registration.strategy_name} output rdd has {bag.npartitions} partitions")
                 findings = bag.compute()
                 print(f"size={len(findings)}, ", findings)
                 exit(1)
@@ -167,10 +172,10 @@ def test_one_step_in_itinerary(
                 df_answer = pd.DataFrame.from_records([x.asDict() for x in lst_answer])
             else:
                 df_answer = pd.DataFrame(columns=result_columns)
-        case dask_dataframe() as ddf:
-            if ddf.npartitions > max(data_set.data.AggTgtNumPartitions, exec_params.DefaultParallelism):
+        case DaskDataFrame() as ddf:
+            if ddf.npartitions > max(data_set.data.agg_tgt_num_partitions, exec_params.DefaultParallelism):
                 print(
-                    f"{test_method.strategy_name} output rdd has {ddf.npartitions} partitions")
+                    f"{challenge_method_registration.strategy_name} output rdd has {ddf.npartitions} partitions")
                 findings = ddf.compute()
                 print(f"size={len(findings)}, ", findings)
                 exit(1)
@@ -197,7 +202,7 @@ def test_one_step_in_itinerary(
         dataSize=data_set.description.NumDataPoints,
         elapsedTime=finishedTime - startedTime,
         recordCount=recordCount)
-    write_run_result(test_method, result, file)
+    write_run_result(challenge_method_registration, result, file)
 
 
 def do_with_client(dask_client: DaskClient):
@@ -213,6 +218,7 @@ def main():
             threads_per_worker=1,
     ) as dask_client:
         do_test_runs(args, dask_client)
+    print("Done!")
 
 
 if __name__ == "__main__":

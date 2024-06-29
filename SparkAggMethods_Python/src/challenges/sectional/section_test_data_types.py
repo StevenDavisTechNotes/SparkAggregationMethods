@@ -1,20 +1,20 @@
 from dataclasses import dataclass
-from typing import Callable, Iterable, Literal, NamedTuple, Optional
+from typing import Callable, Iterable, Literal, NamedTuple, Optional, Protocol
 
 import pandas as pd
 import pyspark.sql.types as DataTypes
 from pyspark import RDD
-from pyspark.sql import DataFrame as spark_DataFrame
+from pyspark.sql import DataFrame as PySparkDataFrame
 
 from perf_test_common import CalcEngine
-from utils.tidy_spark_session import TidySparkSession
+from t_utils.tidy_spark_session import TidySparkSession
 
 
 @dataclass(frozen=True)
 class ExecutionParameters:
-    DefaultParallelism: int
-    MaximumProcessableSegment: int
-    TestDataFolderLocation: str
+    default_parallelism: int
+    maximum_processable_segment: int
+    test_data_folder_location: str
 
 
 # region GenData
@@ -80,7 +80,7 @@ class LabeledTypedRow(NamedTuple):
     Value: TypedLine
 
 
-NumDepts = 4
+NumDepartments = 4
 # endregion
 
 
@@ -128,23 +128,37 @@ class TestMethodBase:
     scale: str
 
 
-TDaskPythonPendingAnswerSet = (
+TChallengeAnswerPythonDask = (
     Literal["infeasible"] | list[StudentSummary] | pd.DataFrame)
 
-TPysparkPythonPendingAnswerSet = (
-    Literal["infeasible"] | list[StudentSummary] | RDD[StudentSummary] | spark_DataFrame)
+TChallengePendingAnswerPythonPyspark = (
+    Literal["infeasible"] | list[StudentSummary] | RDD[StudentSummary] | PySparkDataFrame)
+
+
+class IChallengeMethodPythonDaskRegistration(Protocol):
+    def __call__(
+        self,
+        *,
+        spark_session: TidySparkSession,
+        data_set: DataSet
+    ) -> TChallengeAnswerPythonDask: ...
 
 
 @dataclass(frozen=True)
-class DaskTestMethod(TestMethodBase):
-    delegate: Callable[
-        [TidySparkSession, DataSet],
-        TDaskPythonPendingAnswerSet]
+class ChallengeMethodDaskRegistration(TestMethodBase):
+    delegate: IChallengeMethodPythonDaskRegistration
+
+
+class IChallengeMethodPythonPysparkRegistration(Protocol):
+    def __call__(
+        self,
+        *,
+        spark_session: TidySparkSession,
+        data_set: DataSet
+    ) -> TChallengePendingAnswerPythonPyspark: ...
 
 
 @dataclass(frozen=True)
-class PysparkTestMethod(TestMethodBase):
+class ChallengeMethodPysparkRegistration(TestMethodBase):
     original_strategy_name: str
-    delegate: Callable[
-        [TidySparkSession, DataSet],
-        TPysparkPythonPendingAnswerSet]
+    delegate: IChallengeMethodPythonPysparkRegistration

@@ -3,9 +3,10 @@ import os
 from dataclasses import dataclass
 from typing import Iterable, TextIO
 
-from challenges.deduplication.dedupe_test_data_types import PysparkTestMethod
+from challenges.deduplication.dedupe_test_data_types import \
+    ChallengeMethodPythonPysparkRegistration
 from perf_test_common import CalcEngine
-from utils.utils import always_true, root_folder_abs_path
+from t_utils.t_utils import always_true, root_folder_abs_path
 
 T_PYTHON_PYSPARK_RUN_LOG_FILE_PATH = 'results/dedupe_pyspark_runs.csv'
 T_PYTHON_DASK_RUN_LOG_FILE_PATH = 'results/dedupe_dask_runs.csv'
@@ -90,13 +91,13 @@ def write_header(
 
 def write_run_result(
         success: bool,
-        test_method: PysparkTestMethod,
+        challenge_method_registration: ChallengeMethodPythonPysparkRegistration,
         result: RunResult,
         file: TextIO
 ) -> None:
     print(",".join([str(x) for x in [
         "success" if success else "failure",
-        test_method.strategy_name, test_method.interface, result.numSources,
+        challenge_method_registration.strategy_name, challenge_method_registration.interface, result.numSources,
         result.dataSize, result.dataSizeExp, result.actualNumPeople,
         result.elapsedTime, result.foundNumPeople,
         "TRUE" if result.IsCloudMode else "FALSE",
@@ -110,18 +111,18 @@ def read_result_file(
         engine: CalcEngine,
 ) -> Iterable[PersistedRunResult]:
     with open(derive_run_log_file_path(engine), 'r') as f:
-        for textline in f:
-            textline = textline.rstrip()
-            if textline.startswith("Working"):
-                print("Excluding line: " + textline)
+        for line in f:
+            line = line.rstrip()
+            if line.startswith("Working"):
+                print("Excluding line: " + line)
                 continue
-            if textline.startswith("#"):
-                print("Excluding line: " + textline)
+            if line.startswith("#"):
+                print("Excluding line: " + line)
                 continue
-            if textline.find(',') < 0:
-                print("Excluding line: " + textline)
+            if line.find(',') < 0:
+                print("Excluding line: " + line)
                 continue
-            fields = textline.split(',')
+            fields = line.split(',')
             test_status, strategy_name, interface, \
                 result_numSources, \
                 result_dataSize, result_dataSizeExp, \
@@ -131,7 +132,7 @@ def read_result_file(
                 _finishedAt, *_rest \
                 = tuple(fields)
             if test_status != 'success':
-                print("Excluding line: " + textline)
+                print("Excluding line: " + line)
                 continue
             result = PersistedRunResult(
                 status=test_status,

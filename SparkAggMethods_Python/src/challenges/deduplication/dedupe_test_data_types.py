@@ -1,12 +1,12 @@
 from dataclasses import dataclass
-from typing import Callable, Literal
+from typing import Literal, Protocol
 
 import pyspark.sql.types as DataTypes
 from pyspark import RDD
-from pyspark.sql import DataFrame as spark_DataFrame
+from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import Row
 
-from utils.tidy_spark_session import TidySparkSession
+from t_utils.tidy_spark_session import TidySparkSession
 
 
 @dataclass(frozen=True)
@@ -42,24 +42,32 @@ class DataSet:
     num_sources: int
     data_size: int
     grouped_num_partitions: int
-    df: spark_DataFrame
+    df: PySparkDataFrame
 
 
-TPysparkPythonPendingAnswerSet = Literal["infeasible"] | RDD[Row] | spark_DataFrame
+TChallengePendingAnswerPythonPyspark = Literal["infeasible"] | RDD[Row] | PySparkDataFrame
+
+
+class IChallengeMethodPythonPyspark(Protocol):
+    def __call__(
+        self,
+        *,
+        spark_session: TidySparkSession,
+        exec_params: ExecutionParameters,
+        data_set: DataSet
+    ) -> TChallengePendingAnswerPythonPyspark: ...
 
 
 @dataclass(frozen=True)
-class PysparkTestMethod:
+class ChallengeMethodPythonPysparkRegistration:
     original_strategy_name: str
     strategy_name: str
     language: str
     interface: str
-    delegate: Callable[
-        [TidySparkSession, ExecutionParameters, DataSet],
-        TPysparkPythonPendingAnswerSet]
+    delegate: IChallengeMethodPythonPyspark
 
 
 @dataclass(frozen=True)
 class ItineraryItem:
-    test_method: PysparkTestMethod
+    challenge_method_registration: ChallengeMethodPythonPysparkRegistration
     data_set: DataSet

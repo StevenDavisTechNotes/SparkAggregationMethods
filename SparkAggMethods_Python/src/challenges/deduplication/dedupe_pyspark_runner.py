@@ -1,5 +1,6 @@
 #! python
 # usage: (cd src; python -m challenges.deduplication.dedupe_pyspark_runner)
+# cSpell: ignore wasb, sparkperftesting, Reqs
 import argparse
 import gc
 import math
@@ -9,7 +10,7 @@ from dataclasses import dataclass
 from typing import Literal, Optional
 
 from pyspark import RDD
-from pyspark.sql import DataFrame as spark_DataFrame
+from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import Row
 
 from challenges.deduplication.dedupe_generate_test_data import (
@@ -23,8 +24,8 @@ from challenges.deduplication.dedupe_test_data_types import (
 from challenges.deduplication.domain_logic.dedupe_expected_results import (
     ItineraryItem, verify_correctness)
 from perf_test_common import CalcEngine
-from utils.tidy_spark_session import TidySparkSession
-from utils.utils import always_true, set_random_seed
+from t_utils.t_utils import always_true, set_random_seed
+from t_utils.tidy_spark_session import TidySparkSession
 
 ENGINE = CalcEngine.PYSPARK
 DEBUG_ARGS = None if False else (
@@ -106,41 +107,47 @@ def parse_args() -> Arguments:
 
 
 def run_one_itinerary_step(
-        index: int, num_iterinary_stops: int, itinerary_item: ItineraryItem,
+        index: int, num_itinerary_stops: int, itinerary_item: ItineraryItem,
         args: Arguments, spark_session: TidySparkSession
 ) -> tuple[bool, RunResult] | Literal["infeasible"]:
     exec_params = args.exec_params
     log = spark_session.log
-    log.info("Working on %d of %d" % (index, num_iterinary_stops))
-    test_method = itinerary_item.test_method
+    log.info("Working on %d of %d" % (index, num_itinerary_stops))
+    challenge_method_registration = itinerary_item.challenge_method_registration
     startedTime = time.time()
     print("Working on %s %d %d" %
-          (test_method.strategy_name, itinerary_item.data_set.num_people, itinerary_item.data_set.data_size))
+          (challenge_method_registration.strategy_name,
+           itinerary_item.data_set.num_people,
+           itinerary_item.data_set.data_size))
     success = True
     try:
-        rddout: RDD[Row]
-        match test_method.delegate(
-                spark_session, exec_params, itinerary_item.data_set):
+        rdd_out: RDD[Row]
+        match challenge_method_registration.delegate(
+                spark_session=spark_session,
+                exec_params=exec_params,
+                data_set=itinerary_item.data_set,
+        ):
             case RDD() as rdd_row:
-                rddout = rdd_row
-            case spark_DataFrame() as spark_df:
-                rddout = spark_df.rdd
+                rdd_out = rdd_row
+            case PySparkDataFrame() as spark_df:
+                rdd_out = spark_df.rdd
             case "infeasible":
                 return "infeasible"
             case _:
-                raise Exception(f"{itinerary_item.test_method.strategy_name} dit not returning anything")
+                raise Exception(
+                    f"{itinerary_item.challenge_method_registration.strategy_name} dit not returning anything")
         print("NumPartitions: in vs out ",
               itinerary_item.data_set.df.rdd.getNumPartitions(),
-              rddout.getNumPartitions())
-        if rddout.getNumPartitions() \
+              rdd_out.getNumPartitions())
+        if rdd_out.getNumPartitions() \
                 > max(args.exec_params.DefaultParallelism,
                       itinerary_item.data_set.grouped_num_partitions):
             print(
-                f"{test_method.strategy_name} output rdd has {rddout.getNumPartitions()} partitions")
-            findings = rddout.collect()
+                f"{challenge_method_registration.strategy_name} output rdd has {rdd_out.getNumPartitions()} partitions")
+            findings = rdd_out.collect()
             print(f"size={len(findings)}!")
             exit(1)
-        foundPeople: list[Row] = rddout.collect()
+        foundPeople: list[Row] = rdd_out.collect()
     except Exception as exception:
         foundPeople = []
         exit(1)
@@ -173,11 +180,11 @@ def run_tests(
         x.strategy_name: x for x in pyspark_implementation_list}
     itinerary: list[ItineraryItem] = [
         ItineraryItem(
-            test_method=test_method,
+            challenge_method_registration=challenge_method_registration,
             data_set=data_set,
         )
         for strategy in args.strategies
-        if always_true(test_method := keyed_implementation_list[strategy])
+        if always_true(challenge_method_registration := keyed_implementation_list[strategy])
         for data_set in data_sets
         for _ in range(args.num_runs)
     ]
@@ -190,12 +197,12 @@ def run_tests(
         for index, itinerary_item in enumerate(itinerary):
             match run_one_itinerary_step(
                     index=index,
-                    num_iterinary_stops=len(itinerary),
+                    num_itinerary_stops=len(itinerary),
                     itinerary_item=itinerary_item,
                     args=args,
                     spark_session=spark_session):
                 case (success, result):
-                    write_run_result(success, itinerary_item.test_method, result, result_log_file)
+                    write_run_result(success, itinerary_item.challenge_method_registration, result, result_log_file)
                     gc.collect()
                     time.sleep(0.1)
                 case "infeasible":

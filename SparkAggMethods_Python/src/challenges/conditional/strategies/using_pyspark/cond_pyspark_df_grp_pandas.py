@@ -5,17 +5,17 @@ import pandas as pd
 from challenges.conditional.conditional_test_data_types import (
     agg_columns_4, groupby_columns, postAggSchema_4)
 from six_field_test_data.six_generate_test_data_using_pyspark import (
-    PysparkDataSet, TPysparkPythonPendingAnswerSet)
+    PysparkDataSet, TChallengePendingAnswerPythonPyspark)
 from six_field_test_data.six_test_data_types import ExecutionParameters
-from utils.pandas_helpers import PandasSeriesOfFloat, PandasSeriesOfInt
-from utils.tidy_spark_session import TidySparkSession
+from t_utils.pandas_helpers import PandasSeriesOfFloat, PandasSeriesOfInt
+from t_utils.tidy_spark_session import TidySparkSession
 
 
 def cond_pyspark_df_grp_pandas(
         spark_session: TidySparkSession,
-        _exec_params: ExecutionParameters,
+        exec_params: ExecutionParameters,
         data_set: PysparkDataSet,
-) -> TPysparkPythonPendingAnswerSet:
+) -> TChallengePendingAnswerPythonPyspark:
     df = data_set.data.dfSrc
 
     df = (

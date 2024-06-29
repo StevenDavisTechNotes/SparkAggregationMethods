@@ -1,16 +1,16 @@
 from dataclasses import dataclass
 from functools import reduce
-from typing import Any, Callable, Literal, NamedTuple, cast
+from typing import Any, Literal, NamedTuple, Protocol, cast
 
 from pyspark import RDD, StorageLevel
-from pyspark.sql import DataFrame as spark_DataFrame
+from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import Row
 
 from six_field_test_data.six_test_data_types import (DataPoint, DataSetAnswer,
                                                      DataSetDescription,
                                                      ExecutionParameters,
                                                      populate_data_set_generic)
-from utils.tidy_spark_session import TidySparkSession
+from t_utils.tidy_spark_session import TidySparkSession
 
 # region PySpark version
 
@@ -19,7 +19,7 @@ from utils.tidy_spark_session import TidySparkSession
 class PysparkDataSetData():
     SrcNumPartitions: int
     AggTgtNumPartitions: int
-    dfSrc: spark_DataFrame
+    dfSrc: PySparkDataFrame
     rddSrc: RDD[DataPoint]
 
 
@@ -42,19 +42,27 @@ class GrpTotal(NamedTuple):
     cond_var_of_E: float
 
 
-TPysparkPythonPendingAnswerSet = Literal["infeasible"] | RDD[GrpTotal] | RDD[Row] | spark_DataFrame
+TChallengePendingAnswerPythonPyspark = Literal["infeasible"] | RDD[GrpTotal] | RDD[Row] | PySparkDataFrame
+
+
+class IChallengeMethodPythonPyspark(Protocol):
+    def __call__(
+        self,
+        *,
+        spark_session: TidySparkSession,
+        exec_params: ExecutionParameters,
+        data_set: PysparkDataSet
+    ) -> TChallengePendingAnswerPythonPyspark: ...
 
 
 @dataclass(frozen=True)
-class PysparkPythonTestMethod:
+class ChallengeMethodPythonPysparkRegistration:
     original_strategy_name: str
     strategy_name: str
     language: str
     interface: str
     only_when_gpu_testing: bool
-    delegate: Callable[
-        [TidySparkSession, ExecutionParameters, PysparkDataSet],
-        TPysparkPythonPendingAnswerSet]
+    delegate: IChallengeMethodPythonPyspark
 
 
 # endregion
@@ -84,10 +92,10 @@ def populate_data_set_pyspark(
         rdd_src = reduce(union_rdd_set, [
             spark_session.spark.sparkContext.parallelize((
                 DataPoint(*r)
-                for r in df[df["id"] % src_num_partitions == ipart]
+                for r in df[df["id"] % src_num_partitions == i_part]
                 .to_records(index=False)
             ), 1)
-            for ipart in range(src_num_partitions)
+            for i_part in range(src_num_partitions)
         ])
     rdd_src.persist(StorageLevel.DISK_ONLY)
     cnt, parts = rdd_src.count(), rdd_src.getNumPartitions()
@@ -101,13 +109,13 @@ def populate_data_set_pyspark(
             .repartition(src_num_partitions)
         )
     else:
-        def union_all(lhs: spark_DataFrame, rhs: spark_DataFrame) -> spark_DataFrame:
+        def union_all(lhs: PySparkDataFrame, rhs: PySparkDataFrame) -> PySparkDataFrame:
             return lhs.unionAll(rhs)
         df_src = reduce(union_all, [
             spark_session.spark.createDataFrame(
-                df[df["id"] % src_num_partitions == ipart]
+                df[df["id"] % src_num_partitions == i_part]
             ).coalesce(1)
-            for ipart in range(src_num_partitions)
+            for i_part in range(src_num_partitions)
         ])
     df_src.persist(StorageLevel.DISK_ONLY)
     cnt, parts = df_src.count(), df_src.rdd.getNumPartitions()

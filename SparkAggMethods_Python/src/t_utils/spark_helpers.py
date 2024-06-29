@@ -3,7 +3,7 @@ import numpy
 import pandas as pd
 import pyspark.sql.types as DataTypes
 from pyspark.sql import SparkSession
-from pyspark.sql.dataframe import DataFrame as spark_DataFrame
+from pyspark.sql.dataframe import DataFrame as PySparkDataFrame
 
 # https://stackoverflow.com/questions/30304810/dataframe-ified-zipwithindex/32741497#32741497
 
@@ -11,7 +11,7 @@ from pyspark.sql.dataframe import DataFrame as spark_DataFrame
 def zip_dataframe_with_index(
     df, spark: SparkSession, offset: int = 1,
     colName: str = "rowId"
-) -> spark_DataFrame:
+) -> PySparkDataFrame:
     '''
         Enumerates dataframe rows is native order, like rdd.ZipWithIndex(), but on a dataframe
         and preserves a schema

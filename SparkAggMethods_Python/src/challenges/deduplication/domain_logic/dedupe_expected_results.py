@@ -1,7 +1,8 @@
+# cSpell: ignore Plaineville, FFFFFFA, LLLLLLA
 from typing import Iterable
 
 from pyspark import RDD
-from pyspark.sql import DataFrame as spark_DataFrame
+from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import Row
 
 from challenges.deduplication.dedupe_generate_test_data import name_hash
@@ -35,22 +36,22 @@ def verify_correctness(
 ):
     try:
         lst.sort(key=lambda x: int(x.FieldA))
-        actualNumPeople = itinerary_items.data_set.num_people
-        NumSources = itinerary_items.data_set.num_sources
-        secretKeys = {x.SecretKey for x in lst}
-        expectedSecretKeys = set(range(1, actualNumPeople + 1))
-        if secretKeys != expectedSecretKeys:
-            dmissing = expectedSecretKeys - secretKeys
-            dextra = secretKeys - expectedSecretKeys
-            raise Exception(f"Missing {dmissing} extra {dextra}")
+        actual_num_people = itinerary_items.data_set.num_people
+        num_sources = itinerary_items.data_set.num_sources
+        secret_keys = {x.SecretKey for x in lst}
+        expected_secret_keys = set(range(1, actual_num_people + 1))
+        if secret_keys != expected_secret_keys:
+            missing_keys = expected_secret_keys - secret_keys
+            extra_keys = secret_keys - expected_secret_keys
+            raise Exception(f"Missing {missing_keys} extra {extra_keys}")
 
         count = len(lst)
-        if count != actualNumPeople:
+        if count != actual_num_people:
             raise Exception(
-                f"df.count()({count}) != numPeople({actualNumPeople}) ")
-        NumBRecords = max(1, 2 * actualNumPeople // 100)
+                f"df.count()({count}) != numPeople({actual_num_people}) ")
+        NumBRecords = max(1, 2 * actual_num_people // 100)
         for index, row in enumerate(lst):
-            verify_single_line(NumSources, NumBRecords, index, row)
+            verify_single_line(num_sources, NumBRecords, index, row)
     except Exception as exception:
         print("data error", exception)
         return False
@@ -129,10 +130,10 @@ def count_in_a_partition(
 
 
 def print_partition_distribution(
-        rddout: RDD[Row],
-        dfout: spark_DataFrame,
+        rdd_out: RDD[Row],
+        df_out: PySparkDataFrame,
 ) -> None:
     print("records per partition ",
-          (rddout or dfout.rdd)
+          (rdd_out or df_out.rdd)
           .mapPartitionsWithIndex(count_in_a_partition)
           .collect())

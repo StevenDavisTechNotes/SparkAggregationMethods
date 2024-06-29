@@ -5,8 +5,8 @@ import random
 from challenges.sectional.section_test_data_types import (DataSet, DataSetData,
                                                           DataSetDescription,
                                                           ExecutionParameters,
-                                                          NumDepts)
-from utils.utils import int_divide_round_up
+                                                          NumDepartments)
+from t_utils.t_utils import int_divide_round_up
 
 TEST_DATA_FILE_LOCATION = 'd:/temp/SparkPerfTesting'
 NUM_TRIMESTERS = 8
@@ -30,10 +30,10 @@ def add_months(
 
 def populate_data_files(
         filename: str,
-        NumStudents: int,
-        NumTrimesters: int,
-        NumClassesPerTrimester: int,
-        NumDepts: int
+        num_students: int,
+        num_trimesters: int,
+        num_classes_per_trimester: int,
+        num_departments: int
 ) -> None:
     tmp_file_name = os.path.join(
         TEST_DATA_FILE_LOCATION,
@@ -41,18 +41,18 @@ def populate_data_files(
         "section_testdata_temp.csv")
     with open(tmp_file_name, "w") as f:
         print(f"Creating {filename}")
-        for studentId in range(1, NumStudents + 1):
-            f.write(f"S,{studentId},John{studentId}\n")
-            for trimester in range(1, NumTrimesters + 1):
+        for student_id in range(1, num_students + 1):
+            f.write(f"S,{student_id},John{student_id}\n")
+            for trimester in range(1, num_trimesters + 1):
                 dated = add_months(dt.datetime(2017, 1, 1), trimester)
-                wasAbroad = random.randint(0, 10) == 0
-                major = (studentId %
-                         NumDepts) if trimester > 1 else NumDepts - 1
-                f.write(f"TH,{dated:%Y-%m-%d},{wasAbroad}\n")
+                was_abroad = random.randint(0, 10) == 0
+                major = (student_id %
+                         num_departments) if trimester > 1 else num_departments - 1
+                f.write(f"TH,{dated:%Y-%m-%d},{was_abroad}\n")
                 trimester_credits = 0
                 trimester_weighted_grades = 0
-                for _classno in range(1, NumClassesPerTrimester + 1):
-                    dept = random.randrange(0, NumDepts)
+                for _i_class in range(1, num_classes_per_trimester + 1):
+                    dept = random.randrange(0, num_departments)
                     grade = random.randint(1, 4)
                     credits = random.randint(1, 5)
                     f.write(f"C,{dept},{grade},{credits}\n")
@@ -71,19 +71,19 @@ def populate_data_sets(
     num_students = 1
     for i_scale in range(0, LARGEST_EXPONENT + 1):
         num_students = 10**i_scale
-        filename = os.path.join(
+        file_path = os.path.join(
             TEST_DATA_FILE_LOCATION,
             "Section_Test_Data",
             f"section_testdata{num_students}.csv")
         data_size = num_students * SECTION_SIZE_MAXIMUM
-        if make_new_files is True or os.path.exists(filename) is False:
-            populate_data_files(filename, num_students, NUM_TRIMESTERS,
-                                NUM_CLASSES_PER_TRIMESTER, NumDepts)
+        if make_new_files is True or os.path.exists(file_path) is False:
+            populate_data_files(file_path, num_students, NUM_TRIMESTERS,
+                                NUM_CLASSES_PER_TRIMESTER, NumDepartments)
         src_num_partitions = max(
-            exec_params.DefaultParallelism,
+            exec_params.default_parallelism,
             int_divide_round_up(
                 data_size,
-                exec_params.MaximumProcessableSegment))
+                exec_params.maximum_processable_segment))
         datasets.append(
             DataSet(
                 description=DataSetDescription(
@@ -93,7 +93,7 @@ def populate_data_sets(
                 ),
                 data=DataSetData(
                     section_maximum=SECTION_SIZE_MAXIMUM,
-                    test_filepath=filename,
+                    test_filepath=file_path,
                     target_num_partitions=src_num_partitions,
                 ),
                 exec_params=exec_params,

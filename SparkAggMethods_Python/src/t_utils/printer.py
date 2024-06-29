@@ -58,7 +58,7 @@ def pick_file_path(
 re_match_dt_1: re.Pattern[str] | None = None
 
 
-def pprints(
+def pretty_print_to_string(
         rows: Any,
         fh: TextIO,
 ) -> None:
@@ -81,7 +81,7 @@ def print_object_as_python_literal(
         suffix: str = "",
 ) -> None:
     with open(pick_file_path(suffix), "w", encoding="utf-8") as fh:
-        pprints(rows, fh)
+        pretty_print_to_string(rows, fh)
 
 
 def print_text(

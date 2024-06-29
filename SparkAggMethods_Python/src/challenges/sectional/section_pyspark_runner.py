@@ -1,5 +1,6 @@
 #! python
 # usage: (cd src; python -m challenges.sectional.section_pyspark_runner)
+# cSpell: ignore wasb, sparkperftesting, Reqs
 import argparse
 import gc
 import os
@@ -9,7 +10,7 @@ from dataclasses import dataclass
 from typing import Iterable, Optional, TextIO
 
 from pyspark import RDD
-from pyspark.sql import DataFrame as spark_DataFrame
+from pyspark.sql import DataFrame as PySparkDataFrame
 
 from challenges.sectional.section_generate_test_data import (
     AVAILABLE_DATA_SIZES, populate_data_sets)
@@ -18,16 +19,14 @@ from challenges.sectional.section_record_runs import (
     write_run_result)
 from challenges.sectional.section_strategy_directory import (
     STRATEGY_NAME_LIST, pyspark_implementation_list)
-from challenges.sectional.section_test_data_types import (DataSetWithAnswer,
-                                                          ExecutionParameters,
-                                                          PysparkTestMethod,
-                                                          RunResult,
-                                                          StudentSummary)
+from challenges.sectional.section_test_data_types import (
+    ChallengeMethodPysparkRegistration, DataSetWithAnswer, ExecutionParameters,
+    RunResult, StudentSummary)
 from challenges.sectional.using_pyspark.section_nospark_single_threaded import \
     section_nospark_logic
 from perf_test_common import CalcEngine, count_iter
-from utils.tidy_spark_session import LOCAL_NUM_EXECUTORS, TidySparkSession
-from utils.utils import always_true, set_random_seed
+from t_utils.t_utils import always_true, set_random_seed
+from t_utils.tidy_spark_session import LOCAL_NUM_EXECUTORS, TidySparkSession
 
 ENGINE = CalcEngine.PYSPARK
 DEBUG_ARGS = None if False else (
@@ -105,9 +104,9 @@ def parse_args() -> Arguments:
         sizes=args.size,
         strategies=args.strategy,
         exec_params=ExecutionParameters(
-            DefaultParallelism=2 * LOCAL_NUM_EXECUTORS,
-            TestDataFolderLocation=LOCAL_TEST_DATA_FILE_LOCATION,
-            MaximumProcessableSegment=MAXIMUM_PROCESSABLE_SEGMENT,
+            default_parallelism=2 * LOCAL_NUM_EXECUTORS,
+            test_data_folder_location=LOCAL_TEST_DATA_FILE_LOCATION,
+            maximum_processable_segment=MAXIMUM_PROCESSABLE_SEGMENT,
         )
     )
 
@@ -143,10 +142,10 @@ def do_test_runs(
         for x in data_sets_w_answers}
     keyed_implementation_list = {
         x.strategy_name: x for x in pyspark_implementation_list}
-    itinerary: list[tuple[PysparkTestMethod, DataSetWithAnswer]] = [
-        (test_method, data_set)
+    itinerary: list[tuple[ChallengeMethodPysparkRegistration, DataSetWithAnswer]] = [
+        (challenge_method_registration, data_set)
         for strategy in args.strategies
-        if always_true(test_method := keyed_implementation_list[strategy])
+        if always_true(challenge_method_registration := keyed_implementation_list[strategy])
         for data_set in keyed_data_sets.values()
         for _ in range(0, args.num_runs)
     ]
@@ -157,12 +156,12 @@ def do_test_runs(
 
     with open(derive_run_log_file_path(ENGINE), 'at+') as file:
         write_header(file)
-        for index, (test_method, data_set) in enumerate(itinerary):
+        for index, (challenge_method_registration, data_set) in enumerate(itinerary):
             spark_session.log.info(
                 "Working on %d of %d" %
                 (index, len(itinerary)))
-            print(f"Working on {test_method.strategy_name} for {data_set.description.num_rows}")
-            run_one_itinerary_step(args, spark_session, test_method, file, data_set)
+            print(f"Working on {challenge_method_registration.strategy_name} for {data_set.description.num_rows}")
+            run_one_itinerary_step(args, spark_session, challenge_method_registration, file, data_set)
             gc.collect()
             time.sleep(0.1)
 
@@ -170,7 +169,7 @@ def do_test_runs(
 def run_one_itinerary_step(
         args: Arguments,
         spark_session: TidySparkSession,
-        test_method: PysparkTestMethod,
+        challenge_method_registration: ChallengeMethodPysparkRegistration,
         file: TextIO,
         data_set: DataSetWithAnswer,
 ):
@@ -178,8 +177,11 @@ def run_one_itinerary_step(
     num_students_found: int
     rdd: RDD | None = None
     found_students_iterable: Iterable[StudentSummary]
-    match test_method.delegate(spark_session, data_set):
-        case spark_DataFrame() as df:
+    match challenge_method_registration.delegate(
+        spark_session=spark_session,
+        data_set=data_set,
+    ):
+        case PySparkDataFrame() as df:
             print(f"output rdd has {df.rdd.getNumPartitions()} partitions")
             rdd = df.rdd
             found_students_iterable = [StudentSummary(*x) for x in rdd.toLocalIterator()]
@@ -203,23 +205,23 @@ def run_one_itinerary_step(
         num_students_found = count_iter(found_students_iterable)
     finishedTime = time.time()
     if rdd is not None and rdd.getNumPartitions() > max(
-        args.exec_params.DefaultParallelism,
+        args.exec_params.default_parallelism,
         data_set.data.target_num_partitions,
     ):
-        print(f"{test_method.strategy_name} output rdd has {rdd.getNumPartitions()} partitions")
+        print(f"{challenge_method_registration.strategy_name} output rdd has {rdd.getNumPartitions()} partitions")
         findings = rdd.collect()
         print(f"size={len(findings)}!", findings)
         exit(1)
     success = verify_correctness(data_set, concrete_students, num_students_found, args.check_answers)
     result = RunResult(
-        strategy_name=test_method.strategy_name,
+        strategy_name=challenge_method_registration.strategy_name,
         engine=ENGINE,
         success=success,
         data=data_set,
         elapsed_time=finishedTime - startedTime,
         record_count=num_students_found)
-    write_run_result(test_method, result, file)
-    print("%s Took %f secs" % (test_method.strategy_name, finishedTime - startedTime))
+    write_run_result(challenge_method_registration, result, file)
+    print("%s Took %f secs" % (challenge_method_registration.strategy_name, finishedTime - startedTime))
 
 
 def verify_correctness(
@@ -276,8 +278,8 @@ def spark_configs(
 def main():
     args = parse_args()
     with TidySparkSession(
-        spark_configs(args.exec_params.DefaultParallelism),
-        enable_hive_support=False
+        spark_configs(args.exec_params.default_parallelism),
+        enable_hive_support=False,
     ) as spark_session:
         os.chdir(spark_session.python_src_code_path)
         do_test_runs(args, spark_session)

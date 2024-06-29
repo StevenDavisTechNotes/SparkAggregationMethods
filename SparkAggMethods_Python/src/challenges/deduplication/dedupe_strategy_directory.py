@@ -1,4 +1,5 @@
-from challenges.deduplication.dedupe_test_data_types import PysparkTestMethod
+from challenges.deduplication.dedupe_test_data_types import \
+    ChallengeMethodPythonPysparkRegistration
 from challenges.deduplication.using_pyspark.dedupe_pyspark_df_nested_pandas import \
     dedupe_pyspark_df_nested_pandas
 from challenges.deduplication.using_pyspark.dedupe_pyspark_df_nested_python import \
@@ -13,54 +14,54 @@ from challenges.deduplication.using_pyspark.dedupe_pyspark_rdd_map_part import \
     dedupe_pyspark_rdd_map_part
 from challenges.deduplication.using_pyspark.dedupe_pyspark_rdd_reduce import \
     dedupe_pyspark_rdd_reduce
-from utils.inspection import nameof_function
+from t_utils.inspection import name_of_function
 
-pyspark_implementation_list: list[PysparkTestMethod] = [
-    PysparkTestMethod(
+pyspark_implementation_list: list[ChallengeMethodPythonPysparkRegistration] = [
+    ChallengeMethodPythonPysparkRegistration(
         original_strategy_name='dedupe_pandas',
-        strategy_name=nameof_function(dedupe_pyspark_df_nested_pandas),
+        strategy_name=name_of_function(dedupe_pyspark_df_nested_pandas),
         language='python',
         interface='pandas',
         delegate=dedupe_pyspark_df_nested_pandas,
     ),
-    PysparkTestMethod(
+    ChallengeMethodPythonPysparkRegistration(
         original_strategy_name='dedupe_fluent_nested_python',
-        strategy_name=nameof_function(dedupe_pyspark_df_nested_python),
+        strategy_name=name_of_function(dedupe_pyspark_df_nested_python),
         language='python',
         interface='fluent',
         delegate=dedupe_pyspark_df_nested_python,
     ),
-    PysparkTestMethod(
+    ChallengeMethodPythonPysparkRegistration(
         original_strategy_name='dedupe_fluent_nested_withCol',
-        strategy_name=nameof_function(dedupe_pyspark_df_nested_w_col),
+        strategy_name=name_of_function(dedupe_pyspark_df_nested_w_col),
         language='python',
         interface='fluent',
         delegate=dedupe_pyspark_df_nested_w_col,
     ),
-    PysparkTestMethod(
+    ChallengeMethodPythonPysparkRegistration(
         original_strategy_name='dedupe_fluent_windows',
-        strategy_name=nameof_function(dedupe_pyspark_df_window),
+        strategy_name=name_of_function(dedupe_pyspark_df_window),
         language='python',
         interface='fluent',
         delegate=dedupe_pyspark_df_window,
     ),
-    PysparkTestMethod(
+    ChallengeMethodPythonPysparkRegistration(
         original_strategy_name='dedupe_rdd_groupby',
-        strategy_name=nameof_function(dedupe_pyspark_rdd_grp),
+        strategy_name=name_of_function(dedupe_pyspark_rdd_grp),
         language='python',
         interface='rdd',
         delegate=dedupe_pyspark_rdd_grp,
     ),
-    PysparkTestMethod(
+    ChallengeMethodPythonPysparkRegistration(
         original_strategy_name='dedupe_rdd_mappart',
-        strategy_name=nameof_function(dedupe_pyspark_rdd_map_part),
+        strategy_name=name_of_function(dedupe_pyspark_rdd_map_part),
         language='python',
         interface='rdd',
         delegate=dedupe_pyspark_rdd_map_part,
     ),
-    PysparkTestMethod(
+    ChallengeMethodPythonPysparkRegistration(
         original_strategy_name='dedupe_rdd_reduce',
-        strategy_name=nameof_function(dedupe_pyspark_rdd_reduce),
+        strategy_name=name_of_function(dedupe_pyspark_rdd_reduce),
         language='python',
         interface='rdd',
         delegate=dedupe_pyspark_rdd_reduce,

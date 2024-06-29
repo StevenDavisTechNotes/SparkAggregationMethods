@@ -9,9 +9,10 @@ from challenges.sectional.domain_logic.section_snippet_subtotal_type import (
     StudentSnippet2, complete_snippets_2, grade_summary, marge_snippets_2,
     student_snippet_from_typed_row_2)
 from challenges.sectional.section_test_data_types import (
-    DataSet, LabeledTypedRow, StudentSummary, TPysparkPythonPendingAnswerSet)
-from utils.tidy_spark_session import TidySparkSession
-from utils.utils import int_divide_round_up
+    DataSet, LabeledTypedRow, StudentSummary,
+    TChallengePendingAnswerPythonPyspark)
+from t_utils.t_utils import int_divide_round_up
+from t_utils.tidy_spark_session import TidySparkSession
 
 
 class StudentSnippetWIndex(NamedTuple):
@@ -22,15 +23,15 @@ class StudentSnippetWIndex(NamedTuple):
 def section_pyspark_rdd_mappart_partials(
         spark_session: TidySparkSession,
         data_set: DataSet,
-) -> TPysparkPythonPendingAnswerSet:
+) -> TChallengePendingAnswerPythonPyspark:
     if data_set.description.num_students > pow(10, 5-1):
-        # unrealiable in local mode
+        # unreliable in local mode
         return "infeasible"
     sc = spark_session.spark_context
     expected_row_count = data_set.description.num_rows
     filename = data_set.data.test_filepath
-    default_parallelism = data_set.exec_params.DefaultParallelism
-    maximum_processable_segment = data_set.exec_params.MaximumProcessableSegment
+    default_parallelism = data_set.exec_params.default_parallelism
+    maximum_processable_segment = data_set.exec_params.maximum_processable_segment
     targetNumPartitions = int_divide_round_up(expected_row_count + 2, maximum_processable_segment)
     rdd_orig: RDD[LabeledTypedRow] = rdd_typed_with_index_factory(spark_session, filename, targetNumPartitions)
 
@@ -107,7 +108,7 @@ def section_mappart_partials_logic(
         rdd_accumulative_completed
         .map(grade_summary)
         .sortBy(
-            lambda x: x.StudentId,  # pyright: ignore[reportGeneralTypeIssues]
+            lambda x: x.StudentId,  # pyright: ignore[reportArgumentType]
             numPartitions=min(default_parallelism, rdd_accumulative_completed.getNumPartitions()))
     )
 

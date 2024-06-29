@@ -1,12 +1,13 @@
+# cSpell: ignore nopython, prange
 import numpy as np
 import pandas as pd
 
 from challenges.bi_level.bi_level_test_data_types import (postAggSchema,
                                                           result_columns)
 from six_field_test_data.six_generate_test_data_using_pyspark import (
-    PysparkDataSet, TPysparkPythonPendingAnswerSet)
+    PysparkDataSet, TChallengePendingAnswerPythonPyspark)
 from six_field_test_data.six_test_data_types import ExecutionParameters
-from utils.tidy_spark_session import TidySparkSession
+from t_utils.tidy_spark_session import TidySparkSession
 
 try:
     import numba  # pyright: ignore[reportMissingImports]
@@ -24,7 +25,8 @@ try:
         return np.var(E)
 
     @numba.jit(numba.float64(numba.float64[:]), parallel=True, nopython=True)
-    def my_looplift_var(E: np.ndarray) -> float:
+    def my_loop_lift_var(E: np.ndarray) -> float:
+        assert numba is not None
         n = len(E)
         accE2 = 0.
         for i in numba.prange(n):
@@ -40,9 +42,9 @@ except ImportError:
 
 def bi_level_pyspark_df_grp_pandas_numba(
         spark_session: TidySparkSession,
-        _exec_params: ExecutionParameters,
+        exec_params: ExecutionParameters,
         data_set: PysparkDataSet
-) -> TPysparkPythonPendingAnswerSet:
+) -> TChallengePendingAnswerPythonPyspark:
     if numba is None:
         return "infeasible"
     df = data_set.data.dfSrc
@@ -61,11 +63,11 @@ def inner_agg_method(
     group_key = dfPartition['grp'].iloc[0]
     C = np.array(dfPartition['C'])
     D = np.array(dfPartition['D'])
-    subgroupedE = dfPartition.groupby('subgrp')['E']
+    sub_group_E = dfPartition.groupby('subgrp')['E']
     return pd.DataFrame([[
         group_key,
         my_numba_mean(C),
         my_numba_max(D),
-        subgroupedE.apply(lambda x: my_numba_var(np.array(x))).mean(),
-        subgroupedE.apply(lambda x: my_looplift_var(np.array(x))).mean(),
+        sub_group_E.apply(lambda x: my_numba_var(np.array(x))).mean(),
+        sub_group_E.apply(lambda x: my_loop_lift_var(np.array(x))).mean(),
     ]], columns=result_columns)

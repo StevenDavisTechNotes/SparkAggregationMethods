@@ -12,7 +12,7 @@ from challenges.deduplication.dedupe_record_runs import (
 from challenges.deduplication.dedupe_strategy_directory import \
     pyspark_implementation_list
 from perf_test_common import CalcEngine
-from utils.linear_regression import linear_regression
+from t_utils.linear_regression import linear_regression
 
 TEMP_RESULT_FILE_PATH = "d:/temp/SparkPerfTesting/temp.csv"
 
@@ -35,14 +35,16 @@ class TestRegression(NamedTuple):
 def structure_test_results(
         test_runs: list[PersistedRunResult]
 ) -> dict[str, dict[int, list[PersistedRunResult]]]:
-    test_methods = {x.strategy_name for x in pyspark_implementation_list}.union([x.strategy_name for x in test_runs])
+    challenge_method_registrations = (
+        {x.strategy_name for x in pyspark_implementation_list}
+        .union([x.strategy_name for x in test_runs]))
     test_x_values = set(EXPECTED_NUM_RECORDS).union([regressor_from_run_result(x) for x in test_runs])
     test_results: dict[str, dict[int, list[PersistedRunResult]]] \
         = {
             method: {
                 x: []
                 for x in test_x_values}
-        for method in test_methods}
+        for method in challenge_method_registrations}
     for result in test_runs:
         test_results[result.strategy_name][result.dataSize] \
             .append(result)
@@ -63,9 +65,9 @@ def analyze_run_results(
         engine: CalcEngine,
 ):
     raw_test_runs: list[PersistedRunResult] = []
-    with open(TEMP_RESULT_FILE_PATH, 'w') as fout:
+    with open(TEMP_RESULT_FILE_PATH, 'w') as out_fh:
         for result in read_result_file(engine):
-            fout.write("%s,%s,%d,%d,%d,%d,%f\n" % (
+            out_fh.write("%s,%s,%d,%d,%d,%d,%f\n" % (
                 result.strategy_name, result.interface,
                 result.numSources, result.actualNumPeople,
                 result.dataSize, result.dataSizeExp,
@@ -73,9 +75,9 @@ def analyze_run_results(
             raw_test_runs.append(result)
     if len(raw_test_runs) < 1:
         print("no tests")
-    test_runs_by_startegy_by_size: dict[str, dict[int, list[PersistedRunResult]]
+    test_runs_by_strategy_by_size: dict[str, dict[int, list[PersistedRunResult]]
                                         ] = structure_test_results(raw_test_runs)
-    test_runs_summary = make_runs_summary(test_runs_by_startegy_by_size)
+    test_runs_summary = make_runs_summary(test_runs_by_strategy_by_size)
     print("test_runs_summary", test_runs_summary)
     if any([num < 10 for details in test_runs_summary.values() for num in details.values()]):
         print("not enough data")
@@ -93,11 +95,11 @@ def analyze_run_results(
         'RawMethod', 'interface', 'run_count',
         'DataSize', 'mean', 'stdev',
         'rl', 'rh')
-    for strategy_name in test_runs_by_startegy_by_size:
+    for strategy_name in test_runs_by_strategy_by_size:
         print("Looking to analyze %s" % strategy_name)
-        test_method = [
+        challenge_method_registrations = [
             x for x in pyspark_implementation_list if x.strategy_name == strategy_name][0]
-        test_runs_by_size = test_runs_by_startegy_by_size[strategy_name]
+        test_runs_by_size = test_runs_by_strategy_by_size[strategy_name]
         for regressor_value, runs in test_runs_by_size.items():
             ar: numpy.ndarray[float, numpy.dtype[numpy.float64]] \
                 = numpy.asarray([x.elapsedTime for x in runs], dtype=float)
@@ -107,7 +109,7 @@ def analyze_run_results(
             rl, rh = scipy.stats.norm.interval(  # type: ignore
                 confidence, loc=mean, scale=stdev / math.sqrt(numRuns))
             summary_status += ("%s,%s," + "%d,%d," + "%f,%f,%f,%f\n") % (
-                strategy_name, test_method.interface,
+                strategy_name, challenge_method_registrations.interface,
                 len(ar), regressor_value,
                 mean, stdev, rl, rh
             )
@@ -121,8 +123,8 @@ def analyze_run_results(
             case (b0, (b0_low, b0_high)), (b1, (b1_low, b1_high)), (s2, (s2_low, s2_high)):
                 pass
         result = TestRegression(
-            name=test_method.strategy_name,
-            interface=test_method.interface,
+            name=challenge_method_registrations.strategy_name,
+            interface=challenge_method_registrations.interface,
             run_count=len(times),
             b0=b0,
             b0_low=b0_low,
@@ -136,7 +138,7 @@ def analyze_run_results(
         )
         test_results.append(result)
         regression_status += ("%s,%s,%d," + "%f,%f,%f," + "%f,%f,%f," + "%f,%f,%f\n") % (
-            test_method.strategy_name, test_method.interface, result.run_count,
+            challenge_method_registrations.strategy_name, challenge_method_registrations.interface, result.run_count,
             result.b0, result.b0_low, result.b0_high,
             result.b1 * 1e+6, result.b1_low * 1e+6, result.b1_high * 1e+6,
             result.s2, result.s2_low, result.s2_high)

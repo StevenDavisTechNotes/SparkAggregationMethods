@@ -1,6 +1,7 @@
 from typing import NamedTuple, Optional
 
-from challenges.sectional.section_test_data_types import (ClassLine, NumDepts,
+from challenges.sectional.section_test_data_types import (ClassLine,
+                                                          NumDepartments,
                                                           StudentHeader,
                                                           StudentSummary,
                                                           TrimesterFooter,
@@ -51,8 +52,8 @@ def student_snippet_from_typed_row_1(
     lineIndex: int,
     rec: TypedLine,
 ) -> StudentSnippet1:
-    credits = [0 for x in range(0, NumDepts)]
-    weightedGradeTotal = [0 for x in range(0, NumDepts)]
+    credits = [0 for x in range(0, NumDepartments)]
+    weightedGradeTotal = [0 for x in range(0, NumDepartments)]
     match rec:
         case StudentHeader():
             return StudentSnippet1(
@@ -108,8 +109,8 @@ def student_snippet_from_typed_row_2(
     lineIndex: int,
     rec: TypedLine,
 ) -> StudentSnippet2:
-    credits = [0 for x in range(0, NumDepts)]
-    weightedGradeTotal = [0 for x in range(0, NumDepts)]
+    credits = [0 for x in range(0, NumDepartments)]
+    weightedGradeTotal = [0 for x in range(0, NumDepartments)]
     match rec:
         case StudentHeader():
             return StudentSnippet2(
@@ -210,12 +211,12 @@ def marge_snippets_2(
     credits = [
         (0 if lhs.Credits is None else lhs.Credits[dept])
         + (0 if rhs.Credits is None else rhs.Credits[dept])
-        for dept in range(0, NumDepts)
+        for dept in range(0, NumDepartments)
     ]
     weightedGradeTotal = [
         (0 if lhs.WeightedGradeTotal is None else lhs.WeightedGradeTotal[dept])
         + (0 if rhs.WeightedGradeTotal is None else rhs.WeightedGradeTotal[dept])
-        for dept in range(0, NumDepts)
+        for dept in range(0, NumDepartments)
     ]
     return StudentSnippet2(
         StudentId=lhs.StudentId,
@@ -247,23 +248,23 @@ def complete_snippets_2(
 
 
 def merge_snippet_lists_1(
-        lhgroup: list[StudentSnippet1],
-        rhgroup: list[StudentSnippet1]
+        lh_group: list[StudentSnippet1],
+        rh_group: list[StudentSnippet1]
 ) -> list[StudentSnippet1]:
-    if len(lhgroup) == 0:
-        return rhgroup
-    for rhs in rhgroup:
-        lhs = lhgroup[-1]
+    if len(lh_group) == 0:
+        return rh_group
+    for rhs in rh_group:
+        lhs = lh_group[-1]
         # if done with the last student, start the next one
         if rhs.StudentId is not None:
-            lhgroup.append(rhs)
+            lh_group.append(rhs)
             continue
         # else combine rhs to the previous snippet
         if lhs.LastLineIndex + 1 != rhs.FirstLineIndex:
             print('about to assert ',
                   lhs.LastLineIndex, rhs.FirstLineIndex)
         assert lhs.LastLineIndex + 1 == rhs.FirstLineIndex
-        lhgroup[-1] = StudentSnippet1(
+        lh_group[-1] = StudentSnippet1(
             StudentId=lhs.StudentId,
             StudentName=lhs.StudentName,
             FirstTrimesterDate=lhs.FirstTrimesterDate if lhs.FirstTrimesterDate is not None else rhs.FirstTrimesterDate,
@@ -274,13 +275,13 @@ def merge_snippet_lists_1(
             LastMajor=rhs.LastMajor,
             Credits=[
                 lhs.Credits[dept] + rhs.Credits[dept]
-                for dept in range(0, NumDepts)],
+                for dept in range(0, NumDepartments)],
             WeightedGradeTotal=[
                 lhs.WeightedGradeTotal[dept] + rhs.WeightedGradeTotal[dept]
-                for dept in range(0, NumDepts)],
+                for dept in range(0, NumDepartments)],
             FirstLineIndex=lhs.FirstLineIndex,
             LastLineIndex=rhs.LastLineIndex)
-    return lhgroup
+    return lh_group
 
 
 def grade_summary(

@@ -1,7 +1,3 @@
-from challenges.vanilla.using_dask.vanilla_dask_ddf_grp_apply import \
-    vanilla_dask_ddf_grp_apply
-from challenges.vanilla.using_dask.vanilla_dask_ddf_grp_udaf import \
-    vanilla_dask_ddf_grp_udaf
 from challenges.vanilla.using_pyspark.vanilla_pyspark_df_grp_builtin import \
     vanilla_pyspark_df_grp_builtin
 from challenges.vanilla.using_pyspark.vanilla_pyspark_df_grp_pandas import \
@@ -16,39 +12,53 @@ from challenges.vanilla.using_pyspark.vanilla_pyspark_rdd_mappart import \
     vanilla_pyspark_rdd_mappart
 from challenges.vanilla.using_pyspark.vanilla_pyspark_rdd_reduce import \
     vanilla_pyspark_rdd_reduce
-from challenges.vanilla.using_pyspark.vanilla_pyspark_sql import vanilla_sql
-from perf_test_common import ExternalTestMethod
+from challenges.vanilla.using_pyspark.vanilla_pyspark_sql import \
+    vanilla_pyspark_sql
+from perf_test_common import ChallengeMethodExternalRegistration
 from six_field_test_data.six_generate_test_data_using_dask import \
-    DaskPythonTestMethod
+    ChallengeMethodPythonDaskRegistration
 from six_field_test_data.six_generate_test_data_using_pyspark import \
-    PysparkPythonTestMethod
-from utils.inspection import name_of_function
+    ChallengeMethodPythonPysparkRegistration
+from t_utils.inspection import name_of_function
 
-dask_implementation_list: list[DaskPythonTestMethod] = [
-    DaskPythonTestMethod(
-        strategy_name=name_of_function(vanilla_dask_ddf_grp_apply),
-        language='python',
-        interface='ddf',
-        delegate=vanilla_dask_ddf_grp_apply,
-    ),
-    DaskPythonTestMethod(
-        strategy_name=name_of_function(vanilla_dask_ddf_grp_udaf),
-        language='python',
-        interface='ddf',
-        delegate=vanilla_dask_ddf_grp_udaf,
-    ),
+# from challenges.vanilla.using_dask.vanilla_dask_ddf_grp_apply import \
+#     vanilla_dask_ddf_grp_apply
+# from challenges.vanilla.using_dask.vanilla_dask_ddf_grp_udaf import \
+#     vanilla_dask_ddf_grp_udaf
+# from challenges.vanilla.using_dask.vanilla_dask_sql import vanilla_dask_sql
+
+
+dask_implementation_list: list[ChallengeMethodPythonDaskRegistration] = [
+    # ChallengeMethodPythonDaskRegistration(
+    #     strategy_name=name_of_function(vanilla_dask_sql),
+    #     language='python',
+    #     interface='sql',
+    #     delegate=vanilla_dask_sql
+    # ),
+    # ChallengeMethodPythonDaskRegistration(
+    #     strategy_name=name_of_function(vanilla_dask_ddf_grp_apply),
+    #     language='python',
+    #     interface='ddf',
+    #     delegate=vanilla_dask_ddf_grp_apply,
+    # ),
+    # ChallengeMethodPythonDaskRegistration(
+    #     strategy_name=name_of_function(vanilla_dask_ddf_grp_udaf),
+    #     language='python',
+    #     interface='ddf',
+    #     delegate=vanilla_dask_ddf_grp_udaf,
+    # ),
 ]
 
-pyspark_implementation_list: list[PysparkPythonTestMethod] = [
-    PysparkPythonTestMethod(
+pyspark_implementation_list: list[ChallengeMethodPythonPysparkRegistration] = [
+    ChallengeMethodPythonPysparkRegistration(
         original_strategy_name='vanilla_sql',
-        strategy_name=name_of_function(vanilla_sql),
+        strategy_name=name_of_function(vanilla_pyspark_sql),
         language='python',
         interface='sql',
         only_when_gpu_testing=False,
-        delegate=vanilla_sql
+        delegate=vanilla_pyspark_sql
     ),
-    PysparkPythonTestMethod(
+    ChallengeMethodPythonPysparkRegistration(
         original_strategy_name='vanilla_fluent',
         strategy_name=name_of_function(vanilla_pyspark_df_grp_builtin),
         language='python',
@@ -56,7 +66,7 @@ pyspark_implementation_list: list[PysparkPythonTestMethod] = [
         only_when_gpu_testing=False,
         delegate=vanilla_pyspark_df_grp_builtin,
     ),
-    PysparkPythonTestMethod(
+    ChallengeMethodPythonPysparkRegistration(
         original_strategy_name='vanilla_pandas',
         strategy_name=name_of_function(vanilla_pyspark_df_grp_pandas),
         language='python',
@@ -64,7 +74,7 @@ pyspark_implementation_list: list[PysparkPythonTestMethod] = [
         only_when_gpu_testing=False,
         delegate=vanilla_pyspark_df_grp_pandas,
     ),
-    PysparkPythonTestMethod(
+    ChallengeMethodPythonPysparkRegistration(
         original_strategy_name='vanilla_pandas_numpy',
         strategy_name=name_of_function(vanilla_pyspark_df_grp_pandas_numpy),
         language='python',
@@ -72,7 +82,7 @@ pyspark_implementation_list: list[PysparkPythonTestMethod] = [
         only_when_gpu_testing=False,
         delegate=vanilla_pyspark_df_grp_pandas_numpy,
     ),
-    PysparkPythonTestMethod(
+    ChallengeMethodPythonPysparkRegistration(
         original_strategy_name='vanilla_pandas_numba',
         strategy_name=name_of_function(vanilla_pyspark_df_grp_pandas_numba),
         language='python',
@@ -80,7 +90,7 @@ pyspark_implementation_list: list[PysparkPythonTestMethod] = [
         only_when_gpu_testing=True,
         delegate=vanilla_pyspark_df_grp_pandas_numba,
     ),
-    PysparkPythonTestMethod(
+    ChallengeMethodPythonPysparkRegistration(
         original_strategy_name='vanilla_rdd_grpmap',
         strategy_name=name_of_function(vanilla_pyspark_rdd_grp_map),
         language='python',
@@ -88,7 +98,7 @@ pyspark_implementation_list: list[PysparkPythonTestMethod] = [
         only_when_gpu_testing=False,
         delegate=vanilla_pyspark_rdd_grp_map,
     ),
-    PysparkPythonTestMethod(
+    ChallengeMethodPythonPysparkRegistration(
         original_strategy_name='vanilla_rdd_reduce',
         strategy_name=name_of_function(vanilla_pyspark_rdd_reduce),
         language='python',
@@ -96,7 +106,7 @@ pyspark_implementation_list: list[PysparkPythonTestMethod] = [
         only_when_gpu_testing=False,
         delegate=vanilla_pyspark_rdd_reduce,
     ),
-    PysparkPythonTestMethod(
+    ChallengeMethodPythonPysparkRegistration(
         original_strategy_name='vanilla_rdd_mappart',
         strategy_name=name_of_function(vanilla_pyspark_rdd_mappart),
         language='python',
@@ -106,27 +116,27 @@ pyspark_implementation_list: list[PysparkPythonTestMethod] = [
     ),
 ]
 scala_implementation_list = [
-    ExternalTestMethod(
-        strategy_name='vanilla_sql',
+    ChallengeMethodExternalRegistration(
+        strategy_name='vanilla_pyspark_sql',
         language='scala',
         interface='sql'),
-    ExternalTestMethod(
+    ChallengeMethodExternalRegistration(
         strategy_name='vanilla_fluent',
         language='scala',
         interface='sql'),
-    ExternalTestMethod(
+    ChallengeMethodExternalRegistration(
         strategy_name='vanilla_udaf',
         language='scala',
         interface='sql'),
-    ExternalTestMethod(
+    ChallengeMethodExternalRegistration(
         strategy_name='vanilla_rdd_grpmap',
         language='scala',
         interface='rdd'),
-    ExternalTestMethod(
+    ChallengeMethodExternalRegistration(
         strategy_name='vanilla_rdd_reduce',
         language='scala',
         interface='rdd'),
-    ExternalTestMethod(
+    ChallengeMethodExternalRegistration(
         strategy_name='vanilla_rdd_mappart',
         language='scala',
         interface='rdd'),

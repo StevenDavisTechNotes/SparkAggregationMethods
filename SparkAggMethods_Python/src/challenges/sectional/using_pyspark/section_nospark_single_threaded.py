@@ -2,11 +2,11 @@ from typing import Iterable
 
 from challenges.sectional.domain_logic.section_data_parsers import \
     parse_line_to_types
-from challenges.sectional.domain_logic.section_mutuable_subtotal_type import \
+from challenges.sectional.domain_logic.section_mutable_subtotal_type import \
     aggregate_typed_rows_to_grades
 from challenges.sectional.section_test_data_types import (
-    DataSet, StudentSummary, TPysparkPythonPendingAnswerSet)
-from utils.tidy_spark_session import TidySparkSession
+    DataSet, StudentSummary, TChallengePendingAnswerPythonPyspark)
+from t_utils.tidy_spark_session import TidySparkSession
 
 
 def section_nospark_logic(
@@ -22,7 +22,7 @@ def section_nospark_logic(
 
 
 def section_nospark_single_threaded(
-    _spark_session: TidySparkSession,
+    spark_session: TidySparkSession,
     data_set: DataSet,
-) -> TPysparkPythonPendingAnswerSet:
+) -> TChallengePendingAnswerPythonPyspark:
     return list(section_nospark_logic(data_set))

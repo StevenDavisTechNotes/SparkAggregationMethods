@@ -21,93 +21,93 @@ from challenges.bi_level.strategies.using_pyspark.bi_level_pyspark_sql_join impo
 from challenges.bi_level.strategies.using_pyspark.bi_level_pyspark_sql_nested import \
     bi_level_pyspark_sql_nested
 from six_field_test_data.six_generate_test_data_using_pyspark import \
-    PysparkPythonTestMethod
-from utils.inspection import nameof_function
+    ChallengeMethodPythonPysparkRegistration
+from t_utils.inspection import name_of_function
 
-pyspark_implementation_list: list[PysparkPythonTestMethod] = [
-    PysparkPythonTestMethod(
+pyspark_implementation_list: list[ChallengeMethodPythonPysparkRegistration] = [
+    ChallengeMethodPythonPysparkRegistration(
         original_strategy_name='bi_sql_join',
-        strategy_name=nameof_function(bi_level_pyspark_sql_join),
+        strategy_name=name_of_function(bi_level_pyspark_sql_join),
         language='python',
         interface='sql',
         only_when_gpu_testing=False,
         delegate=bi_level_pyspark_sql_join
     ),
-    PysparkPythonTestMethod(
+    ChallengeMethodPythonPysparkRegistration(
         original_strategy_name='bi_fluent_join',
-        strategy_name=nameof_function(bi_level_pyspark_df_join),
+        strategy_name=name_of_function(bi_level_pyspark_df_join),
         language='python',
         interface='fluent',
         only_when_gpu_testing=False,
         delegate=bi_level_pyspark_df_join
     ),
-    PysparkPythonTestMethod(
+    ChallengeMethodPythonPysparkRegistration(
         original_strategy_name='bi_pandas',
-        strategy_name=nameof_function(bi_level_pyspark_df_grp_pandas),
+        strategy_name=name_of_function(bi_level_pyspark_df_grp_pandas),
         language='python',
         interface='pandas',
         only_when_gpu_testing=False,
         delegate=bi_level_pyspark_df_grp_pandas
     ),
-    PysparkPythonTestMethod(
+    ChallengeMethodPythonPysparkRegistration(
         original_strategy_name='bi_pandas_numba',
-        strategy_name=nameof_function(bi_level_pyspark_df_grp_pandas_numba),
+        strategy_name=name_of_function(bi_level_pyspark_df_grp_pandas_numba),
         language='python',
         interface='pandas',
         only_when_gpu_testing=True,
         delegate=bi_level_pyspark_df_grp_pandas_numba
     ),
-    PysparkPythonTestMethod(
+    ChallengeMethodPythonPysparkRegistration(
         original_strategy_name='bi_sql_nested',
-        strategy_name=nameof_function(bi_level_pyspark_sql_nested),
+        strategy_name=name_of_function(bi_level_pyspark_sql_nested),
         language='python',
         interface='sql',
         only_when_gpu_testing=False,
         delegate=bi_level_pyspark_sql_nested
     ),
-    PysparkPythonTestMethod(
+    ChallengeMethodPythonPysparkRegistration(
         original_strategy_name='bi_fluent_nested',
-        strategy_name=nameof_function(bi_level_pyspark_df_nested),
+        strategy_name=name_of_function(bi_level_pyspark_df_nested),
         language='python',
         interface='fluent',
         only_when_gpu_testing=False,
         delegate=bi_level_pyspark_df_nested
     ),
-    PysparkPythonTestMethod(
+    ChallengeMethodPythonPysparkRegistration(
         original_strategy_name='bi_fluent_window',
-        strategy_name=nameof_function(bi_level_pyspark_df_window),
+        strategy_name=name_of_function(bi_level_pyspark_df_window),
         language='python',
         interface='fluent',
         only_when_gpu_testing=False,
         delegate=bi_level_pyspark_df_window
     ),
-    PysparkPythonTestMethod(
+    ChallengeMethodPythonPysparkRegistration(
         original_strategy_name='bi_rdd_grpmap',
-        strategy_name=nameof_function(bi_level_pyspark_rdd_grp_map),
+        strategy_name=name_of_function(bi_level_pyspark_rdd_grp_map),
         language='python',
         interface='rdd',
         only_when_gpu_testing=False,
         delegate=bi_level_pyspark_rdd_grp_map
     ),
-    PysparkPythonTestMethod(
+    ChallengeMethodPythonPysparkRegistration(
         original_strategy_name='bi_rdd_reduce1',
-        strategy_name=nameof_function(bi_level_pyspark_rdd_reduce_1),
+        strategy_name=name_of_function(bi_level_pyspark_rdd_reduce_1),
         language='python',
         interface='rdd',
         only_when_gpu_testing=False,
         delegate=bi_level_pyspark_rdd_reduce_1
     ),
-    PysparkPythonTestMethod(
+    ChallengeMethodPythonPysparkRegistration(
         original_strategy_name='bi_rdd_reduce2',
-        strategy_name=nameof_function(bi_level_pyspark_rdd_reduce_2),
+        strategy_name=name_of_function(bi_level_pyspark_rdd_reduce_2),
         language='python',
         interface='rdd',
         only_when_gpu_testing=False,
         delegate=bi_level_pyspark_rdd_reduce_2
     ),
-    PysparkPythonTestMethod(
+    ChallengeMethodPythonPysparkRegistration(
         original_strategy_name='bi_rdd_mappart',
-        strategy_name=nameof_function(bi_level_pyspark_rdd_map_part),
+        strategy_name=name_of_function(bi_level_pyspark_rdd_map_part),
         language='python',
         interface='rdd',
         only_when_gpu_testing=False,

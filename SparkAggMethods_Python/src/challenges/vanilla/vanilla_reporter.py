@@ -15,10 +15,10 @@ from challenges.vanilla.vanilla_record_runs import (EXPECTED_SIZES,
                                                     regressor_from_run_result)
 from challenges.vanilla.vanilla_strategy_directory import (
     pyspark_implementation_list, scala_implementation_list)
-from perf_test_common import (CalcEngine, ExternalTestMethod,
-                              TestMethodDescription)
+from perf_test_common import (CalcEngine, ChallengeMethodDescription,
+                              ChallengeMethodExternalRegistration)
 from six_field_test_data.six_generate_test_data_using_pyspark import \
-    PysparkPythonTestMethod
+    ChallengeMethodPythonPysparkRegistration
 
 
 def read_python_file(
@@ -26,21 +26,21 @@ def read_python_file(
 ) -> list[PersistedRunResult]:
     test_runs: list[PersistedRunResult] = []
     with open(derive_run_log_file_path(engine), 'r') as f:
-        for textline in f:
-            textline = textline.rstrip()
-            if textline.startswith('#'):
-                print("Excluding line: " + textline)
+        for line in f:
+            line = line.rstrip()
+            if line.startswith('#'):
+                print("Excluding line: " + line)
                 continue
-            if textline.find(',') < 0:
-                print("Excluding line: " + textline)
+            if line.find(',') < 0:
+                print("Excluding line: " + line)
                 continue
-            fields = textline.rstrip().split(',')
-            strategy_name, interface, result_dataSize, \
-                result_elapsedTime, result_recordCount, \
+            fields = line.rstrip().split(',')
+            strategy_name, interface, result_data_size, \
+                result_elapsed_time, result_record_count, \
                 result_datetime, result_blank  \
                 = tuple(fields)
-            if result_recordCount != '9':
-                print("Excluding line: " + textline)
+            if result_record_count != '9':
+                print("Excluding line: " + line)
                 continue
             language = 'python'
             result = PersistedRunResult(
@@ -49,9 +49,9 @@ def read_python_file(
                 engine=engine,
                 strategy_w_language_name=f"{strategy_name}_{language}",
                 interface=interface,
-                dataSize=int(result_dataSize),
-                elapsedTime=float(result_elapsedTime),
-                recordCount=int(result_recordCount))
+                data_size=int(result_data_size),
+                elapsed_time=float(result_elapsed_time),
+                record_count=int(result_record_count))
             test_runs.append(result)
     return test_runs
 
@@ -59,25 +59,25 @@ def read_python_file(
 def read_scala_file() -> list[PersistedRunResult]:
     test_runs: list[PersistedRunResult] = []
     with open(SCALA_RUN_LOG_FILE_PATH, 'r') as f:
-        for textline in f:
-            textline = textline.rstrip()
-            if textline.startswith('#'):
-                print("Excluding line: " + textline)
+        for line in f:
+            line = line.rstrip()
+            if line.startswith('#'):
+                print("Excluding line: " + line)
                 continue
-            if textline.startswith(' '):
-                print("Excluding line: " + textline)
+            if line.startswith(' '):
+                print("Excluding line: " + line)
                 continue
-            if textline.find(',') < 0:
-                print("Excluding line: " + textline)
+            if line.find(',') < 0:
+                print("Excluding line: " + line)
                 continue
-            fields = textline.rstrip().split(',')
-            outcome, strategy_name, interface, expectedSize, returnedSize, elapsedTime = tuple(
+            fields = line.rstrip().split(',')
+            outcome, strategy_name, interface, expected_size, returnedSize, elapsed_time = tuple(
                 fields)
             if outcome != 'success':
-                print("Excluding line: " + textline)
+                print("Excluding line: " + line)
                 continue
             if returnedSize != '9':
-                print("Excluding line: " + textline)
+                print("Excluding line: " + line)
                 continue
             language = 'scala'
             result = PersistedRunResult(
@@ -86,9 +86,9 @@ def read_scala_file() -> list[PersistedRunResult]:
                 language=language,
                 strategy_w_language_name=f"{strategy_name}_{language}",
                 interface=interface,
-                dataSize=int(expectedSize),
-                elapsedTime=float(elapsedTime),
-                recordCount=-1)
+                data_size=int(expected_size),
+                elapsed_time=float(elapsed_time),
+                record_count=-1)
             test_runs.append(result)
     return test_runs
 
@@ -106,11 +106,13 @@ def parse_results() -> list[PersistedRunResult]:
 def structure_test_results(
         test_runs: list[PersistedRunResult]
 ) -> dict[str, dict[int, list[PersistedRunResult]]]:
-    test_methods = {x.strategy_name for x in pyspark_implementation_list}.union([x.strategy_name for x in test_runs])
+    challenge_method_registrations = (
+        {x.strategy_name for x in pyspark_implementation_list}
+        .union([x.strategy_name for x in test_runs]))
     test_x_values = set(EXPECTED_SIZES).union([regressor_from_run_result(x) for x in test_runs])
-    test_results = {method: {x: [] for x in test_x_values} for method in test_methods}
+    test_results = {method: {x: [] for x in test_x_values} for method in challenge_method_registrations}
     for result in test_runs:
-        test_results[result.strategy_name][result.dataSize].append(result)
+        test_results[result.strategy_name][result.data_size].append(result)
     return test_results
 
 
@@ -123,14 +125,14 @@ def make_runs_summary(
 
 
 def do_regression(
-        python_implementation_list: list[PysparkPythonTestMethod],
-        scala_implementation_list: list[ExternalTestMethod],
+        python_implementation_list: list[ChallengeMethodPythonPysparkRegistration],
+        scala_implementation_list: list[ChallengeMethodExternalRegistration],
         test_results: dict[str, dict[int, list[PersistedRunResult]]],
 ) -> str:
     summary_status = ''
     confidence = 0.95
     sorted_implementation_list = sorted(
-        [TestMethodDescription(
+        [ChallengeMethodDescription(
             data_name=f"{x.strategy_name}_{x.language}", raw_method_name=x.strategy_name,
             language=x.language, interface=x.interface)
             for x in python_implementation_list + scala_implementation_list],
@@ -146,7 +148,7 @@ def do_regression(
         for regressor_value in test_results[strategy_name]:
             runs = test_results[strategy_name][regressor_value]
             ar: numpy.ndarray[float, numpy.dtype[numpy.float64]] \
-                = numpy.asarray([x.elapsedTime for x in runs], dtype=float)
+                = numpy.asarray([x.elapsed_time for x in runs], dtype=float)
             numRuns = len(runs)
             mean = numpy.mean(ar)
             stdev = cast(float, numpy.std(ar, ddof=1))

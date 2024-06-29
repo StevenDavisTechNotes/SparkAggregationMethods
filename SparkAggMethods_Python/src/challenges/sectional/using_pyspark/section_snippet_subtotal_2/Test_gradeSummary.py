@@ -1,8 +1,8 @@
 from challenges.sectional.domain_logic.section_snippet_subtotal_type import (
     CompletedStudent, grade_summary)
-from challenges.sectional.section_test_data_types import (NumDepts,
+from challenges.sectional.section_test_data_types import (NumDepartments,
                                                           StudentSummary)
-from utils.printer import print_object_as_python_literal
+from t_utils.printer import print_object_as_python_literal
 
 
 def test_gpa_math():
@@ -10,12 +10,12 @@ def test_gpa_math():
     studentName = 'xxx'
     credits = 3
     major = 2
-    credits = [(21 if x == major else 11) for x in range(NumDepts)]
+    credits = [(21 if x == major else 11) for x in range(NumDepartments)]
     weightedGradeTotal = [
         round(
             (4.73 if x == major else 3.11)
             * credits[x])
-        for x in range(NumDepts)]
+        for x in range(NumDepartments)]
     firstLineIndex = 456
     lastLineIndex = 496
     student = CompletedStudent(

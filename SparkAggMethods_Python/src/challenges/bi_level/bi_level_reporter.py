@@ -10,7 +10,7 @@ from challenges.bi_level.bi_level_record_runs import (
     read_result_file, regressor_from_run_result)
 from challenges.bi_level.bi_level_strategy_directory import \
     pyspark_implementation_list
-from utils.linear_regression import linear_regression
+from t_utils.linear_regression import linear_regression
 
 TEMP_RESULT_FILE_PATH = "d:/temp/SparkPerfTesting/temp.csv"
 
@@ -32,11 +32,12 @@ class PerformanceModelParameters(NamedTuple):
 
 def parse_results() -> list[PersistedRunResult]:
     raw_test_runs: list[PersistedRunResult] = []
-    with open(TEMP_RESULT_FILE_PATH, 'w') as fout:
+    with open(TEMP_RESULT_FILE_PATH, 'w') as out_fh:
         for result in read_result_file():
             raw_test_runs.append(result)
-            fout.write("%s,%s,%d,%d,%f,%d\n" % (result.strategy_name, result.interface,
-                       result.dataSize, result.relCard, result.elapsedTime, result.recordCount))
+            out_fh.write("%s,%s,%d,%d,%f,%d\n" % (
+                result.strategy_name, result.interface,
+                result.dataSize, result.relCard, result.elapsedTime, result.recordCount))
     if len(raw_test_runs) < 1:
         print("no tests")
     return raw_test_runs
@@ -45,9 +46,10 @@ def parse_results() -> list[PersistedRunResult]:
 def structure_test_results(
         test_runs: list[PersistedRunResult]
 ) -> dict[str, dict[int, list[PersistedRunResult]]]:
-    test_methods = {x.strategy_name for x in pyspark_implementation_list}.union([x.strategy_name for x in test_runs])
+    challenge_method_registrations = {x.strategy_name for x in pyspark_implementation_list}.union(
+        [x.strategy_name for x in test_runs])
     test_x_values = set(EXPECTED_SIZES).union([regressor_from_run_result(x) for x in test_runs])
-    test_results = {method: {x: [] for x in test_x_values} for method in test_methods}
+    test_results = {method: {x: [] for x in test_x_values} for method in challenge_method_registrations}
     for result in test_runs:
         test_results[result.strategy_name][result.dataSize].append(result)
     return test_results
@@ -63,8 +65,8 @@ def make_runs_summary(
 
 def analyze_run_results():
     raw_test_runs = parse_results()
-    test_runs_by_startegy_by_size = structure_test_results(raw_test_runs)
-    test_runs_summary = make_runs_summary(test_runs_by_startegy_by_size)
+    test_runs_by_strategy_by_size = structure_test_results(raw_test_runs)
+    test_runs_summary = make_runs_summary(test_runs_by_strategy_by_size)
     print("test_runs_summary", test_runs_summary)
     if any([num < 10 for details in test_runs_summary.values() for num in details.values()]):
         print("not enough data")
@@ -82,11 +84,11 @@ def analyze_run_results():
         'b0_low', 'b0', 'b0_high',
         'b1_low', 'b1', 'b1_high',
         's2_low', 's2', 's2_high')
-    for strategy_name in test_runs_by_startegy_by_size:
+    for strategy_name in test_runs_by_strategy_by_size:
         print("Looking to analyze %s" % strategy_name)
         cond_method = [
             x for x in pyspark_implementation_list if x.strategy_name == strategy_name][0]
-        test_runs_by_size = test_runs_by_startegy_by_size[strategy_name]
+        test_runs_by_size = test_runs_by_strategy_by_size[strategy_name]
         for regressor_value, runs in test_runs_by_size.items():
             ar: numpy.ndarray[float, numpy.dtype[numpy.float64]] \
                 = numpy.asarray([x.elapsedTime for x in runs], dtype=float)

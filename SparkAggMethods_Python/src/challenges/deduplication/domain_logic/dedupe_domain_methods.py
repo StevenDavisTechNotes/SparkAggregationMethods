@@ -3,7 +3,7 @@ from typing import Optional, TypeVar, Union
 
 import pyspark.sql.functions as func
 import pyspark.sql.types as DataTypes
-from pyspark.sql import DataFrame as spark_DataFrame
+from pyspark.sql import DataFrame as PySparkDataFrame
 
 from challenges.deduplication.dedupe_test_data_types import RecordSparseStruct
 
@@ -100,13 +100,13 @@ MatchSingleName_Returns = DataTypes.BooleanType()
 udfMatchSingleName = func.udf(
     match_single_name, MatchSingleName_Returns)
 # endregion
-# region Shared blockprocessing
+# region Shared block processing
 
 
 def nest_blocks_dataframe(
-        df: spark_DataFrame,
+        df: PySparkDataFrame,
         grouped_num_partitions: int,
-) -> spark_DataFrame:
+) -> PySparkDataFrame:
     df = df \
         .withColumn("BlockingKey",
                     func.hash(
@@ -124,8 +124,8 @@ def nest_blocks_dataframe(
 
 
 def unnest_blocks_dataframe(
-        df: spark_DataFrame,
-) -> spark_DataFrame:
+        df: PySparkDataFrame,
+) -> PySparkDataFrame:
     df = (
         df
         .select(func.explode(df.MergedItems).alias("Rows"))
@@ -160,23 +160,23 @@ def find_record_matches_rec_list(
     n = len(recordList)
     edgeList: list[DataTypes.Row] = []
     for i in range(0, n - 1):
-        irow = recordList[i]
+        i_row = recordList[i]
         for j in range(i + 1, n):
-            jrow = recordList[j]
-            if irow.SourceId == jrow.SourceId:
+            j_row = recordList[j]
+            if i_row.SourceId == j_row.SourceId:
                 continue
             if is_match(
-                    irow.FirstName, jrow.FirstName,
-                    irow.LastName, jrow.LastName,
-                    irow.ZipCode, jrow.ZipCode,
-                    irow.SecretKey, jrow.SecretKey):
+                    i_row.FirstName, j_row.FirstName,
+                    i_row.LastName, j_row.LastName,
+                    i_row.ZipCode, j_row.ZipCode,
+                    i_row.SecretKey, j_row.SecretKey):
                 edgeList.append(DataTypes.Row(
                     idLeftVertex=i,
                     idRightVertex=j))
-                assert irow.SecretKey == jrow.SecretKey
-                break  # safe if assuming assocative and transative
+                assert i_row.SecretKey == j_row.SecretKey
+                break  # safe if assuming associative and transitive
             else:
-                assert irow.SecretKey != jrow.SecretKey
+                assert i_row.SecretKey != j_row.SecretKey
 
     return edgeList
 
@@ -226,8 +226,8 @@ def find_connected_components_rec_list(
                     idEdge=len(componentList),
                     idVertexList=sorted(component)
                 ))
-            for jvertex in component:
-                knownComponents.add(jvertex)
+            for j_vertex in component:
+                knownComponents.add(j_vertex)
     return componentList
 
 

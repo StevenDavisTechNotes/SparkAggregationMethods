@@ -1,18 +1,18 @@
 
 from six_field_test_data.six_generate_test_data_using_pyspark import (
-    PysparkDataSet, TPysparkPythonPendingAnswerSet)
+    PysparkDataSet, TChallengePendingAnswerPythonPyspark)
 from six_field_test_data.six_test_data_types import ExecutionParameters
-from utils.tidy_spark_session import TidySparkSession
+from t_utils.tidy_spark_session import TidySparkSession
 
 
 def cond_pyspark_sql_join(
         spark_session: TidySparkSession,
-        _exec_params: ExecutionParameters,
+        exec_params: ExecutionParameters,
         data_set: PysparkDataSet,
-) -> TPysparkPythonPendingAnswerSet:
+) -> TChallengePendingAnswerPythonPyspark:
     spark = spark_session.spark
-    spark.catalog.dropTempView("exampledata")
-    data_set.data.dfSrc.createTempView("exampledata")
+    spark.catalog.dropTempView("example_data")
+    data_set.data.dfSrc.createTempView("example_data")
     df = spark.sql('''
     SELECT
         unconditional.grp, unconditional.subgrp,
@@ -21,7 +21,7 @@ def cond_pyspark_sql_join(
         (SELECT
             grp, subgrp, AVG(C) mean_of_C, MAX(D) max_of_D
         FROM
-            exampledata
+            example_data
         GROUP BY grp , subgrp) unconditional
             LEFT JOIN
         (SELECT
@@ -46,7 +46,7 @@ def cond_pyspark_sql_join(
                 SUM(E) AS cond_sum_of_E,
                 COUNT(*) cond_count_of_E
         FROM
-            exampledata
+            example_data
         WHERE
             E < 0
         GROUP BY grp , subgrp) AS Inter1) AS Inter2) conditional

@@ -3,11 +3,10 @@ import os
 from dataclasses import dataclass
 from typing import TextIO
 
-from challenges.sectional.section_test_data_types import (DataSetDescription,
-                                                          PysparkTestMethod,
-                                                          RunResult)
+from challenges.sectional.section_test_data_types import (
+    ChallengeMethodPysparkRegistration, DataSetDescription, RunResult)
 from perf_test_common import CalcEngine
-from utils.utils import root_folder_abs_path
+from t_utils.t_utils import root_folder_abs_path
 
 T_PYTHON_PYSPARK_RUN_LOG_FILE_PATH: str = 'results/section_pyspark_runs.csv'
 T_PYTHON_DASK_RUN_LOG_FILE_PATH: str = 'results/section_dask_runs.csv'
@@ -55,15 +54,15 @@ def write_header(
 
 
 def write_run_result(
-        test_method: PysparkTestMethod,
+        challenge_method_registration: ChallengeMethodPysparkRegistration,
         result: RunResult,
         file: TextIO,
 ) -> None:
     data = result.data
     print("%s,%s,%s,%d,%d,%d,%f,%d,%s," % (
         "success" if result.success else "failure",
-        test_method.strategy_name,
-        test_method.interface,
+        challenge_method_registration.strategy_name,
+        challenge_method_registration.interface,
         data.description.num_students,
         data.description.num_rows,
         data.data.section_maximum,

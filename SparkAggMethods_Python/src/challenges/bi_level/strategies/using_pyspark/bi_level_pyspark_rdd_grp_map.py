@@ -4,17 +4,17 @@ from pyspark import RDD
 from pyspark.sql import Row
 
 from six_field_test_data.six_generate_test_data_using_pyspark import (
-    PysparkDataSet, TPysparkPythonPendingAnswerSet)
+    PysparkDataSet, TChallengePendingAnswerPythonPyspark)
 from six_field_test_data.six_test_data_types import (
     MAX_DATA_POINTS_PER_SPARK_PARTITION, DataPoint, ExecutionParameters)
-from utils.tidy_spark_session import TidySparkSession
+from t_utils.tidy_spark_session import TidySparkSession
 
 
 def bi_level_pyspark_rdd_grp_map(
         spark_session: TidySparkSession,
-        _exec_params: ExecutionParameters,
+        exec_params: ExecutionParameters,
         data_set: PysparkDataSet
-) -> TPysparkPythonPendingAnswerSet:
+) -> TChallengePendingAnswerPythonPyspark:
     rddSrc: RDD[DataPoint] = data_set.data.rddSrc
 
     if (

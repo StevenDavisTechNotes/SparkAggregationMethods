@@ -1,23 +1,23 @@
 from challenges.sectional.domain_logic.section_data_parsers import \
     parse_line_to_types
-from challenges.sectional.domain_logic.section_mutuable_subtotal_type import \
+from challenges.sectional.domain_logic.section_mutable_subtotal_type import \
     aggregate_typed_rows_to_grades
 from challenges.sectional.section_record_runs import \
     MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT
 from challenges.sectional.section_test_data_types import (
-    DataSet, TPysparkPythonPendingAnswerSet)
-from utils.tidy_spark_session import TidySparkSession
+    DataSet, TChallengePendingAnswerPythonPyspark)
+from t_utils.tidy_spark_session import TidySparkSession
 
 
 def section_pyspark_rdd_mappart_single_threaded(
         spark_session: TidySparkSession,
         data_set: DataSet,
-) -> TPysparkPythonPendingAnswerSet:
+) -> TChallengePendingAnswerPythonPyspark:
     if data_set.description.num_students > pow(10, MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT-1):
         # unreliable
         return "infeasible"
     sc = spark_session.spark_context
-    if data_set.description.num_rows > data_set.exec_params.MaximumProcessableSegment:
+    if data_set.description.num_rows > data_set.exec_params.maximum_processable_segment:
         raise ValueError("Single thread mapPartitions is limited to 1 segment")
     rdd = sc.textFile(data_set.data.test_filepath, minPartitions=1)
     rdd = (

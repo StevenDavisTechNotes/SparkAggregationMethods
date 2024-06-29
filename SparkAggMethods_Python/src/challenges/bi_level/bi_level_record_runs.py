@@ -5,10 +5,10 @@ from typing import Iterable, TextIO
 
 from perf_test_common import CalcEngine
 from six_field_test_data.six_generate_test_data_using_dask import \
-    DaskPythonTestMethod
+    ChallengeMethodPythonDaskRegistration
 from six_field_test_data.six_generate_test_data_using_pyspark import \
-    PysparkPythonTestMethod
-from utils.utils import root_folder_abs_path
+    ChallengeMethodPythonPysparkRegistration
+from t_utils.t_utils import root_folder_abs_path
 
 T_PYTHON_PYSPARK_RUN_LOG_FILE_PATH = 'results/bi_level_pyspark_runs.csv'
 T_PYTHON_DASK_RUN_LOG_FILE_PATH = 'results/bi_level_dask_runs.csv'
@@ -66,19 +66,19 @@ def write_header(
 
 
 def write_run_result(
-        test_method: PysparkPythonTestMethod | DaskPythonTestMethod,
+        challenge_method_registration: ChallengeMethodPythonPysparkRegistration | ChallengeMethodPythonDaskRegistration,
         result: RunResult,
         file: TextIO
 ) -> None:
-    match test_method:
-        case PysparkPythonTestMethod():
+    match challenge_method_registration:
+        case ChallengeMethodPythonPysparkRegistration():
             engine = CalcEngine.PYSPARK.value
-        case DaskPythonTestMethod():
+        case ChallengeMethodPythonDaskRegistration():
             engine = CalcEngine.DASK.value
         case _:
-            raise ValueError(f"Unknown test_method: {test_method}")
+            raise ValueError(f"Unknown challenge_method_registration: {challenge_method_registration}")
     print("%s,%s,%d,%d,%f,%d,%s,%s," % (
-        test_method.strategy_name, test_method.interface,
+        challenge_method_registration.strategy_name, challenge_method_registration.interface,
         result.dataSize, result.relCard, result.elapsedTime, result.recordCount,
         engine,
         datetime.datetime.now().isoformat(),
@@ -92,20 +92,20 @@ def read_result_file() -> Iterable[PersistedRunResult]:
         if os.path.exists(file_path) is False:
             return
         with open(file_path, 'r', encoding='utf-8-sig') as f:
-            for textline in f:
-                textline = textline.rstrip()
-                if textline.startswith('#'):
-                    print("Excluding line: " + textline)
+            for line in f:
+                line = line.rstrip()
+                if line.startswith('#'):
+                    print("Excluding line: " + line)
                     continue
-                if textline.find(',') < 0:
-                    print("Excluding line: " + textline)
+                if line.find(',') < 0:
+                    print("Excluding line: " + line)
                     continue
-                fields = textline.split(',')
+                fields = line.split(',')
                 if len(fields) < 6:
                     fields.append('3')
                 strategy_name, interface, dataSize, relCard, elapsedTime, recordCount, *rest = fields
                 if recordCount != '3':
-                    print("Excluding line: " + textline)
+                    print("Excluding line: " + line)
                     continue
                 yield PersistedRunResult(
                     strategy_name=strategy_name,

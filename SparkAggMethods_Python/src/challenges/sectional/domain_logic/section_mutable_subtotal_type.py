@@ -1,6 +1,7 @@
 from typing import Any, Iterable
 
-from challenges.sectional.section_test_data_types import (ClassLine, NumDepts,
+from challenges.sectional.section_test_data_types import (ClassLine,
+                                                          NumDepartments,
                                                           StudentHeader,
                                                           StudentSummary,
                                                           TrimesterFooter,
@@ -11,8 +12,8 @@ from challenges.sectional.section_test_data_types import (ClassLine, NumDepts,
 class MutableTrimester:
     def __init__(self, date: str, wasAbroad: bool):
         self.SourceLines = 1
-        self.Credits = [0 for x in range(0, NumDepts)]
-        self.WeightedGradeTotal = [0 for x in range(0, NumDepts)]
+        self.Credits = [0 for x in range(0, NumDepartments)]
+        self.WeightedGradeTotal = [0 for x in range(0, NumDepartments)]
         self.Major = None
 
     def add_class(self, dept: int, credits: int, grade: int):
@@ -42,13 +43,13 @@ class MutableStudent:
         self.StudentId = studentId
         self.StudentName = studentName
         self.LastMajor = None
-        self.Credits = [0 for x in range(0, NumDepts)]
-        self.WeightedGradeTotal = [0 for x in range(0, NumDepts)]
+        self.Credits = [0 for x in range(0, NumDepartments)]
+        self.WeightedGradeTotal = [0 for x in range(0, NumDepartments)]
 
     def add_trimester(self, trimester: MutableTrimester) -> None:
         self.SourceLines += trimester.SourceLines
         self.LastMajor = trimester.Major
-        for dept in range(0, NumDepts):
+        for dept in range(0, NumDepartments):
             self.Credits[dept] += trimester.Credits[dept]
             self.WeightedGradeTotal[dept] += trimester.WeightedGradeTotal[dept]
 

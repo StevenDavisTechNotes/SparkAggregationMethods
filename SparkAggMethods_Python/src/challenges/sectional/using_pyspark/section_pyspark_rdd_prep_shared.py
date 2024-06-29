@@ -1,12 +1,12 @@
 import pyspark.sql.functions as func
-from pyspark.sql import DataFrame as spark_DataFrame
+from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql.window import Window
 
 
 def section_pyspark_rdd_prep_shared(
-        dfSrc: spark_DataFrame,
+        dfSrc: PySparkDataFrame,
         sectionMaximum: int,
-) -> spark_DataFrame:
+) -> PySparkDataFrame:
     df = dfSrc
     window = (
         Window

@@ -1,17 +1,17 @@
 from six_field_test_data.six_generate_test_data_using_pyspark import (
-    PysparkDataSet, TPysparkPythonPendingAnswerSet)
+    PysparkDataSet, TChallengePendingAnswerPythonPyspark)
 from six_field_test_data.six_test_data_types import ExecutionParameters
-from utils.tidy_spark_session import TidySparkSession
+from t_utils.tidy_spark_session import TidySparkSession
 
 
-def vanilla_sql(
+def vanilla_pyspark_sql(
         spark_session: TidySparkSession,
-        _exec_params: ExecutionParameters,
+        exec_params: ExecutionParameters,
         data_set: PysparkDataSet
-) -> TPysparkPythonPendingAnswerSet:
+) -> TChallengePendingAnswerPythonPyspark:
     df = data_set.data.dfSrc
-    spark_session.spark.catalog.dropTempView("exampledata")
-    df.createTempView("exampledata")
+    spark_session.spark.catalog.dropTempView("example_data")
+    df.createTempView("example_data")
     df = spark_session.spark.sql('''
     SELECT
         grp, subgrp, AVG(C) mean_of_C, MAX(D) max_of_D,
@@ -21,7 +21,7 @@ def vanilla_sql(
             POWER(SUM(E) / COUNT(E), 2)
         ) var_of_E2
     FROM
-        exampledata
+        example_data
     GROUP BY grp, subgrp
     ORDER BY grp, subgrp
     ''')

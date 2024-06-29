@@ -2,19 +2,19 @@ from pyspark import RDD
 
 from challenges.sectional.domain_logic.section_data_parsers import \
     identify_section_using_intermediate_file
-from challenges.sectional.domain_logic.section_mutuable_subtotal_type import \
+from challenges.sectional.domain_logic.section_mutable_subtotal_type import \
     aggregate_typed_rows_to_grades
 from challenges.sectional.section_test_data_types import (
     ClassLine, DataSet, StudentHeader, StudentSummary,
-    TPysparkPythonPendingAnswerSet, TrimesterFooter, TrimesterHeader,
+    TChallengePendingAnswerPythonPyspark, TrimesterFooter, TrimesterHeader,
     TypedLine)
-from utils.tidy_spark_session import TidySparkSession
+from t_utils.tidy_spark_session import TidySparkSession
 
 
 def section_pyspark_rdd_prep_mappart(
         spark_session: TidySparkSession,
         data_set: DataSet,
-) -> TPysparkPythonPendingAnswerSet:
+) -> TChallengePendingAnswerPythonPyspark:
     if data_set.description.num_students > pow(10, 8 - 1):
         # takes too long
         return "infeasible"
@@ -92,5 +92,5 @@ def parse_line_to_types_with_line_no(
 if __name__ == "__main__":
     prepped_file_path = "D:\\temp\\SparkPerfTesting\\temp.csv"
     with open(prepped_file_path, "rt") as fh:
-        for iline, line in enumerate(fh):
-            parse_line_to_types_with_line_no(prepped_file_path, iline, line.rstrip())
+        for i_line, line in enumerate(fh):
+            parse_line_to_types_with_line_no(prepped_file_path, i_line, line.rstrip())

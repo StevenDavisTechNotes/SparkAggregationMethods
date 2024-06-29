@@ -3,9 +3,9 @@ from typing import TextIO
 
 from perf_test_common import CalcEngine
 from six_field_test_data.six_generate_test_data_using_dask import \
-    DaskPythonTestMethod
+    ChallengeMethodPythonDaskRegistration
 from six_field_test_data.six_generate_test_data_using_pyspark import \
-    PysparkPythonTestMethod
+    ChallengeMethodPythonPysparkRegistration
 from six_field_test_data.six_test_data_types import RunResult
 
 
@@ -17,20 +17,20 @@ def write_header(
 
 
 def write_run_result(
-        test_method: PysparkPythonTestMethod | DaskPythonTestMethod,
+        challenge_method_registration: ChallengeMethodPythonPysparkRegistration | ChallengeMethodPythonDaskRegistration,
         result: RunResult,
         file: TextIO,
 ) -> None:
-    match test_method:
-        case PysparkPythonTestMethod():
+    match challenge_method_registration:
+        case ChallengeMethodPythonPysparkRegistration():
             engine = CalcEngine.PYSPARK
-        case DaskPythonTestMethod():
+        case ChallengeMethodPythonDaskRegistration():
             engine = CalcEngine.DASK
-        case _:  # pylance: ignore[reportUnnecessaryComparison]
-            raise ValueError(f"Unknown test_method: {test_method}")
+        case _:  # pyright: ignore[reportUnnecessaryComparison]
+            raise ValueError(f"Unknown challenge_method_registration: {challenge_method_registration}")
     assert engine == result.engine
     print("%s,%s,%d,%f,%d,%s,%s," % (
-        test_method.strategy_name, test_method.interface,
+        challenge_method_registration.strategy_name, challenge_method_registration.interface,
         result.dataSize, result.elapsedTime, result.recordCount,
         engine.value,
         datetime.datetime.now().isoformat()

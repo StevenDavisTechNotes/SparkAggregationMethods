@@ -3,23 +3,23 @@ from typing import TextIO
 
 import pandas as pd
 from pyspark import RDD
-from pyspark.sql import DataFrame as spark_DataFrame
+from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import Row
 
 from perf_test_common import CalcEngine
 from six_field_test_data.six_generate_test_data_using_pyspark import (
-    PySparkDataSetWithAnswer, PysparkPythonTestMethod)
+    ChallengeMethodPythonPysparkRegistration, PySparkDataSetWithAnswer)
 from six_field_test_data.six_run_result_types import write_run_result
 from six_field_test_data.six_test_data_types import (ExecutionParameters,
                                                      RunResult)
-from utils.tidy_spark_session import TidySparkSession
+from t_utils.tidy_spark_session import TidySparkSession
 
 
 def test_one_step_in_itinerary(
         engine: CalcEngine,
         spark_session: TidySparkSession,
         exec_params: ExecutionParameters,
-        test_method: PysparkPythonTestMethod,
+        challenge_method_registration: ChallengeMethodPythonPysparkRegistration,
         result_columns: list[str],
         file: TextIO,
         data_set: PySparkDataSetWithAnswer,
@@ -28,16 +28,19 @@ def test_one_step_in_itinerary(
     def check_partitions(rdd: RDD):
         if rdd.getNumPartitions() > max(data_set.data.AggTgtNumPartitions, exec_params.DefaultParallelism):
             print(
-                f"{test_method.strategy_name} output rdd has {rdd.getNumPartitions()} partitions")
+                f"{challenge_method_registration.strategy_name} output rdd has {rdd.getNumPartitions()} partitions")
             findings = rdd.collect()
             print(f"size={len(findings)}, ", findings)
             exit(1)
 
     startedTime = time.time()
     rdd_some: RDD
-    match test_method.delegate(
-            spark_session, exec_params, data_set):
-        case spark_DataFrame() as spark_df:
+    match challenge_method_registration.delegate(
+            spark_session=spark_session,
+            exec_params=exec_params,
+            data_set=data_set,
+    ):
+        case PySparkDataFrame() as spark_df:
             rdd_some = spark_df.rdd
             check_partitions(rdd_some)
             df_answer = spark_df.toPandas()
@@ -80,4 +83,4 @@ def test_one_step_in_itinerary(
         dataSize=data_set.description.NumDataPoints,
         elapsedTime=finishedTime - startedTime,
         recordCount=recordCount)
-    write_run_result(test_method, result, file)
+    write_run_result(challenge_method_registration, result, file)

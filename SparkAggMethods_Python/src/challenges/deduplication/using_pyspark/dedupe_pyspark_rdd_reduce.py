@@ -4,23 +4,23 @@ from pyspark import RDD
 from pyspark.sql import Row
 
 from challenges.deduplication.dedupe_test_data_types import (
-    DataSet, ExecutionParameters, TPysparkPythonPendingAnswerSet)
+    DataSet, ExecutionParameters, TChallengePendingAnswerPythonPyspark)
 from challenges.deduplication.domain_logic.dedupe_domain_methods import (
     blocking_function, combine_row_list, is_match)
-from utils.tidy_spark_session import TidySparkSession
+from t_utils.tidy_spark_session import TidySparkSession
 
 
 def dedupe_pyspark_rdd_reduce(
-        _spark_session: TidySparkSession,
-        data_params: ExecutionParameters,
+        spark_session: TidySparkSession,
+        exec_params: ExecutionParameters,
         data_set: DataSet,
-) -> TPysparkPythonPendingAnswerSet:
+) -> TChallengePendingAnswerPythonPyspark:
     if data_set.data_size > 502000:
         return "infeasible"
     dfSrc = data_set.df
     numPartitions = data_set.grouped_num_partitions
     appendRowToList = append_row_to_list_disjoint \
-        if data_params.CanAssumeNoDupesPerPartition \
+        if exec_params.CanAssumeNoDupesPerPartition \
         else append_row_to_list_mixed
     rdd2: RDD[tuple[int, Row]] = \
         dfSrc.rdd \
@@ -42,53 +42,53 @@ def dedupe_pyspark_rdd_reduce(
 
 
 def append_row_to_list_disjoint(
-        lrows: list[Row],
-        rrow: Row,
+        l_rows: list[Row],
+        r_row: Row,
 ) -> list[Row]:
-    lrows.append(rrow)
-    return lrows
+    l_rows.append(r_row)
+    return l_rows
 
 
 def append_row_to_list_mixed(
-        lrows: list[Row],
-        rrow: Row,
+        l_rows: list[Row],
+        r_row: Row,
 ) -> list[Row]:
-    nInitialLRows = len(lrows)  # no need to test for matches in r
+    n_initial_l_rows = len(l_rows)  # no need to test for matches in r
     found = False
-    for lindex in range(0, nInitialLRows):
-        lrow = lrows[lindex]
+    for l_index in range(0, n_initial_l_rows):
+        l_row = l_rows[l_index]
         if not is_match(
-                lrow.FirstName, rrow.FirstName,
-                lrow.LastName, rrow.LastName,
-                lrow.ZipCode, rrow.ZipCode,
-                lrow.SecretKey, rrow.SecretKey):
+                l_row.FirstName, r_row.FirstName,
+                l_row.LastName, r_row.LastName,
+                l_row.ZipCode, r_row.ZipCode,
+                l_row.SecretKey, r_row.SecretKey):
             continue
-        lrows[lindex] = combine_row_list([lrow, rrow])
+        l_rows[l_index] = combine_row_list([l_row, r_row])
         found = True
         break
     if not found:
-        lrows.append(rrow)
-    return lrows
+        l_rows.append(r_row)
+    return l_rows
 
 
 def combine_row_lists(
-        lrows: list[Row],
-        rrows: list[Row],
+        l_rows: list[Row],
+        r_rows: list[Row],
 ) -> list[Row]:
-    nInitialLRows = len(lrows)  # no need to test for matches in r
-    for rindex, rrow in enumerate(rrows):
+    n_initial_l_rows = len(l_rows)  # no need to test for matches in r
+    for r_row in r_rows:
         found = False
-        for lindex in range(0, nInitialLRows):
-            lrow = lrows[lindex]
+        for l_l_index in range(0, n_initial_l_rows):
+            l_row = l_rows[l_l_index]
             if not is_match(
-                    lrow.FirstName, rrow.FirstName,
-                    lrow.LastName, rrow.LastName,
-                    lrow.ZipCode, rrow.ZipCode,
-                    lrow.SecretKey, rrow.SecretKey):
+                    l_row.FirstName, r_row.FirstName,
+                    l_row.LastName, r_row.LastName,
+                    l_row.ZipCode, r_row.ZipCode,
+                    l_row.SecretKey, r_row.SecretKey):
                 continue
-            lrows[lindex] = combine_row_list([lrow, rrow])
+            l_rows[l_l_index] = combine_row_list([l_row, r_row])
             found = True
             break
         if not found:
-            lrows.append(rrow)
-    return lrows
+            l_rows.append(r_row)
+    return l_rows

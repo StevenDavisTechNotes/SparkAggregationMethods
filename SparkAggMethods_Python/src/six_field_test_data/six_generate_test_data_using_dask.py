@@ -1,9 +1,9 @@
 from dataclasses import dataclass
-from typing import Callable, Literal
+from typing import Literal, Protocol
 
 import pandas as pd
-from dask.bag.core import Bag as dask_bag
-from dask.dataframe.core import DataFrame as dask_dataframe
+from dask.bag.core import Bag as DaskBag
+from dask.dataframe.core import DataFrame as DaskDataFrame
 from dask.dataframe.io.io import from_pandas
 from dask.distributed import Client as DaskClient
 
@@ -17,9 +17,9 @@ from six_field_test_data.six_test_data_types import (DataSetAnswer,
 
 @dataclass(frozen=True)
 class DaskDataSetData:
-    SrcNumPartitions: int
-    AggTgtNumPartitions: int
-    dfSrc: dask_dataframe
+    src_num_partitions: int
+    agg_tgt_num_partitions: int
+    df_src: DaskDataFrame
 
 
 @dataclass(frozen=True)
@@ -33,17 +33,25 @@ class DaskDataSetWithAnswer(DaskDataSet):
     answer: DataSetAnswer
 
 
-TDaskPythonPendingAnswerSet = Literal["infeasible"] | dask_bag | dask_dataframe | pd.DataFrame
+TChallengeAnswerPythonDask = Literal["infeasible"] | DaskBag | DaskDataFrame | pd.DataFrame
+
+
+class IChallengeMethodPythonDask(Protocol):
+    def __call__(
+        self,
+        *,
+        dask_client: DaskClient,
+        exec_params: ExecutionParameters,
+        data_set: DaskDataSet,
+    ) -> TChallengeAnswerPythonDask: ...
 
 
 @dataclass(frozen=True)
-class DaskPythonTestMethod:
+class ChallengeMethodPythonDaskRegistration:
     strategy_name: str
     language: str
     interface: str
-    delegate: Callable[
-        [DaskClient, ExecutionParameters, DaskDataSet],
-        TDaskPythonPendingAnswerSet]
+    delegate: IChallengeMethodPythonDask
 
 # endregion
 
@@ -58,7 +66,7 @@ def populate_data_set_dask(
     num_data_points, tgt_num_partitions, src_num_partitions, df, \
         vanilla_answer, bilevel_answer, conditional_answer = populate_data_set_generic(
             exec_params, num_grp_1, num_grp_2, repetition)
-    df_src: dask_dataframe = from_pandas(df, npartitions=src_num_partitions)
+    df_src: DaskDataFrame = from_pandas(df, npartitions=src_num_partitions)
     cnt, parts = len(df_src), len(df_src.divisions)
     print("Found rdd %i rows in %i parts ratio %.1f" % (cnt, parts, cnt / parts))
     assert cnt == num_data_points
@@ -72,9 +80,9 @@ def populate_data_set_dask(
             RelativeCardinalityBetweenGroupings=num_grp_2 // num_grp_1,
         ),
         data=DaskDataSetData(
-            SrcNumPartitions=src_num_partitions,
-            AggTgtNumPartitions=tgt_num_partitions,
-            dfSrc=df_src,
+            src_num_partitions=src_num_partitions,
+            agg_tgt_num_partitions=tgt_num_partitions,
+            df_src=df_src,
         ),
         answer=DataSetAnswer(
             vanilla_answer=vanilla_answer,

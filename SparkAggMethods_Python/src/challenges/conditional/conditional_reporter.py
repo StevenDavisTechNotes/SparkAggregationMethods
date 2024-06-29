@@ -11,7 +11,7 @@ from challenges.conditional.conditional_strategy_directory import \
     pyspark_implementation_list
 from perf_test_common import CalcEngine
 from six_field_test_data.six_test_data_types import RunResult
-from utils.linear_regression import linear_regression
+from t_utils.linear_regression import linear_regression
 
 TEMP_RESULT_FILE_PATH = "d:/temp/SparkPerfTesting/temp.csv"
 
@@ -104,20 +104,20 @@ def read_run_files():
         if not os.path.exists(run_log_file_path):
             continue
         with open(run_log_file_path, 'r') as f:
-            for textline in f:
-                if textline.startswith('#'):
-                    print("Excluding line: " + textline)
+            for line in f:
+                if line.startswith('#'):
+                    print("Excluding line: " + line)
                     continue
-                if textline.find(',') < 0:
-                    print("Excluding line: " + textline)
+                if line.find(',') < 0:
+                    print("Excluding line: " + line)
                     continue
-                fields = textline.rstrip().split(',')
+                fields = line.rstrip().split(',')
                 if len(fields) < 5:
                     fields.append('9')
                 strategy_name, _interface, result_dataSize, result_elapsedTime, result_recordCount = tuple(
                     fields)
                 if result_recordCount != '9':
-                    print("Excluding line: " + textline)
+                    print("Excluding line: " + line)
                     continue
                 if strategy_name not in cond_runs:
                     cond_runs[strategy_name] = []

@@ -3,7 +3,7 @@ from typing import Callable
 
 
 # from https://stackoverflow.com/questions/2553354/simpler-way-to-create-dictionary-of-separate-variables  # noqa: E501
-def nameof(obj, callingLocals=locals()) -> str:
+def name_of(obj, callingLocals=locals()) -> str:
     """
     quick function to print the first variable's name that has the given value
     If not for the default-Valued callingLocals, the function would always
@@ -16,7 +16,7 @@ def nameof(obj, callingLocals=locals()) -> str:
     raise Exception("That variable isn't defined")
 
 
-def nameof_function(func: Callable) -> str:
+def name_of_function(func: Callable) -> str:
     """
     quick function to print the first variable's name that has the given value
     If not for the default-Valued callingLocals, the function would always

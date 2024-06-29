@@ -3,7 +3,7 @@
 from dask.distributed import Client as DaskClient
 
 from challenges.vanilla import vanilla_dask_runner  # noqa: F401
-from utils.tidy_spark_session import LOCAL_NUM_EXECUTORS
+from t_utils.tidy_spark_session import LOCAL_NUM_EXECUTORS
 
 
 def main():

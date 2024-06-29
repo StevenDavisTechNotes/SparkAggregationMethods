@@ -10,7 +10,7 @@ from challenges.sectional.section_test_data_types import (
     ClassLine, DataSet, LabeledTypedRow, StudentHeader, StudentSummary,
     TChallengePendingAnswerPythonPyspark, TrimesterFooter, TrimesterHeader,
     TypedLine)
-from t_utils.tidy_spark_session import TidySparkSession
+from utils.tidy_spark_session import TidySparkSession
 
 
 def section_pyspark_rdd_join_mappart(

@@ -10,7 +10,7 @@ from challenges.bi_level.bi_level_record_runs import (
     read_result_file, regressor_from_run_result)
 from challenges.bi_level.bi_level_strategy_directory import \
     pyspark_implementation_list
-from t_utils.linear_regression import linear_regression
+from utils.linear_regression import linear_regression
 
 TEMP_RESULT_FILE_PATH = "d:/temp/SparkPerfTesting/temp.csv"
 

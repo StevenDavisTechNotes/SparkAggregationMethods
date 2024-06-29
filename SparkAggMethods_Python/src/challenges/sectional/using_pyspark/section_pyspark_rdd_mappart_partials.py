@@ -11,8 +11,8 @@ from challenges.sectional.domain_logic.section_snippet_subtotal_type import (
 from challenges.sectional.section_test_data_types import (
     DataSet, LabeledTypedRow, StudentSummary,
     TChallengePendingAnswerPythonPyspark)
-from t_utils.t_utils import int_divide_round_up
-from t_utils.tidy_spark_session import TidySparkSession
+from utils.tidy_spark_session import TidySparkSession
+from utils.utils import int_divide_round_up
 
 
 class StudentSnippetWIndex(NamedTuple):

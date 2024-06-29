@@ -14,7 +14,7 @@ from challenges.deduplication.using_pyspark.dedupe_pyspark_rdd_map_part import \
     dedupe_pyspark_rdd_map_part
 from challenges.deduplication.using_pyspark.dedupe_pyspark_rdd_reduce import \
     dedupe_pyspark_rdd_reduce
-from t_utils.inspection import name_of_function
+from utils.inspection import name_of_function
 
 pyspark_implementation_list: list[ChallengeMethodPythonPysparkRegistration] = [
     ChallengeMethodPythonPysparkRegistration(

@@ -8,7 +8,7 @@ from six_field_test_data.six_generate_test_data_using_pyspark import (
     PysparkDataSet, TChallengePendingAnswerPythonPyspark)
 from six_field_test_data.six_test_data_types import (DataPoint,
                                                      ExecutionParameters)
-from t_utils.tidy_spark_session import TidySparkSession
+from utils.tidy_spark_session import TidySparkSession
 
 
 @dataclass(frozen=False)

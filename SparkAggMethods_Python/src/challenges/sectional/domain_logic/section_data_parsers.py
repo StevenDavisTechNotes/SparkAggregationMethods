@@ -14,7 +14,7 @@ from challenges.sectional.section_test_data_types import (ClassLine,
                                                           StudentSummary,
                                                           TrimesterFooter,
                                                           TrimesterHeader)
-from t_utils.tidy_spark_session import TidySparkSession
+from utils.tidy_spark_session import TidySparkSession
 
 # region parsers
 

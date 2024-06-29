@@ -26,7 +26,7 @@ from challenges.conditional.strategies.using_pyspark.cond_pyspark_sql_null impor
     cond_pyspark_sql_null
 from six_field_test_data.six_generate_test_data_using_pyspark import \
     ChallengeMethodPythonPysparkRegistration
-from t_utils.inspection import name_of_function
+from utils.inspection import name_of_function
 
 pyspark_implementation_list: list[ChallengeMethodPythonPysparkRegistration] = [
     ChallengeMethodPythonPysparkRegistration(

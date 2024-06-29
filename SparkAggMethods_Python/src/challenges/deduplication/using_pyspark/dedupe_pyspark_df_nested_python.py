@@ -5,7 +5,7 @@ from challenges.deduplication.dedupe_test_data_types import (
 from challenges.deduplication.domain_logic.dedupe_domain_methods import (
     SinglePass_RecList_DF_Returns, nest_blocks_dataframe, single_pass_rec_list,
     unnest_blocks_dataframe)
-from t_utils.tidy_spark_session import TidySparkSession
+from utils.tidy_spark_session import TidySparkSession
 
 
 def dedupe_pyspark_df_nested_python(

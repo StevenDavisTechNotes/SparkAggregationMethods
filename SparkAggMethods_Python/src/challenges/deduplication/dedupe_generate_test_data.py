@@ -11,7 +11,7 @@ from pyspark.sql import SparkSession
 
 from challenges.deduplication.dedupe_test_data_types import (
     DataSet, ExecutionParameters, RecordSparseStruct)
-from t_utils.t_utils import always_true, int_divide_round_up
+from utils.utils import always_true, int_divide_round_up
 
 
 @dataclass(frozen=True)

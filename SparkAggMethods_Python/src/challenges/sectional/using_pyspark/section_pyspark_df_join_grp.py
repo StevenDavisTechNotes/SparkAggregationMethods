@@ -9,7 +9,7 @@ from challenges.sectional.section_record_runs import \
     MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT
 from challenges.sectional.section_test_data_types import (
     DataSet, SparseLineSchema, TChallengePendingAnswerPythonPyspark)
-from t_utils.tidy_spark_session import TidySparkSession
+from utils.tidy_spark_session import TidySparkSession
 
 
 def section_join_groupby(

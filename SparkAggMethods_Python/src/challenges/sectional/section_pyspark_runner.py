@@ -25,8 +25,8 @@ from challenges.sectional.section_test_data_types import (
 from challenges.sectional.using_pyspark.section_nospark_single_threaded import \
     section_nospark_logic
 from perf_test_common import CalcEngine, count_iter
-from t_utils.t_utils import always_true, set_random_seed
-from t_utils.tidy_spark_session import LOCAL_NUM_EXECUTORS, TidySparkSession
+from utils.tidy_spark_session import LOCAL_NUM_EXECUTORS, TidySparkSession
+from utils.utils import always_true, set_random_seed
 
 ENGINE = CalcEngine.PYSPARK
 DEBUG_ARGS = None if False else (

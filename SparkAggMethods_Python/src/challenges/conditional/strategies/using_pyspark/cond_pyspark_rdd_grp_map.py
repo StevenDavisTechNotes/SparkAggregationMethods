@@ -6,7 +6,7 @@ from six_field_test_data.six_generate_test_data_using_pyspark import (
     GrpTotal, PysparkDataSet, TChallengePendingAnswerPythonPyspark)
 from six_field_test_data.six_test_data_types import (
     MAX_DATA_POINTS_PER_SPARK_PARTITION, DataPoint, ExecutionParameters)
-from t_utils.tidy_spark_session import TidySparkSession
+from utils.tidy_spark_session import TidySparkSession
 
 
 def cond_pyspark_rdd_grp_map(

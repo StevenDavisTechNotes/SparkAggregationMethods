@@ -10,8 +10,8 @@ import pandas as pd
 import pyspark.sql.types as DataTypes
 
 from perf_test_common import CalcEngine
-from t_utils.pandas_helpers import PandasSeriesOfFloat
-from t_utils.t_utils import always_true, int_divide_round_up
+from utils.pandas_helpers import PandasSeriesOfFloat
+from utils.utils import always_true, int_divide_round_up
 
 SHARED_LOCAL_TEST_DATA_FILE_LOCATION = "d:/temp/SparkPerfTesting"
 MAX_DATA_POINTS_PER_SPARK_PARTITION = 5 * 10**3

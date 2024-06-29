@@ -6,8 +6,8 @@ from challenges.deduplication.dedupe_test_data_types import (
     DataSet, ExecutionParameters, TChallengePendingAnswerPythonPyspark)
 from challenges.deduplication.domain_logic.dedupe_domain_methods import \
     udfMatchSingleName
-from t_utils.spark_helpers import zip_dataframe_with_index
-from t_utils.tidy_spark_session import TidySparkSession
+from utils.spark_helpers import zip_dataframe_with_index
+from utils.tidy_spark_session import TidySparkSession
 
 
 def dedupe_pyspark_df_window(

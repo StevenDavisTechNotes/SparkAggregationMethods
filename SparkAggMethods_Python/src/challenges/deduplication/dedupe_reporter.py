@@ -12,7 +12,7 @@ from challenges.deduplication.dedupe_record_runs import (
 from challenges.deduplication.dedupe_strategy_directory import \
     pyspark_implementation_list
 from perf_test_common import CalcEngine
-from t_utils.linear_regression import linear_regression
+from utils.linear_regression import linear_regression
 
 TEMP_RESULT_FILE_PATH = "d:/temp/SparkPerfTesting/temp.csv"
 

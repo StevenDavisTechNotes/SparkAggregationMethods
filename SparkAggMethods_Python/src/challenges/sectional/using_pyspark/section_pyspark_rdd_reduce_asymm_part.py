@@ -11,9 +11,8 @@ from challenges.sectional.domain_logic.section_snippet_subtotal_type import (
 from challenges.sectional.section_test_data_types import (
     DataSet, LabeledTypedRow, StudentSummary,
     TChallengePendingAnswerPythonPyspark)
-from t_utils.non_commutative_tree_aggregate import \
-    non_commutative_tree_aggregate
-from t_utils.tidy_spark_session import TidySparkSession
+from utils.non_commutative_tree_aggregate import non_commutative_tree_aggregate
+from utils.tidy_spark_session import TidySparkSession
 
 
 def section_reduce_partials_broken(

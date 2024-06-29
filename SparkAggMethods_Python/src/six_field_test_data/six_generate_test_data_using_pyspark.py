@@ -10,7 +10,7 @@ from six_field_test_data.six_test_data_types import (DataPoint, DataSetAnswer,
                                                      DataSetDescription,
                                                      ExecutionParameters,
                                                      populate_data_set_generic)
-from t_utils.tidy_spark_session import TidySparkSession
+from utils.tidy_spark_session import TidySparkSession
 
 # region PySpark version
 

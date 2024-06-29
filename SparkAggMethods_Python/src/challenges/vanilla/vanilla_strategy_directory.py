@@ -19,7 +19,7 @@ from six_field_test_data.six_generate_test_data_using_dask import \
     ChallengeMethodPythonDaskRegistration
 from six_field_test_data.six_generate_test_data_using_pyspark import \
     ChallengeMethodPythonPysparkRegistration
-from t_utils.inspection import name_of_function
+from utils.inspection import name_of_function
 
 # from challenges.vanilla.using_dask.vanilla_dask_ddf_grp_apply import \
 #     vanilla_dask_ddf_grp_apply

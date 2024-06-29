@@ -16,7 +16,7 @@ from challenges.sectional.section_test_data_types import (DataSet, DataSetData,
                                                           ExecutionParameters,
                                                           RunResult)
 from perf_test_common import CalcEngine
-from t_utils.linear_regression import linear_regression
+from utils.linear_regression import linear_regression
 
 
 class TestRegression(NamedTuple):

@@ -12,7 +12,7 @@ from challenges.sectional.section_test_data_types import (
     TChallengePendingAnswerPythonPyspark)
 from challenges.sectional.using_pyspark.section_pyspark_rdd_prep_shared import \
     section_pyspark_rdd_prep_shared
-from t_utils.tidy_spark_session import TidySparkSession
+from utils.tidy_spark_session import TidySparkSession
 
 
 def section_pyspark_df_prep_grp_csv(

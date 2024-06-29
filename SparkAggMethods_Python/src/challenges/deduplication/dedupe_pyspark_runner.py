@@ -24,8 +24,8 @@ from challenges.deduplication.dedupe_test_data_types import (
 from challenges.deduplication.domain_logic.dedupe_expected_results import (
     ItineraryItem, verify_correctness)
 from perf_test_common import CalcEngine
-from t_utils.t_utils import always_true, set_random_seed
-from t_utils.tidy_spark_session import TidySparkSession
+from utils.tidy_spark_session import TidySparkSession
+from utils.utils import always_true, set_random_seed
 
 ENGINE = CalcEngine.PYSPARK
 DEBUG_ARGS = None if False else (

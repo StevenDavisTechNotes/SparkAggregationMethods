@@ -5,7 +5,7 @@ from challenges.sectional.section_test_data_types import (ClassLine,
                                                           TypedLine)
 from challenges.sectional.using_pyspark.section_pyspark_rdd_prep_mappart import \
     parse_line_to_types_with_line_no
-from t_utils.printer import print_object_as_python_literal
+from utils.printer import print_object_as_python_literal
 
 
 def test_nominal():

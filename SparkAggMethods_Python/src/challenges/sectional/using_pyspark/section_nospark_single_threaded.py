@@ -6,7 +6,7 @@ from challenges.sectional.domain_logic.section_mutable_subtotal_type import \
     aggregate_typed_rows_to_grades
 from challenges.sectional.section_test_data_types import (
     DataSet, StudentSummary, TChallengePendingAnswerPythonPyspark)
-from t_utils.tidy_spark_session import TidySparkSession
+from utils.tidy_spark_session import TidySparkSession
 
 
 def section_nospark_logic(

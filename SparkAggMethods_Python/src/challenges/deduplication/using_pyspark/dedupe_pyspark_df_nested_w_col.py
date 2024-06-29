@@ -7,7 +7,7 @@ from challenges.deduplication.domain_logic.dedupe_domain_methods import (
     MergeItems_RecList_Returns, find_connected_components_rec_list,
     find_record_matches_rec_list, merge_items_rec_list, nest_blocks_dataframe,
     unnest_blocks_dataframe)
-from t_utils.tidy_spark_session import TidySparkSession
+from utils.tidy_spark_session import TidySparkSession
 
 
 def dedupe_pyspark_df_nested_w_col(

@@ -3,7 +3,7 @@ from challenges.deduplication.dedupe_test_data_types import (
     DataSet, ExecutionParameters, TChallengePendingAnswerPythonPyspark)
 from challenges.deduplication.domain_logic.dedupe_domain_methods import (
     blocking_function, single_pass_rec_list)
-from t_utils.tidy_spark_session import TidySparkSession
+from utils.tidy_spark_session import TidySparkSession
 
 
 def dedupe_pyspark_rdd_grp(

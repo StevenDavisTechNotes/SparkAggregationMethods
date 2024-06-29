@@ -2,7 +2,7 @@ from challenges.sectional.domain_logic.section_snippet_subtotal_type import (
     CompletedStudent, grade_summary)
 from challenges.sectional.section_test_data_types import (NumDepartments,
                                                           StudentSummary)
-from t_utils.printer import print_object_as_python_literal
+from utils.printer import print_object_as_python_literal
 
 
 def test_gpa_math():

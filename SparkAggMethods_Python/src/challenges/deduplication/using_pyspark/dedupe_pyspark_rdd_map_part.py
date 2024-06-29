@@ -6,7 +6,7 @@ from challenges.deduplication.dedupe_test_data_types import (
     DataSet, ExecutionParameters, TChallengePendingAnswerPythonPyspark)
 from challenges.deduplication.domain_logic.dedupe_domain_methods import (
     blocking_function, combine_row_list, is_match)
-from t_utils.tidy_spark_session import TidySparkSession
+from utils.tidy_spark_session import TidySparkSession
 
 
 def dedupe_pyspark_rdd_map_part(

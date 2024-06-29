@@ -15,8 +15,8 @@ from challenges.sectional.section_test_data_types import (ClassLine,
                                                           TypedLine)
 from challenges.sectional.using_pyspark.section_pyspark_rdd_mappart_partials import \
     section_mappart_partials_logic
-from t_utils.printer import print_object_as_python_literal
-from t_utils.tidy_spark_session import SPARK_SCRATCH_FOLDER, open_spark_session
+from utils.printer import print_object_as_python_literal
+from utils.tidy_spark_session import SPARK_SCRATCH_FOLDER, open_spark_session
 
 
 @pytest.fixture

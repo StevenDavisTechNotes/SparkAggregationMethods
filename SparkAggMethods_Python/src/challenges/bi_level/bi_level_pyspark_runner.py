@@ -19,8 +19,8 @@ from six_field_test_data.six_run_result_types import write_header
 from six_field_test_data.six_runner_base import test_one_step_in_itinerary
 from six_field_test_data.six_test_data_types import (
     SHARED_LOCAL_TEST_DATA_FILE_LOCATION, ExecutionParameters)
-from t_utils.t_utils import always_true, set_random_seed
-from t_utils.tidy_spark_session import LOCAL_NUM_EXECUTORS, TidySparkSession
+from utils.tidy_spark_session import LOCAL_NUM_EXECUTORS, TidySparkSession
+from utils.utils import always_true, set_random_seed
 
 DEBUG_ARGS = None if False else (
     []

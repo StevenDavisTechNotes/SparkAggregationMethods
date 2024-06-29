@@ -11,7 +11,7 @@ from challenges.conditional.conditional_strategy_directory import \
     pyspark_implementation_list
 from perf_test_common import CalcEngine
 from six_field_test_data.six_test_data_types import RunResult
-from t_utils.linear_regression import linear_regression
+from utils.linear_regression import linear_regression
 
 TEMP_RESULT_FILE_PATH = "d:/temp/SparkPerfTesting/temp.csv"
 

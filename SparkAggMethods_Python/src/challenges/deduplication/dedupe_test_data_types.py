@@ -6,7 +6,7 @@ from pyspark import RDD
 from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import Row
 
-from t_utils.tidy_spark_session import TidySparkSession
+from utils.tidy_spark_session import TidySparkSession
 
 
 @dataclass(frozen=True)

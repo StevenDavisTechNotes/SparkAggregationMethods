@@ -6,7 +6,7 @@ from challenges.sectional.section_test_data_types import (DataSet, DataSetData,
                                                           DataSetDescription,
                                                           ExecutionParameters,
                                                           NumDepartments)
-from t_utils.t_utils import int_divide_round_up
+from utils.utils import int_divide_round_up
 
 TEST_DATA_FILE_LOCATION = 'd:/temp/SparkPerfTesting'
 NUM_TRIMESTERS = 8

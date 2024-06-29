@@ -20,7 +20,7 @@ from challenges.sectional.using_pyspark.section_pyspark_rdd_prep_mappart import 
     section_pyspark_rdd_prep_mappart
 from challenges.sectional.using_pyspark.section_pyspark_rdd_reduce_asymm_part import \
     section_pyspark_rdd_reduce_asymm_part
-from t_utils.inspection import name_of_function
+from utils.inspection import name_of_function
 
 dask_implementation_list: list[ChallengeMethodDaskRegistration] = []
 pyspark_implementation_list: list[ChallengeMethodPysparkRegistration] = [

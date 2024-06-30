@@ -1,3 +1,7 @@
+from challenges.vanilla.using_dask.vanilla_dask_ddf_grp_apply import \
+    vanilla_dask_ddf_grp_apply
+from challenges.vanilla.using_dask.vanilla_dask_ddf_grp_udaf import \
+    vanilla_dask_ddf_grp_udaf
 from challenges.vanilla.using_pyspark.vanilla_pyspark_df_grp_builtin import \
     vanilla_pyspark_df_grp_builtin
 from challenges.vanilla.using_pyspark.vanilla_pyspark_df_grp_numba import \
@@ -25,35 +29,24 @@ from six_field_test_data.six_generate_test_data import (
     ChallengeMethodPythonPysparkRegistration)
 from utils.inspection import name_of_function
 
-# from challenges.vanilla.using_dask.vanilla_dask_ddf_grp_apply import \
-#     vanilla_dask_ddf_grp_apply
-# from challenges.vanilla.using_dask.vanilla_dask_ddf_grp_udaf import \
-#     vanilla_dask_ddf_grp_udaf
-# from challenges.vanilla.using_dask.vanilla_dask_sql import vanilla_dask_sql
-
-
-solutions_using_dask: list[ChallengeMethodPythonDaskRegistration] = [
-    # ChallengeMethodPythonDaskRegistration(
-    #     strategy_name=name_of_function(vanilla_dask_sql),
-    #     language='python',
-    #     interface='sql',
-    #     delegate=vanilla_dask_sql
-    # ),
-    # ChallengeMethodPythonDaskRegistration(
-    #     strategy_name=name_of_function(vanilla_dask_ddf_grp_apply),
-    #     language='python',
-    #     interface='ddf',
-    #     delegate=vanilla_dask_ddf_grp_apply,
-    # ),
-    # ChallengeMethodPythonDaskRegistration(
-    #     strategy_name=name_of_function(vanilla_dask_ddf_grp_udaf),
-    #     language='python',
-    #     interface='ddf',
-    #     delegate=vanilla_dask_ddf_grp_udaf,
-    # ),
+SOLUTIONS_USING_DASK_REGISTRY: list[ChallengeMethodPythonDaskRegistration] = [
+    ChallengeMethodPythonDaskRegistration(
+        strategy_name=name_of_function(vanilla_dask_ddf_grp_apply),
+        language='python',
+        interface='ddf',
+        requires_gpu=False,
+        delegate=vanilla_dask_ddf_grp_apply,
+    ),
+    ChallengeMethodPythonDaskRegistration(
+        strategy_name=name_of_function(vanilla_dask_ddf_grp_udaf),
+        language='python',
+        interface='ddf',
+        requires_gpu=False,
+        delegate=vanilla_dask_ddf_grp_udaf,
+    ),
 ]
 
-solutions_using_pyspark: list[ChallengeMethodPythonPysparkRegistration] = [
+SOLUTIONS_USING_PYSPARK_REGISTRY: list[ChallengeMethodPythonPysparkRegistration] = [
     ChallengeMethodPythonPysparkRegistration(
         original_strategy_name='vanilla_sql',
         strategy_name=name_of_function(vanilla_pyspark_sql),
@@ -119,7 +112,7 @@ solutions_using_pyspark: list[ChallengeMethodPythonPysparkRegistration] = [
         delegate=vanilla_pyspark_rdd_mappart,
     ),
 ]
-solutions_using_python_only: list[ChallengeMethodPythonOnlyRegistration] = [
+SOLUTIONS_USING_PYTHON_ST_REGISTRY: list[ChallengeMethodPythonOnlyRegistration] = [
     ChallengeMethodPythonOnlyRegistration(
         strategy_name=name_of_function(vanilla_py_only_pd_grp_numba),
         language='python',
@@ -133,7 +126,7 @@ solutions_using_python_only: list[ChallengeMethodPythonOnlyRegistration] = [
         delegate=vanilla_py_only_pd_grp_numpy,
     ),
 ]
-scala_implementation_list = [
+SOLUTIONS_USING_SCALA_REGISTRY = [
     ChallengeMethodExternalRegistration(
         strategy_name='vanilla_pyspark_sql',
         language='scala',
@@ -160,5 +153,6 @@ scala_implementation_list = [
         interface='rdd'),
 ]
 
-DASK_STRATEGY_NAME_LIST = [x.strategy_name for x in solutions_using_dask]
-PYSPARK_STRATEGY_NAME_LIST = [x.strategy_name for x in solutions_using_pyspark]
+STRATEGY_NAME_LIST_DASK = [x.strategy_name for x in SOLUTIONS_USING_DASK_REGISTRY]
+STRATEGY_NAME_LIST_PYSPARK = [x.strategy_name for x in SOLUTIONS_USING_PYSPARK_REGISTRY]
+STRATEGY_NAME_LIST_PYTHON_ONLY = [x.strategy_name for x in SOLUTIONS_USING_PYTHON_ST_REGISTRY]

@@ -1,11 +1,8 @@
 # gc requirements.txt | sort > c:\temp\t.txt
 # pip install -r requirements.txt
-# pip freeze > frozen_requirements.txt
-# Python==3.11.8
+# pip freeze > frozen_pyspark_requirements.txt
 autopep8
-dask==2024.2.1
-dask[dataframe]==2024.2.1
-# dask[distributed] too many conflicts for now
+# dask=2024.2.1
 findspark
 flake8
 networkx
@@ -19,5 +16,7 @@ Py4J>=0.10.9.7
 pyspark==3.5.1
 pytest
 pytz 
-scipy
-statsmodels 
+# rope
+# scipy
+# snappy 
+# statsmodels 

@@ -1,5 +1,5 @@
 #! python
-# usage: python -m challenges.vanilla.vanilla_dask_runner
+# usage: cd src; python -m challenges.vanilla.vanilla_dask_runner ; cd ..
 
 import argparse
 import gc
@@ -7,14 +7,12 @@ import random
 import time
 from typing import NamedTuple
 
-from dask.distributed import Client as DaskClient
-
 from challenges.vanilla.vanilla_record_runs import derive_run_log_file_path
 from challenges.vanilla.vanilla_strategy_directory import (
-    DASK_STRATEGY_NAME_LIST, solutions_using_dask)
+    SOLUTIONS_USING_DASK_REGISTRY, STRATEGY_NAME_LIST_DASK)
 from perf_test_common import CalcEngine
 from six_field_test_data.six_generate_test_data import (
-    ChallengeMethodPythonDaskRegistration, DaskDataSetWithAnswer,
+    ChallengeMethodPythonDaskRegistration, DataSetDaskWithAnswer,
     populate_data_set_dask)
 from six_field_test_data.six_run_result_types import write_header
 from six_field_test_data.six_runner_base import test_one_step_in_dask_itinerary
@@ -57,13 +55,12 @@ def parse_args() -> Arguments:
         choices=['1', '10', '100', '1k', '10k', '100k'],
         default=['1', '10', '100', '1k', '10k', '100k'],
         nargs="+")
-    parser.add_argument(
-        '--shuffle', default=True,
-        action=argparse.BooleanOptionalAction)
+    parser.add_argument('--shuffle', default=True, action=argparse.BooleanOptionalAction)
+    parser.add_argument('--have-gpu', default=True, action=argparse.BooleanOptionalAction)
     parser.add_argument(
         '--strategy',
-        choices=DASK_STRATEGY_NAME_LIST,
-        default=DASK_STRATEGY_NAME_LIST,
+        choices=STRATEGY_NAME_LIST_DASK,
+        default=STRATEGY_NAME_LIST_DASK,
         nargs="+")
     if DEBUG_ARGS is None:
         args = parser.parse_args()
@@ -85,12 +82,11 @@ def parse_args() -> Arguments:
 
 def do_test_runs(
         args: Arguments,
-        dask_client: DaskClient,
 ) -> None:
     data_sets = populate_data_sets(args)
     keyed_implementation_list = {
-        x.strategy_name: x for x in solutions_using_dask}
-    itinerary: list[tuple[ChallengeMethodPythonDaskRegistration, DaskDataSetWithAnswer]] = [
+        x.strategy_name: x for x in SOLUTIONS_USING_DASK_REGISTRY}
+    itinerary: list[tuple[ChallengeMethodPythonDaskRegistration, DataSetDaskWithAnswer]] = [
         (challenge_method_registration, data_set)
         for strategy in args.strategies
         if always_true(challenge_method_registration := keyed_implementation_list[strategy])
@@ -109,7 +105,6 @@ def do_test_runs(
             print(f"Working on {challenge_method_registration.strategy_name} for {data_set.description.SizeCode}")
             test_one_step_in_dask_itinerary(
                 challenge=CHALLENGE,
-                dask_client=dask_client,
                 exec_params=args.exec_params,
                 challenge_method_registration=challenge_method_registration,
                 file=file,
@@ -121,14 +116,14 @@ def do_test_runs(
 
 def populate_data_sets(
         args: Arguments,
-) -> list[DaskDataSetWithAnswer]:
+) -> list[DataSetDaskWithAnswer]:
 
     def generate_single_test_data_set_simple(
             code: str,
             num_grp_1:
             int, num_grp_2: int,
             num_data_points: int
-    ) -> DaskDataSetWithAnswer:
+    ) -> DataSetDaskWithAnswer:
         return populate_data_set_dask(
             args.exec_params,
             code, num_grp_1, num_grp_2, num_data_points)
@@ -153,20 +148,20 @@ def populate_data_sets(
     return data_sets
 
 
-def do_with_client(dask_client: DaskClient):
+def do_with_client():
     args = parse_args()
-    return do_test_runs(args, dask_client)
+    return do_test_runs(args)
 
 
 def main():
-    with DaskClient(
-            processes=True,
-            n_workers=LOCAL_NUM_EXECUTORS,
-            threads_per_worker=1,
-    ) as dask_client:
-        do_with_client(dask_client)
-    print("Done!")
+    # with DaskClient(
+    #         processes=True,
+    #         n_workers=LOCAL_NUM_EXECUTORS,
+    #         threads_per_worker=1,
+    # ) as dask_client:
+    do_with_client()
 
 
 if __name__ == "__main__":
     main()
+    print("Done!")

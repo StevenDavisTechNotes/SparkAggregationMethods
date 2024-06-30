@@ -4,7 +4,6 @@ from typing import TextIO
 import pandas as pd
 from dask.bag.core import Bag as DaskBag
 from dask.dataframe.core import DataFrame as DaskDataFrame
-from dask.distributed import Client as DaskClient
 from pyspark import RDD
 from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import Row
@@ -14,7 +13,7 @@ from perf_test_common import CalcEngine
 from six_field_test_data.six_generate_test_data import (
     ChallengeMethodPythonDaskRegistration,
     ChallengeMethodPythonOnlyRegistration,
-    ChallengeMethodPythonPysparkRegistration, DaskDataSetWithAnswer,
+    ChallengeMethodPythonPysparkRegistration, DataSetDaskWithAnswer,
     DataSetPysparkWithAnswer, DataSetPythonOnlyWithAnswer)
 from six_field_test_data.six_run_result_types import write_run_result
 from six_field_test_data.six_test_data_types import (Challenge, DataSetAnswer,
@@ -26,16 +25,14 @@ from utils.tidy_spark_session import TidySparkSession
 
 def test_one_step_in_dask_itinerary(
         challenge: Challenge,
-        dask_client: DaskClient,
         exec_params: ExecutionParameters,
         challenge_method_registration: ChallengeMethodPythonDaskRegistration,
         file: TextIO,
-        data_set: DaskDataSetWithAnswer,
+        data_set: DataSetDaskWithAnswer,
 ):
     startedTime = time.time()
     df_answer: pd.DataFrame
     match challenge_method_registration.delegate(
-        dask_client=dask_client,
         exec_params=exec_params,
         data_set=data_set,
     ):
@@ -67,23 +64,8 @@ def test_one_step_in_dask_itinerary(
             return
         case _:
             raise ValueError("No result returned")
-    # if 'var_of_E2' not in df_answer:
-    #     df_answer['var_of_E2'] = df_answer['var_of_E']
-    # df_answer.set_index(pd.Index(range(len(df_answer))), inplace=True)
-    # abs_diff = float(
-    #     (data_set.answer.vanilla_answer - df_answer)
-    #     .abs().max().max())
-    # status = abs_diff < 1e-12
-    # if status is False:
-    #     assert (status is True)
-    # recordCount = len(df_answer)
-    # result = RunResult(
-    #     engine=CalcEngine.DASK,
-    #     dataSize=data_set.description.NumDataPoints,
-    #     elapsedTime=finishedTime - startedTime,
-    #     recordCount=recordCount)
     result = process_answer(
-        engine=CalcEngine.PYSPARK,
+        engine=CalcEngine.DASK,
         challenge=challenge,
         data_set_description=data_set.description,
         correct_answer=data_set.answer.answer_for_challenge(challenge),

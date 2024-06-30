@@ -1,5 +1,5 @@
 #! python
-# usage: (cd src; python -m challenges.conditional.conditional_pyspark_runner)
+# usage: cd src; python -m challenges.conditional.conditional_pyspark_runner ; cd ..
 import argparse
 import gc
 import random
@@ -203,3 +203,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    print("Done!")

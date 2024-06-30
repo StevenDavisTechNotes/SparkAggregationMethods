@@ -5,7 +5,8 @@ from perf_test_common import CalcEngine
 from six_field_test_data.six_generate_test_data import (
     ChallengeMethodPythonDaskRegistration,
     ChallengeMethodPythonOnlyRegistration,
-    ChallengeMethodPythonPysparkRegistration)
+    ChallengeMethodPythonPysparkRegistration,
+    ChallengeMethodPythonRegistration)
 from six_field_test_data.six_test_data_types import RunResult
 
 
@@ -17,17 +18,17 @@ def write_header(
 
 
 def write_run_result(
-        challenge_method_registration:
-        ChallengeMethodPythonOnlyRegistration
-        | ChallengeMethodPythonPysparkRegistration | ChallengeMethodPythonDaskRegistration,
+        challenge_method_registration: ChallengeMethodPythonRegistration,
         result: RunResult,
         file: TextIO,
 ) -> None:
     match challenge_method_registration:
-        case ChallengeMethodPythonPysparkRegistration():
-            engine = CalcEngine.PYSPARK
         case ChallengeMethodPythonDaskRegistration():
             engine = CalcEngine.DASK
+        case ChallengeMethodPythonPysparkRegistration():
+            engine = CalcEngine.PYSPARK
+        case ChallengeMethodPythonOnlyRegistration():
+            engine = CalcEngine.PYTHON_ONLY
         case _:  # pyright: ignore[reportUnnecessaryComparison]
             raise ValueError(f"Unknown challenge_method_registration: {challenge_method_registration}")
     assert engine == result.engine

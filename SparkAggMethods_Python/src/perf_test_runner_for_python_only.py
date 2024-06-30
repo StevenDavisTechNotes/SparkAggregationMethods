@@ -1,5 +1,5 @@
 #!python
-# usage: python -m perf_test_runner_for_python_only
+# usage: cd src; python -m perf_test_runner_for_python_only ; cd ..
 
 # from challenges.bi_level import bi_level_python_only_runner
 # from challenges.conditional import conditional_python_only_runner

@@ -1,5 +1,5 @@
 #! python
-# usage: (cd src; python -m challenges.bi_level.bi_level_pyspark_runner)
+# usage: cd src; python -m challenges.bi_level.bi_level_pyspark_runner ; cd ..
 import argparse
 import gc
 import random
@@ -29,7 +29,6 @@ DEBUG_ARGS = None if False else (
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
-    + ['--have-gps']
     # + ['--strategy',
     #    #    'bi_sql_join',
     #    #    'bi_fluent_join',
@@ -181,3 +180,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    print("Done!")

@@ -1,18 +1,16 @@
 import pandas as pd
 from dask.dataframe.core import DataFrame as DaskDataFrame
-from dask.distributed import Client as DaskClient
 
 from challenges.vanilla.vanilla_test_data_types import (dask_post_agg_schema,
                                                         result_columns)
 from six_field_test_data.six_generate_test_data import (
-    DaskDataSet, TChallengeAnswerPythonDask)
+    DataSetDask, TChallengeAnswerPythonDask)
 from six_field_test_data.six_test_data_types import ExecutionParameters
 
 
 def vanilla_dask_ddf_grp_apply(
-        dask_client: DaskClient,
         exec_params: ExecutionParameters,
-        data_set: DaskDataSet
+        data_set: DataSetDask
 ) -> TChallengeAnswerPythonDask:
     if (
         data_set.description.NumDataPoints
@@ -29,7 +27,7 @@ def vanilla_dask_ddf_grp_apply(
     )
     df3 = (
         df2.compute()
-        .sort_index()
+        .sort_values(["grp", "subgrp"])
         .reset_index(drop=True)
     )
     return df3

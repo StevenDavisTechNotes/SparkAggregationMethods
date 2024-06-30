@@ -2,12 +2,11 @@ import numpy
 import pandas as pd
 from dask.dataframe import groupby
 from dask.dataframe.core import DataFrame as DaskDataFrame
-from dask.distributed import Client as DaskClient
 from pandas.core.groupby.generic import SeriesGroupBy
 
 from challenges.vanilla.vanilla_test_data_types import agg_columns
 from six_field_test_data.six_generate_test_data import (
-    DaskDataSet, TChallengeAnswerPythonDask)
+    DataSetDask, TChallengeAnswerPythonDask)
 from six_field_test_data.six_test_data_types import ExecutionParameters
 
 
@@ -26,9 +25,8 @@ def ddof_0_do_finalize(count: pd.Series, sum: pd.Series, sum2: pd.Series):
 
 
 def vanilla_dask_ddf_grp_udaf(
-        dask_client: DaskClient,
         exec_params: ExecutionParameters,
-        data_set: DaskDataSet
+        data_set: DataSetDask
 ) -> TChallengeAnswerPythonDask:
     if (
         data_set.description.NumDataPoints

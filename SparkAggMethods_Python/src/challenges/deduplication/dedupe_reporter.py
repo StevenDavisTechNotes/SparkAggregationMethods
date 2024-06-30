@@ -1,5 +1,5 @@
 #!python
-# python -m DedupePerfTest.DedupeReporter
+# usage: cd src; python -m DedupePerfTest.DedupeReporter ; cd ..
 import math
 from typing import NamedTuple, cast
 
@@ -152,3 +152,4 @@ def analyze_run_results(
 if __name__ == "__main__":
     analyze_run_results(CalcEngine.PYSPARK)
     analyze_run_results(CalcEngine.DASK)
+    print("Done!")

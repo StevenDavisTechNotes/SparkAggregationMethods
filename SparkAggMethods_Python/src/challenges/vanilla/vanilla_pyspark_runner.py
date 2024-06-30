@@ -1,5 +1,5 @@
 #! python
-# usage: python -m challenges.vanilla.vanilla_pyspark_runner
+# usage: cd src; python -m challenges.vanilla.vanilla_pyspark_runner ; cd ..
 import argparse
 import gc
 import os
@@ -10,7 +10,7 @@ from typing import Optional
 
 from challenges.vanilla.vanilla_record_runs import derive_run_log_file_path
 from challenges.vanilla.vanilla_strategy_directory import (
-    PYSPARK_STRATEGY_NAME_LIST, solutions_using_pyspark)
+    SOLUTIONS_USING_PYSPARK_REGISTRY, STRATEGY_NAME_LIST_PYSPARK)
 from challenges.vanilla.vanilla_test_data_types import result_columns
 from perf_test_common import CalcEngine
 from six_field_test_data.six_generate_test_data import (
@@ -69,8 +69,8 @@ def parse_args() -> Arguments:
         action=argparse.BooleanOptionalAction)
     parser.add_argument(
         '--strategy',
-        choices=PYSPARK_STRATEGY_NAME_LIST,
-        default=[x.strategy_name for x in solutions_using_pyspark],
+        choices=STRATEGY_NAME_LIST_PYSPARK,
+        default=[x.strategy_name for x in SOLUTIONS_USING_PYSPARK_REGISTRY],
         nargs="+")
     if DEBUG_ARGS is None:
         args = parser.parse_args()
@@ -95,7 +95,7 @@ def do_test_runs(
 ) -> None:
     data_sets = populate_data_sets(args, spark_session)
     keyed_implementation_list = {
-        x.strategy_name: x for x in solutions_using_pyspark}
+        x.strategy_name: x for x in SOLUTIONS_USING_PYSPARK_REGISTRY}
     itinerary: list[tuple[ChallengeMethodPythonPysparkRegistration, DataSetPysparkWithAnswer]] = [
         (challenge_method_registration, data_set)
         for strategy in args.strategy_names
@@ -185,8 +185,8 @@ def main():
         enable_hive_support=False
     ) as spark_session:
         do_test_runs(args, spark_session)
-    print("Done!")
 
 
 if __name__ == "__main__":
     main()
+    print("Done!")

@@ -1,6 +1,7 @@
 import datetime as dt
 import os
 import random
+from pathlib import Path
 
 from challenges.sectional.section_test_data_types import (DataSet, DataSetData,
                                                           DataSetDescription,
@@ -39,6 +40,7 @@ def populate_data_files(
         TEST_DATA_FILE_LOCATION,
         "Section_Test_Data",
         "section_testdata_temp.csv")
+    Path(tmp_file_name).parent.mkdir(parents=True, exist_ok=True)
     with open(tmp_file_name, "w") as f:
         print(f"Creating {filename}")
         for student_id in range(1, num_students + 1):

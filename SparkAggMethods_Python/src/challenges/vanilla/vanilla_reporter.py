@@ -1,5 +1,5 @@
 #!python
-# python -m VanillaPerfTest.VanillaReporter
+# usage: cd src; python -m VanillaPerfTest.VanillaReporter ; src ..
 import math
 import os
 from typing import cast
@@ -14,7 +14,7 @@ from challenges.vanilla.vanilla_record_runs import (EXPECTED_SIZES,
                                                     derive_run_log_file_path,
                                                     regressor_from_run_result)
 from challenges.vanilla.vanilla_strategy_directory import (
-    scala_implementation_list, solutions_using_pyspark)
+    SOLUTIONS_USING_PYSPARK_REGISTRY, SOLUTIONS_USING_SCALA_REGISTRY)
 from perf_test_common import (CalcEngine, ChallengeMethodDescription,
                               ChallengeMethodExternalRegistration)
 from six_field_test_data.six_generate_test_data import \
@@ -107,7 +107,7 @@ def structure_test_results(
         test_runs: list[PersistedRunResult]
 ) -> dict[str, dict[int, list[PersistedRunResult]]]:
     challenge_method_registrations = (
-        {x.strategy_name for x in solutions_using_pyspark}
+        {x.strategy_name for x in SOLUTIONS_USING_PYSPARK_REGISTRY}
         .union([x.strategy_name for x in test_runs]))
     test_x_values = set(EXPECTED_SIZES).union([regressor_from_run_result(x) for x in test_runs])
     test_results = {method: {x: [] for x in test_x_values} for method in challenge_method_registrations}
@@ -169,8 +169,8 @@ def analyze_run_results():
     raw_test_runs = parse_results()
     test_results = structure_test_results(raw_test_runs)
     summary_status = do_regression(
-        solutions_using_pyspark,
-        scala_implementation_list,
+        SOLUTIONS_USING_PYSPARK_REGISTRY,
+        SOLUTIONS_USING_SCALA_REGISTRY,
         test_results)
 
     with open(FINAL_REPORT_FILE_PATH, 'wt') as f:
@@ -180,3 +180,4 @@ def analyze_run_results():
 
 if __name__ == "__main__":
     analyze_run_results()
+    print("Done!")

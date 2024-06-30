@@ -16,6 +16,14 @@ from utils.tidy_spark_session import TidySparkSession
 # region PySpark version
 
 
+class GrpTotal(NamedTuple):
+    grp: int
+    subgrp: int
+    mean_of_C: float
+    max_of_D: float | None
+    cond_var_of_E: float
+
+
 @dataclass(frozen=True)
 class DataSetDataPyspark():
     SrcNumPartitions: int
@@ -33,14 +41,6 @@ class DataSetPyspark():
 @dataclass(frozen=True)
 class DataSetPysparkWithAnswer(DataSetPyspark):
     answer: DataSetAnswer
-
-
-class GrpTotal(NamedTuple):
-    grp: int
-    subgrp: int
-    mean_of_C: float
-    max_of_D: float | None
-    cond_var_of_E: float
 
 
 TChallengePendingAnswerPythonPyspark = Literal["infeasible"] | RDD[GrpTotal] | RDD[Row] | PySparkDataFrame

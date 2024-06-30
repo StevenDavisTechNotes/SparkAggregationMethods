@@ -5,7 +5,6 @@ import pandas as pd
 from dask.bag.core import Bag as DaskBag
 from dask.dataframe.core import DataFrame as DaskDataFrame
 from dask.dataframe.io.io import from_pandas
-from dask.distributed import Client as DaskClient
 
 from perf_test_common import CalcEngine
 from six_field_test_data.six_test_data_types import (DataSetAnswer,
@@ -17,20 +16,20 @@ from six_field_test_data.six_test_data_types import (DataSetAnswer,
 
 
 @dataclass(frozen=True)
-class DaskDataSetData:
+class DataSetDataDask:
     src_num_partitions: int
     agg_tgt_num_partitions: int
     df_src: DaskDataFrame
 
 
 @dataclass(frozen=True)
-class DaskDataSet:
+class DataSetDask:
     description: DataSetDescription
-    data: DaskDataSetData
+    data: DataSetDataDask
 
 
 @dataclass(frozen=True)
-class DaskDataSetWithAnswer(DaskDataSet):
+class DataSetDaskWithAnswer(DataSetDask):
     answer: DataSetAnswer
 
 
@@ -41,9 +40,8 @@ class IChallengeMethodPythonDask(Protocol):
     def __call__(
         self,
         *,
-        dask_client: DaskClient,
         exec_params: ExecutionParameters,
-        data_set: DaskDataSet,
+        data_set: DataSetDask,
     ) -> TChallengeAnswerPythonDask: ...
 
 
@@ -64,14 +62,14 @@ def populate_data_set_dask(
         num_grp_1: int,
         num_grp_2: int,
         repetition: int,
-) -> DaskDataSetWithAnswer:
+) -> DataSetDaskWithAnswer:
     raw_data = populate_data_set_generic(
         CalcEngine.DASK, exec_params, num_grp_1, num_grp_2, repetition)
     df_src: DaskDataFrame = from_pandas(raw_data.dfSrc, npartitions=raw_data.src_num_partitions)
     cnt, parts = len(df_src), len(df_src.divisions)
     print("Found rdd %i rows in %i parts ratio %.1f" % (cnt, parts, cnt / parts))
     assert cnt == raw_data.num_data_points
-    return DaskDataSetWithAnswer(
+    return DataSetDaskWithAnswer(
         description=DataSetDescription(
             NumDataPoints=num_grp_1 * num_grp_2 * repetition,
             NumGroups=num_grp_1,
@@ -79,7 +77,7 @@ def populate_data_set_dask(
             SizeCode=size_code,
             RelativeCardinalityBetweenGroupings=num_grp_2 // num_grp_1,
         ),
-        data=DaskDataSetData(
+        data=DataSetDataDask(
             src_num_partitions=raw_data.src_num_partitions,
             agg_tgt_num_partitions=raw_data.tgt_num_partitions,
             df_src=df_src,

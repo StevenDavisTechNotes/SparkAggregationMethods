@@ -140,3 +140,4 @@ def analyze_run_results():
 
 if __name__ == "__main__":
     analyze_run_results()
+    print("Done!")

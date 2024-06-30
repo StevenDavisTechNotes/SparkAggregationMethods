@@ -1,5 +1,5 @@
 #! python
-# usage: (cd src; python -m challenges.deduplication.dedupe_pyspark_runner)
+# usage: cd src; python -m challenges.deduplication.dedupe_pyspark_runner ; cd ..
 # cSpell: ignore wasb, sparkperftesting, Reqs
 import argparse
 import gc
@@ -241,3 +241,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    print("Done!")

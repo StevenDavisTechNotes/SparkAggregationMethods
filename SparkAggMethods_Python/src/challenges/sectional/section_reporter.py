@@ -197,3 +197,4 @@ def read_run_results() -> list[RunResult]:
 
 if __name__ == "__main__":
     analyze_run_results()
+    print("Done!")

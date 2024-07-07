@@ -11,8 +11,7 @@ from typing import Optional
 
 from challenges.vanilla.vanilla_record_runs import derive_run_log_file_path
 from challenges.vanilla.vanilla_strategy_directory import (
-    SOLUTIONS_USING_PYSPARK_REGISTRY, SOLUTIONS_USING_PYTHON_ST_REGISTRY,
-    STRATEGY_NAME_LIST_PYSPARK)
+    SOLUTIONS_USING_PYTHON_ONLY_REGISTRY, STRATEGY_NAME_LIST_PYTHON_ONLY)
 from perf_test_common import CalcEngine
 from six_field_test_data.six_generate_test_data import (
     ChallengeMethodPythonOnlyRegistration, DataSetPythonOnlyWithAnswer,
@@ -34,15 +33,9 @@ DEBUG_ARGS = None if False else (
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
-    # + ['--strategy',
-    #    'vanilla_pyspark_sql',
-    #    #    'vanilla_df_fluent',
-    #    # 'vanilla_df_grp_pandas',
-    #    # 'vanilla_df_grp_pandas_numpy',
-    #    #    'vanilla_rdd_grpmap',
-    #    # 'vanilla_rdd_reduce',
-    #    # 'vanilla_rdd_mappart'
-    #    ]
+    + ['--strategy',
+       'vanilla_py_only_pd_grp_numpy',
+       ]
 )
 
 
@@ -70,8 +63,8 @@ def parse_args() -> Arguments:
         action=argparse.BooleanOptionalAction)
     parser.add_argument(
         '--strategy',
-        choices=STRATEGY_NAME_LIST_PYSPARK,
-        default=[x.strategy_name for x in SOLUTIONS_USING_PYSPARK_REGISTRY],
+        choices=STRATEGY_NAME_LIST_PYTHON_ONLY,
+        default=STRATEGY_NAME_LIST_PYTHON_ONLY,
         nargs="+")
     if DEBUG_ARGS is None:
         args = parser.parse_args()
@@ -95,7 +88,7 @@ def do_test_runs(
 ) -> None:
     data_sets = populate_data_sets(args)
     keyed_implementation_list = {
-        x.strategy_name: x for x in SOLUTIONS_USING_PYTHON_ST_REGISTRY}
+        x.strategy_name: x for x in SOLUTIONS_USING_PYTHON_ONLY_REGISTRY}
     itinerary: list[tuple[ChallengeMethodPythonOnlyRegistration, DataSetPythonOnlyWithAnswer]] = [
         (challenge_method_registration, data_set)
         for strategy in args.strategy_names

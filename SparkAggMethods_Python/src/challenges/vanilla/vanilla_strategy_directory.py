@@ -112,7 +112,7 @@ SOLUTIONS_USING_PYSPARK_REGISTRY: list[ChallengeMethodPythonPysparkRegistration]
         delegate=vanilla_pyspark_rdd_mappart,
     ),
 ]
-SOLUTIONS_USING_PYTHON_ST_REGISTRY: list[ChallengeMethodPythonOnlyRegistration] = [
+SOLUTIONS_USING_PYTHON_ONLY_REGISTRY: list[ChallengeMethodPythonOnlyRegistration] = [
     ChallengeMethodPythonOnlyRegistration(
         strategy_name=name_of_function(vanilla_py_only_pd_grp_numba),
         language='python',
@@ -155,4 +155,4 @@ SOLUTIONS_USING_SCALA_REGISTRY = [
 
 STRATEGY_NAME_LIST_DASK = [x.strategy_name for x in SOLUTIONS_USING_DASK_REGISTRY]
 STRATEGY_NAME_LIST_PYSPARK = [x.strategy_name for x in SOLUTIONS_USING_PYSPARK_REGISTRY]
-STRATEGY_NAME_LIST_PYTHON_ONLY = [x.strategy_name for x in SOLUTIONS_USING_PYTHON_ST_REGISTRY]
+STRATEGY_NAME_LIST_PYTHON_ONLY = [x.strategy_name for x in SOLUTIONS_USING_PYTHON_ONLY_REGISTRY]

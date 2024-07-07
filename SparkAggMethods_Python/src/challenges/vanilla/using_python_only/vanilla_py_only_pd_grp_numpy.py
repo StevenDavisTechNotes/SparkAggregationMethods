@@ -12,30 +12,26 @@ def vanilla_py_only_pd_grp_numpy(
         data_set: DataSetPythonOnly,
 ) -> TChallengePythonOnlyAnswer:
 
-    # df = data_set.data.dfSrc
-    # df = (
-    #     df
-    #     .groupBy(df.grp, df.subgrp)
-    #     .applyInPandas(inner_agg_method, pyspark_post_agg_schema)
-    # )
-    # df = df.orderBy(df.grp, df.subgrp)
-    return pd.DataFrame()
+    df = data_set.data.dfSrc
+    df_result = (
+        df
+        .groupby(by=["grp", "subgrp"])
+        .apply(inner_agg_method)
+        .sort_values(by=["grp", "subgrp"])
+        .reset_index(drop=False)
+    )
+    return df_result
 
 
 def inner_agg_method(
         dfPartition: pd.DataFrame,
-) -> pd.DataFrame:
-    group_key = dfPartition['grp'].iloc[0]
-    subgroup_key = dfPartition['subgrp'].iloc[0]
+) -> pd.Series:
     C = dfPartition['C']
     D = dfPartition['D']
     E = dfPartition['E']
-    return pd.DataFrame([[
-        group_key,
-        subgroup_key,
-        numpy.mean(C),
-        numpy.max(D),
-        numpy.var(E),
-        numpy.inner(E, E) / E.count()
-        - (numpy.sum(E) / E.count())**2,  # type: ignore
-    ]], columns=result_columns)
+    return pd.Series({
+        "mean_of_C": numpy.mean(C),
+        "max_of_D": numpy.max(D),
+        "var_of_E": numpy.var(E),
+        "var_of_E2": numpy.inner(E, E) / E.count() - (numpy.sum(E) / E.count())**2,
+    }, dtype=float)

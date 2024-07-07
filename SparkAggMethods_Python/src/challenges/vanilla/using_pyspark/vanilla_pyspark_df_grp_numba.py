@@ -52,8 +52,8 @@ def vanilla_pyspark_df_grp_numba(
     df = (
         df.groupby(df.grp, df.subgrp)
         .applyInPandas(inner_agg_method, pyspark_post_agg_schema)
-        .orderBy(df.grp, df.subgrp)
     )
+    df = df.orderBy(df.grp, df.subgrp)
     return df
 
 

@@ -27,6 +27,8 @@ from six_field_test_data.six_generate_test_data import (
     ChallengeMethodPythonDaskRegistration,
     ChallengeMethodPythonOnlyRegistration,
     ChallengeMethodPythonPysparkRegistration)
+from six_field_test_data.six_generate_test_data.six_test_data_for_python_only import \
+    NumericalToleranceExpectations
 from utils.inspection import name_of_function
 
 SOLUTIONS_USING_DASK_REGISTRY: list[ChallengeMethodPythonDaskRegistration] = [
@@ -34,6 +36,7 @@ SOLUTIONS_USING_DASK_REGISTRY: list[ChallengeMethodPythonDaskRegistration] = [
         strategy_name=name_of_function(vanilla_dask_ddf_grp_apply),
         language='python',
         interface='ddf',
+        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         requires_gpu=False,
         delegate=vanilla_dask_ddf_grp_apply,
     ),
@@ -41,6 +44,7 @@ SOLUTIONS_USING_DASK_REGISTRY: list[ChallengeMethodPythonDaskRegistration] = [
         strategy_name=name_of_function(vanilla_dask_ddf_grp_udaf),
         language='python',
         interface='ddf',
+        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         requires_gpu=False,
         delegate=vanilla_dask_ddf_grp_udaf,
     ),
@@ -53,6 +57,7 @@ SOLUTIONS_USING_PYSPARK_REGISTRY: list[ChallengeMethodPythonPysparkRegistration]
         language='python',
         interface='sql',
         requires_gpu=False,
+        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=vanilla_pyspark_sql
     ),
     ChallengeMethodPythonPysparkRegistration(
@@ -61,6 +66,7 @@ SOLUTIONS_USING_PYSPARK_REGISTRY: list[ChallengeMethodPythonPysparkRegistration]
         language='python',
         interface='sql',
         requires_gpu=False,
+        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=vanilla_pyspark_df_grp_builtin,
     ),
     ChallengeMethodPythonPysparkRegistration(
@@ -69,6 +75,7 @@ SOLUTIONS_USING_PYSPARK_REGISTRY: list[ChallengeMethodPythonPysparkRegistration]
         language='python',
         interface='pandas',
         requires_gpu=False,
+        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=vanilla_pyspark_df_grp_pandas,
     ),
     ChallengeMethodPythonPysparkRegistration(
@@ -77,6 +84,7 @@ SOLUTIONS_USING_PYSPARK_REGISTRY: list[ChallengeMethodPythonPysparkRegistration]
         language='python',
         interface='pandas',
         requires_gpu=False,
+        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=vanilla_pyspark_df_grp_numpy,
     ),
     ChallengeMethodPythonPysparkRegistration(
@@ -85,6 +93,7 @@ SOLUTIONS_USING_PYSPARK_REGISTRY: list[ChallengeMethodPythonPysparkRegistration]
         language='python',
         interface='pandas',
         requires_gpu=True,
+        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=vanilla_pyspark_df_grp_numba,
     ),
     ChallengeMethodPythonPysparkRegistration(
@@ -93,6 +102,7 @@ SOLUTIONS_USING_PYSPARK_REGISTRY: list[ChallengeMethodPythonPysparkRegistration]
         language='python',
         interface='rdd',
         requires_gpu=False,
+        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=vanilla_pyspark_rdd_grp_map,
     ),
     ChallengeMethodPythonPysparkRegistration(
@@ -101,6 +111,7 @@ SOLUTIONS_USING_PYSPARK_REGISTRY: list[ChallengeMethodPythonPysparkRegistration]
         language='python',
         interface='rdd',
         requires_gpu=False,
+        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=vanilla_pyspark_rdd_reduce,
     ),
     ChallengeMethodPythonPysparkRegistration(
@@ -109,6 +120,7 @@ SOLUTIONS_USING_PYSPARK_REGISTRY: list[ChallengeMethodPythonPysparkRegistration]
         language='python',
         interface='rdd',
         requires_gpu=False,
+        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=vanilla_pyspark_rdd_mappart,
     ),
 ]
@@ -117,12 +129,16 @@ SOLUTIONS_USING_PYTHON_ONLY_REGISTRY: list[ChallengeMethodPythonOnlyRegistration
         strategy_name=name_of_function(vanilla_py_only_pd_grp_numba),
         language='python',
         interface='pandas',
+        numerical_tolerance=NumericalToleranceExpectations.NUMBA,
+        requires_gpu=True,
         delegate=vanilla_py_only_pd_grp_numba,
     ),
     ChallengeMethodPythonOnlyRegistration(
         strategy_name=name_of_function(vanilla_py_only_pd_grp_numpy),
         language='python',
         interface='pandas',
+        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
+        requires_gpu=False,
         delegate=vanilla_py_only_pd_grp_numpy,
     ),
 ]

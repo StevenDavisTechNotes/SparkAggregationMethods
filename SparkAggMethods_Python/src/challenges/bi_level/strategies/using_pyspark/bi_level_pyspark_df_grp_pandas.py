@@ -1,3 +1,5 @@
+from typing import cast
+
 import pandas as pd
 
 from challenges.bi_level.bi_level_test_data_types import (postAggSchema,
@@ -36,9 +38,10 @@ def inner_agg_method(
         col_c.mean(),
         col_d.max(),
         sub_group_e.var(ddof=0).mean(),
-        sub_group_e
-        .agg(lambda col_e:
-             ((col_e * col_e).sum() / col_e.count() -
-              (col_e.sum() / col_e.count())**2))
+        cast(pd.Series,
+             sub_group_e
+             .agg(lambda col_e:
+                  ((col_e * col_e).sum() / col_e.count() -
+                   (col_e.sum() / col_e.count())**2)))
         .mean(),
     ]], columns=result_columns)

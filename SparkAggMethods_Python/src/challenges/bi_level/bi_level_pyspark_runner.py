@@ -10,7 +10,8 @@ from typing import Optional
 from challenges.bi_level.bi_level_record_runs import derive_run_log_file_path
 from challenges.bi_level.bi_level_strategy_directory import (
     STRATEGY_NAME_LIST, solutions_using_pyspark)
-from challenges.bi_level.bi_level_test_data_types import result_columns
+from challenges.bi_level.bi_level_test_data_types import (
+    DATA_SIZES_LIST_BI_LEVEL, result_columns)
 from perf_test_common import CalcEngine
 from six_field_test_data.six_generate_test_data import (
     ChallengeMethodPythonPysparkRegistration, DataSetPysparkWithAnswer,
@@ -30,17 +31,6 @@ DEBUG_ARGS = None if False else (
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
     # + ['--strategy',
-    #    #    'bi_sql_join',
-    #    #    'bi_fluent_join',
-    #    #    'bi_pandas',
-    #    #    'bi_pandas_numba',
-    #    #    'bi_sql_nested',
-    #    #    'bi_fluent_nested',
-    #    #    'bi_fluent_window',
-    #    #    'bi_rdd_grpmap',
-    #    #    'bi_rdd_reduce1',
-    #    #    'bi_rdd_reduce2',
-    #    #    'bi_rdd_mappart'
     #    ]
 )
 ENGINE = CalcEngine.PYSPARK
@@ -58,13 +48,14 @@ class Arguments:
 
 
 def parse_args() -> Arguments:
+    sizes = [x.size_code for x in DATA_SIZES_LIST_BI_LEVEL]
     parser = argparse.ArgumentParser()
     parser.add_argument('--random-seed', type=int)
     parser.add_argument('--runs', type=int, default=30)
     parser.add_argument(
         '--size',
-        choices=['3_3_10', '3_3_100k', '3_30_10k', '3_300_1k', '3_3k_100'],
-        default=['3_3_100k', '3_30_10k', '3_300_1k', '3_3k_100'],
+        choices=sizes,
+        default=sizes,
         nargs="+")
     parser.add_argument('--shuffle', default=True, action=argparse.BooleanOptionalAction)
     parser.add_argument(
@@ -115,7 +106,7 @@ def do_pyspark_test_runs(
         for index, (challenge_method_registration, data_set) in enumerate(itinerary):
             spark_session.log.info("Working on %d of %d" %
                                    (index, len(itinerary)))
-            print(f"Working on {challenge_method_registration.strategy_name} for {data_set.description.SizeCode}")
+            print(f"Working on {challenge_method_registration.strategy_name} for {data_set.description.size_code}")
             test_one_step_in_pyspark_itinerary(
                 challenge=CHALLENGE,
                 spark_session=spark_session,
@@ -133,31 +124,14 @@ def populate_data_sets(
         args: Arguments,
         spark_session: TidySparkSession,
 ) -> list[DataSetPysparkWithAnswer]:
-
-    def generate_single_test_data_set_simple(
-            code: str, num_grp_1: int, num_grp_2: int, num_data_points: int
-    ) -> DataSetPysparkWithAnswer:
-        return populate_data_set_pyspark(
+    data_sets = [
+        populate_data_set_pyspark(
             spark_session, args.exec_params,
-            code, num_grp_1, num_grp_2, num_data_points)
-
-    data_sets = [x for x in [
-        generate_single_test_data_set_simple('3_3_10',
-                                             3, 3, 10 ** 1,
-                                             ) if '3_3_10' in args.sizes else None,
-        generate_single_test_data_set_simple('3_3_100k',
-                                             3, 3, 10 ** 5,
-                                             ) if '3_3_100k' in args.sizes else None,
-        generate_single_test_data_set_simple('3_30_10k',
-                                             3, 30, 10 ** 4,
-                                             ) if '3_30_10k' in args.sizes else None,
-        generate_single_test_data_set_simple('3_300_1k',
-                                             3, 300, 10 ** 3,
-                                             ) if '3_300_1k' in args.sizes else None,
-        generate_single_test_data_set_simple('3_3k_100',
-                                             3, 3000, 10 ** 2,
-                                             ) if '3_3k_100' in args.sizes else None,
-    ] if x is not None]
+            data_size=data_size,
+        )
+        for data_size in DATA_SIZES_LIST_BI_LEVEL
+        if data_size.size_code in args.sizes
+    ]
     return data_sets
 
 

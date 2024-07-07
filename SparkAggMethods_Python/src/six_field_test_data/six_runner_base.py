@@ -15,6 +15,8 @@ from six_field_test_data.six_generate_test_data import (
     ChallengeMethodPythonOnlyRegistration,
     ChallengeMethodPythonPysparkRegistration, DataSetDaskWithAnswer,
     DataSetPysparkWithAnswer, DataSetPythonOnlyWithAnswer)
+from six_field_test_data.six_generate_test_data.six_test_data_for_python_only import \
+    NumericalToleranceExpectations
 from six_field_test_data.six_run_result_types import write_run_result
 from six_field_test_data.six_test_data_types import (Challenge, DataSetAnswer,
                                                      DataSetDescription,
@@ -67,8 +69,9 @@ def test_one_step_in_dask_itinerary(
     result = process_answer(
         engine=CalcEngine.DASK,
         challenge=challenge,
-        data_set_description=data_set.description,
+        data_size=data_set.data_size,
         correct_answer=data_set.answer.answer_for_challenge(challenge),
+        numerical_tolerance=challenge_method_registration.numerical_tolerance,
         startedTime=startedTime,
         df_answer=df_answer,
         finishedTime=finishedTime,
@@ -124,8 +127,9 @@ def test_one_step_in_pyspark_itinerary(
     result = process_answer(
         engine=CalcEngine.PYSPARK,
         challenge=challenge,
-        data_set_description=data_set.description,
+        data_size=data_set.description,
         correct_answer=data_set.answer.answer_for_challenge(challenge),
+        numerical_tolerance=challenge_method_registration.numerical_tolerance,
         startedTime=startedTime,
         df_answer=df_answer,
         finishedTime=finishedTime,
@@ -137,6 +141,7 @@ def test_one_step_in_python_only_itinerary(
         challenge: Challenge,
         exec_params: ExecutionParameters,
         challenge_method_registration: ChallengeMethodPythonOnlyRegistration,
+        numerical_tolerance: NumericalToleranceExpectations,
         file: TextIO,
         data_set: DataSetPythonOnlyWithAnswer,
         correct_answer: DataSetAnswer,
@@ -156,8 +161,9 @@ def test_one_step_in_python_only_itinerary(
     result = process_answer(
         engine=CalcEngine.PYTHON_ONLY,
         challenge=challenge,
-        data_set_description=data_set.description,
+        data_size=data_set.data_size,
         correct_answer=data_set.answer.answer_for_challenge(challenge),
+        numerical_tolerance=numerical_tolerance,
         startedTime=startedTime,
         df_answer=df_answer,
         finishedTime=finishedTime,
@@ -168,8 +174,9 @@ def test_one_step_in_python_only_itinerary(
 def process_answer(
         engine: CalcEngine,
         challenge: Challenge,
-        data_set_description: DataSetDescription,
+        data_size: DataSetDescription,
         correct_answer: pd.DataFrame,
+        numerical_tolerance: NumericalToleranceExpectations,
         startedTime: float,
         df_answer: pd.DataFrame,
         finishedTime: float,
@@ -188,12 +195,12 @@ def process_answer(
     abs_diff = float(
         (correct_answer - df_answer)
         .abs().max().max())
-    status = abs_diff < 1e-12
+    status = abs_diff < numerical_tolerance.value
     assert (status is True)
     recordCount = len(df_answer)
     result = RunResult(
         engine=engine,
-        dataSize=data_set_description.NumDataPoints,
+        dataSize=data_size.num_data_points,
         elapsedTime=finishedTime - startedTime,
         recordCount=recordCount)
     return result

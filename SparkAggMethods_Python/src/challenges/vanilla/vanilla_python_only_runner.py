@@ -1,5 +1,5 @@
 #! python
-# usage: cd src; python -m challenges.vanilla.vanilla_pyspark_runner ; cd ..
+# usage: cd src; python -m challenges.vanilla.vanilla_python_only_runner ; cd ..
 import argparse
 import gc
 import logging
@@ -12,6 +12,7 @@ from typing import Optional
 from challenges.vanilla.vanilla_record_runs import derive_run_log_file_path
 from challenges.vanilla.vanilla_strategy_directory import (
     SOLUTIONS_USING_PYTHON_ONLY_REGISTRY, STRATEGY_NAME_LIST_PYTHON_ONLY)
+from challenges.vanilla.vanilla_test_data_types import SIZES_LIST_VANILLA
 from perf_test_common import CalcEngine
 from six_field_test_data.six_generate_test_data import (
     ChallengeMethodPythonOnlyRegistration, DataSetPythonOnlyWithAnswer,
@@ -29,12 +30,13 @@ ENGINE = CalcEngine.PYTHON_ONLY
 CHALLENGE = Challenge.VANILLA
 DEBUG_ARGS = None if False else (
     []
-    + '--size 10'.split()
+    # + '--size 3_3_10'.split()
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
     + ['--strategy',
        'vanilla_py_only_pd_grp_numpy',
+       'vanilla_py_only_pd_grp_numba',
        ]
 )
 
@@ -50,13 +52,15 @@ class Arguments:
 
 
 def parse_args() -> Arguments:
+    sizes = [x.size_code for x in SIZES_LIST_VANILLA]
+
     parser = argparse.ArgumentParser()
     parser.add_argument('--random-seed', type=int)
     parser.add_argument('--runs', type=int, default=30)
     parser.add_argument(
         '--size',
-        choices=['1', '10', '100', '1k', '10k', '100k'],
-        default=['10', '100', '1k', '10k', '100k'],
+        choices=sizes,
+        default=sizes,
         nargs="+")
     parser.add_argument(
         '--shuffle', default=True,
@@ -108,11 +112,12 @@ def do_test_runs(
         for index, (challenge_method_registration, data_set) in enumerate(itinerary):
             logger.info(
                 "Working on %d of %d" % (index, len(itinerary)))
-            print(f"Working on {challenge_method_registration.strategy_name} for {data_set.description.SizeCode}")
+            print(f"Working on {challenge_method_registration.strategy_name} for {data_set.data_size.size_code}")
             test_one_step_in_python_only_itinerary(
                 challenge=CHALLENGE,
                 exec_params=args.exec_params,
                 challenge_method_registration=challenge_method_registration,
+                numerical_tolerance=challenge_method_registration.numerical_tolerance,
                 file=file,
                 data_set=data_set,
                 correct_answer=data_set.answer,
@@ -124,38 +129,14 @@ def do_test_runs(
 def populate_data_sets(
         args: Arguments,
 ) -> list[DataSetPythonOnlyWithAnswer]:
-
-    def generate_single_test_data_set_simple(
-            code: str,
-            num_grp_1:
-            int, num_grp_2: int,
-            num_data_points: int
-    ) -> DataSetPythonOnlyWithAnswer:
-        return populate_data_set_python_only(
+    data_sets = [
+        populate_data_set_python_only(
             exec_params=args.exec_params,
-            size_code=code,
-            num_grp_1=num_grp_1,
-            num_grp_2=num_grp_2,
-            repetition=num_data_points,
+            data_size=size,
         )
-
-    data_sets = [x for x in [
-        generate_single_test_data_set_simple('1', 3, 3, 10 ** 0,
-                                             ) if '1' in args.sizes else None,
-        generate_single_test_data_set_simple('10', 3, 3, 10 ** 1,
-                                             ) if '10' in args.sizes else None,
-        generate_single_test_data_set_simple('100', 3, 3, 10 ** 2,
-                                             ) if '100' in args.sizes else None,
-        generate_single_test_data_set_simple('1k', 3, 3, 10 ** 3,
-                                             ) if '1k' in args.sizes else None,
-        generate_single_test_data_set_simple('10k', 3, 3, 10 ** 4,
-                                             ) if '10k' in args.sizes else None,
-        generate_single_test_data_set_simple('100k', 3, 3, 10 ** 5,
-                                             ) if '100k' in args.sizes else None,
-        generate_single_test_data_set_simple('1m', 3, 3, 10 ** 6,
-                                             ) if '1m' in args.sizes else None,
-    ] if x is not None]
-
+        for size in SIZES_LIST_VANILLA
+        if size.size_code in args.sizes
+    ]
     return data_sets
 
 

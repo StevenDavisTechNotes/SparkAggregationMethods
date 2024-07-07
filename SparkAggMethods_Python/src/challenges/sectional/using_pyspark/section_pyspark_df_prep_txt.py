@@ -14,7 +14,7 @@ def section_pyspark_df_prep_txt(
         spark_session: TidySparkSession,
         data_set: DataSet,
 ) -> TChallengePythonPysparkAnswer:
-    if data_set.description.num_students > pow(10, 8-1):
+    if data_set.data_size.num_students > pow(10, 8-1):
         # times out
         return "infeasible"
     sc = spark_session.spark_context

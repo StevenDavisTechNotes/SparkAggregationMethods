@@ -18,7 +18,7 @@ def section_reduce_partials_broken(
         spark_session: TidySparkSession,
         data_set: DataSet,
 ) -> TChallengePythonPysparkAnswer:
-    dataSize = data_set.description.num_rows
+    dataSize = data_set.data_size.num_rows
     filename = data_set.data.test_filepath
     TargetNumPartitions = data_set.data.target_num_partitions
     MaximumProcessableSegment = data_set.exec_params.maximum_processable_segment
@@ -45,11 +45,11 @@ def section_pyspark_rdd_reduce_asymm_part(
         spark_session: TidySparkSession,
         data_set: DataSet,
 ) -> TChallengePythonPysparkAnswer:
-    if data_set.description.num_students > pow(10, 7 - 1):
+    if data_set.data_size.num_students > pow(10, 7 - 1):
         # unreliable
         return "infeasible"
     sc = spark_session.spark_context
-    data_size = data_set.description.num_rows
+    data_size = data_set.data_size.num_rows
     file_path = data_set.data.test_filepath
     target_num_partitions = data_set.data.target_num_partitions
     maximum_processable_segment = data_set.exec_params.maximum_processable_segment

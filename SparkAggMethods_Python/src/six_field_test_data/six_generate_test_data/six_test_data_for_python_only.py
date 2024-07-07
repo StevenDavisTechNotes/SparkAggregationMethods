@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from enum import Enum
 from typing import Literal, Protocol
 
 import pandas as pd
@@ -8,6 +9,11 @@ from six_field_test_data.six_test_data_types import (DataSetAnswer,
                                                      DataSetDescription,
                                                      ExecutionParameters,
                                                      populate_data_set_generic)
+
+
+class NumericalToleranceExpectations(Enum):
+    NUMPY = 1e-12
+    NUMBA = 1e-10
 
 # region PythonOnly version
 
@@ -21,7 +27,7 @@ class DataSetDataPythonOnly():
 
 @dataclass(frozen=True)
 class DataSetPythonOnly():
-    description: DataSetDescription
+    data_size: DataSetDescription
     data: DataSetDataPythonOnly
 
 
@@ -47,6 +53,8 @@ class ChallengeMethodPythonOnlyRegistration:
     strategy_name: str
     language: str
     interface: str
+    numerical_tolerance: NumericalToleranceExpectations
+    requires_gpu: bool
     delegate: IChallengeMethodPythonOnly
 
 
@@ -55,22 +63,13 @@ class ChallengeMethodPythonOnlyRegistration:
 
 def populate_data_set_python_only(
         exec_params: ExecutionParameters,
-        size_code: str,
-        num_grp_1: int,
-        num_grp_2: int,
-        repetition: int,
+        data_size: DataSetDescription,
 ) -> DataSetPythonOnlyWithAnswer:
     raw_data = populate_data_set_generic(
-        CalcEngine.PYTHON_ONLY, exec_params, num_grp_1, num_grp_2, repetition)
-    assert raw_data.num_data_points == num_grp_1 * num_grp_2 * repetition
+        CalcEngine.PYTHON_ONLY, exec_params, data_size)
+    assert raw_data.num_data_points == data_size.num_data_points
     return DataSetPythonOnlyWithAnswer(
-        description=DataSetDescription(
-            NumDataPoints=num_grp_1 * num_grp_2 * repetition,
-            NumGroups=num_grp_1,
-            NumSubGroups=num_grp_2,
-            SizeCode=size_code,
-            RelativeCardinalityBetweenGroupings=num_grp_2 // num_grp_1,
-        ),
+        data_size=data_size,
         data=DataSetDataPythonOnly(
             SrcNumPartitions=raw_data.src_num_partitions,
             AggTgtNumPartitions=raw_data.tgt_num_partitions,

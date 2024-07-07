@@ -10,6 +10,7 @@ from typing import NamedTuple
 from challenges.vanilla.vanilla_record_runs import derive_run_log_file_path
 from challenges.vanilla.vanilla_strategy_directory import (
     SOLUTIONS_USING_DASK_REGISTRY, STRATEGY_NAME_LIST_DASK)
+from challenges.vanilla.vanilla_test_data_types import SIZES_LIST_VANILLA
 from perf_test_common import CalcEngine
 from six_field_test_data.six_generate_test_data import (
     ChallengeMethodPythonDaskRegistration, DataSetDaskWithAnswer,
@@ -23,16 +24,17 @@ from utils.utils import always_true, set_random_seed
 
 ENGINE = CalcEngine.DASK
 CHALLENGE = Challenge.VANILLA
+
 DEBUG_ARGS = None if False else (
     []
-    # + '--size 10'.split()
+    # + '--size 3_3_1m'.split()
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
-    #     + ['--strategy',
-    #           'vanilla_dask_ddf_grp_apply',
-    #           'vanilla_dask_ddf_grp_udaf',
-    #        ]
+    + ['--strategy',
+       'vanilla_dask_ddf_grp_apply',
+       'vanilla_dask_ddf_grp_udaf',
+       ]
 )
 
 
@@ -47,13 +49,15 @@ class Arguments(NamedTuple):
 
 
 def parse_args() -> Arguments:
+    sizes = [x.size_code for x in SIZES_LIST_VANILLA]
+
     parser = argparse.ArgumentParser()
     parser.add_argument('--random-seed', type=int)
     parser.add_argument('--runs', type=int, default=30)
     parser.add_argument(
         '--size',
-        choices=['1', '10', '100', '1k', '10k', '100k'],
-        default=['1', '10', '100', '1k', '10k', '100k'],
+        choices=sizes,
+        default=sizes,
         nargs="+")
     parser.add_argument('--shuffle', default=True, action=argparse.BooleanOptionalAction)
     parser.add_argument('--have-gpu', default=True, action=argparse.BooleanOptionalAction)
@@ -102,7 +106,7 @@ def do_test_runs(
         write_header(file)
         for index, (challenge_method_registration, data_set) in enumerate(itinerary):
             print("Working on %d of %d" % (index, len(itinerary)))
-            print(f"Working on {challenge_method_registration.strategy_name} for {data_set.description.SizeCode}")
+            print(f"Working on {challenge_method_registration.strategy_name} for {data_set.data_size.size_code}")
             test_one_step_in_dask_itinerary(
                 challenge=CHALLENGE,
                 exec_params=args.exec_params,
@@ -117,34 +121,14 @@ def do_test_runs(
 def populate_data_sets(
         args: Arguments,
 ) -> list[DataSetDaskWithAnswer]:
-
-    def generate_single_test_data_set_simple(
-            code: str,
-            num_grp_1:
-            int, num_grp_2: int,
-            num_data_points: int
-    ) -> DataSetDaskWithAnswer:
-        return populate_data_set_dask(
+    data_sets = [
+        populate_data_set_dask(
             args.exec_params,
-            code, num_grp_1, num_grp_2, num_data_points)
-
-    data_sets = [x for x in [
-        generate_single_test_data_set_simple('1', 3, 3, 10 ** 0,
-                                             ) if '1' in args.sizes else None,
-        generate_single_test_data_set_simple('10', 3, 3, 10 ** 1,
-                                             ) if '10' in args.sizes else None,
-        generate_single_test_data_set_simple('100', 3, 3, 10 ** 2,
-                                             ) if '100' in args.sizes else None,
-        generate_single_test_data_set_simple('1k', 3, 3, 10 ** 3,
-                                             ) if '1k' in args.sizes else None,
-        generate_single_test_data_set_simple('10k', 3, 3, 10 ** 4,
-                                             ) if '10k' in args.sizes else None,
-        generate_single_test_data_set_simple('100k', 3, 3, 10 ** 5,
-                                             ) if '100k' in args.sizes else None,
-        generate_single_test_data_set_simple('1m', 3, 3, 10 ** 6,
-                                             ) if '1m' in args.sizes else None,
-    ] if x is not None]
-
+            data_size=data_size,
+        )
+        for data_size in SIZES_LIST_VANILLA
+        if data_size.size_code in args.sizes
+    ]
     return data_sets
 
 

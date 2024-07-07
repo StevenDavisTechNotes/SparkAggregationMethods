@@ -18,7 +18,7 @@ MAXIMUM_PROCESSABLE_SEGMENT: int = 10**MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT
 @dataclass(frozen=True)
 class PersistedRunResult:
     success: bool
-    data: DataSetDescription
+    data_size: DataSetDescription
     elapsed_time: float
     record_count: int
 
@@ -41,7 +41,7 @@ def derive_run_log_file_path(
 def regressor_from_run_result(
         result: PersistedRunResult,
 ) -> int:
-    return result.data.num_students
+    return result.data_size.num_students
 
 
 def write_header(
@@ -63,8 +63,8 @@ def write_run_result(
         "success" if result.success else "failure",
         challenge_method_registration.strategy_name,
         challenge_method_registration.interface,
-        data.description.num_students,
-        data.description.num_rows,
+        data.data_size.num_students,
+        data.data_size.num_rows,
         data.data.section_maximum,
         result.elapsed_time,
         result.record_count,

@@ -18,9 +18,9 @@ def bi_level_pyspark_rdd_grp_map(
     rddSrc: RDD[DataPoint] = data_set.data.rddSrc
 
     if (
-            data_set.description.NumDataPoints
+            data_set.description.num_data_points
             > MAX_DATA_POINTS_PER_SPARK_PARTITION
-            * data_set.description.NumGroups
+            * data_set.description.num_grp_1
     ):
         # This strategy only works if all of the values per key can fit into memory at once.
         return "infeasible"

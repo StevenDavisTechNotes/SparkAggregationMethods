@@ -57,11 +57,18 @@ DataPointSchema = DataTypes.StructType([
 
 @dataclass(frozen=True)
 class DataSetDescription:
-    SizeCode: str
-    NumDataPoints: int
-    NumGroups: int
-    NumSubGroups: int
-    RelativeCardinalityBetweenGroupings: int
+    size_code: str
+    num_grp_1: int
+    num_grp_2: int
+    points_per_index: int
+
+    @property
+    def num_data_points(self) -> int:
+        return self.num_grp_1 * self.num_grp_2 * self.points_per_index
+
+    @property
+    def relative_cardinality_between_groupings(self) -> int:
+        return self.num_grp_2 // self.num_grp_1
 
 
 @dataclass(frozen=True)
@@ -107,10 +114,11 @@ class DataSetGeneric():
 def populate_data_set_generic(
         engine: CalcEngine,
         exec_params: ExecutionParameters,
-        num_grp_1: int,
-        num_grp_2: int,
-        repetition: int,
+        data_size: DataSetDescription,
 ) -> DataSetGeneric:
+    num_grp_1 = data_size.num_grp_1
+    num_grp_2 = data_size.num_grp_2
+    repetition = data_size.points_per_index
     num_data_points = num_grp_1 * num_grp_2 * repetition
     # Need to split this up, upfront, into many partitions
     # to avoid memory issues and

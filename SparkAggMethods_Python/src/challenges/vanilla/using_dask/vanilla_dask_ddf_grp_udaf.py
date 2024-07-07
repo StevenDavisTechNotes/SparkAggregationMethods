@@ -28,12 +28,7 @@ def vanilla_dask_ddf_grp_udaf(
         exec_params: ExecutionParameters,
         data_set: DataSetDask
 ) -> TChallengeAnswerPythonDask:
-    if (
-        data_set.description.NumDataPoints
-        // data_set.description.NumGroups
-        // data_set.description.NumSubGroups
-        > 10**4
-    ):
+    if (data_set.data_size.points_per_index > 10**4):
         return "infeasible"
     df: DaskDataFrame = data_set.data.df_src
     custom_var_ddof_0 = groupby.Aggregation(

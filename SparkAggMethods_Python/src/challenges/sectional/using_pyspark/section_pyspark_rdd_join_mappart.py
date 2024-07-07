@@ -16,7 +16,7 @@ def section_pyspark_rdd_join_mappart(
         spark_session: TidySparkSession,
         data_set: DataSet,
 ) -> TChallengePythonPysparkAnswer:
-    if data_set.description.num_students > pow(10, 7-1):
+    if data_set.data_size.num_students > pow(10, 7-1):
         # times out
         return "infeasible"
     sc = spark_session.spark_context

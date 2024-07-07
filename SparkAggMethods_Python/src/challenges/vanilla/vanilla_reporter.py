@@ -151,7 +151,7 @@ def do_regression(
                 = numpy.asarray([x.elapsed_time for x in runs], dtype=float)
             numRuns = len(runs)
             mean = numpy.mean(ar)
-            stdev = cast(float, numpy.std(ar, ddof=1))
+            stdev = cast(float, numpy.std(ar, ddof=1))  # type: ignore
             rl, rh = scipy.stats.norm.interval(  # type: ignore
                 confidence, loc=mean, scale=stdev / math.sqrt(numRuns))
             summary_status += "%s,%s,%s,%s,%s,%d,%d,%f,%f,%f,%f\n" % (

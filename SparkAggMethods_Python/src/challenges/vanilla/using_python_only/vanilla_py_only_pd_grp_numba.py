@@ -2,7 +2,6 @@
 import numpy
 import pandas as pd
 
-from challenges.vanilla.vanilla_test_data_types import result_columns
 from six_field_test_data.six_generate_test_data import (
     DataSetPythonOnly, TChallengePythonOnlyAnswer)
 from six_field_test_data.six_test_data_types import ExecutionParameters
@@ -32,7 +31,7 @@ try:
         accE = 0.
         for i in numba.prange(n):
             accE += E[i]
-        return accE2 / n - (accE / n)**2  # pyright: ignore
+        return accE2 / n - (accE / n)**2
 
 except ImportError:
     numba = None
@@ -44,29 +43,29 @@ def vanilla_py_only_pd_grp_numba(
 ) -> TChallengePythonOnlyAnswer:
     if numba is None:
         return "infeasible"
+    if data_set.data_size.num_data_points > 9 * 10**6:
+        return "infeasible"
 
-    # df = data_set.data.dfSrc
-    # df = (
-    #     df.groupby(df.grp, df.subgrp)
-    #     .applyInPandas(inner_agg_method, pyspark_post_agg_schema)
-    #     .orderBy(df.grp, df.subgrp)
-    # )
-    return pd.DataFrame()
+    df = data_set.data.dfSrc
+    df_result = (
+        df
+        .groupby(by=["grp", "subgrp"])
+        .apply(inner_agg_method)
+        .sort_values(by=["grp", "subgrp"])
+        .reset_index(drop=False)
+    )
+    return df_result
 
 
 def inner_agg_method(
         dfPartition: pd.DataFrame,
-) -> pd.DataFrame:
-    group_key = dfPartition['grp'].iloc[0]
-    subgroup_key = dfPartition['subgrp'].iloc[0]
+) -> pd.Series:
     C = numpy.array(dfPartition['C'])
     D = numpy.array(dfPartition['D'])
     E = numpy.array(dfPartition['E'])
-    return pd.DataFrame([[
-        group_key,
-        subgroup_key,
-        my_numba_mean(C),
-        my_numba_max(D),
-        my_numba_var(E),
-        my_loop_lift_var(E),
-    ]], columns=result_columns)
+    return pd.Series({
+        "mean_of_C": my_numba_mean(C),
+        "max_of_D": my_numba_max(D),
+        "var_of_E": my_numba_var(E),
+        "var_of_E2": my_loop_lift_var(E),
+    }, dtype=float)

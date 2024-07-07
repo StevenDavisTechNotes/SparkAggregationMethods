@@ -16,7 +16,7 @@ def section_join_groupby(
         spark_session: TidySparkSession,
         data_set: DataSet,
 ) -> TChallengePythonPysparkAnswer:
-    if data_set.description.num_students > pow(10, MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT - 1):
+    if data_set.data_size.num_students > pow(10, MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT - 1):
         return "infeasible"
     sc = spark_session.spark_context
     spark = spark_session.spark

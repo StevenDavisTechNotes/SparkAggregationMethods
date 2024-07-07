@@ -7,6 +7,8 @@ from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import Row
 
 from perf_test_common import CalcEngine
+from six_field_test_data.six_generate_test_data.six_test_data_for_python_only import \
+    NumericalToleranceExpectations
 from six_field_test_data.six_test_data_types import (DataPoint, DataSetAnswer,
                                                      DataSetDescription,
                                                      ExecutionParameters,
@@ -62,6 +64,7 @@ class ChallengeMethodPythonPysparkRegistration:
     strategy_name: str
     language: str
     interface: str
+    numerical_tolerance: NumericalToleranceExpectations
     requires_gpu: bool
     delegate: IChallengeMethodPythonPyspark
 
@@ -71,13 +74,10 @@ class ChallengeMethodPythonPysparkRegistration:
 def populate_data_set_pyspark(
         spark_session: TidySparkSession,
         exec_params: ExecutionParameters,
-        size_code: str,
-        num_grp_1: int,
-        num_grp_2: int,
-        repetition: int,
+        data_size: DataSetDescription,
 ) -> DataSetPysparkWithAnswer:
     raw_data = populate_data_set_generic(
-        CalcEngine.PYSPARK,  exec_params, num_grp_1, num_grp_2, repetition)
+        CalcEngine.PYSPARK,  exec_params, data_size=data_size)
     df = raw_data.dfSrc
     rdd_src: RDD[DataPoint]
     if raw_data.num_data_points < raw_data.src_num_partitions:
@@ -124,13 +124,7 @@ def populate_data_set_pyspark(
 
     del df
     return DataSetPysparkWithAnswer(
-        description=DataSetDescription(
-            NumDataPoints=num_grp_1 * num_grp_2 * repetition,
-            NumGroups=num_grp_1,
-            NumSubGroups=num_grp_2,
-            SizeCode=size_code,
-            RelativeCardinalityBetweenGroupings=num_grp_2 // num_grp_1,
-        ),
+        description=data_size,
         data=DataSetDataPyspark(
             SrcNumPartitions=raw_data.src_num_partitions,
             AggTgtNumPartitions=raw_data.tgt_num_partitions,

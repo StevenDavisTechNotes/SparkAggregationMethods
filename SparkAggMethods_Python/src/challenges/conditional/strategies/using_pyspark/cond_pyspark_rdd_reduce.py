@@ -23,7 +23,7 @@ def cond_pyspark_rdd_reduce(
         .combineByKey(create_combiner_2,
                       merge_value_2,
                       merge_combiners_2,
-                      numPartitions=data_set.description.NumGroups * data_set.description.NumSubGroups)
+                      numPartitions=data_set.description.num_grp_1 * data_set.description.num_grp_2)
         .map(lambda kv: (kv[0], final_analytics_2(kv[0], kv[1])))
         .sortByKey()  # type: ignore
         .values()

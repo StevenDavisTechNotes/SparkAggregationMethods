@@ -86,9 +86,16 @@ NumDepartments = 4
 
 @dataclass(frozen=True)
 class DataSetDescription:
-    size_code: str
-    num_rows: int
     num_students: int
+    section_size_max: int
+
+    @property
+    def size_code(self) -> str:
+        return str(self.num_students)
+
+    @property
+    def num_rows(self) -> int:
+        return self.num_students * self.section_size_max
 
 
 @dataclass(frozen=True)
@@ -100,7 +107,7 @@ class DataSetData:
 
 @dataclass(frozen=True)
 class DataSet():
-    description: DataSetDescription
+    data_size: DataSetDescription
     data: DataSetData
     exec_params: ExecutionParameters
 

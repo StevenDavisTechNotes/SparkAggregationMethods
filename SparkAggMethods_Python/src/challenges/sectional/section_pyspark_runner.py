@@ -13,7 +13,7 @@ from pyspark import RDD
 from pyspark.sql import DataFrame as PySparkDataFrame
 
 from challenges.sectional.section_generate_test_data import (
-    AVAILABLE_DATA_SIZES, populate_data_sets)
+    DATA_SIZE_LIST_SECTIONAL, populate_data_sets)
 from challenges.sectional.section_record_runs import (
     MAXIMUM_PROCESSABLE_SEGMENT, derive_run_log_file_path, write_header,
     write_run_result)
@@ -37,16 +37,6 @@ DEBUG_ARGS = None if False else (
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
     # + ['--strategy',
-    #    #    'section_nospark_single_threaded',
-    #    #    'section_mappart_single_threaded',
-    #    #    'section_mappart_odd_even',
-    #    #    'section_mappart_partials',
-    #    #    'section_asymreduce_partials',
-    #    #    'section_prep_mappart',
-    #    #    'section_prep_groupby',
-    #    #    'section_prepcsv_groupby',
-    #    #    'section_join_groupby',
-    #    'section_join_mappart',
     #    ]
 )
 
@@ -68,6 +58,8 @@ class Arguments:
 
 
 def parse_args() -> Arguments:
+    sizes = [x.size_code for x in DATA_SIZE_LIST_SECTIONAL]
+
     parser = argparse.ArgumentParser()
     parser.add_argument('--check', default=True, action=argparse.BooleanOptionalAction,
                         help="When debugging skipping this will speed up the startup")
@@ -79,8 +71,8 @@ def parse_args() -> Arguments:
         action=argparse.BooleanOptionalAction)
     parser.add_argument(
         '--size',
-        choices=AVAILABLE_DATA_SIZES,
-        default=AVAILABLE_DATA_SIZES,
+        choices=sizes,
+        default=sizes,
         nargs="+")
     parser.add_argument(
         '--shuffle', default=True,
@@ -117,11 +109,11 @@ def do_test_runs(
     data_sets_wo_answers = populate_data_sets(
         args.exec_params,
         args.make_new_data_files)
-    data_sets_wo_answers = [x for x in data_sets_wo_answers if x.description.size_code in args.sizes]
+    data_sets_wo_answers = [x for x in data_sets_wo_answers if x.data_size.size_code in args.sizes]
     if args.check_answers is True:
         data_sets_w_answers = [
             DataSetWithAnswer(
-                description=data_set.description,
+                data_size=data_set.data_size,
                 data=data_set.data,
                 exec_params=args.exec_params,
                 answer_generator=lambda: section_nospark_logic(data_set),
@@ -130,14 +122,14 @@ def do_test_runs(
     else:
         data_sets_w_answers = [
             DataSetWithAnswer(
-                description=data_set.description,
+                data_size=data_set.data_size,
                 data=data_set.data,
                 exec_params=args.exec_params,
                 answer_generator=None,
             ) for data_set in data_sets_wo_answers
         ]
     keyed_data_sets = {
-        str(x.description.num_students): x
+        str(x.data_size.num_students): x
         for x in data_sets_w_answers}
     keyed_implementation_list = {
         x.strategy_name: x for x in solutions_using_pyspark}
@@ -159,7 +151,7 @@ def do_test_runs(
             spark_session.log.info(
                 "Working on %d of %d" %
                 (index, len(itinerary)))
-            print(f"Working on {challenge_method_registration.strategy_name} for {data_set.description.num_rows}")
+            print(f"Working on {challenge_method_registration.strategy_name} for {data_set.data_size.num_rows}")
             run_one_itinerary_step(args, spark_session, challenge_method_registration, file, data_set)
             gc.collect()
             time.sleep(0.1)
@@ -231,13 +223,13 @@ def verify_correctness(
 ) -> bool:
     success = True
     if check_answers is False:
-        return num_students_found == data_set.description.num_students
+        return num_students_found == data_set.data_size.num_students
     assert data_set.answer_generator is not None
     assert found_students is not None
     correct_answer: list[StudentSummary] = list(data_set.answer_generator())
-    actual_num_students = data_set.description.num_rows // data_set.data.section_maximum
+    actual_num_students = data_set.data_size.num_rows // data_set.data.section_maximum
     assert actual_num_students == len(correct_answer)
-    if num_students_found != data_set.description.num_students:
+    if num_students_found != data_set.data_size.num_students:
         success = False
         raise ValueError("Found student ids don't match")
     if {x.StudentId for x in found_students} != {x.StudentId for x in correct_answer}:

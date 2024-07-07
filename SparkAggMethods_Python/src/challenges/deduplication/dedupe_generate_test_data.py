@@ -16,7 +16,7 @@ from utils.utils import always_true, int_divide_round_up
 
 @dataclass(frozen=True)
 class DataSetDescription:
-    code: str
+    size_code: str
     num_people: int
     num_b_recs: int
     num_sources: int
@@ -24,9 +24,9 @@ class DataSetDescription:
 
 
 MAX_EXPONENT = 5
-DATA_SIZE_CODE_TO_DATA_SIZE = {
-    data_size_code: DataSetDescription(
-        code=data_size_code,
+DATA_SIZE_LIST_DEDUPE = [
+    DataSetDescription(
+        size_code=data_size_code,
         num_people=num_people,
         num_b_recs=num_b_recs,
         num_sources=num_sources,
@@ -41,7 +41,7 @@ DATA_SIZE_CODE_TO_DATA_SIZE = {
                    str(logical_data_size)
                    if logical_data_size < 1000 else
                    f'{logical_data_size//1000}k')
-}
+]
 MAX_DATA_POINTS_PER_PARTITION: int = 10000
 
 
@@ -92,7 +92,7 @@ def generate_test_data(
 
     Path(root_path).mkdir(parents=True, exist_ok=True)
     all_data_sets: list[DataSet] = []
-    target_data_size_list = [DATA_SIZE_CODE_TO_DATA_SIZE[x] for x in data_size_code_list]
+    target_data_size_list = [x for x in DATA_SIZE_LIST_DEDUPE if x.size_code in data_size_code_list]
     for num_people in sorted({x.num_people for x in target_data_size_list}):
         generate_data_files(root_path, source_codes, num_people)
         single_source_data_frames: list[PySparkDataFrame]

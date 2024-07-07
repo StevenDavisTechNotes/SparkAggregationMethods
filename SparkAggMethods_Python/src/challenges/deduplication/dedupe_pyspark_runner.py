@@ -14,7 +14,7 @@ from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import Row
 
 from challenges.deduplication.dedupe_generate_test_data import (
-    DATA_SIZE_CODE_TO_DATA_SIZE, generate_test_data)
+    DATA_SIZE_LIST_DEDUPE, generate_test_data)
 from challenges.deduplication.dedupe_record_runs import (
     RunResult, derive_run_log_file_path, write_header, write_run_result)
 from challenges.deduplication.dedupe_strategy_directory import (
@@ -34,7 +34,9 @@ DEBUG_ARGS = None if False else (
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
-    # + '--strategy  dedupe_fluent_nested_python'.split()
+    # + ['--strategy',
+    #    'dedupe_pyspark_df_grp_pandas',
+    #    ]
 )
 LOCAL_TEST_DATA_FILE_LOCATION = "d:/temp/SparkPerfTesting"
 REMOTE_TEST_DATA_LOCATION = "wasb:///sparkperftesting"
@@ -63,8 +65,8 @@ def parse_args() -> Arguments:
     parser.add_argument('--runs', type=int, default=30)
     parser.add_argument(
         '--size',
-        choices=sorted(DATA_SIZE_CODE_TO_DATA_SIZE.keys()),
-        default=sorted([k for k, v in DATA_SIZE_CODE_TO_DATA_SIZE.items() if v.num_people > 1]),
+        choices=[x.size_code for x in DATA_SIZE_LIST_DEDUPE],
+        default=[x.size_code for x in DATA_SIZE_LIST_DEDUPE if x.num_people > 1],
         nargs="+")
     parser.add_argument(
         '--shuffle', default=True,

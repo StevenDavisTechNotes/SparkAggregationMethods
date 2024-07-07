@@ -26,6 +26,8 @@ from challenges.conditional.strategies.using_pyspark.cond_pyspark_sql_null impor
     cond_pyspark_sql_null
 from six_field_test_data.six_generate_test_data import \
     ChallengeMethodPythonPysparkRegistration
+from six_field_test_data.six_generate_test_data.six_test_data_for_python_only import \
+    NumericalToleranceExpectations
 from utils.inspection import name_of_function
 
 # solutions_using_dask: list[ChallengeMethodPythonDaskRegistration] = [
@@ -40,6 +42,7 @@ solutions_using_pyspark: list[ChallengeMethodPythonPysparkRegistration] = [
         language='python',
         interface='sql',
         requires_gpu=False,
+        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=cond_pyspark_sql_join
     ),
     ChallengeMethodPythonPysparkRegistration(
@@ -48,6 +51,7 @@ solutions_using_pyspark: list[ChallengeMethodPythonPysparkRegistration] = [
         language='python',
         interface='fluent',
         requires_gpu=False,
+        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=cond_pyspark_df_join
     ),
     ChallengeMethodPythonPysparkRegistration(
@@ -56,6 +60,7 @@ solutions_using_pyspark: list[ChallengeMethodPythonPysparkRegistration] = [
         language='python',
         interface='sql',
         requires_gpu=False,
+        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=cond_pyspark_sql_null
     ),
     ChallengeMethodPythonPysparkRegistration(
@@ -64,6 +69,7 @@ solutions_using_pyspark: list[ChallengeMethodPythonPysparkRegistration] = [
         language='python',
         interface='fluent',
         requires_gpu=False,
+        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=cond_pyspark_df_null
     ),
     ChallengeMethodPythonPysparkRegistration(
@@ -72,6 +78,7 @@ solutions_using_pyspark: list[ChallengeMethodPythonPysparkRegistration] = [
         language='python',
         interface='fluent',
         requires_gpu=False,
+        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=cond_pyspark_df_zero
     ),
     ChallengeMethodPythonPysparkRegistration(
@@ -80,6 +87,7 @@ solutions_using_pyspark: list[ChallengeMethodPythonPysparkRegistration] = [
         language='python',
         interface='pandas',
         requires_gpu=False,
+        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=cond_pyspark_df_grp_pandas
     ),
     ChallengeMethodPythonPysparkRegistration(
@@ -88,6 +96,7 @@ solutions_using_pyspark: list[ChallengeMethodPythonPysparkRegistration] = [
         language='python',
         interface='pandas',
         requires_gpu=False,
+        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=cond_pyspark_df_grp_pandas_numba
     ),
     ChallengeMethodPythonPysparkRegistration(
@@ -96,6 +105,7 @@ solutions_using_pyspark: list[ChallengeMethodPythonPysparkRegistration] = [
         language='python',
         interface='sql',
         requires_gpu=False,
+        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=cond_pyspark_sql_nested
     ),
     ChallengeMethodPythonPysparkRegistration(
@@ -104,6 +114,7 @@ solutions_using_pyspark: list[ChallengeMethodPythonPysparkRegistration] = [
         language='python',
         interface='fluent',
         requires_gpu=False,
+        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=cond_pyspark_df_nested
     ),
     ChallengeMethodPythonPysparkRegistration(
@@ -112,6 +123,7 @@ solutions_using_pyspark: list[ChallengeMethodPythonPysparkRegistration] = [
         language='python',
         interface='fluent',
         requires_gpu=False,
+        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=cond_pyspark_df_window
     ),
     ChallengeMethodPythonPysparkRegistration(
@@ -120,6 +132,7 @@ solutions_using_pyspark: list[ChallengeMethodPythonPysparkRegistration] = [
         language='python',
         interface='rdd',
         requires_gpu=False,
+        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=cond_pyspark_rdd_grp_map
     ),
     ChallengeMethodPythonPysparkRegistration(
@@ -128,6 +141,7 @@ solutions_using_pyspark: list[ChallengeMethodPythonPysparkRegistration] = [
         language='python',
         interface='rdd',
         requires_gpu=False,
+        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=cond_pyspark_rdd_reduce
     ),
     ChallengeMethodPythonPysparkRegistration(
@@ -136,6 +150,7 @@ solutions_using_pyspark: list[ChallengeMethodPythonPysparkRegistration] = [
         language='python',
         interface='rdd',
         requires_gpu=False,
+        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=cond_pyspark_rdd_map_part
     ),
 ]

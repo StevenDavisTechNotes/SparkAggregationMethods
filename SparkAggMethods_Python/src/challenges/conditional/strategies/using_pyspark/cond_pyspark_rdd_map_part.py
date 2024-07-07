@@ -19,7 +19,7 @@ def cond_pyspark_rdd_map_part(
         data_set.data.rddSrc
         .mapPartitionsWithIndex(partition_triage)
         .groupByKey(
-            numPartitions=data_set.description.NumGroups * data_set.description.NumSubGroups)
+            numPartitions=data_set.description.num_grp_1 * data_set.description.num_grp_2)
         .map(lambda kv: (kv[0], merge_combiners_3(kv[0], kv[1])))
         .map(lambda kv: (kv[0], final_analytics_2(kv[0], kv[1])))
         .sortByKey()  # type: ignore

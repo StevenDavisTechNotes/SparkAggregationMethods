@@ -23,11 +23,11 @@ def section_pyspark_rdd_mappart_partials(
         spark_session: TidySparkSession,
         data_set: DataSet,
 ) -> TChallengePythonPysparkAnswer:
-    if data_set.description.num_students > pow(10, 5-1):
+    if data_set.data_size.num_students > pow(10, 5-1):
         # unreliable in local mode
         return "infeasible"
     sc = spark_session.spark_context
-    expected_row_count = data_set.description.num_rows
+    expected_row_count = data_set.data_size.num_rows
     filename = data_set.data.test_filepath
     default_parallelism = data_set.exec_params.default_parallelism
     maximum_processable_segment = data_set.exec_params.maximum_processable_segment
@@ -35,7 +35,7 @@ def section_pyspark_rdd_mappart_partials(
     rdd_orig: RDD[LabeledTypedRow] = rdd_typed_with_index_factory(spark_session, filename, targetNumPartitions)
 
     def report_num_completed(complete_count: int) -> None:
-        print(f"Completed {complete_count} of {data_set.description.num_students}")
+        print(f"Completed {complete_count} of {data_set.data_size.num_students}")
 
     rdd_answer = section_mappart_partials_logic(
         sc=sc,

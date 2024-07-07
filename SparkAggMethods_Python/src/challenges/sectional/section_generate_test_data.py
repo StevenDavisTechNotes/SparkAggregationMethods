@@ -7,7 +7,7 @@ from challenges.sectional.section_test_data_types import (DataSet, DataSetData,
                                                           DataSetDescription,
                                                           ExecutionParameters,
                                                           NumDepartments)
-from utils.utils import int_divide_round_up
+from utils.utils import always_true, int_divide_round_up
 
 TEST_DATA_FILE_LOCATION = 'd:/temp/SparkPerfTesting'
 NUM_TRIMESTERS = 8
@@ -16,8 +16,14 @@ SECTION_SIZE_MAXIMUM = (1 + NUM_TRIMESTERS * (1 + NUM_CLASSES_PER_TRIMESTER + 1)
 
 
 LARGEST_EXPONENT = 7  # some can operate at 8 or above
-AVAILABLE_DATA_SIZES: list[str] = [
-    str(10**i) for i in range(0, LARGEST_EXPONENT + 1)]
+DATA_SIZE_LIST_SECTIONAL = [
+    DataSetDescription(
+        num_students=num_students,
+        section_size_max=SECTION_SIZE_MAXIMUM,
+    )
+    for i_scale in range(0, LARGEST_EXPONENT + 1)
+    if always_true(num_students := 10**i_scale)
+]
 
 
 def add_months(
@@ -88,10 +94,9 @@ def populate_data_sets(
                 exec_params.maximum_processable_segment))
         datasets.append(
             DataSet(
-                description=DataSetDescription(
-                    size_code=str(num_students),
-                    num_rows=data_size,
+                data_size=DataSetDescription(
                     num_students=num_students,
+                    section_size_max=SECTION_SIZE_MAXIMUM,
                 ),
                 data=DataSetData(
                     section_maximum=SECTION_SIZE_MAXIMUM,

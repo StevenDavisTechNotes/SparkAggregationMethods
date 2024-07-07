@@ -15,9 +15,9 @@ def cond_pyspark_rdd_grp_map(
         data_set: DataSetPyspark,
 ) -> TChallengePendingAnswerPythonPyspark:
     if (
-            data_set.description.NumDataPoints
+            data_set.description.num_data_points
             > MAX_DATA_POINTS_PER_SPARK_PARTITION
-            * data_set.description.NumGroups * data_set.description.NumSubGroups
+            * data_set.description.num_grp_1 * data_set.description.num_grp_2
     ):
         # This strategy only works if all of the values per key can fit into memory at once.
         return "infeasible"

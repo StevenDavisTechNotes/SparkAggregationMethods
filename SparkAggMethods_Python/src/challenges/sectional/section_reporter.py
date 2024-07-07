@@ -78,9 +78,9 @@ def analyze_run_results():  # noqa: C901
                 + [x for x in solutions_using_pyspark if x.strategy_name == strategy_name]
                 + [x for x in solutions_using_python_only if x.strategy_name == strategy_name])[0]
 
-            size_values = set(x.data.description.num_rows for x in times)
+            size_values = set(x.data.data_size.num_rows for x in times)
             for dataSize in size_values:
-                runs = [x for x in times if x.data.description.num_rows == dataSize]
+                runs = [x for x in times if x.data.data_size.num_rows == dataSize]
                 ar: numpy.ndarray[float, numpy.dtype[numpy.float64]] \
                     = numpy.asarray([x.elapsed_time for x in runs], dtype=float)
                 numRuns = len(runs)
@@ -95,7 +95,7 @@ def analyze_run_results():  # noqa: C901
                     len(ar), dataSize,
                     mean, stdev, rl, rh
                 )
-            x_values = [float(x.data.description.num_rows) for x in times]
+            x_values = [float(x.data.data_size.num_rows) for x in times]
             y_values = [x.elapsed_time for x in times]
             match linear_regression(x_values, y_values, confidence):
                 case None:
@@ -165,10 +165,9 @@ def read_run_results() -> list[RunResult]:
                         engine=engine,
                         success=test_status == "success",
                         data=DataSet(
-                            description=DataSetDescription(
-                                size_code=str(result_num_students),
-                                num_rows=int(result_dataSize),
+                            data_size=DataSetDescription(
                                 num_students=int(result_num_students),
+                                section_size_max=int(result_dataSize) // int(result_section_maximum)
                             ),
                             data=DataSetData(
                                 section_maximum=int(result_section_maximum),
@@ -187,7 +186,7 @@ def read_run_results() -> list[RunResult]:
                     out_fh.write("%s,%s,%s,%d,%d,%f,%s\n" % (
                         engine.value,
                         test_method_name, test_method_interface,
-                        result.data.description.num_rows // result.data.data.section_maximum,
+                        result.data.data_size.num_rows // result.data.data.section_maximum,
                         result.data.data.section_maximum,
                         result.elapsed_time,
                         result.record_count))

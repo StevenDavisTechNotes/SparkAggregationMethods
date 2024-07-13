@@ -3,15 +3,16 @@ from typing import cast
 
 from pyspark import RDD, StorageLevel
 
-from challenges.sectional.domain_logic.section_data_parsers import (
+from src.challenges.sectional.domain_logic.section_data_parsers import (
     parse_line_to_types, rdd_typed_with_index_factory)
-from challenges.sectional.domain_logic.section_snippet_subtotal_type import (
+from src.challenges.sectional.domain_logic.section_snippet_subtotal_type import (
     CompletedStudent, StudentSnippet1, completed_from_snippet_1, grade_summary,
     merge_snippet_lists_1, student_snippet_from_typed_row_1)
-from challenges.sectional.section_test_data_types import (
+from src.challenges.sectional.section_test_data_types import (
     DataSet, LabeledTypedRow, StudentSummary, TChallengePythonPysparkAnswer)
-from utils.non_commutative_tree_aggregate import non_commutative_tree_aggregate
-from utils.tidy_spark_session import TidySparkSession
+from src.utils.non_commutative_tree_aggregate import \
+    non_commutative_tree_aggregate
+from src.utils.tidy_spark_session import TidySparkSession
 
 
 def section_reduce_partials_broken(

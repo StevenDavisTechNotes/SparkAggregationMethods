@@ -1,29 +1,28 @@
 #! python
-# usage: cd src; python -m challenges.conditional.conditional_pyspark_runner ; cd ..
+# usage: python -m src.challenges.conditional.conditional_pyspark_runner
 import argparse
 import gc
 import random
 import time
 from dataclasses import dataclass
-from typing import Optional
 
-from challenges.conditional.conditional_record_runs import \
+from src.challenges.conditional.conditional_record_runs import \
     derive_run_log_file_path
-from challenges.conditional.conditional_strategy_directory import (
+from src.challenges.conditional.conditional_strategy_directory import (
     STRATEGY_NAME_LIST, solutions_using_pyspark)
-from challenges.conditional.conditional_test_data_types import \
-    DATA_SIZES_LIST_CONDITIONAL
-from perf_test_common import CalcEngine
-from six_field_test_data.six_generate_test_data import (
+from src.challenges.conditional.conditional_test_data_types import (
+    AGG_COLUMN_NAMES_3, DATA_SIZES_LIST_CONDITIONAL, GROUP_BY_COLUMNS)
+from src.perf_test_common import CalcEngine
+from src.six_field_test_data.six_generate_test_data import (
     ChallengeMethodPythonPysparkRegistration, DataSetPysparkWithAnswer,
-    GrpTotal, populate_data_set_pyspark)
-from six_field_test_data.six_run_result_types import write_header
-from six_field_test_data.six_runner_base import \
+    populate_data_set_pyspark)
+from src.six_field_test_data.six_run_result_types import write_header
+from src.six_field_test_data.six_runner_base import \
     test_one_step_in_pyspark_itinerary
-from six_field_test_data.six_test_data_types import (
+from src.six_field_test_data.six_test_data_types import (
     SHARED_LOCAL_TEST_DATA_FILE_LOCATION, Challenge, ExecutionParameters)
-from utils.tidy_spark_session import LOCAL_NUM_EXECUTORS, TidySparkSession
-from utils.utils import always_true, set_random_seed
+from src.utils.tidy_spark_session import LOCAL_NUM_EXECUTORS, TidySparkSession
+from src.utils.utils import always_true, set_random_seed
 
 ENGINE = CalcEngine.PYSPARK
 CHALLENGE = Challenge.CONDITIONAL
@@ -35,16 +34,18 @@ DEBUG_ARGS = None if False else (
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
-    + ['--strategy',
-       'cond_pyspark_rdd_grp_map',
-       ]
+    # + ['--strategy',
+    #    'cond_pyspark_rdd_grp_map',
+    #    'cond_pyspark_rdd_map_part',
+    #    'cond_pyspark_rdd_reduce',
+    #    ]
 )
 
 
 @ dataclass(frozen=True)
 class Arguments:
     num_runs: int
-    random_seed: Optional[int]
+    random_seed: int | None
     shuffle: bool
     sizes: list[str]
     strategy_names: list[str]
@@ -117,7 +118,7 @@ def do_test_runs(
                 spark_session=spark_session,
                 exec_params=args.exec_params,
                 challenge_method_registration=challenge_method_registration,
-                result_columns=list(GrpTotal._fields),
+                result_columns=GROUP_BY_COLUMNS+AGG_COLUMN_NAMES_3,
                 file=file,
                 data_set=data_set,
             )

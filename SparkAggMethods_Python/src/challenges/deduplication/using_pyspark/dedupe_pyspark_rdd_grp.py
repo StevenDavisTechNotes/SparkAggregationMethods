@@ -1,9 +1,9 @@
 
-from challenges.deduplication.dedupe_test_data_types import (
+from src.challenges.deduplication.dedupe_test_data_types import (
     DataSet, ExecutionParameters, TChallengePendingAnswerPythonPyspark)
-from challenges.deduplication.domain_logic.dedupe_domain_methods import (
+from src.challenges.deduplication.domain_logic.dedupe_domain_methods import (
     blocking_function, single_pass_rec_list)
-from utils.tidy_spark_session import TidySparkSession
+from src.utils.tidy_spark_session import TidySparkSession
 
 
 def dedupe_pyspark_rdd_grp(

@@ -5,12 +5,12 @@ from typing import NamedTuple, cast
 import numpy
 import scipy.stats.norm  # type: ignore
 
-from challenges.bi_level.bi_level_record_runs import (
+from src.challenges.bi_level.bi_level_record_runs import (
     EXPECTED_SIZES, FINAL_REPORT_FILE_PATH, PersistedRunResult,
     read_result_file, regressor_from_run_result)
-from challenges.bi_level.bi_level_strategy_directory import \
+from src.challenges.bi_level.bi_level_strategy_directory import \
     solutions_using_pyspark
-from utils.linear_regression import linear_regression
+from src.utils.linear_regression import linear_regression
 
 TEMP_RESULT_FILE_PATH = "d:/temp/SparkPerfTesting/temp.csv"
 

@@ -1,35 +1,35 @@
-from challenges.vanilla.using_dask.vanilla_dask_ddf_grp_apply import \
+from src.challenges.vanilla.using_dask.vanilla_dask_ddf_grp_apply import \
     vanilla_dask_ddf_grp_apply
-from challenges.vanilla.using_dask.vanilla_dask_ddf_grp_udaf import \
+from src.challenges.vanilla.using_dask.vanilla_dask_ddf_grp_udaf import \
     vanilla_dask_ddf_grp_udaf
-from challenges.vanilla.using_pyspark.vanilla_pyspark_df_grp_builtin import \
+from src.challenges.vanilla.using_pyspark.vanilla_pyspark_df_grp_builtin import \
     vanilla_pyspark_df_grp_builtin
-from challenges.vanilla.using_pyspark.vanilla_pyspark_df_grp_numba import \
+from src.challenges.vanilla.using_pyspark.vanilla_pyspark_df_grp_numba import \
     vanilla_pyspark_df_grp_numba
-from challenges.vanilla.using_pyspark.vanilla_pyspark_df_grp_numpy import \
+from src.challenges.vanilla.using_pyspark.vanilla_pyspark_df_grp_numpy import \
     vanilla_pyspark_df_grp_numpy
-from challenges.vanilla.using_pyspark.vanilla_pyspark_df_grp_pandas import \
+from src.challenges.vanilla.using_pyspark.vanilla_pyspark_df_grp_pandas import \
     vanilla_pyspark_df_grp_pandas
-from challenges.vanilla.using_pyspark.vanilla_pyspark_rdd_grp_map import \
+from src.challenges.vanilla.using_pyspark.vanilla_pyspark_rdd_grp_map import \
     vanilla_pyspark_rdd_grp_map
-from challenges.vanilla.using_pyspark.vanilla_pyspark_rdd_mappart import \
+from src.challenges.vanilla.using_pyspark.vanilla_pyspark_rdd_mappart import \
     vanilla_pyspark_rdd_mappart
-from challenges.vanilla.using_pyspark.vanilla_pyspark_rdd_reduce import \
+from src.challenges.vanilla.using_pyspark.vanilla_pyspark_rdd_reduce import \
     vanilla_pyspark_rdd_reduce
-from challenges.vanilla.using_pyspark.vanilla_pyspark_sql import \
+from src.challenges.vanilla.using_pyspark.vanilla_pyspark_sql import \
     vanilla_pyspark_sql
-from challenges.vanilla.using_python_only.vanilla_py_only_pd_grp_numba import \
+from src.challenges.vanilla.using_python_only.vanilla_py_only_pd_grp_numba import \
     vanilla_py_only_pd_grp_numba
-from challenges.vanilla.using_python_only.vanilla_py_only_pd_grp_numpy import \
+from src.challenges.vanilla.using_python_only.vanilla_py_only_pd_grp_numpy import \
     vanilla_py_only_pd_grp_numpy
-from perf_test_common import ChallengeMethodExternalRegistration
-from six_field_test_data.six_generate_test_data import (
+from src.perf_test_common import ChallengeMethodExternalRegistration
+from src.six_field_test_data.six_generate_test_data import (
     ChallengeMethodPythonDaskRegistration,
     ChallengeMethodPythonOnlyRegistration,
     ChallengeMethodPythonPysparkRegistration)
-from six_field_test_data.six_generate_test_data.six_test_data_for_python_only import \
+from src.six_field_test_data.six_generate_test_data.six_test_data_for_python_only import \
     NumericalToleranceExpectations
-from utils.inspection import name_of_function
+from src.utils.inspection import name_of_function
 
 SOLUTIONS_USING_DASK_REGISTRY: list[ChallengeMethodPythonDaskRegistration] = [
     ChallengeMethodPythonDaskRegistration(

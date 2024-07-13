@@ -1,13 +1,13 @@
-from typing import Any, Iterable, Optional, cast
+from typing import Any, Iterable, cast
 
-from challenges.sectional.domain_logic.section_data_parsers import \
+from src.challenges.sectional.domain_logic.section_data_parsers import \
     rdd_typed_with_index_factory
-from challenges.sectional.domain_logic.section_mutable_subtotal_type import (
+from src.challenges.sectional.domain_logic.section_mutable_subtotal_type import (
     MutableStudent, MutableTrimester)
-from challenges.sectional.section_test_data_types import (
+from src.challenges.sectional.section_test_data_types import (
     ClassLine, DataSet, LabeledTypedRow, StudentHeader, StudentSummary,
     TChallengePythonPysparkAnswer, TrimesterFooter, TrimesterHeader, TypedLine)
-from utils.tidy_spark_session import TidySparkSession
+from src.utils.tidy_spark_session import TidySparkSession
 
 
 def section_pyspark_rdd_mappart_odd_even(
@@ -17,25 +17,25 @@ def section_pyspark_rdd_mappart_odd_even(
     if data_set.data_size.num_students > pow(10, 7-1):
         # unreliable
         return "infeasible"
-    sectionMaximum = data_set.data.section_maximum
+    section_maximum_size = data_set.data.section_maximum
     filename = data_set.data.test_filepath
-    TargetNumPartitions = data_set.data.target_num_partitions
+    target_num_partitions = data_set.data.target_num_partitions
 
-    SegmentOffset = sectionMaximum - 1
-    SegmentExtra = 2 * sectionMaximum
-    SegmentSize = SegmentOffset + sectionMaximum - 1 + SegmentExtra
+    SegmentOffset = section_maximum_size - 1
+    SegmentExtra = 2 * section_maximum_size
+    SegmentSize = SegmentOffset + section_maximum_size - 1 + SegmentExtra
     rddTypedWithIndex = rdd_typed_with_index_factory(
-        spark_session, filename, TargetNumPartitions)
+        spark_session, filename, target_num_partitions)
     rddSegmentsEven = cast(Any, rddTypedWithIndex) \
         .keyBy(lambda x: (x.Index // SegmentSize, x.Index)) \
         .repartitionAndSortWithinPartitions(
-            numPartitions=TargetNumPartitions,
+            numPartitions=target_num_partitions,
             partitionFunc=lambda x: x[0]) \
         .map(lambda x: x[1])
     rddSegmentsOdd = cast(Any, rddTypedWithIndex) \
         .keyBy(lambda x: ((x.Index - SegmentOffset) // SegmentSize, x.Index)) \
         .repartitionAndSortWithinPartitions(
-            numPartitions=TargetNumPartitions,
+            numPartitions=target_num_partitions,
             partitionFunc=lambda x: x[0]) \
         .filter(lambda x: x[0][0] >= 0) \
         .map(lambda x: x[1])
@@ -46,7 +46,7 @@ def section_pyspark_rdd_mappart_odd_even(
         rddParallelMapPartitionsInter
         .keyBy(lambda x: (x.StudentId, x.SourceLines))
         .repartitionAndSortWithinPartitions(
-            numPartitions=TargetNumPartitions,
+            numPartitions=target_num_partitions,
             partitionFunc=lambda x: x[0])
         .map(lambda x: x[1])
         .mapPartitions(choose_complete_section)
@@ -78,10 +78,10 @@ def aggregate(
 
 def accumulate_one_line(
         rec: TypedLine,
-        student: Optional[MutableStudent],
-        trimester: Optional[MutableTrimester],
-) -> tuple[Optional[StudentSummary], Optional[MutableStudent], Optional[MutableTrimester]]:
-    complete_student: Optional[StudentSummary] = None
+        student: MutableStudent | None,
+        trimester: MutableTrimester | None,
+) -> tuple[StudentSummary | None, MutableStudent | None, MutableTrimester | None]:
+    complete_student: StudentSummary | None = None
     if isinstance(rec, StudentHeader):
         if student is not None:
             complete_student = student.grade_summary()

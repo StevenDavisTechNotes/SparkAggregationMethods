@@ -1,29 +1,29 @@
-from challenges.sectional.section_test_data_types import (
+from src.challenges.sectional.section_test_data_types import (
     ChallengeMethodDaskRegistration, ChallengeMethodPysparkRegistration,
     ChallengeMethodPythonOnlyRegistration)
-from challenges.sectional.using_pyspark.section_nospark_single_threaded import \
+from src.challenges.sectional.using_pyspark.section_nospark_single_threaded import \
     section_nospark_single_threaded
-from challenges.sectional.using_pyspark.section_pyspark_df_join_grp import \
+from src.challenges.sectional.using_pyspark.section_pyspark_df_join_grp import \
     section_join_groupby
-from challenges.sectional.using_pyspark.section_pyspark_df_prep_grp_csv import \
+from src.challenges.sectional.using_pyspark.section_pyspark_df_prep_grp_csv import \
     section_pyspark_df_prep_grp_csv
-from challenges.sectional.using_pyspark.section_pyspark_df_prep_txt import \
+from src.challenges.sectional.using_pyspark.section_pyspark_df_prep_txt import \
     section_pyspark_df_prep_txt
-from challenges.sectional.using_pyspark.section_pyspark_rdd_join_mappart import \
+from src.challenges.sectional.using_pyspark.section_pyspark_rdd_join_mappart import \
     section_pyspark_rdd_join_mappart
-from challenges.sectional.using_pyspark.section_pyspark_rdd_mappart_odd_even import \
+from src.challenges.sectional.using_pyspark.section_pyspark_rdd_mappart_odd_even import \
     section_pyspark_rdd_mappart_odd_even
-from challenges.sectional.using_pyspark.section_pyspark_rdd_mappart_partials import \
+from src.challenges.sectional.using_pyspark.section_pyspark_rdd_mappart_partials import \
     section_pyspark_rdd_mappart_partials
-from challenges.sectional.using_pyspark.section_pyspark_rdd_mappart_single_threaded import \
+from src.challenges.sectional.using_pyspark.section_pyspark_rdd_mappart_single_threaded import \
     section_pyspark_rdd_mappart_single_threaded
-from challenges.sectional.using_pyspark.section_pyspark_rdd_prep_mappart import \
+from src.challenges.sectional.using_pyspark.section_pyspark_rdd_prep_mappart import \
     section_pyspark_rdd_prep_mappart
-from challenges.sectional.using_pyspark.section_pyspark_rdd_reduce_asymm_part import \
+from src.challenges.sectional.using_pyspark.section_pyspark_rdd_reduce_asymm_part import \
     section_pyspark_rdd_reduce_asymm_part
-from challenges.sectional.using_python_only.section_py_only_single_threaded import \
+from src.challenges.sectional.using_python_only.section_py_only_single_threaded import \
     section_py_only_single_threaded
-from utils.inspection import name_of_function
+from src.utils.inspection import name_of_function
 
 solutions_using_dask: list[ChallengeMethodDaskRegistration] = [
 ]

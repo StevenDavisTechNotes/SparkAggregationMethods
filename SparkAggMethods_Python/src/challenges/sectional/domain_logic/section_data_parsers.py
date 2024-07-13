@@ -5,16 +5,16 @@ from pyspark import RDD
 from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import Row
 
-from challenges.sectional.section_generate_test_data import \
+from src.challenges.sectional.section_generate_test_data import \
     TEST_DATA_FILE_LOCATION
-from challenges.sectional.section_test_data_types import (ClassLine,
-                                                          LabeledTypedRow,
-                                                          SparseLineSchema,
-                                                          StudentHeader,
-                                                          StudentSummary,
-                                                          TrimesterFooter,
-                                                          TrimesterHeader)
-from utils.tidy_spark_session import TidySparkSession
+from src.challenges.sectional.section_test_data_types import (ClassLine,
+                                                              LabeledTypedRow,
+                                                              SparseLineSchema,
+                                                              StudentHeader,
+                                                              StudentSummary,
+                                                              TrimesterFooter,
+                                                              TrimesterHeader)
+from src.utils.tidy_spark_session import TidySparkSession
 
 # region parsers
 

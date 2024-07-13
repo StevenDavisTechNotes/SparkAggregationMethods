@@ -1,12 +1,18 @@
 import math
 from typing import Iterable
 
-from challenges.conditional.conditional_test_data_types import SubTotal
-from six_field_test_data.six_generate_test_data import (
-    DataSetPyspark, GrpTotal, TChallengePendingAnswerPythonPyspark)
-from six_field_test_data.six_test_data_types import (DataPoint,
-                                                     ExecutionParameters)
-from utils.tidy_spark_session import TidySparkSession
+from pyspark.sql import Row
+
+from src.challenges.conditional.conditional_test_data_types import SubTotal
+from src.six_field_test_data.six_generate_test_data import (
+    DataSetPyspark, TChallengePendingAnswerPythonPyspark)
+from src.six_field_test_data.six_generate_test_data.six_test_data_for_pyspark import \
+    pick_agg_tgt_num_partitions_pyspark
+from src.six_field_test_data.six_test_data_types import (Challenge, DataPoint,
+                                                         ExecutionParameters)
+from src.utils.tidy_spark_session import TidySparkSession
+
+CHALLENGE = Challenge.CONDITIONAL
 
 
 def cond_pyspark_rdd_map_part(
@@ -14,15 +20,16 @@ def cond_pyspark_rdd_map_part(
         exec_params: ExecutionParameters,
         data_set: DataSetPyspark,
 ) -> TChallengePendingAnswerPythonPyspark:
+    agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(data_set.data, CHALLENGE)
 
     rddSumCount = (
-        data_set.data.rddSrc
+        data_set.data.rdd_src
         .mapPartitionsWithIndex(partition_triage)
         .groupByKey(
             numPartitions=data_set.description.num_grp_1 * data_set.description.num_grp_2)
-        .map(lambda kv: (kv[0], merge_combiners_3(kv[0], kv[1])))
-        .map(lambda kv: (kv[0], final_analytics_2(kv[0], kv[1])))
-        .sortByKey()  # type: ignore
+        .map(lambda kv: (kv[0], merge_combiners_3(kv[0], kv[1])), preservesPartitioning=True)
+        .map(lambda kv: (kv[0], final_analytics_2(kv[0], kv[1])), preservesPartitioning=True)
+        .sortByKey(numPartitions=agg_tgt_num_partitions)  # type: ignore
         .values()
     )
     return rddSumCount
@@ -31,7 +38,7 @@ def cond_pyspark_rdd_map_part(
 class MutableRunningTotal:
     running_sum_of_C: float
     running_uncond_count: int
-    running_max_of_D: float | None
+    running_max_of_D: float
     running_cond_sum_of_E_squared: float
     running_cond_sum_of_E: float
     running_cond_count: int
@@ -39,7 +46,7 @@ class MutableRunningTotal:
     def __init__(self):
         self.running_sum_of_C = 0
         self.running_uncond_count = 0
-        self.running_max_of_D = None
+        self.running_max_of_D = math.nan
         self.running_cond_sum_of_E_squared = 0
         self.running_cond_sum_of_E = 0
         self.running_cond_count = 0
@@ -57,18 +64,18 @@ def partition_triage(
         sub = running_subtotals[k]
         sub.running_sum_of_C += v.C
         sub.running_uncond_count += 1
-        sub.running_max_of_D = \
-            sub.running_max_of_D \
-            if sub.running_max_of_D is not None and \
-            sub.running_max_of_D > v.D \
-            else v.D
+        sub.running_max_of_D = (
+            sub.running_max_of_D
+            if not math.isnan(sub.running_max_of_D) and
+            sub.running_max_of_D > v.D
+            else v.D)
         if v.E < 0:
             sub.running_cond_sum_of_E_squared += v.E * v.E
             sub.running_cond_sum_of_E += v.E
             sub.running_cond_count += 1
     for k in running_subtotals:
         sub = running_subtotals[k]
-        assert sub.running_max_of_D is not None
+        assert not math.isnan(sub.running_max_of_D)
         yield (k, SubTotal(
             running_sum_of_C=sub.running_sum_of_C,
             running_uncond_count=sub.running_uncond_count,
@@ -86,16 +93,16 @@ def merge_combiners_3(
     for rsub in iterable:
         lsub.running_sum_of_C += rsub.running_sum_of_C
         lsub.running_uncond_count += rsub.running_uncond_count
-        assert rsub.running_max_of_D is not None
-        lsub.running_max_of_D = lsub.running_max_of_D \
-            if lsub.running_max_of_D is not None and \
-            lsub.running_max_of_D > rsub.running_max_of_D \
-            else rsub.running_max_of_D
+        assert not math.isnan(rsub.running_max_of_D)
+        lsub.running_max_of_D = (lsub.running_max_of_D
+                                 if not math.isnan(lsub.running_max_of_D) and
+                                 lsub.running_max_of_D > rsub.running_max_of_D
+                                 else rsub.running_max_of_D)
         lsub.running_cond_sum_of_E_squared += \
             rsub.running_cond_sum_of_E_squared
         lsub.running_cond_sum_of_E += rsub.running_cond_sum_of_E
         lsub.running_cond_count += rsub.running_cond_count
-    assert lsub.running_max_of_D is not None
+    assert not math.isnan(lsub.running_max_of_D)
     return SubTotal(
         running_sum_of_C=lsub.running_sum_of_C,
         running_uncond_count=lsub.running_uncond_count,
@@ -108,14 +115,14 @@ def merge_combiners_3(
 def final_analytics_2(
         key: tuple[int, int],
         total: SubTotal,
-) -> GrpTotal:
+) -> Row:
     sum_of_C = total.running_sum_of_C
     uncond_count = total.running_uncond_count
     max_of_D = total.running_max_of_D
     cond_sum_of_E_squared = total.running_cond_sum_of_E_squared
     cond_sum_of_E = total.running_cond_sum_of_E
     cond_count = total.running_cond_count
-    return GrpTotal(
+    return Row(
         grp=key[0], subgrp=key[1],
         mean_of_C=math.nan
         if cond_count < 1 else

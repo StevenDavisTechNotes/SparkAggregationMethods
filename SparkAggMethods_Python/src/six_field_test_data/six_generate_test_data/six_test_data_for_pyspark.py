@@ -1,37 +1,39 @@
 from dataclasses import dataclass
 from functools import reduce
-from typing import Any, Literal, NamedTuple, Protocol, cast
+from typing import Any, Literal, Protocol, cast
 
 from pyspark import RDD, StorageLevel
 from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import Row
 
-from perf_test_common import CalcEngine
-from six_field_test_data.six_generate_test_data.six_test_data_for_python_only import \
+from src.perf_test_common import CalcEngine
+from src.six_field_test_data.six_generate_test_data.six_test_data_for_python_only import \
     NumericalToleranceExpectations
-from six_field_test_data.six_test_data_types import (DataPoint, DataSetAnswer,
-                                                     DataSetDescription,
-                                                     ExecutionParameters,
-                                                     populate_data_set_generic)
-from utils.tidy_spark_session import TidySparkSession
+from src.six_field_test_data.six_test_data_types import (
+    Challenge, DataPoint, DataSetAnswer, DataSetDescription,
+    ExecutionParameters, populate_data_set_generic)
+from src.utils.tidy_spark_session import TidySparkSession
 
 # region PySpark version
 
 
-class GrpTotal(NamedTuple):
-    grp: int
-    subgrp: int
-    mean_of_C: float
-    max_of_D: float | None
-    cond_var_of_E: float
-
-
 @dataclass(frozen=True)
 class DataSetDataPyspark():
-    SrcNumPartitions: int
-    AggTgtNumPartitions: int
-    dfSrc: PySparkDataFrame
-    rddSrc: RDD[DataPoint]
+    src_num_partitions: int
+    agg_tgt_num_partitions_1_level: int
+    agg_tgt_num_partitions_2_level: int
+    df_src: PySparkDataFrame
+    rdd_src: RDD[DataPoint]
+
+
+def pick_agg_tgt_num_partitions_pyspark(data: DataSetDataPyspark, challenge: Challenge) -> int:
+    match challenge:
+        case Challenge.BI_LEVEL | Challenge.CONDITIONAL:
+            return data.agg_tgt_num_partitions_1_level
+        case Challenge.VANILLA:
+            return data.agg_tgt_num_partitions_2_level
+        case _:
+            raise KeyError(f"Unknown challenge {challenge}")
 
 
 @dataclass(frozen=True)
@@ -45,7 +47,11 @@ class DataSetPysparkWithAnswer(DataSetPyspark):
     answer: DataSetAnswer
 
 
-TChallengePendingAnswerPythonPyspark = Literal["infeasible"] | RDD[GrpTotal] | RDD[Row] | PySparkDataFrame
+TChallengePendingAnswerPythonPyspark = (
+    Literal["infeasible"]
+    | RDD[Row]
+    | PySparkDataFrame
+)
 
 
 class IChallengeMethodPythonPyspark(Protocol):
@@ -78,7 +84,7 @@ def populate_data_set_pyspark(
 ) -> DataSetPysparkWithAnswer:
     raw_data = populate_data_set_generic(
         CalcEngine.PYSPARK,  exec_params, data_size=data_size)
-    df = raw_data.dfSrc
+    df = raw_data.df_src
     rdd_src: RDD[DataPoint]
     if raw_data.num_data_points < raw_data.src_num_partitions:
         rdd_src = spark_session.spark.sparkContext.parallelize((
@@ -126,10 +132,11 @@ def populate_data_set_pyspark(
     return DataSetPysparkWithAnswer(
         description=data_size,
         data=DataSetDataPyspark(
-            SrcNumPartitions=raw_data.src_num_partitions,
-            AggTgtNumPartitions=raw_data.tgt_num_partitions,
-            dfSrc=df_src,
-            rddSrc=rdd_src,
+            src_num_partitions=raw_data.src_num_partitions,
+            agg_tgt_num_partitions_1_level=raw_data.tgt_num_partitions_1_level,
+            agg_tgt_num_partitions_2_level=raw_data.tgt_num_partitions_2_level,
+            df_src=df_src,
+            rdd_src=rdd_src,
         ),
         answer=DataSetAnswer(
             vanilla_answer=raw_data.vanilla_answer,

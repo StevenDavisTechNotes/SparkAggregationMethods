@@ -3,10 +3,10 @@ import os
 from dataclasses import dataclass
 from typing import Iterable, TextIO
 
-from challenges.deduplication.dedupe_test_data_types import \
+from src.challenges.deduplication.dedupe_test_data_types import \
     ChallengeMethodPythonPysparkRegistration
-from perf_test_common import CalcEngine
-from utils.utils import always_true, root_folder_abs_path
+from src.perf_test_common import CalcEngine
+from src.utils.utils import always_true, root_folder_abs_path
 
 T_PYTHON_PYSPARK_RUN_LOG_FILE_PATH = 'results/dedupe_pyspark_runs.csv'
 T_PYTHON_DASK_RUN_LOG_FILE_PATH = 'results/dedupe_dask_runs.csv'

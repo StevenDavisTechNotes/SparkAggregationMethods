@@ -9,9 +9,9 @@ import pyspark.sql.functions as func
 from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import SparkSession
 
-from challenges.deduplication.dedupe_test_data_types import (
+from src.challenges.deduplication.dedupe_test_data_types import (
     DataSet, ExecutionParameters, RecordSparseStruct)
-from utils.utils import always_true, int_divide_round_up
+from src.utils.utils import always_true, int_divide_round_up
 
 
 @dataclass(frozen=True)

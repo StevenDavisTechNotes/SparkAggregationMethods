@@ -5,8 +5,8 @@ from pyspark import RDD
 from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import Row
 
-from challenges.deduplication.dedupe_generate_test_data import name_hash
-from challenges.deduplication.dedupe_test_data_types import (
+from src.challenges.deduplication.dedupe_generate_test_data import name_hash
+from src.challenges.deduplication.dedupe_test_data_types import (
     ItineraryItem, RecordSparseStruct)
 
 

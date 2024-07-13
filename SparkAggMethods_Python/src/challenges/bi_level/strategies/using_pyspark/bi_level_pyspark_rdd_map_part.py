@@ -1,14 +1,19 @@
+import math
 from dataclasses import dataclass
 from typing import Iterable, NamedTuple, cast
 
 from pyspark import RDD
 from pyspark.sql import Row
 
-from six_field_test_data.six_generate_test_data import (
+from src.six_field_test_data.six_generate_test_data import (
     DataSetPyspark, TChallengePendingAnswerPythonPyspark)
-from six_field_test_data.six_test_data_types import (DataPoint,
-                                                     ExecutionParameters)
-from utils.tidy_spark_session import TidySparkSession
+from src.six_field_test_data.six_generate_test_data.six_test_data_for_pyspark import \
+    pick_agg_tgt_num_partitions_pyspark
+from src.six_field_test_data.six_test_data_types import (Challenge, DataPoint,
+                                                         ExecutionParameters)
+from src.utils.tidy_spark_session import TidySparkSession
+
+CHALLENGE = Challenge.BI_LEVEL
 
 
 @dataclass(frozen=False)
@@ -30,13 +35,13 @@ class MutableSubGrpTotal:
 class MutableGrpTotal:
     grp: int
     running_sum_of_C: float
-    running_max_of_D: float | None
+    running_max_of_D: float
     running_subgrp_totals: dict[int, MutableSubGrpTotal]
 
     def __init__(self, grp: int):
         self.grp = grp
         self.running_sum_of_C = 0
-        self.running_max_of_D = None
+        self.running_max_of_D = math.nan
         self.running_subgrp_totals = {}
 
 
@@ -60,15 +65,16 @@ def bi_level_pyspark_rdd_map_part(
         exec_params: ExecutionParameters,
         data_set: DataSetPyspark
 ) -> TChallengePendingAnswerPythonPyspark:
-    rddSrc = data_set.data.rddSrc
+    rddSrc = data_set.data.rdd_src
+    agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(data_set.data, CHALLENGE)
 
     rddResult = cast(
         RDD[Row],
         rddSrc
         .mapPartitions(partition_triage)
-        .groupByKey(numPartitions=data_set.data.AggTgtNumPartitions)
-        .map(lambda kv: (kv[0], merge_combiners_3(kv[0], kv[1])))
-        .sortByKey()  # type: ignore
+        .groupByKey(numPartitions=data_set.description.num_grp_1 * data_set.description.num_grp_2)
+        .map(lambda kv: (kv[0], merge_combiners_3(kv[0], kv[1])), preservesPartitioning=True)
+        .sortByKey(numPartitions=agg_tgt_num_partitions)  # type: ignore
         .values()
     )
     return rddResult
@@ -86,7 +92,7 @@ def partition_triage(
         r1.running_sum_of_C += v.C
         r1.running_max_of_D = \
             r1.running_max_of_D \
-            if r1.running_max_of_D is not None and \
+            if not math.isnan(r1.running_max_of_D) and \
             r1.running_max_of_D > v.D \
             else v.D
         k2 = v.subgrp
@@ -98,7 +104,7 @@ def partition_triage(
         r2.running_count += 1
     for k1 in running_grp_totals:
         r1 = running_grp_totals[k1]
-        assert r1.running_max_of_D is not None
+        assert not math.isnan(r1.running_max_of_D)
         yield (
             k1,
             SubTotal1(
@@ -128,7 +134,7 @@ def merge_combiners_3(
     for rsub1 in iterable:
         lsub.running_sum_of_C += rsub1.running_sum_of_C
         lsub.running_max_of_D = lsub.running_max_of_D \
-            if lsub.running_max_of_D is not None and \
+            if not math.isnan(lsub.running_max_of_D) and \
             lsub.running_max_of_D > rsub1.running_max_of_D \
             else rsub1.running_max_of_D
         for subgrp, rsub2 in rsub1.subgrp_totals.items():

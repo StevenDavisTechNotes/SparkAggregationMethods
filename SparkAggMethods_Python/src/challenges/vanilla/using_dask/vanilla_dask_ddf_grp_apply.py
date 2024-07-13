@@ -1,11 +1,11 @@
 import pandas as pd
 from dask.dataframe.core import DataFrame as DaskDataFrame
 
-from challenges.vanilla.vanilla_test_data_types import (dask_post_agg_schema,
-                                                        result_columns)
-from six_field_test_data.six_generate_test_data import (
+from src.challenges.vanilla.vanilla_test_data_types import (
+    dask_post_agg_schema, result_columns)
+from src.six_field_test_data.six_generate_test_data import (
     DataSetDask, TChallengeAnswerPythonDask)
-from six_field_test_data.six_test_data_types import ExecutionParameters
+from src.six_field_test_data.six_test_data_types import ExecutionParameters
 
 
 def vanilla_dask_ddf_grp_apply(

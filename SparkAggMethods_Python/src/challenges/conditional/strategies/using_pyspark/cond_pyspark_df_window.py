@@ -1,10 +1,10 @@
 import pyspark.sql.functions as func
 from pyspark.sql.window import Window
 
-from six_field_test_data.six_generate_test_data import (
+from src.six_field_test_data.six_generate_test_data import (
     DataSetPyspark, TChallengePendingAnswerPythonPyspark)
-from six_field_test_data.six_test_data_types import ExecutionParameters
-from utils.tidy_spark_session import TidySparkSession
+from src.six_field_test_data.six_test_data_types import ExecutionParameters
+from src.utils.tidy_spark_session import TidySparkSession
 
 
 def cond_pyspark_df_window(
@@ -12,7 +12,7 @@ def cond_pyspark_df_window(
         exec_params: ExecutionParameters,
         data_set: DataSetPyspark,
 ) -> TChallengePendingAnswerPythonPyspark:
-    df = data_set.data.dfSrc
+    df = data_set.data.df_src
     df = df \
         .withColumn("cond", func.when(df.E < 0, -1).otherwise(+1))
     df = df \

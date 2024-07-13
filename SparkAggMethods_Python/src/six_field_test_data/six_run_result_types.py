@@ -1,13 +1,13 @@
 import datetime
 from typing import TextIO
 
-from perf_test_common import CalcEngine
-from six_field_test_data.six_generate_test_data import (
+from src.perf_test_common import CalcEngine
+from src.six_field_test_data.six_generate_test_data import (
     ChallengeMethodPythonDaskRegistration,
     ChallengeMethodPythonOnlyRegistration,
     ChallengeMethodPythonPysparkRegistration,
     ChallengeMethodPythonRegistration)
-from six_field_test_data.six_test_data_types import RunResult
+from src.six_field_test_data.six_test_data_types import RunResult
 
 
 def write_header(

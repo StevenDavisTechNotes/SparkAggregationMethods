@@ -3,11 +3,11 @@ import os
 from dataclasses import dataclass
 from typing import Iterable, TextIO
 
-from perf_test_common import CalcEngine
-from six_field_test_data.six_generate_test_data import (
+from src.perf_test_common import CalcEngine
+from src.six_field_test_data.six_generate_test_data import (
     ChallengeMethodPythonDaskRegistration,
     ChallengeMethodPythonPysparkRegistration)
-from utils.utils import root_folder_abs_path
+from src.utils.utils import root_folder_abs_path
 
 T_PYTHON_PYSPARK_RUN_LOG_FILE_PATH = 'results/bi_level_pyspark_runs.csv'
 T_PYTHON_DASK_RUN_LOG_FILE_PATH = 'results/bi_level_dask_runs.csv'

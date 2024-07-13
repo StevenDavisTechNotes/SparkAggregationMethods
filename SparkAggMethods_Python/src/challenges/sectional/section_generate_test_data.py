@@ -3,11 +3,10 @@ import os
 import random
 from pathlib import Path
 
-from challenges.sectional.section_test_data_types import (DataSet, DataSetData,
-                                                          DataSetDescription,
-                                                          ExecutionParameters,
-                                                          NumDepartments)
-from utils.utils import always_true, int_divide_round_up
+from src.challenges.sectional.section_test_data_types import (
+    DataSet, DataSetData, DataSetDescription, ExecutionParameters,
+    NumDepartments)
+from src.utils.utils import always_true, int_divide_round_up
 
 TEST_DATA_FILE_LOCATION = 'd:/temp/SparkPerfTesting'
 NUM_TRIMESTERS = 8

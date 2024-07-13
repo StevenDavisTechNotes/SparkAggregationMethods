@@ -1,28 +1,28 @@
 #! python
-# usage: cd src; python -m challenges.bi_level.bi_level_pyspark_runner ; cd ..
+# usage: python -m src.challenges.bi_level.bi_level_pyspark_runner
 import argparse
 import gc
 import random
 import time
 from dataclasses import dataclass
-from typing import Optional
 
-from challenges.bi_level.bi_level_record_runs import derive_run_log_file_path
-from challenges.bi_level.bi_level_strategy_directory import (
+from src.challenges.bi_level.bi_level_record_runs import \
+    derive_run_log_file_path
+from src.challenges.bi_level.bi_level_strategy_directory import (
     STRATEGY_NAME_LIST, solutions_using_pyspark)
-from challenges.bi_level.bi_level_test_data_types import (
+from src.challenges.bi_level.bi_level_test_data_types import (
     DATA_SIZES_LIST_BI_LEVEL, result_columns)
-from perf_test_common import CalcEngine
-from six_field_test_data.six_generate_test_data import (
+from src.perf_test_common import CalcEngine
+from src.six_field_test_data.six_generate_test_data import (
     ChallengeMethodPythonPysparkRegistration, DataSetPysparkWithAnswer,
     populate_data_set_pyspark)
-from six_field_test_data.six_run_result_types import write_header
-from six_field_test_data.six_runner_base import \
+from src.six_field_test_data.six_run_result_types import write_header
+from src.six_field_test_data.six_runner_base import \
     test_one_step_in_pyspark_itinerary
-from six_field_test_data.six_test_data_types import (
+from src.six_field_test_data.six_test_data_types import (
     SHARED_LOCAL_TEST_DATA_FILE_LOCATION, Challenge, ExecutionParameters)
-from utils.tidy_spark_session import LOCAL_NUM_EXECUTORS, TidySparkSession
-from utils.utils import always_true, set_random_seed
+from src.utils.tidy_spark_session import LOCAL_NUM_EXECUTORS, TidySparkSession
+from src.utils.utils import always_true, set_random_seed
 
 DEBUG_ARGS = None if False else (
     []
@@ -31,6 +31,10 @@ DEBUG_ARGS = None if False else (
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
     # + ['--strategy',
+    #    'bi_level_pyspark_rdd_grp_map',
+    #    'bi_level_pyspark_rdd_map_part',
+    #    'bi_level_pyspark_rdd_reduce_1',
+    #    'bi_level_pyspark_rdd_reduce_2',
     #    ]
 )
 ENGINE = CalcEngine.PYSPARK
@@ -40,7 +44,7 @@ CHALLENGE = Challenge.BI_LEVEL
 @dataclass(frozen=True)
 class Arguments:
     num_runs: int
-    random_seed: Optional[int]
+    random_seed: int | None
     shuffle: bool
     sizes: list[str]
     strategy_names: list[str]

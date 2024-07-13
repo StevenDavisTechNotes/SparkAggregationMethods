@@ -1,12 +1,12 @@
 from typing import Any, Iterable
 
-from challenges.sectional.section_test_data_types import (ClassLine,
-                                                          NumDepartments,
-                                                          StudentHeader,
-                                                          StudentSummary,
-                                                          TrimesterFooter,
-                                                          TrimesterHeader,
-                                                          TypedLine)
+from src.challenges.sectional.section_test_data_types import (ClassLine,
+                                                              NumDepartments,
+                                                              StudentHeader,
+                                                              StudentSummary,
+                                                              TrimesterFooter,
+                                                              TrimesterHeader,
+                                                              TypedLine)
 
 
 class MutableTrimester:

@@ -1,34 +1,34 @@
-from challenges.conditional.strategies.using_pyspark.cond_pyspark_df_grp_pandas import \
+from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_df_grp_pandas import \
     cond_pyspark_df_grp_pandas
-from challenges.conditional.strategies.using_pyspark.cond_pyspark_df_grp_pandas_numba import \
+from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_df_grp_pandas_numba import \
     cond_pyspark_df_grp_pandas_numba
-from challenges.conditional.strategies.using_pyspark.cond_pyspark_df_join import \
+from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_df_join import \
     cond_pyspark_df_join
-from challenges.conditional.strategies.using_pyspark.cond_pyspark_df_nested import \
+from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_df_nested import \
     cond_pyspark_df_nested
-from challenges.conditional.strategies.using_pyspark.cond_pyspark_df_null import \
+from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_df_null import \
     cond_pyspark_df_null
-from challenges.conditional.strategies.using_pyspark.cond_pyspark_df_window import \
+from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_df_window import \
     cond_pyspark_df_window
-from challenges.conditional.strategies.using_pyspark.cond_pyspark_df_zero import \
+from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_df_zero import \
     cond_pyspark_df_zero
-from challenges.conditional.strategies.using_pyspark.cond_pyspark_rdd_grp_map import \
+from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_rdd_grp_map import \
     cond_pyspark_rdd_grp_map
-from challenges.conditional.strategies.using_pyspark.cond_pyspark_rdd_map_part import \
+from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_rdd_map_part import \
     cond_pyspark_rdd_map_part
-from challenges.conditional.strategies.using_pyspark.cond_pyspark_rdd_reduce import \
+from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_rdd_reduce import \
     cond_pyspark_rdd_reduce
-from challenges.conditional.strategies.using_pyspark.cond_pyspark_sql_join import \
+from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_sql_join import \
     cond_pyspark_sql_join
-from challenges.conditional.strategies.using_pyspark.cond_pyspark_sql_nested import \
+from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_sql_nested import \
     cond_pyspark_sql_nested
-from challenges.conditional.strategies.using_pyspark.cond_pyspark_sql_null import \
+from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_sql_null import \
     cond_pyspark_sql_null
-from six_field_test_data.six_generate_test_data import \
+from src.six_field_test_data.six_generate_test_data import \
     ChallengeMethodPythonPysparkRegistration
-from six_field_test_data.six_generate_test_data.six_test_data_for_python_only import \
+from src.six_field_test_data.six_generate_test_data.six_test_data_for_python_only import \
     NumericalToleranceExpectations
-from utils.inspection import name_of_function
+from src.utils.inspection import name_of_function
 
 # solutions_using_dask: list[ChallengeMethodPythonDaskRegistration] = [
 # ]

@@ -2,10 +2,5 @@
   "include": [
     "src"
   ],
-  "stubPath": "src/typings",
-  "executionEnvironments": [
-    {
-      "root": "src"
-    }
-  ]
+  "stubPath": "src/typings"
 }

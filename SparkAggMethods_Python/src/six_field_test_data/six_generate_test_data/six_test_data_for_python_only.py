@@ -4,11 +4,10 @@ from typing import Literal, Protocol
 
 import pandas as pd
 
-from perf_test_common import CalcEngine
-from six_field_test_data.six_test_data_types import (DataSetAnswer,
-                                                     DataSetDescription,
-                                                     ExecutionParameters,
-                                                     populate_data_set_generic)
+from src.perf_test_common import CalcEngine
+from src.six_field_test_data.six_test_data_types import (
+    Challenge, DataSetAnswer, DataSetDescription, ExecutionParameters,
+    populate_data_set_generic)
 
 
 class NumericalToleranceExpectations(Enum):
@@ -20,9 +19,20 @@ class NumericalToleranceExpectations(Enum):
 
 @dataclass(frozen=True)
 class DataSetDataPythonOnly():
-    SrcNumPartitions: int
-    AggTgtNumPartitions: int
-    dfSrc: pd.DataFrame
+    src_num_partitions: int
+    agg_tgt_num_partitions_1_level: int
+    agg_tgt_num_partitions_2_level: int
+    df_src: pd.DataFrame
+
+
+def pick_agg_tgt_num_partitions_python_only(data: DataSetDataPythonOnly, challenge: Challenge) -> int:
+    match challenge:
+        case Challenge.BI_LEVEL | Challenge.CONDITIONAL:
+            return data.agg_tgt_num_partitions_1_level
+        case Challenge.VANILLA:
+            return data.agg_tgt_num_partitions_2_level
+        case _:
+            raise KeyError(f"Unknown challenge {challenge}")
 
 
 @dataclass(frozen=True)
@@ -71,9 +81,10 @@ def populate_data_set_python_only(
     return DataSetPythonOnlyWithAnswer(
         data_size=data_size,
         data=DataSetDataPythonOnly(
-            SrcNumPartitions=raw_data.src_num_partitions,
-            AggTgtNumPartitions=raw_data.tgt_num_partitions,
-            dfSrc=raw_data.dfSrc,
+            src_num_partitions=raw_data.src_num_partitions,
+            agg_tgt_num_partitions_1_level=raw_data.tgt_num_partitions_1_level,
+            agg_tgt_num_partitions_2_level=raw_data.tgt_num_partitions_2_level,
+            df_src=raw_data.df_src,
         ),
         answer=DataSetAnswer(
             vanilla_answer=raw_data.vanilla_answer,

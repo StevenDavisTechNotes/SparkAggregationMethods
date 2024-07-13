@@ -2,14 +2,14 @@ from typing import Iterable, cast
 
 from pyspark import RDD
 
-from challenges.sectional.domain_logic.section_data_parsers import \
+from src.challenges.sectional.domain_logic.section_data_parsers import \
     rdd_typed_with_index_factory
-from challenges.sectional.domain_logic.section_mutable_subtotal_type import (
+from src.challenges.sectional.domain_logic.section_mutable_subtotal_type import (
     MutableStudent, MutableTrimester)
-from challenges.sectional.section_test_data_types import (
+from src.challenges.sectional.section_test_data_types import (
     ClassLine, DataSet, LabeledTypedRow, StudentHeader, StudentSummary,
     TChallengePythonPysparkAnswer, TrimesterFooter, TrimesterHeader, TypedLine)
-from utils.tidy_spark_session import TidySparkSession
+from src.utils.tidy_spark_session import TidySparkSession
 
 
 def section_pyspark_rdd_join_mappart(
@@ -19,6 +19,7 @@ def section_pyspark_rdd_join_mappart(
     if data_set.data_size.num_students > pow(10, 7-1):
         # times out
         return "infeasible"
+    target_num_partitions = data_set.data.target_num_partitions
     sc = spark_session.spark_context
     rdd1: RDD[LabeledTypedRow] \
         = rdd_typed_with_index_factory(
@@ -64,7 +65,7 @@ def section_pyspark_rdd_join_mappart(
     rdd17: RDD[tuple[tuple[int, int], TypedLine]] = (
         rdd16
         .repartitionAndSortWithinPartitions(
-            numPartitions=data_set.data.target_num_partitions,
+            numPartitions=target_num_partitions,
             partitionFunc=lambda x: cast(tuple[int, int], x[0])))  # type: ignore
 
     rdd18: RDD[StudentSummary] = (

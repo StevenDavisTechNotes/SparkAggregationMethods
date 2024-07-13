@@ -1,12 +1,12 @@
-from typing import NamedTuple, Optional
+from typing import NamedTuple
 
-from challenges.sectional.section_test_data_types import (ClassLine,
-                                                          NumDepartments,
-                                                          StudentHeader,
-                                                          StudentSummary,
-                                                          TrimesterFooter,
-                                                          TrimesterHeader,
-                                                          TypedLine)
+from src.challenges.sectional.section_test_data_types import (ClassLine,
+                                                              NumDepartments,
+                                                              StudentHeader,
+                                                              StudentSummary,
+                                                              TrimesterFooter,
+                                                              TrimesterHeader,
+                                                              TypedLine)
 
 FIRST_LAST_FIRST = 1
 FIRST_LAST_LAST = -1
@@ -14,11 +14,11 @@ FIRST_LAST_NEITHER = 0
 
 
 class StudentSnippet1(NamedTuple):
-    StudentId: Optional[int]
-    StudentName: Optional[str]
-    FirstTrimesterDate: Optional[str]
-    LastTrimesterDate: Optional[str]
-    LastMajor: Optional[int]
+    StudentId: int | None
+    StudentName: str | None
+    FirstTrimesterDate: str | None
+    LastTrimesterDate: str | None
+    LastMajor: int | None
     Credits: list[int]
     WeightedGradeTotal: list[int]
     FirstLineIndex: int
@@ -29,13 +29,13 @@ class StudentSnippet2(NamedTuple):
     FirstLastFlag: int
     FirstLineIndex: int
     LastLineIndex: int
-    StudentId: Optional[int] = None
-    StudentName: Optional[str] = None
-    FirstTrimesterDate: Optional[str] = None
-    LastTrimesterDate: Optional[str] = None
-    LastMajor: Optional[int] = None
-    Credits: Optional[list[int]] = None
-    WeightedGradeTotal: Optional[list[int]] = None
+    StudentId: int | None = None
+    StudentName: str | None = None
+    FirstTrimesterDate: str | None = None
+    LastTrimesterDate: str | None = None
+    LastMajor: int | None = None
+    Credits: list[int] | None = None
+    WeightedGradeTotal: list[int] | None = None
 
 
 class CompletedStudent(NamedTuple):

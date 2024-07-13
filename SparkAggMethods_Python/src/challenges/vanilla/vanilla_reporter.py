@@ -1,5 +1,5 @@
 #!python
-# usage: cd src; python -m VanillaPerfTest.VanillaReporter ; src ..
+# usage: python -m src.VanillaPerfTest.VanillaReporter
 import math
 import os
 from typing import cast
@@ -7,17 +7,14 @@ from typing import cast
 import numpy
 import scipy
 
-from challenges.vanilla.vanilla_record_runs import (EXPECTED_SIZES,
-                                                    FINAL_REPORT_FILE_PATH,
-                                                    SCALA_RUN_LOG_FILE_PATH,
-                                                    PersistedRunResult,
-                                                    derive_run_log_file_path,
-                                                    regressor_from_run_result)
-from challenges.vanilla.vanilla_strategy_directory import (
+from src.challenges.vanilla.vanilla_record_runs import (
+    EXPECTED_SIZES, FINAL_REPORT_FILE_PATH, SCALA_RUN_LOG_FILE_PATH,
+    PersistedRunResult, derive_run_log_file_path, regressor_from_run_result)
+from src.challenges.vanilla.vanilla_strategy_directory import (
     SOLUTIONS_USING_PYSPARK_REGISTRY, SOLUTIONS_USING_SCALA_REGISTRY)
-from perf_test_common import (CalcEngine, ChallengeMethodDescription,
-                              ChallengeMethodExternalRegistration)
-from six_field_test_data.six_generate_test_data import \
+from src.perf_test_common import (CalcEngine, ChallengeMethodDescription,
+                                  ChallengeMethodExternalRegistration)
+from src.six_field_test_data.six_generate_test_data import \
     ChallengeMethodPythonPysparkRegistration
 
 

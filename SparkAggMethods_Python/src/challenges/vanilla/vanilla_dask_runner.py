@@ -1,5 +1,5 @@
 #! python
-# usage: cd src; python -m challenges.vanilla.vanilla_dask_runner ; cd ..
+# usage: python -m src.challenges.vanilla.vanilla_dask_runner
 
 import argparse
 import gc
@@ -7,20 +7,21 @@ import random
 import time
 from typing import NamedTuple
 
-from challenges.vanilla.vanilla_record_runs import derive_run_log_file_path
-from challenges.vanilla.vanilla_strategy_directory import (
+from src.challenges.vanilla.vanilla_record_runs import derive_run_log_file_path
+from src.challenges.vanilla.vanilla_strategy_directory import (
     SOLUTIONS_USING_DASK_REGISTRY, STRATEGY_NAME_LIST_DASK)
-from challenges.vanilla.vanilla_test_data_types import SIZES_LIST_VANILLA
-from perf_test_common import CalcEngine
-from six_field_test_data.six_generate_test_data import (
+from src.challenges.vanilla.vanilla_test_data_types import SIZES_LIST_VANILLA
+from src.perf_test_common import CalcEngine
+from src.six_field_test_data.six_generate_test_data import (
     ChallengeMethodPythonDaskRegistration, DataSetDaskWithAnswer,
     populate_data_set_dask)
-from six_field_test_data.six_run_result_types import write_header
-from six_field_test_data.six_runner_base import test_one_step_in_dask_itinerary
-from six_field_test_data.six_test_data_types import (
+from src.six_field_test_data.six_run_result_types import write_header
+from src.six_field_test_data.six_runner_base import \
+    test_one_step_in_dask_itinerary
+from src.six_field_test_data.six_test_data_types import (
     SHARED_LOCAL_TEST_DATA_FILE_LOCATION, Challenge, ExecutionParameters)
-from utils.tidy_spark_session import LOCAL_NUM_EXECUTORS
-from utils.utils import always_true, set_random_seed
+from src.utils.tidy_spark_session import LOCAL_NUM_EXECUTORS
+from src.utils.utils import always_true, set_random_seed
 
 ENGINE = CalcEngine.DASK
 CHALLENGE = Challenge.VANILLA

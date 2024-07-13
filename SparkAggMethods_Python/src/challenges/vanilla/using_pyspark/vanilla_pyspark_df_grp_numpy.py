@@ -1,12 +1,12 @@
 import numpy
 import pandas as pd
 
-from challenges.vanilla.vanilla_test_data_types import (
+from src.challenges.vanilla.vanilla_test_data_types import (
     pyspark_post_agg_schema, result_columns)
-from six_field_test_data.six_generate_test_data import (
+from src.six_field_test_data.six_generate_test_data import (
     DataSetPyspark, TChallengePendingAnswerPythonPyspark)
-from six_field_test_data.six_test_data_types import ExecutionParameters
-from utils.tidy_spark_session import TidySparkSession
+from src.six_field_test_data.six_test_data_types import ExecutionParameters
+from src.utils.tidy_spark_session import TidySparkSession
 
 
 def vanilla_pyspark_df_grp_numpy(
@@ -15,7 +15,7 @@ def vanilla_pyspark_df_grp_numpy(
         data_set: DataSetPyspark
 ) -> TChallengePendingAnswerPythonPyspark:
 
-    df = data_set.data.dfSrc
+    df = data_set.data.df_src
     df = (
         df
         .groupBy(df.grp, df.subgrp)

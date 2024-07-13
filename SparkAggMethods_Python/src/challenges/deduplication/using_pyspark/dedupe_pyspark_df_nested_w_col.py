@@ -1,13 +1,13 @@
 import pyspark.sql.functions as func
 
-from challenges.deduplication.dedupe_test_data_types import (
+from src.challenges.deduplication.dedupe_test_data_types import (
     DataSet, ExecutionParameters, TChallengePendingAnswerPythonPyspark)
-from challenges.deduplication.domain_logic.dedupe_domain_methods import (
+from src.challenges.deduplication.domain_logic.dedupe_domain_methods import (
     FindConnectedComponents_RecList_Returns, FindRecordMatches_RecList_Returns,
     MergeItems_RecList_Returns, find_connected_components_rec_list,
     find_record_matches_rec_list, merge_items_rec_list, nest_blocks_dataframe,
     unnest_blocks_dataframe)
-from utils.tidy_spark_session import TidySparkSession
+from src.utils.tidy_spark_session import TidySparkSession
 
 
 def dedupe_pyspark_df_nested_w_col(

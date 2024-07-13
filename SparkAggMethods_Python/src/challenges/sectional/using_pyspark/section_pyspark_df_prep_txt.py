@@ -1,13 +1,13 @@
 import pyspark.sql.types as DataTypes
 from pyspark.sql import Row
 
-from challenges.sectional.domain_logic.section_data_parsers import (
+from src.challenges.sectional.domain_logic.section_data_parsers import (
     identify_section_using_intermediate_file, row_to_student_summary)
-from challenges.sectional.section_test_data_types import (
+from src.challenges.sectional.section_test_data_types import (
     DataSet, SparseLineSchema, TChallengePythonPysparkAnswer)
-from challenges.sectional.using_pyspark.section_pyspark_rdd_prep_shared import \
+from src.challenges.sectional.using_pyspark.section_pyspark_rdd_prep_shared import \
     section_pyspark_rdd_prep_shared
-from utils.tidy_spark_session import TidySparkSession
+from src.utils.tidy_spark_session import TidySparkSession
 
 
 def section_pyspark_df_prep_txt(

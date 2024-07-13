@@ -1,20 +1,24 @@
 import math
 from dataclasses import dataclass
-from typing import Iterable, NamedTuple, Optional
+from typing import Iterable, NamedTuple
 
 from pyspark.sql import Row
 
-from six_field_test_data.six_generate_test_data import (
+from src.six_field_test_data.six_generate_test_data import (
     DataSetPyspark, TChallengePendingAnswerPythonPyspark)
-from six_field_test_data.six_test_data_types import (DataPoint,
-                                                     ExecutionParameters)
-from utils.tidy_spark_session import TidySparkSession
+from src.six_field_test_data.six_generate_test_data.six_test_data_for_pyspark import \
+    pick_agg_tgt_num_partitions_pyspark
+from src.six_field_test_data.six_test_data_types import (Challenge, DataPoint,
+                                                         ExecutionParameters)
+from src.utils.tidy_spark_session import TidySparkSession
+
+CHALLENGE = Challenge.VANILLA
 
 
 class SubTotal(NamedTuple):
     running_sum_of_C: float
     running_count: int
-    running_max_of_D: Optional[float]
+    running_max_of_D: float
     running_sum_of_E_squared: float
     running_sum_of_E: float
 
@@ -23,7 +27,7 @@ class SubTotal(NamedTuple):
 class MutableRunningTotal:
     running_sum_of_C: float
     running_count: int
-    running_max_of_D: Optional[float]
+    running_max_of_D: float
     running_sum_of_E_squared: float
     running_sum_of_E: float
 
@@ -32,7 +36,7 @@ class MutableRunningTotal:
         return MutableRunningTotal(
             running_sum_of_C=0,
             running_count=0,
-            running_max_of_D=None,
+            running_max_of_D=math.nan,
             running_sum_of_E_squared=0,
             running_sum_of_E=0)
 
@@ -42,7 +46,8 @@ def vanilla_pyspark_rdd_mappart(
         exec_params: ExecutionParameters,
         data_set: DataSetPyspark
 ) -> TChallengePendingAnswerPythonPyspark:
-    rddSrc = data_set.data.rddSrc
+    agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(data_set.data, CHALLENGE)
+    rddSrc = data_set.data.rdd_src
     sumCount = (
         rddSrc
         .mapPartitions(partition_triage)
@@ -52,7 +57,7 @@ def vanilla_pyspark_rdd_mappart(
     )
     rddResult = sumCount.sortBy(
         lambda x: (x.grp, x.subgrp),  # type: ignore
-        numPartitions=data_set.data.AggTgtNumPartitions)
+        numPartitions=agg_tgt_num_partitions)
     return rddResult
 
 
@@ -81,12 +86,12 @@ def partition_triage(
 
 
 def max(
-        lhs: Optional[float],
-        rhs: Optional[float],
-) -> Optional[float]:
-    if lhs is None:
+        lhs: float,
+        rhs: float,
+) -> float:
+    if not math.isnan(lhs):
         return rhs
-    if rhs is None:
+    if not math.isnan(rhs):
         return lhs
     if lhs > rhs:
         return lhs

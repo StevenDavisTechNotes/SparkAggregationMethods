@@ -1,18 +1,18 @@
 #!python
-# usage: cd src; python -m DedupePerfTest.DedupeReporter ; cd ..
+# usage: python -m src.DedupePerfTest.DedupeReporter
 import math
 from typing import NamedTuple, cast
 
 import numpy
 import scipy.stats
 
-from challenges.deduplication.dedupe_record_runs import (
+from src.challenges.deduplication.dedupe_record_runs import (
     EXPECTED_NUM_RECORDS, FINAL_REPORT_FILE_PATH, PersistedRunResult,
     read_result_file, regressor_from_run_result)
-from challenges.deduplication.dedupe_strategy_directory import \
+from src.challenges.deduplication.dedupe_strategy_directory import \
     solutions_using_pyspark
-from perf_test_common import CalcEngine
-from utils.linear_regression import linear_regression
+from src.perf_test_common import CalcEngine
+from src.utils.linear_regression import linear_regression
 
 TEMP_RESULT_FILE_PATH = "d:/temp/SparkPerfTesting/temp.csv"
 

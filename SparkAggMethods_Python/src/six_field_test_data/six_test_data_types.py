@@ -11,8 +11,8 @@ import numpy as np
 import pandas as pd
 import pyspark.sql.types as DataTypes
 
-from perf_test_common import CalcEngine
-from utils.utils import always_true, int_divide_round_up
+from src.perf_test_common import CalcEngine
+from src.utils.utils import always_true, int_divide_round_up
 
 SHARED_LOCAL_TEST_DATA_FILE_LOCATION = "d:/temp/SparkPerfTesting"
 MAX_DATA_POINTS_PER_SPARK_PARTITION = 5 * 10**3
@@ -103,9 +103,10 @@ class RunResult:
 @dataclass(frozen=True)
 class DataSetGeneric():
     num_data_points: int
-    tgt_num_partitions: int
     src_num_partitions: int
-    dfSrc: pd.DataFrame
+    tgt_num_partitions_1_level: int
+    tgt_num_partitions_2_level: int
+    df_src: pd.DataFrame
     vanilla_answer: pd.DataFrame
     bilevel_answer: pd.DataFrame
     conditional_answer: pd.DataFrame
@@ -123,7 +124,6 @@ def populate_data_set_generic(
     # Need to split this up, upfront, into many partitions
     # to avoid memory issues and
     # avoid preferential treatment of methods that don't repartition
-    tgt_num_partitions = num_grp_1 * num_grp_2
     match engine:
         case CalcEngine.DASK:
             max_data_points_per_partition = MAX_DATA_POINTS_PER_DASK_PARTITION
@@ -210,14 +210,15 @@ def populate_data_set_generic(
             if always_true(negE := df_cluster[df_cluster["E"] < 0]['E'])
         ])
     print(f"Using {num_grp_1}, {num_grp_2}, {repetition} "
-          f"tgt_num_partitions={src_num_partitions} "
+          f"src_num_partitions={src_num_partitions} "
           f"each {num_grp_1 * num_grp_2 * repetition/src_num_partitions:.1f}")
 
     return DataSetGeneric(
         num_data_points=num_data_points,
-        tgt_num_partitions=tgt_num_partitions,
         src_num_partitions=src_num_partitions,
-        dfSrc=df,
+        tgt_num_partitions_1_level=num_grp_1,
+        tgt_num_partitions_2_level=num_grp_1 * num_grp_2,
+        df_src=df,
         vanilla_answer=vanilla_answer,
         bilevel_answer=bilevel_answer,
         conditional_answer=conditional_answer,

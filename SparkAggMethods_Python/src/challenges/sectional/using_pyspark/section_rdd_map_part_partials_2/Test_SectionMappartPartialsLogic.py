@@ -3,20 +3,21 @@ from typing import Iterable
 import pytest
 from pyspark.sql import SparkSession
 
-from challenges.sectional.domain_logic.section_snippet_subtotal_type import \
+from src.challenges.sectional.domain_logic.section_snippet_subtotal_type import \
     CompletedStudent
-from challenges.sectional.section_pyspark_runner import spark_configs
-from challenges.sectional.section_test_data_types import (ClassLine,
-                                                          LabeledTypedRow,
-                                                          StudentHeader,
-                                                          StudentSummary,
-                                                          TrimesterFooter,
-                                                          TrimesterHeader,
-                                                          TypedLine)
-from challenges.sectional.using_pyspark.section_pyspark_rdd_mappart_partials import \
+from src.challenges.sectional.section_pyspark_runner import spark_configs
+from src.challenges.sectional.section_test_data_types import (ClassLine,
+                                                              LabeledTypedRow,
+                                                              StudentHeader,
+                                                              StudentSummary,
+                                                              TrimesterFooter,
+                                                              TrimesterHeader,
+                                                              TypedLine)
+from src.challenges.sectional.using_pyspark.section_pyspark_rdd_mappart_partials import \
     section_mappart_partials_logic
-from utils.printer import print_object_as_python_literal
-from utils.tidy_spark_session import SPARK_SCRATCH_FOLDER, open_spark_session
+from src.utils.printer import print_object_as_python_literal
+from src.utils.tidy_spark_session import (SPARK_SCRATCH_FOLDER,
+                                          open_spark_session)
 
 
 @pytest.fixture

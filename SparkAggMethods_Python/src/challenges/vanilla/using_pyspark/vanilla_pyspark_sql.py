@@ -1,7 +1,7 @@
-from six_field_test_data.six_generate_test_data import (
+from src.six_field_test_data.six_generate_test_data import (
     DataSetPyspark, TChallengePendingAnswerPythonPyspark)
-from six_field_test_data.six_test_data_types import ExecutionParameters
-from utils.tidy_spark_session import TidySparkSession
+from src.six_field_test_data.six_test_data_types import ExecutionParameters
+from src.utils.tidy_spark_session import TidySparkSession
 
 
 def vanilla_pyspark_sql(
@@ -9,7 +9,7 @@ def vanilla_pyspark_sql(
         exec_params: ExecutionParameters,
         data_set: DataSetPyspark
 ) -> TChallengePendingAnswerPythonPyspark:
-    df = data_set.data.dfSrc
+    df = data_set.data.df_src
     spark_session.spark.catalog.dropTempView("example_data")
     df.createTempView("example_data")
     df = spark_session.spark.sql('''

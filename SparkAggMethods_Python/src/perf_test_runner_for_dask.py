@@ -1,9 +1,9 @@
 #! python
-# usage: cd src; python -m perf_test_runner_for_dask ; cd ..
+# usage: .\venv\Scripts\activate.ps1; python -m src.perf_test_runner_for_dask
 
-from challenges.vanilla import vanilla_dask_runner
+from src.challenges.vanilla import vanilla_dask_runner
 
-# from utils.tidy_spark_session import LOCAL_NUM_EXECUTORS
+# from src.utils.tidy_spark_session import LOCAL_NUM_EXECUTORS
 
 
 def main():

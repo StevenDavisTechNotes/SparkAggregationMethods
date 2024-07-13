@@ -1,11 +1,12 @@
 
-from typing import Optional, TypeVar, Union
+from typing import TypeVar
 
 import pyspark.sql.functions as func
 import pyspark.sql.types as DataTypes
 from pyspark.sql import DataFrame as PySparkDataFrame
 
-from challenges.deduplication.dedupe_test_data_types import RecordSparseStruct
+from src.challenges.deduplication.dedupe_test_data_types import \
+    RecordSparseStruct
 
 MatchThreshold = 0.9
 # must be 0.4316546762589928 < threshold < 0.9927007299270073 @ 10k
@@ -13,21 +14,21 @@ MatchThreshold = 0.9
 # region Shared
 
 
-T = TypeVar('T', bound=Union[float, str])
+T = TypeVar('T', bound=float | str)
 
 
 def min_not_null(
-        lst: list[Optional[T]]
-) -> Optional[T]:
-    filteredList: list[T] = [
+        lst: list[T | None]
+) -> T | None:
+    filtered_list: list[T] = [
         x for x in lst if x is not None]
-    return min(filteredList) \
-        if len(filteredList) > 0 else None
+    return min(filtered_list) \
+        if len(filtered_list) > 0 else None
 
 
 def first_not_null(
-        lst: list[Optional[T]]
-) -> Optional[T]:
+        lst: list[T | None]
+) -> T | None:
     for x in lst:
         if x is not None:
             return x
@@ -265,7 +266,7 @@ def merge_items_rec_list(
 def combine_row_list(
         constituentList: list[DataTypes.Row],
 ) -> DataTypes.Row:
-    mutableRec: dict[str, Union[str, int, None]] = constituentList[0].asDict()
+    mutableRec: dict[str, str | int | None] = constituentList[0].asDict()
     mutableRec['SourceId'] = None
     bestNumNameParts = 0
     for contributor in constituentList:

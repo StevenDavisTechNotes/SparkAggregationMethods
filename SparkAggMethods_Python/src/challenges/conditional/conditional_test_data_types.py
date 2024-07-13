@@ -3,22 +3,21 @@ from typing import NamedTuple
 
 import pyspark.sql.types as DataTypes
 
-from six_field_test_data.six_test_data_types import (DataPointSchema,
-                                                     DataSetDescription)
+from src.six_field_test_data.six_test_data_types import (DataPointSchema,
+                                                         DataSetDescription)
 
-groupby_columns = ['grp', 'subgrp']
-agg_columns_3 = ['mean_of_C', 'max_of_D', 'cond_var_of_E']
-postAggSchema_3 = DataTypes.StructType(
-    [x for x in DataPointSchema.fields if x.name in groupby_columns] +
+GROUP_BY_COLUMNS = ['grp', 'subgrp']
+AGG_COLUMN_NAMES_3 = ['mean_of_C', 'max_of_D', 'cond_var_of_E']
+POST_AGG_SCHEMA_3 = DataTypes.StructType(
+    [x for x in DataPointSchema.fields if x.name in GROUP_BY_COLUMNS] +
     [DataTypes.StructField(name, DataTypes.DoubleType(), False)
-        for name in agg_columns_3])
+        for name in AGG_COLUMN_NAMES_3])
 
-groupby_columns = ['grp', 'subgrp']
-agg_columns_4 = ['mean_of_C', 'max_of_D', 'cond_var_of_E', 'cond_var_of_E2']
-postAggSchema_4 = DataTypes.StructType(
-    [x for x in DataPointSchema.fields if x.name in groupby_columns] +
+AGG_COLUMN_NAMES_4 = ['mean_of_C', 'max_of_D', 'cond_var_of_E', 'cond_var_of_E2']
+POST_AGG_SCHEMA_4 = DataTypes.StructType(
+    [x for x in DataPointSchema.fields if x.name in GROUP_BY_COLUMNS] +
     [DataTypes.StructField(name, DataTypes.DoubleType(), False)
-        for name in agg_columns_4])
+        for name in AGG_COLUMN_NAMES_4])
 
 
 DATA_SIZES_LIST_CONDITIONAL = [
@@ -45,7 +44,7 @@ DATA_SIZES_LIST_CONDITIONAL = [
 class SubTotal(NamedTuple):
     running_sum_of_C: float
     running_uncond_count: int
-    running_max_of_D: float | None
+    running_max_of_D: float
     running_cond_sum_of_E_squared: float
     running_cond_sum_of_E: float
     running_cond_count: int

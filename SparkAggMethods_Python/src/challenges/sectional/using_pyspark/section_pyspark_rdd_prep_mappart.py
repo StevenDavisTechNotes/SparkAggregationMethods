@@ -1,13 +1,13 @@
 from pyspark import RDD
 
-from challenges.sectional.domain_logic.section_data_parsers import \
+from src.challenges.sectional.domain_logic.section_data_parsers import \
     identify_section_using_intermediate_file
-from challenges.sectional.domain_logic.section_mutable_subtotal_type import \
+from src.challenges.sectional.domain_logic.section_mutable_subtotal_type import \
     aggregate_typed_rows_to_grades
-from challenges.sectional.section_test_data_types import (
+from src.challenges.sectional.section_test_data_types import (
     ClassLine, DataSet, StudentHeader, StudentSummary,
     TChallengePythonPysparkAnswer, TrimesterFooter, TrimesterHeader, TypedLine)
-from utils.tidy_spark_session import TidySparkSession
+from src.utils.tidy_spark_session import TidySparkSession
 
 
 def section_pyspark_rdd_prep_mappart(
@@ -19,18 +19,18 @@ def section_pyspark_rdd_prep_mappart(
         return "infeasible"
     sc = spark_session.spark_context
     filename = data_set.data.test_filepath
-    TargetNumPartitions = data_set.data.target_num_partitions
+    target_num_partitions = data_set.data.target_num_partitions
 
     interFileName = identify_section_using_intermediate_file(filename)
     rdd1: RDD[tuple[tuple[int, int], TypedLine]] = (
-        sc.textFile(interFileName, TargetNumPartitions)
+        sc.textFile(interFileName, target_num_partitions)
         .zipWithIndex()
         .map(lambda pair: parse_line_to_types_with_line_no(filename, pair[1], pair[0]))
     )
     rdd: RDD[StudentSummary] = (
         rdd1
         .repartitionAndSortWithinPartitions(
-            numPartitions=TargetNumPartitions,
+            numPartitions=target_num_partitions,
             partitionFunc=lambda x: x[0],  # type: ignore
         )
         .values()

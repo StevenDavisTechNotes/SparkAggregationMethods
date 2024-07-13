@@ -1,13 +1,13 @@
 import io
 import os
 import re
-from typing import Any, Optional, TextIO, cast
+from typing import Any, TextIO, cast
 
 import prettyprinter
 
 
 def install_extras(
-        include: Optional[list[str]] = None,
+        include: list[str] | None = None,
         *,
         exclude: list[str] = [],
         raise_on_error: bool = True,
@@ -30,7 +30,7 @@ def pprint(
         stream: TextIO,
         indent: int = 4,
         width: int = 79,
-        depth: Optional[int] = None,
+        depth: int | None = None,
         compact: bool = False,
         ribbon_width: int = 71,
         max_seq_len: int = 1000,

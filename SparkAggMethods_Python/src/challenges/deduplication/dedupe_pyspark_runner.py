@@ -1,5 +1,5 @@
 #! python
-# usage: cd src; python -m challenges.deduplication.dedupe_pyspark_runner ; cd ..
+# usage: python -m src.challenges.deduplication.dedupe_pyspark_runner
 # cSpell: ignore wasb, sparkperftesting, Reqs
 import argparse
 import gc
@@ -7,25 +7,25 @@ import math
 import random
 import time
 from dataclasses import dataclass
-from typing import Literal, Optional
+from typing import Literal
 
 from pyspark import RDD
 from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import Row
 
-from challenges.deduplication.dedupe_generate_test_data import (
+from src.challenges.deduplication.dedupe_generate_test_data import (
     DATA_SIZE_LIST_DEDUPE, generate_test_data)
-from challenges.deduplication.dedupe_record_runs import (
+from src.challenges.deduplication.dedupe_record_runs import (
     RunResult, derive_run_log_file_path, write_header, write_run_result)
-from challenges.deduplication.dedupe_strategy_directory import (
+from src.challenges.deduplication.dedupe_strategy_directory import (
     STRATEGY_NAME_LIST, solutions_using_pyspark)
-from challenges.deduplication.dedupe_test_data_types import (
+from src.challenges.deduplication.dedupe_test_data_types import (
     DataSet, ExecutionParameters)
-from challenges.deduplication.domain_logic.dedupe_expected_results import (
+from src.challenges.deduplication.domain_logic.dedupe_expected_results import (
     ItineraryItem, verify_correctness)
-from perf_test_common import CalcEngine
-from utils.tidy_spark_session import TidySparkSession
-from utils.utils import always_true, set_random_seed
+from src.perf_test_common import CalcEngine
+from src.utils.tidy_spark_session import TidySparkSession
+from src.utils.utils import always_true, set_random_seed
 
 ENGINE = CalcEngine.PYSPARK
 DEBUG_ARGS = None if False else (
@@ -46,7 +46,7 @@ MaximumProcessableSegment = pow(10, 5)
 @dataclass(frozen=True)
 class Arguments:
     num_runs: int
-    random_seed: Optional[int]
+    random_seed: int | None
     shuffle: bool
     sizes: list[str]
     strategy_names: list[str]

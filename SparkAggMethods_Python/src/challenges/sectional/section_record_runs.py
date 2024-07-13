@@ -3,10 +3,10 @@ import os
 from dataclasses import dataclass
 from typing import TextIO
 
-from challenges.sectional.section_test_data_types import (
+from src.challenges.sectional.section_test_data_types import (
     ChallengeMethodPysparkRegistration, DataSetDescription, RunResult)
-from perf_test_common import CalcEngine
-from utils.utils import root_folder_abs_path
+from src.perf_test_common import CalcEngine
+from src.utils.utils import root_folder_abs_path
 
 T_PYTHON_PYSPARK_RUN_LOG_FILE_PATH: str = 'results/section_pyspark_runs.csv'
 T_PYTHON_DASK_RUN_LOG_FILE_PATH: str = 'results/section_dask_runs.csv'

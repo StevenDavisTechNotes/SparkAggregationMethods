@@ -1,4 +1,4 @@
-from typing import Callable, Iterable, Optional, TypeVar, cast
+from typing import Callable, Iterable, TypeVar, cast
 
 from pyspark import RDD, StorageLevel
 
@@ -12,7 +12,7 @@ def non_commutative_tree_aggregate(
         comb_op: Callable[[T, T], T],
         depth: int = 2,
         division_base: int = 2,
-        storage_level: Optional[StorageLevel] = None,
+        storage_level: StorageLevel | None = None,
 ) -> RDD[T]:
     def aggregate_partition(
             i_part: int,

@@ -1,5 +1,5 @@
 #! python
-# usage: cd src; python -m challenges.sectional.section_pyspark_runner cd ..
+# usage: python -m src.challenges.sectional.section_pyspark_runner
 # cSpell: ignore wasb, sparkperftesting, Reqs
 import argparse
 import gc
@@ -7,26 +7,26 @@ import os
 import random
 import time
 from dataclasses import dataclass
-from typing import Iterable, Optional, TextIO
+from typing import Iterable, TextIO
 
 from pyspark import RDD
 from pyspark.sql import DataFrame as PySparkDataFrame
 
-from challenges.sectional.section_generate_test_data import (
+from src.challenges.sectional.section_generate_test_data import (
     DATA_SIZE_LIST_SECTIONAL, populate_data_sets)
-from challenges.sectional.section_record_runs import (
+from src.challenges.sectional.section_record_runs import (
     MAXIMUM_PROCESSABLE_SEGMENT, derive_run_log_file_path, write_header,
     write_run_result)
-from challenges.sectional.section_strategy_directory import (
+from src.challenges.sectional.section_strategy_directory import (
     STRATEGY_NAME_LIST, solutions_using_pyspark)
-from challenges.sectional.section_test_data_types import (
+from src.challenges.sectional.section_test_data_types import (
     ChallengeMethodPysparkRegistration, DataSetWithAnswer, ExecutionParameters,
     RunResult, StudentSummary)
-from challenges.sectional.using_pyspark.section_nospark_single_threaded import \
+from src.challenges.sectional.using_pyspark.section_nospark_single_threaded import \
     section_nospark_logic
-from perf_test_common import CalcEngine, count_iter
-from utils.tidy_spark_session import LOCAL_NUM_EXECUTORS, TidySparkSession
-from utils.utils import always_true, set_random_seed
+from src.perf_test_common import CalcEngine, count_iter
+from src.utils.tidy_spark_session import LOCAL_NUM_EXECUTORS, TidySparkSession
+from src.utils.utils import always_true, set_random_seed
 
 ENGINE = CalcEngine.PYSPARK
 DEBUG_ARGS = None if False else (
@@ -50,7 +50,7 @@ class Arguments:
     check_answers: bool
     make_new_data_files: bool
     num_runs: int
-    random_seed: Optional[int]
+    random_seed: int | None
     shuffle: bool
     sizes: list[str]
     strategy_names: list[str]
@@ -187,12 +187,12 @@ def run_one_itinerary_step(
             found_students_iterable = iter_tuple
         case _:
             raise ValueError("Unexpected return type")
-    concrete_students: Optional[list[StudentSummary]]
+    concrete_students: list[StudentSummary]
     if args.check_answers:
         concrete_students = list(found_students_iterable)
         num_students_found = len(concrete_students)
     else:
-        concrete_students = None
+        concrete_students = []
         num_students_found = count_iter(found_students_iterable)
     finishedTime = time.time()
     if rdd is not None and rdd.getNumPartitions() > max(
@@ -217,7 +217,7 @@ def run_one_itinerary_step(
 
 def verify_correctness(
     data_set: DataSetWithAnswer,
-    found_students: Optional[list[StudentSummary]],
+    found_students: list[StudentSummary] | None,
     num_students_found: int,
     check_answers: bool,
 ) -> bool:

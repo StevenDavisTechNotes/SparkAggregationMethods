@@ -1,5 +1,5 @@
 #! python
-# usage: cd src; python -m challenges.vanilla.vanilla_python_only_runner ; cd ..
+# usage: python -m src.challenges.vanilla.vanilla_python_only_runner
 import argparse
 import gc
 import logging
@@ -7,23 +7,22 @@ import os
 import random
 import time
 from dataclasses import dataclass
-from typing import Optional
 
-from challenges.vanilla.vanilla_record_runs import derive_run_log_file_path
-from challenges.vanilla.vanilla_strategy_directory import (
+from src.challenges.vanilla.vanilla_record_runs import derive_run_log_file_path
+from src.challenges.vanilla.vanilla_strategy_directory import (
     SOLUTIONS_USING_PYTHON_ONLY_REGISTRY, STRATEGY_NAME_LIST_PYTHON_ONLY)
-from challenges.vanilla.vanilla_test_data_types import SIZES_LIST_VANILLA
-from perf_test_common import CalcEngine
-from six_field_test_data.six_generate_test_data import (
+from src.challenges.vanilla.vanilla_test_data_types import SIZES_LIST_VANILLA
+from src.perf_test_common import CalcEngine
+from src.six_field_test_data.six_generate_test_data import (
     ChallengeMethodPythonOnlyRegistration, DataSetPythonOnlyWithAnswer,
     populate_data_set_python_only)
-from six_field_test_data.six_run_result_types import write_header
-from six_field_test_data.six_runner_base import \
+from src.six_field_test_data.six_run_result_types import write_header
+from src.six_field_test_data.six_runner_base import \
     test_one_step_in_python_only_itinerary
-from six_field_test_data.six_test_data_types import (
+from src.six_field_test_data.six_test_data_types import (
     SHARED_LOCAL_TEST_DATA_FILE_LOCATION, Challenge, ExecutionParameters)
-from utils.tidy_spark_session import get_python_code_root_path
-from utils.utils import always_true, set_random_seed
+from src.utils.tidy_spark_session import get_python_code_root_path
+from src.utils.utils import always_true, set_random_seed
 
 logger = logging.getLogger(__name__)
 ENGINE = CalcEngine.PYTHON_ONLY
@@ -44,7 +43,7 @@ DEBUG_ARGS = None if False else (
 @dataclass(frozen=True)
 class Arguments:
     num_runs: int
-    random_seed: Optional[int]
+    random_seed: int | None
     shuffle: bool
     sizes: list[str]
     strategy_names: list[str]

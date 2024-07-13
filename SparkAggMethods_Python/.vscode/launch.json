@@ -5,20 +5,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Current File",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal",
-            "justMyCode": true
-        },
-        {
-            "name": "Python: Module CmdVar",
-            "type": "python",
+            "name": "Python: Module",
+            "type": "debugpy",
             "request": "launch",
             "console": "integratedTerminal",
-            "module": "${command:extension.commandvariable.file.relativeDirDots}.${fileBasenameNoExtension}",
-            "justMyCode": true
+            "module": "${command:extension.commandvariable.file.relativeFileDotsNoExtension}",
         }
     ]
 }

@@ -1,6 +1,6 @@
 import pytest
 
-from challenges.sectional.domain_logic.section_snippet_subtotal_type import (
+from src.challenges.sectional.domain_logic.section_snippet_subtotal_type import (
     FIRST_LAST_NEITHER, CompletedStudent, StudentSnippet2, complete_snippets_2)
 
 

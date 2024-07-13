@@ -1,8 +1,8 @@
 import pandas as pd
 
-from six_field_test_data.six_generate_test_data import (
+from src.six_field_test_data.six_generate_test_data import (
     DataSetDask, TChallengeAnswerPythonDask)
-from six_field_test_data.six_test_data_types import ExecutionParameters
+from src.six_field_test_data.six_test_data_types import ExecutionParameters
 
 
 def vanilla_dask_sql(

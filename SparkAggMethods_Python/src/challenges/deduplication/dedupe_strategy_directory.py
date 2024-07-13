@@ -1,20 +1,20 @@
-from challenges.deduplication.dedupe_test_data_types import \
+from src.challenges.deduplication.dedupe_test_data_types import \
     ChallengeMethodPythonPysparkRegistration
-from challenges.deduplication.using_pyspark.dedupe_pyspark_df_nested_pandas import \
+from src.challenges.deduplication.using_pyspark.dedupe_pyspark_df_nested_pandas import \
     dedupe_pyspark_df_nested_pandas
-from challenges.deduplication.using_pyspark.dedupe_pyspark_df_nested_python import \
+from src.challenges.deduplication.using_pyspark.dedupe_pyspark_df_nested_python import \
     dedupe_pyspark_df_nested_python
-from challenges.deduplication.using_pyspark.dedupe_pyspark_df_nested_w_col import \
+from src.challenges.deduplication.using_pyspark.dedupe_pyspark_df_nested_w_col import \
     dedupe_pyspark_df_nested_w_col
-from challenges.deduplication.using_pyspark.dedupe_pyspark_df_window import \
+from src.challenges.deduplication.using_pyspark.dedupe_pyspark_df_window import \
     dedupe_pyspark_df_window
-from challenges.deduplication.using_pyspark.dedupe_pyspark_rdd_grp import \
+from src.challenges.deduplication.using_pyspark.dedupe_pyspark_rdd_grp import \
     dedupe_pyspark_rdd_grp
-from challenges.deduplication.using_pyspark.dedupe_pyspark_rdd_map_part import \
+from src.challenges.deduplication.using_pyspark.dedupe_pyspark_rdd_map_part import \
     dedupe_pyspark_rdd_map_part
-from challenges.deduplication.using_pyspark.dedupe_pyspark_rdd_reduce import \
+from src.challenges.deduplication.using_pyspark.dedupe_pyspark_rdd_reduce import \
     dedupe_pyspark_rdd_reduce
-from utils.inspection import name_of_function
+from src.utils.inspection import name_of_function
 
 # solutions_using_dask: list[ChallengeMethodPythonDaskRegistration] = [
 # ]

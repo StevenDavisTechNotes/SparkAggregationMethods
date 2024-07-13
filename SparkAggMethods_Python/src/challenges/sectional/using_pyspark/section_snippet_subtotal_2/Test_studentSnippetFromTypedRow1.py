@@ -1,11 +1,11 @@
 
-from challenges.sectional.domain_logic.section_snippet_subtotal_type import (
+from src.challenges.sectional.domain_logic.section_snippet_subtotal_type import (
     StudentSnippet1, student_snippet_from_typed_row_1)
-from challenges.sectional.section_test_data_types import (ClassLine,
-                                                          NumDepartments,
-                                                          StudentHeader,
-                                                          TrimesterFooter,
-                                                          TrimesterHeader)
+from src.challenges.sectional.section_test_data_types import (ClassLine,
+                                                              NumDepartments,
+                                                              StudentHeader,
+                                                              TrimesterFooter,
+                                                              TrimesterHeader)
 
 
 class Test_StudentHeader:

@@ -3,13 +3,13 @@ import pyspark.sql.types as DataTypes
 from pyspark.sql import Row
 from pyspark.sql.window import Window
 
-from challenges.sectional.domain_logic.section_data_parsers import (
+from src.challenges.sectional.domain_logic.section_data_parsers import (
     parse_line_to_row, row_to_student_summary)
-from challenges.sectional.section_record_runs import \
+from src.challenges.sectional.section_record_runs import \
     MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT
-from challenges.sectional.section_test_data_types import (
+from src.challenges.sectional.section_test_data_types import (
     DataSet, SparseLineSchema, TChallengePythonPysparkAnswer)
-from utils.tidy_spark_session import TidySparkSession
+from src.utils.tidy_spark_session import TidySparkSession
 
 
 def section_join_groupby(

@@ -5,13 +5,13 @@ from typing import NamedTuple, cast
 import numpy
 import scipy.stats
 
-from challenges.conditional.conditional_record_runs import (
+from src.challenges.conditional.conditional_record_runs import (
     FINAL_REPORT_FILE_PATH, derive_run_log_file_path)
-from challenges.conditional.conditional_strategy_directory import \
+from src.challenges.conditional.conditional_strategy_directory import \
     solutions_using_pyspark
-from perf_test_common import CalcEngine
-from six_field_test_data.six_test_data_types import RunResult
-from utils.linear_regression import linear_regression
+from src.perf_test_common import CalcEngine
+from src.six_field_test_data.six_test_data_types import RunResult
+from src.utils.linear_regression import linear_regression
 
 TEMP_RESULT_FILE_PATH = "d:/temp/SparkPerfTesting/temp.csv"
 

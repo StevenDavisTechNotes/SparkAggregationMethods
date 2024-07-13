@@ -4,10 +4,10 @@ from dask.dataframe import groupby
 from dask.dataframe.core import DataFrame as DaskDataFrame
 from pandas.core.groupby.generic import SeriesGroupBy
 
-from challenges.vanilla.vanilla_test_data_types import agg_columns
-from six_field_test_data.six_generate_test_data import (
+from src.challenges.vanilla.vanilla_test_data_types import agg_columns
+from src.six_field_test_data.six_generate_test_data import (
     DataSetDask, TChallengeAnswerPythonDask)
-from six_field_test_data.six_test_data_types import ExecutionParameters
+from src.six_field_test_data.six_test_data_types import ExecutionParameters
 
 
 def ddof_0_do_chunk(s: SeriesGroupBy) -> tuple[pd.Series, pd.Series, pd.Series]:

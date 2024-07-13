@@ -1,10 +1,10 @@
 
 import pyspark.sql.functions as func
 
-from six_field_test_data.six_generate_test_data import (
+from src.six_field_test_data.six_generate_test_data import (
     DataSetPyspark, TChallengePendingAnswerPythonPyspark)
-from six_field_test_data.six_test_data_types import ExecutionParameters
-from utils.tidy_spark_session import TidySparkSession
+from src.six_field_test_data.six_test_data_types import ExecutionParameters
+from src.utils.tidy_spark_session import TidySparkSession
 
 
 def cond_pyspark_df_join(
@@ -12,7 +12,7 @@ def cond_pyspark_df_join(
         exec_params: ExecutionParameters,
         data_set: DataSetPyspark,
 ) -> TChallengePendingAnswerPythonPyspark:
-    dfData = data_set.data.dfSrc
+    dfData = data_set.data.df_src
     uncond = (
         dfData
         .groupBy(dfData.grp, dfData.subgrp)

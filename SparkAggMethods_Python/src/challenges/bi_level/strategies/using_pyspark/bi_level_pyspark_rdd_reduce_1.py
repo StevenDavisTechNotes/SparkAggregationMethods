@@ -3,11 +3,15 @@ from typing import NamedTuple
 
 from pyspark.sql import Row
 
-from six_field_test_data.six_generate_test_data import (
+from src.six_field_test_data.six_generate_test_data import (
     DataSetPyspark, TChallengePendingAnswerPythonPyspark)
-from six_field_test_data.six_test_data_types import (DataPoint,
-                                                     ExecutionParameters)
-from utils.tidy_spark_session import TidySparkSession
+from src.six_field_test_data.six_generate_test_data.six_test_data_for_pyspark import \
+    pick_agg_tgt_num_partitions_pyspark
+from src.six_field_test_data.six_test_data_types import (Challenge, DataPoint,
+                                                         ExecutionParameters)
+from src.utils.tidy_spark_session import TidySparkSession
+
+CHALLENGE = Challenge.BI_LEVEL
 
 
 class SubTotal2(NamedTuple):
@@ -18,7 +22,7 @@ class SubTotal2(NamedTuple):
 
 class SubTotal1(NamedTuple):
     running_sum_of_C: float
-    running_max_of_D: float | None
+    running_max_of_D: float
     subgrp_running_totals: dict[int, SubTotal2]
 
 
@@ -27,16 +31,16 @@ def bi_level_pyspark_rdd_reduce_1(
         exec_params: ExecutionParameters,
         data_set: DataSetPyspark
 ) -> TChallengePendingAnswerPythonPyspark:
-    rddSrc = data_set.data.rddSrc
+    rddSrc = data_set.data.rdd_src
+    agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(data_set.data, CHALLENGE)
 
     rddResult = (
         rddSrc
         .map(lambda x: (x.grp, x))
         .combineByKey(create_combiner,
                       merge_value,
-                      merge_combiners,
-                      numPartitions=data_set.data.AggTgtNumPartitions)
-        .sortByKey()  # type: ignore
+                      merge_combiners)
+        .sortByKey(numPartitions=agg_tgt_num_partitions)  # type: ignore
         .map(lambda pair: final_analytics(pair[0], pair[1]))
     )
     return rddResult
@@ -61,10 +65,10 @@ def merge_value(
         sub_sub.running_count + 1)
     return SubTotal1(
         running_sum_of_C=pre.running_sum_of_C + v.C,
-        running_max_of_D=pre.running_max_of_D
-        if pre.running_max_of_D is not None and
-        pre.running_max_of_D > v.D
-        else v.D,
+        running_max_of_D=(pre.running_max_of_D
+                          if not math.isnan(pre.running_max_of_D) and
+                          pre.running_max_of_D > v.D
+                          else v.D),
         subgrp_running_totals=subgrp_running_totals)
 
 
@@ -73,7 +77,7 @@ def create_combiner(
 ) -> SubTotal1:
     return merge_value(SubTotal1(
         running_sum_of_C=0,
-        running_max_of_D=None,
+        running_max_of_D=math.nan,
         subgrp_running_totals=dict()), v)
 
 
@@ -106,13 +110,13 @@ def merge_combiners(
                     x.running_count
                     for x in list_of_subgrp_running_totals))
         subgrp_running_totals[subgrp] = result
-    assert rsub.running_max_of_D is not None
+    assert not math.isnan(rsub.running_max_of_D)
     return SubTotal1(
         running_sum_of_C=lsub.running_sum_of_C + rsub.running_sum_of_C,
-        running_max_of_D=lsub.running_max_of_D
-        if lsub.running_max_of_D is not None and
-        lsub.running_max_of_D > rsub.running_max_of_D
-        else rsub.running_max_of_D,
+        running_max_of_D=(lsub.running_max_of_D
+                          if not math.isnan(lsub.running_max_of_D) and
+                          lsub.running_max_of_D > rsub.running_max_of_D
+                          else rsub.running_max_of_D),
         subgrp_running_totals=subgrp_running_totals)
 
 

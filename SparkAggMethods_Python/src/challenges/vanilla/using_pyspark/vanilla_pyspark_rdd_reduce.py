@@ -1,13 +1,17 @@
-from typing import NamedTuple, Optional
+from typing import NamedTuple, Optional, cast
 
 from pyspark import RDD
 from pyspark.sql import Row
 
-from six_field_test_data.six_generate_test_data import (
+from src.six_field_test_data.six_generate_test_data import (
     DataSetPyspark, TChallengePendingAnswerPythonPyspark)
-from six_field_test_data.six_test_data_types import (DataPoint,
-                                                     ExecutionParameters)
-from utils.tidy_spark_session import TidySparkSession
+from src.six_field_test_data.six_generate_test_data.six_test_data_for_pyspark import \
+    pick_agg_tgt_num_partitions_pyspark
+from src.six_field_test_data.six_test_data_types import (Challenge, DataPoint,
+                                                         ExecutionParameters)
+from src.utils.tidy_spark_session import TidySparkSession
+
+CHALLENGE = Challenge.VANILLA
 
 
 class SubTotalDC(NamedTuple):
@@ -23,16 +27,17 @@ def vanilla_pyspark_rdd_reduce(
         exec_params: ExecutionParameters,
         data_set: DataSetPyspark
 ) -> TChallengePendingAnswerPythonPyspark:
+    agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(data_set.data, CHALLENGE)
     sumCount: RDD[Row] = (
-        data_set.data.rddSrc
+        data_set.data.rdd_src
         .map(lambda x: ((x.grp, x.subgrp), x))
         .combineByKey(create_combiner_2,
                       merge_value_2,
-                      merge_combiners_2,
-                      numPartitions=data_set.data.AggTgtNumPartitions)
+                      merge_combiners_2)
         .map(lambda kv: final_analytics_2(kv[0], kv[1])))
     rddResult = sumCount.sortBy(
-        keyfunc=lambda x: (x.grp, x.subgrp))  # type: ignore
+        keyfunc=lambda x: cast(tuple[int, int], (x.grp, x.subgrp)),  # type: ignore
+        numPartitions=agg_tgt_num_partitions)
     return rddResult
 
 

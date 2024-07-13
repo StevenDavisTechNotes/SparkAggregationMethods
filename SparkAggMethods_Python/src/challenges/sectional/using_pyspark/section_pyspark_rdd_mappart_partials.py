@@ -1,17 +1,17 @@
-from typing import Callable, Iterable, NamedTuple, Optional, Union, cast
+from typing import Callable, Iterable, NamedTuple, cast
 
 from pyspark import RDD, SparkContext, StorageLevel
 
-from challenges.sectional.domain_logic.section_data_parsers import \
+from src.challenges.sectional.domain_logic.section_data_parsers import \
     rdd_typed_with_index_factory
-from challenges.sectional.domain_logic.section_snippet_subtotal_type import (
+from src.challenges.sectional.domain_logic.section_snippet_subtotal_type import (
     FIRST_LAST_FIRST, FIRST_LAST_LAST, FIRST_LAST_NEITHER, CompletedStudent,
     StudentSnippet2, complete_snippets_2, grade_summary, marge_snippets_2,
     student_snippet_from_typed_row_2)
-from challenges.sectional.section_test_data_types import (
+from src.challenges.sectional.section_test_data_types import (
     DataSet, LabeledTypedRow, StudentSummary, TChallengePythonPysparkAnswer)
-from utils.tidy_spark_session import TidySparkSession
-from utils.utils import int_divide_round_up
+from src.utils.tidy_spark_session import TidySparkSession
+from src.utils.utils import int_divide_round_up
 
 
 class StudentSnippetWIndex(NamedTuple):
@@ -52,7 +52,7 @@ def section_mappart_partials_logic(
         rdd_orig: RDD[LabeledTypedRow],
         default_parallelism: int,
         maximum_processable_segment: int,
-        report_num_completed: Optional[Callable[[int], None]] = None,
+        report_num_completed: Callable[[int], None] | None = None,
 ) -> RDD[StudentSummary]:
     num_lines_in_orig = rdd_orig.count()
     rdd_accumulative_completed: RDD[CompletedStudent] = sc.parallelize([], numSlices=1)
@@ -118,8 +118,8 @@ def inner_iteration(
         passNumber: int,
         data_to_process: tuple[RDD[StudentSnippet2], int, RDD[CompletedStudent]],
         maximum_processable_segment: int,
-        report_num_completed: Optional[Callable[[int], None]] = None,
-) -> tuple[Optional[RDD[StudentSnippet2]], int, RDD[CompletedStudent]]:
+        report_num_completed: Callable[[int], None] | None = None,
+) -> tuple[RDD[StudentSnippet2] | None, int, RDD[CompletedStudent]]:
     rdd0, num_lines_in_rdd0, rdd_accumulative_completed = data_to_process
     print("passNumber", passNumber)
 
@@ -136,14 +136,14 @@ def inner_iteration(
 
     def partition_function(key: tuple[int, int]) -> int:
         return key[0]
-    targetNumPartitions = int_divide_round_up(num_lines_in_rdd0, maximum_processable_segment)
+    target_num_partitions = int_divide_round_up(num_lines_in_rdd0, maximum_processable_segment)
     rdd4: RDD[tuple[tuple[int, int], StudentSnippetWIndex]] = (
         rdd3.repartitionAndSortWithinPartitions(
-            numPartitions=targetNumPartitions,
+            numPartitions=target_num_partitions,
             partitionFunc=partition_function)  # type: ignore
-        if rdd3.getNumPartitions() != targetNumPartitions else
+        if rdd3.getNumPartitions() != target_num_partitions else
         rdd3.sortByKey(  # type: ignore
-            numPartitions=targetNumPartitions,
+            numPartitions=target_num_partitions,
         )
     )
 
@@ -156,7 +156,7 @@ def inner_iteration(
     rdd5: RDD[tuple[int, bool, int, StudentSnippet2]] \
         = rdd4.map(mark_start_of_segment)
 
-    rdd6: RDD[tuple[bool, Union[CompletedStudent, StudentSnippet2]]] \
+    rdd6: RDD[tuple[bool, CompletedStudent | StudentSnippet2]] \
         = rdd5.mapPartitions(consolidate_snippets_in_partition, preservesPartitioning=True)
     rdd6.persist(StorageLevel.DISK_ONLY)
     try:
@@ -182,10 +182,10 @@ def inner_iteration(
             return None, 0, rdd_accumulative_completed
 
         print("Doing rdd8")
-        targetNumPartitions = int_divide_round_up(remaining_num_rows7, maximum_processable_segment)
+        target_num_partitions = int_divide_round_up(remaining_num_rows7, maximum_processable_segment)
         rdd8: RDD[StudentSnippet2] = rdd7.sortBy(
             lambda x: x.FirstLineIndex,  # type: ignore
-            numPartitions=targetNumPartitions)
+            numPartitions=target_num_partitions)
         rdd8.persist(StorageLevel.DISK_ONLY)
         remaining_num_rows8 = rdd8.count()
         print("End of inner loop")
@@ -197,9 +197,9 @@ def inner_iteration(
 
 def consolidate_snippets_in_partition(
         iter: Iterable[tuple[int, bool, int, StudentSnippet2]]
-) -> Iterable[tuple[bool, Union[CompletedStudent, StudentSnippet2]]]:
+) -> Iterable[tuple[bool, CompletedStudent | StudentSnippet2]]:
     front_is_clean: bool = False
-    building_snippet: Optional[StudentSnippet2] = None
+    building_snippet: StudentSnippet2 | None = None
 
     rMember: StudentSnippet2
     for rGroupNumber, _rIsAtStartOfSegment, _passNumber, rMember in iter:

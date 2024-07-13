@@ -2,12 +2,12 @@
 import numpy as np
 import pandas as pd
 
-from challenges.conditional.conditional_test_data_types import (
-    agg_columns_4, groupby_columns, postAggSchema_4)
-from six_field_test_data.six_generate_test_data import (
+from src.challenges.conditional.conditional_test_data_types import (
+    AGG_COLUMN_NAMES_4, GROUP_BY_COLUMNS, POST_AGG_SCHEMA_4)
+from src.six_field_test_data.six_generate_test_data import (
     DataSetPyspark, TChallengePendingAnswerPythonPyspark)
-from six_field_test_data.six_test_data_types import ExecutionParameters
-from utils.tidy_spark_session import TidySparkSession
+from src.six_field_test_data.six_test_data_types import ExecutionParameters
+from src.utils.tidy_spark_session import TidySparkSession
 
 try:
     import numba  # pyright: ignore[reportMissingImports]
@@ -46,14 +46,14 @@ def cond_pyspark_df_grp_pandas_numba(
         exec_params: ExecutionParameters,
         data_set: DataSetPyspark,
 ) -> TChallengePendingAnswerPythonPyspark:
-    df = data_set.data.dfSrc
+    df = data_set.data.df_src
     if numba is None:
         return "infeasible"
 
     df = (
         df
         .groupby(df.grp, df.subgrp)
-        .applyInPandas(inner_agg_method, postAggSchema_4)
+        .applyInPandas(inner_agg_method, POST_AGG_SCHEMA_4)
     )
     df = df.orderBy(df.grp, df.subgrp)
     return df
@@ -74,4 +74,4 @@ def inner_agg_method(
         my_numba_max(D),
         my_numba_var(posE),
         my_loop_lift_var(posE),
-    ]], columns=groupby_columns + agg_columns_4)
+    ]], columns=GROUP_BY_COLUMNS + AGG_COLUMN_NAMES_4)

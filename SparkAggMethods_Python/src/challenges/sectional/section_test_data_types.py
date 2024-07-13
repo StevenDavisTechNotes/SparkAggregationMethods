@@ -1,13 +1,13 @@
 from dataclasses import dataclass
-from typing import Callable, Iterable, Literal, NamedTuple, Optional, Protocol
+from typing import Callable, Iterable, Literal, NamedTuple, Protocol
 
 import pandas as pd
 import pyspark.sql.types as DataTypes
 from pyspark import RDD
 from pyspark.sql import DataFrame as PySparkDataFrame
 
-from perf_test_common import CalcEngine
-from utils.tidy_spark_session import TidySparkSession
+from src.perf_test_common import CalcEngine
+from src.utils.tidy_spark_session import TidySparkSession
 
 
 @dataclass(frozen=True)
@@ -114,7 +114,7 @@ class DataSet():
 
 @dataclass(frozen=True)
 class DataSetWithAnswer(DataSet):
-    answer_generator: Optional[Callable[[], Iterable[StudentSummary]]]
+    answer_generator: Callable[[], Iterable[StudentSummary]] | None
 
 
 @dataclass(frozen=True)

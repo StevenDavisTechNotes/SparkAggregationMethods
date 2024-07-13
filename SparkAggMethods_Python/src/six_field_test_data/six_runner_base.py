@@ -8,21 +8,26 @@ from pyspark import RDD
 from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import Row
 
-from challenges.vanilla.vanilla_test_data_types import result_columns
-from perf_test_common import CalcEngine
-from six_field_test_data.six_generate_test_data import (
+from src.challenges.vanilla.vanilla_test_data_types import result_columns
+from src.perf_test_common import CalcEngine
+from src.six_field_test_data.six_generate_test_data import (
     ChallengeMethodPythonDaskRegistration,
     ChallengeMethodPythonOnlyRegistration,
     ChallengeMethodPythonPysparkRegistration, DataSetDaskWithAnswer,
     DataSetPysparkWithAnswer, DataSetPythonOnlyWithAnswer)
-from six_field_test_data.six_generate_test_data.six_test_data_for_python_only import \
+from src.six_field_test_data.six_generate_test_data.six_test_data_for_dask import \
+    pick_agg_tgt_num_partitions_dask
+from src.six_field_test_data.six_generate_test_data.six_test_data_for_pyspark import \
+    pick_agg_tgt_num_partitions_pyspark
+from src.six_field_test_data.six_generate_test_data.six_test_data_for_python_only import \
     NumericalToleranceExpectations
-from six_field_test_data.six_run_result_types import write_run_result
-from six_field_test_data.six_test_data_types import (Challenge, DataSetAnswer,
-                                                     DataSetDescription,
-                                                     ExecutionParameters,
-                                                     RunResult)
-from utils.tidy_spark_session import TidySparkSession
+from src.six_field_test_data.six_run_result_types import write_run_result
+from src.six_field_test_data.six_test_data_types import (Challenge,
+                                                         DataSetAnswer,
+                                                         DataSetDescription,
+                                                         ExecutionParameters,
+                                                         RunResult)
+from src.utils.tidy_spark_session import TidySparkSession
 
 
 def test_one_step_in_dask_itinerary(
@@ -33,13 +38,14 @@ def test_one_step_in_dask_itinerary(
         data_set: DataSetDaskWithAnswer,
 ):
     startedTime = time.time()
+    agg_tgt_num_partitions = pick_agg_tgt_num_partitions_dask(data_set.data, challenge)
     df_answer: pd.DataFrame
     match challenge_method_registration.delegate(
         exec_params=exec_params,
         data_set=data_set,
     ):
         case DaskBag() as bag:
-            if bag.npartitions > max(data_set.data.agg_tgt_num_partitions, exec_params.DefaultParallelism):
+            if bag.npartitions > max(agg_tgt_num_partitions, exec_params.DefaultParallelism):
                 print(
                     f"{challenge_method_registration.strategy_name} output rdd has {bag.npartitions} partitions")
                 findings = bag.compute()
@@ -52,7 +58,7 @@ def test_one_step_in_dask_itinerary(
             else:
                 df_answer = pd.DataFrame(columns=result_columns)
         case DaskDataFrame() as ddf:
-            if ddf.npartitions > max(data_set.data.agg_tgt_num_partitions, exec_params.DefaultParallelism):
+            if ddf.npartitions > max(agg_tgt_num_partitions, exec_params.DefaultParallelism):
                 print(
                     f"{challenge_method_registration.strategy_name} output rdd has {ddf.npartitions} partitions")
                 findings = ddf.compute()
@@ -89,7 +95,8 @@ def test_one_step_in_pyspark_itinerary(
         data_set: DataSetPysparkWithAnswer,
 ):
     def check_partitions(rdd: RDD):
-        if rdd.getNumPartitions() > max(data_set.data.AggTgtNumPartitions, exec_params.DefaultParallelism):
+        agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(data_set.data, challenge)
+        if rdd.getNumPartitions() > max(agg_tgt_num_partitions, exec_params.DefaultParallelism):
             print(
                 f"{challenge_method_registration.strategy_name} output rdd has {rdd.getNumPartitions()} partitions")
             findings = rdd.collect()

@@ -1,7 +1,7 @@
 import pyspark.sql.types as DataTypes
 
-from six_field_test_data.six_test_data_types import (DataPointSchema,
-                                                     DataSetDescription)
+from src.six_field_test_data.six_test_data_types import (DataPointSchema,
+                                                         DataSetDescription)
 
 groupby_columns = ['grp']
 agg_columns = ['mean_of_C', 'max_of_D', 'avg_var_of_E', 'avg_var_of_E2']

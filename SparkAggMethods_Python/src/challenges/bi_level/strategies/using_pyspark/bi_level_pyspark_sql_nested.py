@@ -1,7 +1,7 @@
-from six_field_test_data.six_generate_test_data import (
+from src.six_field_test_data.six_generate_test_data import (
     DataSetPyspark, TChallengePendingAnswerPythonPyspark)
-from six_field_test_data.six_test_data_types import ExecutionParameters
-from utils.tidy_spark_session import TidySparkSession
+from src.six_field_test_data.six_test_data_types import ExecutionParameters
+from src.utils.tidy_spark_session import TidySparkSession
 
 
 def bi_level_pyspark_sql_nested(
@@ -9,7 +9,7 @@ def bi_level_pyspark_sql_nested(
         exec_params: ExecutionParameters,
         data_set: DataSetPyspark
 ) -> TChallengePendingAnswerPythonPyspark:
-    dfSrc = data_set.data.dfSrc
+    dfSrc = data_set.data.df_src
     spark = spark_session.spark
 
     spark.catalog.dropTempView("example_data")

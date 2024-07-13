@@ -7,16 +7,16 @@ from typing import NamedTuple, cast
 import numpy
 import scipy.stats
 
-from challenges.sectional.section_generate_test_data import DataSetDescription
-from challenges.sectional.section_record_runs import (FINAL_REPORT_FILE_PATH,
-                                                      derive_run_log_file_path)
-from challenges.sectional.section_strategy_directory import (
+from src.challenges.sectional.section_generate_test_data import \
+    DataSetDescription
+from src.challenges.sectional.section_record_runs import (
+    FINAL_REPORT_FILE_PATH, derive_run_log_file_path)
+from src.challenges.sectional.section_strategy_directory import (
     solutions_using_dask, solutions_using_pyspark, solutions_using_python_only)
-from challenges.sectional.section_test_data_types import (DataSet, DataSetData,
-                                                          ExecutionParameters,
-                                                          RunResult)
-from perf_test_common import CalcEngine
-from utils.linear_regression import linear_regression
+from src.challenges.sectional.section_test_data_types import (
+    DataSet, DataSetData, ExecutionParameters, RunResult)
+from src.perf_test_common import CalcEngine
+from src.utils.linear_regression import linear_regression
 
 
 class TestRegression(NamedTuple):

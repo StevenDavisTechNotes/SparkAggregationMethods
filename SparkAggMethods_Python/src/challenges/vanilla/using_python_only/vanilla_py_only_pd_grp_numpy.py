@@ -1,9 +1,9 @@
 import numpy
 import pandas as pd
 
-from six_field_test_data.six_generate_test_data import (
+from src.six_field_test_data.six_generate_test_data import (
     DataSetPythonOnly, TChallengePythonOnlyAnswer)
-from six_field_test_data.six_test_data_types import ExecutionParameters
+from src.six_field_test_data.six_test_data_types import ExecutionParameters
 
 
 def vanilla_py_only_pd_grp_numpy(
@@ -12,7 +12,7 @@ def vanilla_py_only_pd_grp_numpy(
 ) -> TChallengePythonOnlyAnswer:
     if data_set.data_size.num_data_points > 9 * 10**6:
         return "infeasible"
-    df = data_set.data.dfSrc
+    df = data_set.data.df_src
     df_result = (
         df
         .groupby(by=["grp", "subgrp"])

@@ -34,7 +34,7 @@ def open_spark_session(
 ) -> OpenSparkSession:
     findspark.init()
     python_code_root_path = get_python_code_root_path()
-    python_src_code_path = os.path.join(python_code_root_path, "src")
+    python_src_code_path = python_code_root_path  # os.path.join(python_code_root_path, "src")
     path_to_python_interpreter = os.path.join(
         python_code_root_path, "venv", "scripts", "python.exe")
     os.environ["PYSPARK_PYTHON"] = path_to_python_interpreter

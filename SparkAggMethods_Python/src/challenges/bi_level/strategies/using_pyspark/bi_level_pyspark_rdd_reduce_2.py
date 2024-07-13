@@ -3,17 +3,21 @@ from typing import Iterable, NamedTuple
 
 from pyspark.sql import Row
 
-from six_field_test_data.six_generate_test_data import (
+from src.six_field_test_data.six_generate_test_data import (
     DataSetPyspark, TChallengePendingAnswerPythonPyspark)
-from six_field_test_data.six_test_data_types import (DataPoint,
-                                                     ExecutionParameters)
-from utils.tidy_spark_session import TidySparkSession
+from src.six_field_test_data.six_generate_test_data.six_test_data_for_pyspark import \
+    pick_agg_tgt_num_partitions_pyspark
+from src.six_field_test_data.six_test_data_types import (Challenge, DataPoint,
+                                                         ExecutionParameters)
+from src.utils.tidy_spark_session import TidySparkSession
+
+CHALLENGE = Challenge.BI_LEVEL
 
 
 class SubTotal(NamedTuple):
     running_count: int
     running_sum_of_C: float
-    running_max_of_D: float | None
+    running_max_of_D: float
     running_sum_of_E_squared: float
     running_sum_of_E: float
 
@@ -23,19 +27,19 @@ def bi_level_pyspark_rdd_reduce_2(
         exec_params: ExecutionParameters,
         data_set: DataSetPyspark
 ) -> TChallengePendingAnswerPythonPyspark:
-    rddSrc = data_set.data.rddSrc
+    rddSrc = data_set.data.rdd_src
+    agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(data_set.data, CHALLENGE)
 
     rddResult = (
         rddSrc
         .map(lambda x: ((x.grp, x.subgrp), x))
         .combineByKey(create_combiner,
                       merge_value,
-                      merge_combiners,
-                      numPartitions=data_set.data.AggTgtNumPartitions)
+                      merge_combiners)
         .map(lambda x: (x[0][0], x[1]))
-        .groupByKey(numPartitions=1)
-        .map(lambda x: (x[0], final_analytics(x[0], x[1])))
-        .sortByKey()  # type: ignore
+        .groupByKey(numPartitions=data_set.description.num_grp_1 * data_set.description.num_grp_2)
+        .map(lambda x: (x[0], final_analytics(x[0], x[1])), preservesPartitioning=True)
+        .sortByKey(numPartitions=agg_tgt_num_partitions)  # type: ignore
         .values()
     )
     return rddResult
@@ -48,10 +52,10 @@ def merge_value(
     return SubTotal(
         running_sum_of_C=pre.running_sum_of_C + v.C,
         running_count=pre.running_count + 1,
-        running_max_of_D=pre.running_max_of_D
-        if pre.running_max_of_D is not None and
-        pre.running_max_of_D > v.D
-        else v.D,
+        running_max_of_D=(pre.running_max_of_D
+                          if not math.isnan(pre.running_max_of_D) and
+                          pre.running_max_of_D > v.D
+                          else v.D),
         running_sum_of_E_squared=pre.running_sum_of_E_squared +
         v.E * v.E,
         running_sum_of_E=pre.running_sum_of_E + v.E)
@@ -63,7 +67,7 @@ def create_combiner(
     return merge_value(SubTotal(
         running_sum_of_C=0,
         running_count=0,
-        running_max_of_D=None,
+        running_max_of_D=math.nan,
         running_sum_of_E_squared=0,
         running_sum_of_E=0), v)
 
@@ -72,14 +76,14 @@ def merge_combiners(
         lsub: SubTotal,
         rsub: SubTotal,
 ) -> SubTotal:
-    assert rsub.running_max_of_D is not None
+    assert not math.isnan(rsub.running_max_of_D)
     return SubTotal(
         running_sum_of_C=lsub.running_sum_of_C + rsub.running_sum_of_C,
         running_count=lsub.running_count + rsub.running_count,
-        running_max_of_D=lsub.running_max_of_D
-        if lsub.running_max_of_D is not None and
-        lsub.running_max_of_D > rsub.running_max_of_D
-        else rsub.running_max_of_D,
+        running_max_of_D=(lsub.running_max_of_D
+                          if not math.isnan(lsub.running_max_of_D) and
+                          lsub.running_max_of_D > rsub.running_max_of_D
+                          else rsub.running_max_of_D),
         running_sum_of_E_squared=lsub.running_sum_of_E_squared +
         rsub.running_sum_of_E_squared,
         running_sum_of_E=lsub.running_sum_of_E + rsub.running_sum_of_E)
@@ -91,19 +95,19 @@ def final_analytics(
 ) -> Row:
     running_sum_of_C = 0
     running_grp_count = 0
-    running_max_of_D = None
+    running_max_of_D = math.nan
     running_sum_of_var_of_E = 0
     running_count_of_subgrp = 0
 
     for sub in iterator:
-        assert sub.running_max_of_D is not None
+        assert not math.isnan(sub.running_max_of_D)
         count = sub.running_count
         running_sum_of_C += sub.running_sum_of_C
         running_grp_count += count
-        running_max_of_D = sub.running_max_of_D \
-            if running_max_of_D is None or \
-            running_max_of_D < sub.running_max_of_D \
-            else running_max_of_D
+        running_max_of_D = (sub.running_max_of_D
+                            if not math.isnan(running_max_of_D) or
+                            running_max_of_D < sub.running_max_of_D
+                            else running_max_of_D)
         var_of_E = (
             sub.running_sum_of_E_squared / count
             - (sub.running_sum_of_E / count)**2
@@ -113,8 +117,9 @@ def final_analytics(
 
     return Row(
         grp=grp,
-        mean_of_C=math.nan
-        if running_grp_count < 1 else
-        running_sum_of_C / running_grp_count,
+        mean_of_C=(
+            math.nan
+            if running_grp_count < 1 else
+            running_sum_of_C / running_grp_count),
         max_of_D=running_max_of_D,
         avg_var_of_E=running_sum_of_var_of_E / running_count_of_subgrp)

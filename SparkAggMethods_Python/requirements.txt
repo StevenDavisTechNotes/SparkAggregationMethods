@@ -3,8 +3,9 @@
 # pip freeze > frozen_requirements.txt
 # Python==3.11.8
 autopep8
-dask==2024.2.1
-dask[dataframe]==2024.2.1
+dask==2024.1.1
+dask[dataframe]==2024.1.1
+dask-sql==2024.3.0
 # dask[distributed] too many conflicts for now
 findspark
 flake8

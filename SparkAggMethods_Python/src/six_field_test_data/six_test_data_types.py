@@ -25,12 +25,6 @@ class Challenge(StrEnum):
     CONDITIONAL = 'conditional'
 
 
-@dataclass(frozen=True)
-class ExecutionParameters:
-    DefaultParallelism: int
-    TestDataFolderLocation: str
-
-
 class DataPoint(NamedTuple):
     id: int
     grp: int
@@ -90,6 +84,12 @@ class DataSetAnswer():
                 return self.conditional_answer
             case _:
                 raise KeyError(f"Unknown challenge {challenge}")
+
+
+@dataclass(frozen=True)
+class ExecutionParameters:
+    DefaultParallelism: int
+    TestDataFolderLocation: str
 
 
 @dataclass(frozen=True)

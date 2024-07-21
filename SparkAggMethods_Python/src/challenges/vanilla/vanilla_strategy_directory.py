@@ -2,6 +2,8 @@ from src.challenges.vanilla.using_dask.vanilla_dask_ddf_grp_apply import \
     vanilla_dask_ddf_grp_apply
 from src.challenges.vanilla.using_dask.vanilla_dask_ddf_grp_udaf import \
     vanilla_dask_ddf_grp_udaf
+from src.challenges.vanilla.using_dask.vanilla_dask_sql import \
+    vanilla_dask_sql_no_gpu
 from src.challenges.vanilla.using_pyspark.vanilla_pyspark_df_grp_builtin import \
     vanilla_pyspark_df_grp_builtin
 from src.challenges.vanilla.using_pyspark.vanilla_pyspark_df_grp_numba import \
@@ -47,6 +49,14 @@ SOLUTIONS_USING_DASK_REGISTRY: list[ChallengeMethodPythonDaskRegistration] = [
         numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         requires_gpu=False,
         delegate=vanilla_dask_ddf_grp_udaf,
+    ),
+    ChallengeMethodPythonDaskRegistration(
+        strategy_name=name_of_function(vanilla_dask_sql_no_gpu),
+        language='python',
+        interface='ddf',
+        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
+        requires_gpu=False,
+        delegate=vanilla_dask_sql_no_gpu,
     ),
 ]
 

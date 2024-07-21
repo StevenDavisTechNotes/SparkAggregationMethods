@@ -42,7 +42,7 @@ DEBUG_ARGS = None if False else (
 )
 
 
-@ dataclass(frozen=True)
+@dataclass(frozen=True)
 class Arguments:
     num_runs: int
     random_seed: int | None

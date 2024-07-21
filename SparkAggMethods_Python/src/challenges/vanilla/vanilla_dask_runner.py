@@ -28,14 +28,15 @@ CHALLENGE = Challenge.VANILLA
 
 DEBUG_ARGS = None if False else (
     []
-    # + '--size 3_3_1m'.split()
+    + '--size 3_3_10'.split()
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
-    + ['--strategy',
-       'vanilla_dask_ddf_grp_apply',
-       'vanilla_dask_ddf_grp_udaf',
-       ]
+    # + ['--strategy',
+    #    'vanilla_dask_ddf_grp_apply',
+    #    'vanilla_dask_ddf_grp_udaf',
+    #    'vanilla_dask_sql_no_gpu',
+    #    ]
 )
 
 

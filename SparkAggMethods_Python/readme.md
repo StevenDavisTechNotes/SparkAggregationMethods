@@ -32,11 +32,11 @@ Then Close and reopen VSCode
 ## Handy command lines
 
 ```
-flake8 .
-clear && flake8 . && pyright .
-autopep8 --recursive --diff . | findstr /i /c:'--- original/'
-autopep8 --recursive  --in-place .
-& "cspell-cli" "**/*.py" "--no-summary" "--no-progress" "--exclude" "__pycache__" "--exclude" ".git" "--exclude" "venv" "--fail-fast"
+flake8 src
+clear && flake8 src && pyright src
+autopep8 --recursive --diff src | findstr /i /c:'--- original/'
+autopep8 --recursive  --in-place src
+& "cspell-cli" "src/**/*.py" "--no-summary" "--no-progress" "--exclude" "__pycache__" "--exclude" ".git" "--exclude" "venv" "--fail-fast"
 ```
 
 ## Installing PySpark on Windows

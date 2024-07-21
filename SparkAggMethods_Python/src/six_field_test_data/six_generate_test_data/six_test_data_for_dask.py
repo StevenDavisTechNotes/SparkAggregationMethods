@@ -6,7 +6,7 @@ from dask.bag.core import Bag as DaskBag
 from dask.dataframe.core import DataFrame as DaskDataFrame
 from dask.dataframe.io.io import from_pandas
 
-from src.perf_test_common import CalcEngine
+from src.perf_test_common import CalcEngine, ChallengeMethodRegistration
 from src.six_field_test_data.six_generate_test_data.six_test_data_for_python_only import \
     NumericalToleranceExpectations
 from src.six_field_test_data.six_test_data_types import (
@@ -58,12 +58,12 @@ class IChallengeMethodPythonDask(Protocol):
 
 
 @dataclass(frozen=True)
-class ChallengeMethodPythonDaskRegistration:
-    strategy_name: str
-    language: str
-    interface: str
+class ChallengeMethodPythonDaskRegistration(ChallengeMethodRegistration):
+    # strategy_name: str
+    # language: str
+    # interface: str
     numerical_tolerance: NumericalToleranceExpectations
-    requires_gpu: bool
+    # requires_gpu: bool
     delegate: IChallengeMethodPythonDask
 
 # endregion

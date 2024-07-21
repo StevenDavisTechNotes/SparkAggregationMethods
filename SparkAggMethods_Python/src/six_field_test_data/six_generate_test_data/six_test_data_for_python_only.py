@@ -4,7 +4,7 @@ from typing import Literal, Protocol
 
 import pandas as pd
 
-from src.perf_test_common import CalcEngine
+from src.perf_test_common import CalcEngine, ChallengeMethodRegistration
 from src.six_field_test_data.six_test_data_types import (
     Challenge, DataSetAnswer, DataSetDescription, ExecutionParameters,
     populate_data_set_generic)
@@ -59,12 +59,12 @@ class IChallengeMethodPythonOnly(Protocol):
 
 
 @dataclass(frozen=True)
-class ChallengeMethodPythonOnlyRegistration:
-    strategy_name: str
-    language: str
-    interface: str
+class ChallengeMethodPythonOnlyRegistration(ChallengeMethodRegistration):
+    # strategy_name: str
+    # language: str
+    # interface: str
     numerical_tolerance: NumericalToleranceExpectations
-    requires_gpu: bool
+    # requires_gpu: bool
     delegate: IChallengeMethodPythonOnly
 
 

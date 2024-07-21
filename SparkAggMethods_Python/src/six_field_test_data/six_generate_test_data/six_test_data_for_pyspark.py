@@ -6,7 +6,7 @@ from pyspark import RDD, StorageLevel
 from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import Row
 
-from src.perf_test_common import CalcEngine
+from src.perf_test_common import CalcEngine, ChallengeMethodRegistration
 from src.six_field_test_data.six_generate_test_data.six_test_data_for_python_only import \
     NumericalToleranceExpectations
 from src.six_field_test_data.six_test_data_types import (
@@ -65,13 +65,13 @@ class IChallengeMethodPythonPyspark(Protocol):
 
 
 @dataclass(frozen=True)
-class ChallengeMethodPythonPysparkRegistration:
-    original_strategy_name: str
-    strategy_name: str
-    language: str
-    interface: str
+class ChallengeMethodPythonPysparkRegistration(ChallengeMethodRegistration):
+    # original_strategy_name: str
+    # strategy_name: str
+    # language: str
+    # interface: str
     numerical_tolerance: NumericalToleranceExpectations
-    requires_gpu: bool
+    # requires_gpu: bool
     delegate: IChallengeMethodPythonPyspark
 
 

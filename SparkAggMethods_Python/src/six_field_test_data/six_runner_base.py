@@ -1,4 +1,5 @@
 import time
+from dataclasses import dataclass
 from typing import TextIO
 
 import pandas as pd
@@ -28,6 +29,20 @@ from src.six_field_test_data.six_test_data_types import (Challenge,
                                                          ExecutionParameters,
                                                          RunResult)
 from src.utils.tidy_spark_session import TidySparkSession
+
+
+@dataclass(frozen=True)
+class SummarizedPerformanceOfMethodAtDataSize:
+    challenge: Challenge
+    strategy_name: str
+    language: str
+    interface: str
+    regressor: int
+    number_of_runs: int
+    elapsed_time_avg: float
+    elapsed_time_std: float
+    elapsed_time_rl: float
+    elapsed_time_rh: float
 
 
 def test_one_step_in_dask_itinerary(

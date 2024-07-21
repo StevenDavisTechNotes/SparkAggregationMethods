@@ -4,18 +4,12 @@ from typing import Iterable
 
 
 @dataclass(frozen=True)
-class ChallengeMethodExternalRegistration:
+class ChallengeMethodRegistration:
+    strategy_name_2018: str | None
     strategy_name: str
     language: str
     interface: str
-
-
-@dataclass(frozen=True)
-class ChallengeMethodDescription:
-    data_name: str
-    raw_method_name: str
-    language: str
-    interface: str
+    requires_gpu: bool
 
 
 class CalcEngine(StrEnum):

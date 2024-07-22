@@ -25,10 +25,10 @@ from src.challenges.sectional.using_python_only.section_py_only_single_threaded 
     section_py_only_single_threaded
 from src.utils.inspection import name_of_function
 
-solutions_using_dask: list[ChallengeMethodDaskRegistration] = [
+STRATEGIES_USING_DASK_REGISTRY: list[ChallengeMethodDaskRegistration] = [
 ]
 
-solutions_using_pyspark: list[ChallengeMethodPysparkRegistration] = [
+STRATEGIES_USING_PYSPARK_REGISTRY: list[ChallengeMethodPysparkRegistration] = [
     ChallengeMethodPysparkRegistration(
         original_strategy_name='section_nospark_single_threaded',
         strategy_name=name_of_function(section_nospark_single_threaded),
@@ -128,7 +128,7 @@ solutions_using_pyspark: list[ChallengeMethodPysparkRegistration] = [
     ),
 ]
 
-solutions_using_python_only: list[ChallengeMethodPythonOnlyRegistration] = [
+STRATEGIES_USING_PYTHON_ONLY_REGISTRY: list[ChallengeMethodPythonOnlyRegistration] = [
     ChallengeMethodPythonOnlyRegistration(
         strategy_name=name_of_function(section_py_only_single_threaded),
         language='python',
@@ -138,5 +138,3 @@ solutions_using_python_only: list[ChallengeMethodPythonOnlyRegistration] = [
         delegate=section_py_only_single_threaded
     ),
 ]
-
-STRATEGY_NAME_LIST = [x.strategy_name for x in solutions_using_pyspark]

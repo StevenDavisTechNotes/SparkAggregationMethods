@@ -17,8 +17,8 @@ from src.challenges.sectional.section_generate_test_data import (
 from src.challenges.sectional.section_record_runs import (
     MAXIMUM_PROCESSABLE_SEGMENT, derive_run_log_file_path, write_header,
     write_run_result)
-from src.challenges.sectional.section_strategy_directory import (
-    STRATEGY_NAME_LIST, solutions_using_pyspark)
+from src.challenges.sectional.section_strategy_directory import \
+    STRATEGIES_USING_PYSPARK_REGISTRY
 from src.challenges.sectional.section_test_data_types import (
     ChallengeMethodPysparkRegistration, DataSetWithAnswer, ExecutionParameters,
     RunResult, StudentSummary)
@@ -59,6 +59,7 @@ class Arguments:
 
 def parse_args() -> Arguments:
     sizes = [x.size_code for x in DATA_SIZE_LIST_SECTIONAL]
+    strategy_names = [x.strategy_name for x in STRATEGIES_USING_PYSPARK_REGISTRY]
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--check', default=True, action=argparse.BooleanOptionalAction,
@@ -79,8 +80,8 @@ def parse_args() -> Arguments:
         action=argparse.BooleanOptionalAction)
     parser.add_argument(
         '--strategy',
-        choices=STRATEGY_NAME_LIST,
-        default=STRATEGY_NAME_LIST,
+        choices=strategy_names,
+        default=strategy_names,
         nargs="+")
     if DEBUG_ARGS is None:
         args = parser.parse_args()
@@ -132,7 +133,7 @@ def do_test_runs(
         str(x.data_size.num_students): x
         for x in data_sets_w_answers}
     keyed_implementation_list = {
-        x.strategy_name: x for x in solutions_using_pyspark}
+        x.strategy_name: x for x in STRATEGIES_USING_PYSPARK_REGISTRY}
     itinerary: list[tuple[ChallengeMethodPysparkRegistration, DataSetWithAnswer]] = [
         (challenge_method_registration, data_set)
         for strategy in args.strategy_names

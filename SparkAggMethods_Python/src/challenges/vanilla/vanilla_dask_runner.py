@@ -8,9 +8,10 @@ import time
 from typing import NamedTuple
 
 from src.challenges.vanilla.vanilla_record_runs import derive_run_log_file_path
-from src.challenges.vanilla.vanilla_strategy_directory import (
-    SOLUTIONS_USING_DASK_REGISTRY, STRATEGY_NAME_LIST_DASK)
-from src.challenges.vanilla.vanilla_test_data_types import SIZES_LIST_VANILLA
+from src.challenges.vanilla.vanilla_strategy_directory import \
+    STRATEGIES_USING_DASK_REGISTRY
+from src.challenges.vanilla.vanilla_test_data_types import \
+    DATA_SIZES_LIST_VANILLA
 from src.perf_test_common import CalcEngine
 from src.six_field_test_data.six_generate_test_data import (
     ChallengeMethodPythonDaskRegistration, DataSetDaskWithAnswer,
@@ -51,7 +52,8 @@ class Arguments(NamedTuple):
 
 
 def parse_args() -> Arguments:
-    sizes = [x.size_code for x in SIZES_LIST_VANILLA]
+    sizes = [x.size_code for x in DATA_SIZES_LIST_VANILLA]
+    strategy_names = [x.strategy_name for x in STRATEGIES_USING_DASK_REGISTRY]
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--random-seed', type=int)
@@ -65,8 +67,8 @@ def parse_args() -> Arguments:
     parser.add_argument('--have-gpu', default=True, action=argparse.BooleanOptionalAction)
     parser.add_argument(
         '--strategy',
-        choices=STRATEGY_NAME_LIST_DASK,
-        default=STRATEGY_NAME_LIST_DASK,
+        choices=strategy_names,
+        default=strategy_names,
         nargs="+")
     if DEBUG_ARGS is None:
         args = parser.parse_args()
@@ -91,7 +93,7 @@ def do_test_runs(
 ) -> None:
     data_sets = populate_data_sets(args)
     keyed_implementation_list = {
-        x.strategy_name: x for x in SOLUTIONS_USING_DASK_REGISTRY}
+        x.strategy_name: x for x in STRATEGIES_USING_DASK_REGISTRY}
     itinerary: list[tuple[ChallengeMethodPythonDaskRegistration, DataSetDaskWithAnswer]] = [
         (challenge_method_registration, data_set)
         for strategy in args.strategies
@@ -128,13 +130,13 @@ def populate_data_sets(
             args.exec_params,
             data_size=data_size,
         )
-        for data_size in SIZES_LIST_VANILLA
+        for data_size in DATA_SIZES_LIST_VANILLA
         if data_size.size_code in args.sizes
     ]
     return data_sets
 
 
-def do_with_client():
+def do_with_local_client():
     args = parse_args()
     return do_test_runs(args)
 
@@ -145,7 +147,7 @@ def main():
     #         n_workers=LOCAL_NUM_EXECUTORS,
     #         threads_per_worker=1,
     # ) as dask_client:
-    do_with_client()
+    do_with_local_client()
 
 
 if __name__ == "__main__":

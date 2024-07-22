@@ -10,7 +10,7 @@ from src.challenges.deduplication.dedupe_record_runs import (
     EXPECTED_NUM_RECORDS, FINAL_REPORT_FILE_PATH, PersistedRunResult,
     read_result_file, regressor_from_run_result)
 from src.challenges.deduplication.dedupe_strategy_directory import \
-    solutions_using_pyspark
+    STRATEGIES_USING_PYSPARK_REGISTRY
 from src.perf_test_common import CalcEngine
 from src.utils.linear_regression import linear_regression
 
@@ -36,7 +36,7 @@ def structure_test_results(
         test_runs: list[PersistedRunResult]
 ) -> dict[str, dict[int, list[PersistedRunResult]]]:
     challenge_method_registrations = (
-        {x.strategy_name for x in solutions_using_pyspark}
+        {x.strategy_name for x in STRATEGIES_USING_PYSPARK_REGISTRY}
         .union([x.strategy_name for x in test_runs]))
     test_x_values = set(EXPECTED_NUM_RECORDS).union([regressor_from_run_result(x) for x in test_runs])
     test_results: dict[str, dict[int, list[PersistedRunResult]]] \
@@ -98,7 +98,7 @@ def analyze_run_results(
     for strategy_name in test_runs_by_strategy_by_size:
         print("Looking to analyze %s" % strategy_name)
         challenge_method_registrations = [
-            x for x in solutions_using_pyspark if x.strategy_name == strategy_name][0]
+            x for x in STRATEGIES_USING_PYSPARK_REGISTRY if x.strategy_name == strategy_name][0]
         test_runs_by_size = test_runs_by_strategy_by_size[strategy_name]
         for regressor_value, runs in test_runs_by_size.items():
             ar: numpy.ndarray[float, numpy.dtype[numpy.float64]] \

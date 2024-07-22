@@ -9,8 +9,9 @@ from src.six_field_test_data.six_generate_test_data import (
     ChallengeMethodPythonPysparkRegistration)
 from src.utils.utils import root_folder_abs_path
 
-T_PYTHON_PYSPARK_RUN_LOG_FILE_PATH = 'results/bi_level_pyspark_runs.csv'
-T_PYTHON_DASK_RUN_LOG_FILE_PATH = 'results/bi_level_dask_runs.csv'
+PYTHON_DASK_RUN_LOG_FILE_PATH = 'results/bi_level_dask_runs.csv'
+PYTHON_PYSPARK_RUN_LOG_FILE_PATH = 'results/bi_level_pyspark_runs.csv'
+PYTHON_ONLY_RUN_LOG_FILE_PATH = 'results/bi_level_python_only_runs.csv'
 FINAL_REPORT_FILE_PATH = 'results/bilevel_results.csv'
 EXPECTED_SIZES = [1, 10, 100, 1000]
 
@@ -40,10 +41,12 @@ def derive_run_log_file_path(
         engine: CalcEngine,
 ) -> str:
     match engine:
-        case  CalcEngine.PYSPARK:
-            run_log = T_PYTHON_PYSPARK_RUN_LOG_FILE_PATH
         case CalcEngine.DASK:
-            run_log = T_PYTHON_DASK_RUN_LOG_FILE_PATH
+            run_log = PYTHON_DASK_RUN_LOG_FILE_PATH
+        case CalcEngine.PYSPARK:
+            run_log = PYTHON_PYSPARK_RUN_LOG_FILE_PATH
+        case CalcEngine.PYTHON_ONLY:
+            run_log = PYTHON_ONLY_RUN_LOG_FILE_PATH
         case _:
             raise ValueError(f"Unknown engine: {engine}")
     return os.path.join(

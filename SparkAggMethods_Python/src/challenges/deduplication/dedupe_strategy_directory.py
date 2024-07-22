@@ -16,12 +16,10 @@ from src.challenges.deduplication.using_pyspark.dedupe_pyspark_rdd_reduce import
     dedupe_pyspark_rdd_reduce
 from src.utils.inspection import name_of_function
 
-# solutions_using_dask: list[ChallengeMethodPythonDaskRegistration] = [
-# ]
-# solutions_using_python_only: list[ChallengeMethodPythonOnlyRegistration] = [
+# STRATEGIES_USING_DASK_REGISTRY: list[ChallengeMethodPythonDaskRegistration] = [
 # ]
 
-solutions_using_pyspark: list[ChallengeMethodPythonPysparkRegistration] = [
+STRATEGIES_USING_PYSPARK_REGISTRY: list[ChallengeMethodPythonPysparkRegistration] = [
     ChallengeMethodPythonPysparkRegistration(
         original_strategy_name='dedupe_pandas',
         strategy_name=name_of_function(dedupe_pyspark_df_nested_pandas),
@@ -85,4 +83,5 @@ solutions_using_pyspark: list[ChallengeMethodPythonPysparkRegistration] = [
     ),
 ]
 
-STRATEGY_NAME_LIST = [x.strategy_name for x in solutions_using_pyspark]
+# STRATEGIES_USING_PYTHON_ONLY_REGISTRY: list[ChallengeMethodPythonOnlyRegistration] = [
+# ]

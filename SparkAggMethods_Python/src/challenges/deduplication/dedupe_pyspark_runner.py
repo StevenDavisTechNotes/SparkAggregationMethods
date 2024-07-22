@@ -17,8 +17,8 @@ from src.challenges.deduplication.dedupe_generate_test_data import (
     DATA_SIZE_LIST_DEDUPE, generate_test_data)
 from src.challenges.deduplication.dedupe_record_runs import (
     RunResult, derive_run_log_file_path, write_header, write_run_result)
-from src.challenges.deduplication.dedupe_strategy_directory import (
-    STRATEGY_NAME_LIST, solutions_using_pyspark)
+from src.challenges.deduplication.dedupe_strategy_directory import \
+    STRATEGIES_USING_PYSPARK_REGISTRY
 from src.challenges.deduplication.dedupe_test_data_types import (
     DataSet, ExecutionParameters)
 from src.challenges.deduplication.domain_logic.dedupe_expected_results import (
@@ -28,6 +28,8 @@ from src.utils.tidy_spark_session import TidySparkSession
 from src.utils.utils import always_true, set_random_seed
 
 ENGINE = CalcEngine.PYSPARK
+
+
 DEBUG_ARGS = None if False else (
     []
     + '--size 2'.split()
@@ -54,6 +56,8 @@ class Arguments:
 
 
 def parse_args() -> Arguments:
+    strategy_names = [x.strategy_name for x in STRATEGIES_USING_PYSPARK_REGISTRY]
+
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--assume-no-dupes-per-partition', default=True,
@@ -73,8 +77,8 @@ def parse_args() -> Arguments:
         action=argparse.BooleanOptionalAction)
     parser.add_argument(
         '--strategy',
-        choices=STRATEGY_NAME_LIST,
-        default=STRATEGY_NAME_LIST,
+        choices=strategy_names,
+        default=strategy_names,
         nargs="+")
     if DEBUG_ARGS is None:
         args = parser.parse_args()
@@ -179,7 +183,7 @@ def run_tests(
         spark_session: TidySparkSession,
 ):
     keyed_implementation_list = {
-        x.strategy_name: x for x in solutions_using_pyspark}
+        x.strategy_name: x for x in STRATEGIES_USING_PYSPARK_REGISTRY}
     itinerary: list[ItineraryItem] = [
         ItineraryItem(
             challenge_method_registration=challenge_method_registration,

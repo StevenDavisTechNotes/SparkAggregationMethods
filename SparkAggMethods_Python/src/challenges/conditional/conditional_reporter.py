@@ -8,7 +8,7 @@ import scipy.stats
 from src.challenges.conditional.conditional_record_runs import (
     FINAL_REPORT_FILE_PATH, derive_run_log_file_path)
 from src.challenges.conditional.conditional_strategy_directory import \
-    solutions_using_pyspark
+    STRATEGIES_USING_PYSPARK_REGISTRY
 from src.perf_test_common import CalcEngine
 from src.six_field_test_data.six_test_data_types import RunResult
 from src.utils.linear_regression import linear_regression
@@ -48,7 +48,7 @@ def analyze_run_results():
             's2_low', 's2', 's2_high')
         for strategy_name in cond_runs:
             cond_method = [
-                x for x in solutions_using_pyspark if x.strategy_name == strategy_name][0]
+                x for x in STRATEGIES_USING_PYSPARK_REGISTRY if x.strategy_name == strategy_name][0]
             times = cond_runs[strategy_name]
             for dataSize in set(x.dataSize for x in times):
                 runs = [x for x in times if x.dataSize == dataSize]

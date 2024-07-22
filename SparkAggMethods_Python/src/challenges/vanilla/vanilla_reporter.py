@@ -5,8 +5,8 @@ from src.challenges.vanilla.vanilla_record_runs import (
     EXPECTED_SIZES, FINAL_REPORT_FILE_PATH, PersistedRunResult,
     regressor_from_run_result)
 from src.challenges.vanilla.vanilla_strategy_directory import (
-    SOLUTIONS_USING_DASK_REGISTRY, SOLUTIONS_USING_PYSPARK_REGISTRY,
-    SOLUTIONS_USING_PYTHON_ONLY_REGISTRY, SOLUTIONS_USING_SCALA_REGISTRY)
+    STRATEGIES_USING_DASK_REGISTRY, STRATEGIES_USING_PYSPARK_REGISTRY,
+    STRATEGIES_USING_PYTHON_ONLY_REGISTRY, STRATEGIES_USING_SCALA_REGISTRY)
 from src.perf_test_common import CalcEngine
 from src.six_field_test_data.six_run_result_types import read_result_file
 from src.six_field_test_data.six_runner_base import \
@@ -37,13 +37,13 @@ def analyze_run_results():
     summary_status: list[SummarizedPerformanceOfMethodAtDataSize] = []
     for engine in CalcEngine:
         challenge_method_list = (
-            SOLUTIONS_USING_DASK_REGISTRY
+            STRATEGIES_USING_DASK_REGISTRY
             if engine == CalcEngine.DASK else
-            SOLUTIONS_USING_PYSPARK_REGISTRY
+            STRATEGIES_USING_PYSPARK_REGISTRY
             if engine == CalcEngine.PYSPARK else
-            SOLUTIONS_USING_PYTHON_ONLY_REGISTRY
+            STRATEGIES_USING_PYTHON_ONLY_REGISTRY
             if engine == CalcEngine.PYTHON_ONLY else
-            SOLUTIONS_USING_SCALA_REGISTRY
+            STRATEGIES_USING_SCALA_REGISTRY
             if engine == CalcEngine.SCALA_SPARK else
             []
         )

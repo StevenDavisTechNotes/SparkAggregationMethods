@@ -8,8 +8,8 @@ from dataclasses import dataclass
 
 from src.challenges.conditional.conditional_record_runs import \
     derive_run_log_file_path
-from src.challenges.conditional.conditional_strategy_directory import (
-    STRATEGY_NAME_LIST, solutions_using_pyspark)
+from src.challenges.conditional.conditional_strategy_directory import \
+    STRATEGIES_USING_PYSPARK_REGISTRY
 from src.challenges.conditional.conditional_test_data_types import (
     AGG_COLUMN_NAMES_3, DATA_SIZES_LIST_CONDITIONAL, GROUP_BY_COLUMNS)
 from src.perf_test_common import CalcEngine
@@ -54,6 +54,7 @@ class Arguments:
 
 def parse_args() -> Arguments:
     sizes = [x.size_code for x in DATA_SIZES_LIST_CONDITIONAL]
+    strategy_names = [x.strategy_name for x in STRATEGIES_USING_PYSPARK_REGISTRY]
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--random-seed', type=int)
@@ -68,8 +69,8 @@ def parse_args() -> Arguments:
         action=argparse.BooleanOptionalAction)
     parser.add_argument(
         '--strategy',
-        choices=STRATEGY_NAME_LIST,
-        default=[x.strategy_name for x in solutions_using_pyspark],
+        choices=strategy_names,
+        default=strategy_names,
         nargs="+")
     if DEBUG_ARGS is None:
         args = parser.parse_args()
@@ -94,7 +95,7 @@ def do_test_runs(
 ) -> None:
     data_sets = populate_data_sets(args, spark_session)
     keyed_implementation_list = {
-        x.strategy_name: x for x in solutions_using_pyspark}
+        x.strategy_name: x for x in STRATEGIES_USING_PYSPARK_REGISTRY}
     itinerary: list[tuple[ChallengeMethodPythonPysparkRegistration, DataSetPysparkWithAnswer]] = [
         (challenge_method_registration, data_set)
         for strategy in args.strategy_names

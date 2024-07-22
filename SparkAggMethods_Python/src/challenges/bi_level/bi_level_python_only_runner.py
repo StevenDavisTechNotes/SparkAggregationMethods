@@ -1,7 +1,9 @@
 #! python
-# usage: python -m src.challenges.bi_level.bi_level_pyspark_runner
+# usage: python -m src.challenges.bi_level.bi_level_python_only_runner
 import argparse
 import gc
+import logging
+import os
 import random
 import time
 from dataclasses import dataclass
@@ -9,21 +11,24 @@ from dataclasses import dataclass
 from src.challenges.bi_level.bi_level_record_runs import \
     derive_run_log_file_path
 from src.challenges.bi_level.bi_level_strategy_directory import \
-    STRATEGIES_USING_PYSPARK_REGISTRY
-from src.challenges.bi_level.bi_level_test_data_types import (
-    DATA_SIZES_LIST_BI_LEVEL, result_columns)
+    STRATEGIES_USING_PYTHON_ONLY_REGISTRY
+from src.challenges.bi_level.bi_level_test_data_types import \
+    DATA_SIZES_LIST_BI_LEVEL
 from src.perf_test_common import CalcEngine
 from src.six_field_test_data.six_generate_test_data import (
-    ChallengeMethodPythonPysparkRegistration, DataSetPysparkWithAnswer,
-    populate_data_set_pyspark)
+    ChallengeMethodPythonOnlyRegistration, DataSetPythonOnlyWithAnswer,
+    populate_data_set_python_only)
 from src.six_field_test_data.six_run_result_types import write_header
 from src.six_field_test_data.six_runner_base import \
-    test_one_step_in_pyspark_itinerary
+    test_one_step_in_python_only_itinerary
 from src.six_field_test_data.six_test_data_types import (
     SHARED_LOCAL_TEST_DATA_FILE_LOCATION, Challenge, ExecutionParameters)
-from src.utils.tidy_spark_session import LOCAL_NUM_EXECUTORS, TidySparkSession
+from src.utils.tidy_spark_session import get_python_code_root_path
 from src.utils.utils import always_true, set_random_seed
 
+logger = logging.getLogger(__name__)
+ENGINE = CalcEngine.PYTHON_ONLY
+CHALLENGE = Challenge.BI_LEVEL
 DEBUG_ARGS = None if False else (
     []
     + '--size 3_3_10'.split()
@@ -31,14 +36,8 @@ DEBUG_ARGS = None if False else (
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
     # + ['--strategy',
-    #    'bi_level_pyspark_rdd_grp_map',
-    #    'bi_level_pyspark_rdd_map_part',
-    #    'bi_level_pyspark_rdd_reduce_1',
-    #    'bi_level_pyspark_rdd_reduce_2',
     #    ]
 )
-ENGINE = CalcEngine.PYSPARK
-CHALLENGE = Challenge.BI_LEVEL
 
 
 @dataclass(frozen=True)
@@ -53,7 +52,7 @@ class Arguments:
 
 def parse_args() -> Arguments:
     sizes = [x.size_code for x in DATA_SIZES_LIST_BI_LEVEL]
-    strategy_names = [x.strategy_name for x in STRATEGIES_USING_PYSPARK_REGISTRY]
+    strategy_names = [x.strategy_name for x in STRATEGIES_USING_PYTHON_ONLY_REGISTRY]
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--random-seed', type=int)
@@ -63,7 +62,9 @@ def parse_args() -> Arguments:
         choices=sizes,
         default=sizes,
         nargs="+")
-    parser.add_argument('--shuffle', default=True, action=argparse.BooleanOptionalAction)
+    parser.add_argument(
+        '--shuffle', default=True,
+        action=argparse.BooleanOptionalAction)
     parser.add_argument(
         '--strategy',
         choices=strategy_names,
@@ -80,7 +81,7 @@ def parse_args() -> Arguments:
         sizes=args.size,
         strategy_names=args.strategy,
         exec_params=ExecutionParameters(
-            DefaultParallelism=2 * LOCAL_NUM_EXECUTORS,
+            DefaultParallelism=1,
             TestDataFolderLocation=SHARED_LOCAL_TEST_DATA_FILE_LOCATION,
         ),
     )
@@ -88,12 +89,11 @@ def parse_args() -> Arguments:
 
 def do_test_runs(
         args: Arguments,
-        spark_session: TidySparkSession
 ) -> None:
-    data_sets = populate_data_sets(args, spark_session)
+    data_sets = populate_data_sets(args)
     keyed_implementation_list = {
-        x.strategy_name: x for x in STRATEGIES_USING_PYSPARK_REGISTRY}
-    itinerary: list[tuple[ChallengeMethodPythonPysparkRegistration, DataSetPysparkWithAnswer]] = [
+        x.strategy_name: x for x in STRATEGIES_USING_PYTHON_ONLY_REGISTRY}
+    itinerary: list[tuple[ChallengeMethodPythonOnlyRegistration, DataSetPythonOnlyWithAnswer]] = [
         (challenge_method_registration, data_set)
         for strategy in args.strategy_names
         if always_true(challenge_method_registration := keyed_implementation_list[strategy])
@@ -104,20 +104,23 @@ def do_test_runs(
         set_random_seed(args.random_seed)
     if args.shuffle:
         random.shuffle(itinerary)
-    with open(file=derive_run_log_file_path(ENGINE), mode='at+') as file:
+    result_log_path_name = os.path.join(
+        get_python_code_root_path(),
+        derive_run_log_file_path(ENGINE))
+    with open(result_log_path_name, 'at+') as file:
         write_header(file)
         for index, (challenge_method_registration, data_set) in enumerate(itinerary):
-            spark_session.log.info("Working on %d of %d" %
-                                   (index, len(itinerary)))
-            print(f"Working on {challenge_method_registration.strategy_name} for {data_set.description.size_code}")
-            test_one_step_in_pyspark_itinerary(
+            logger.info(
+                "Working on %d of %d" % (index, len(itinerary)))
+            print(f"Working on {challenge_method_registration.strategy_name} for {data_set.data_size.size_code}")
+            test_one_step_in_python_only_itinerary(
                 challenge=CHALLENGE,
-                spark_session=spark_session,
                 exec_params=args.exec_params,
                 challenge_method_registration=challenge_method_registration,
-                result_columns=result_columns,
+                numerical_tolerance=challenge_method_registration.numerical_tolerance,
                 file=file,
                 data_set=data_set,
+                correct_answer=data_set.answer,
             )
             gc.collect()
             time.sleep(0.1)
@@ -125,34 +128,21 @@ def do_test_runs(
 
 def populate_data_sets(
         args: Arguments,
-        spark_session: TidySparkSession,
-) -> list[DataSetPysparkWithAnswer]:
+) -> list[DataSetPythonOnlyWithAnswer]:
     data_sets = [
-        populate_data_set_pyspark(
-            spark_session, args.exec_params,
-            data_size=data_size,
+        populate_data_set_python_only(
+            exec_params=args.exec_params,
+            data_size=size,
         )
-        for data_size in DATA_SIZES_LIST_BI_LEVEL
-        if data_size.size_code in args.sizes
+        for size in DATA_SIZES_LIST_BI_LEVEL
+        if size.size_code in args.sizes
     ]
     return data_sets
 
 
 def main():
     args = parse_args()
-    config = {
-        "spark.sql.shuffle.partitions": args.exec_params.DefaultParallelism,
-        "spark.default.parallelism": args.exec_params.DefaultParallelism,
-        "spark.driver.memory": "2g",
-        "spark.executor.memory": "3g",
-        "spark.executor.memoryOverhead": "1g",
-        "spark.sql.execution.arrow.pyspark.enabled": "true",
-    }
-    with TidySparkSession(
-        config,
-        enable_hive_support=False
-    ) as spark_session:
-        do_test_runs(args, spark_session)
+    do_test_runs(args)
 
 
 if __name__ == "__main__":

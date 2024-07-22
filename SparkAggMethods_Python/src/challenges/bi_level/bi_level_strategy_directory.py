@@ -1,3 +1,9 @@
+from src.challenges.bi_level.strategies.using_dask.bi_level_dask_sql_nested import \
+    bi_level_dask_sql_nested_no_gpu
+from src.challenges.bi_level.strategies.using_dask.bi_level_dask_sql_single_join import \
+    bi_level_dask_sql_single_join_no_gpu
+from src.challenges.bi_level.strategies.using_dask.bi_level_dask_sql_temp_join import \
+    bi_level_dask_sql_temp_join_no_gpu
 from src.challenges.bi_level.strategies.using_pyspark.bi_level_pyspark_df_grp_pandas import \
     bi_level_pyspark_df_grp_pandas
 from src.challenges.bi_level.strategies.using_pyspark.bi_level_pyspark_df_grp_pandas_numba import \
@@ -20,17 +26,46 @@ from src.challenges.bi_level.strategies.using_pyspark.bi_level_pyspark_sql_join 
     bi_level_pyspark_sql_join
 from src.challenges.bi_level.strategies.using_pyspark.bi_level_pyspark_sql_nested import \
     bi_level_pyspark_sql_nested
+from src.challenges.bi_level.strategies.using_python_only.bi_level_py_only_pd_grp_numpy import \
+    bi_level_py_only_pd_grp_numpy
 from src.six_field_test_data.six_generate_test_data import \
     ChallengeMethodPythonPysparkRegistration
-from src.six_field_test_data.six_generate_test_data.six_test_data_for_python_only import \
-    NumericalToleranceExpectations
+from src.six_field_test_data.six_generate_test_data.six_test_data_for_dask import \
+    ChallengeMethodPythonDaskRegistration
+from src.six_field_test_data.six_generate_test_data.six_test_data_for_python_only import (
+    ChallengeMethodPythonOnlyRegistration, NumericalToleranceExpectations)
 from src.utils.inspection import name_of_function
 
-# solutions_using_dask: list[ChallengeMethodPythonDaskRegistration] = [
-# ]
-# solutions_using_python_only: list[ChallengeMethodPythonOnlyRegistration] = [
-# ]
-solutions_using_pyspark: list[ChallengeMethodPythonPysparkRegistration] = [
+STRATEGIES_USING_DASK_REGISTRY: list[ChallengeMethodPythonDaskRegistration] = [
+    ChallengeMethodPythonDaskRegistration(
+        strategy_name_2018=None,
+        strategy_name=name_of_function(bi_level_dask_sql_nested_no_gpu),
+        language='python',
+        interface='ddf',
+        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
+        requires_gpu=False,
+        delegate=bi_level_dask_sql_nested_no_gpu,
+    ),
+    ChallengeMethodPythonDaskRegistration(
+        strategy_name_2018=None,
+        strategy_name=name_of_function(bi_level_dask_sql_single_join_no_gpu),
+        language='python',
+        interface='ddf',
+        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
+        requires_gpu=False,
+        delegate=bi_level_dask_sql_single_join_no_gpu,
+    ),
+    ChallengeMethodPythonDaskRegistration(
+        strategy_name_2018=None,
+        strategy_name=name_of_function(bi_level_dask_sql_temp_join_no_gpu),
+        language='python',
+        interface='ddf',
+        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
+        requires_gpu=False,
+        delegate=bi_level_dask_sql_temp_join_no_gpu,
+    ),
+]
+STRATEGIES_USING_PYSPARK_REGISTRY: list[ChallengeMethodPythonPysparkRegistration] = [
     ChallengeMethodPythonPysparkRegistration(
         strategy_name_2018='bi_sql_join',
         strategy_name=name_of_function(bi_level_pyspark_sql_join),
@@ -132,5 +167,14 @@ solutions_using_pyspark: list[ChallengeMethodPythonPysparkRegistration] = [
     ),
 ]
 
-
-STRATEGY_NAME_LIST = [x.strategy_name for x in solutions_using_pyspark]
+STRATEGIES_USING_PYTHON_ONLY_REGISTRY: list[ChallengeMethodPythonOnlyRegistration] = [
+    ChallengeMethodPythonOnlyRegistration(
+        strategy_name_2018=None,
+        strategy_name=name_of_function(bi_level_py_only_pd_grp_numpy),
+        language='python',
+        interface='pandas',
+        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
+        requires_gpu=False,
+        delegate=bi_level_py_only_pd_grp_numpy,
+    ),
+]

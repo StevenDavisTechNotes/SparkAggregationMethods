@@ -9,9 +9,10 @@ import time
 from dataclasses import dataclass
 
 from src.challenges.vanilla.vanilla_record_runs import derive_run_log_file_path
-from src.challenges.vanilla.vanilla_strategy_directory import (
-    SOLUTIONS_USING_PYTHON_ONLY_REGISTRY, STRATEGY_NAME_LIST_PYTHON_ONLY)
-from src.challenges.vanilla.vanilla_test_data_types import SIZES_LIST_VANILLA
+from src.challenges.vanilla.vanilla_strategy_directory import \
+    STRATEGIES_USING_PYTHON_ONLY_REGISTRY
+from src.challenges.vanilla.vanilla_test_data_types import \
+    DATA_SIZES_LIST_VANILLA
 from src.perf_test_common import CalcEngine
 from src.six_field_test_data.six_generate_test_data import (
     ChallengeMethodPythonOnlyRegistration, DataSetPythonOnlyWithAnswer,
@@ -27,6 +28,7 @@ from src.utils.utils import always_true, set_random_seed
 logger = logging.getLogger(__name__)
 ENGINE = CalcEngine.PYTHON_ONLY
 CHALLENGE = Challenge.VANILLA
+
 DEBUG_ARGS = None if False else (
     []
     # + '--size 3_3_10'.split()
@@ -51,7 +53,8 @@ class Arguments:
 
 
 def parse_args() -> Arguments:
-    sizes = [x.size_code for x in SIZES_LIST_VANILLA]
+    sizes = [x.size_code for x in DATA_SIZES_LIST_VANILLA]
+    strategy_names = [x.strategy_name for x in STRATEGIES_USING_PYTHON_ONLY_REGISTRY]
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--random-seed', type=int)
@@ -66,8 +69,8 @@ def parse_args() -> Arguments:
         action=argparse.BooleanOptionalAction)
     parser.add_argument(
         '--strategy',
-        choices=STRATEGY_NAME_LIST_PYTHON_ONLY,
-        default=STRATEGY_NAME_LIST_PYTHON_ONLY,
+        choices=strategy_names,
+        default=strategy_names,
         nargs="+")
     if DEBUG_ARGS is None:
         args = parser.parse_args()
@@ -91,7 +94,7 @@ def do_test_runs(
 ) -> None:
     data_sets = populate_data_sets(args)
     keyed_implementation_list = {
-        x.strategy_name: x for x in SOLUTIONS_USING_PYTHON_ONLY_REGISTRY}
+        x.strategy_name: x for x in STRATEGIES_USING_PYTHON_ONLY_REGISTRY}
     itinerary: list[tuple[ChallengeMethodPythonOnlyRegistration, DataSetPythonOnlyWithAnswer]] = [
         (challenge_method_registration, data_set)
         for strategy in args.strategy_names
@@ -133,7 +136,7 @@ def populate_data_sets(
             exec_params=args.exec_params,
             data_size=size,
         )
-        for size in SIZES_LIST_VANILLA
+        for size in DATA_SIZES_LIST_VANILLA
         if size.size_code in args.sizes
     ]
     return data_sets

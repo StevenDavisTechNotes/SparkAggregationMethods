@@ -18,7 +18,7 @@ pyspark_post_agg_schema = DataTypes.StructType(
 dask_post_agg_schema = make_empty_pd_dataframe_from_spark_types(pyspark_post_agg_schema)
 
 
-SIZES_LIST_VANILLA = [
+DATA_SIZES_LIST_VANILLA = [
     DataSetDescription(
         size_code=code,
         num_grp_1=3,

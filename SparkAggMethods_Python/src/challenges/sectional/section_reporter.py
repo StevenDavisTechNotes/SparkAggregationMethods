@@ -12,7 +12,8 @@ from src.challenges.sectional.section_generate_test_data import \
 from src.challenges.sectional.section_record_runs import (
     FINAL_REPORT_FILE_PATH, derive_run_log_file_path)
 from src.challenges.sectional.section_strategy_directory import (
-    solutions_using_dask, solutions_using_pyspark, solutions_using_python_only)
+    STRATEGIES_USING_DASK_REGISTRY, STRATEGIES_USING_PYSPARK_REGISTRY,
+    STRATEGIES_USING_PYTHON_ONLY_REGISTRY)
 from src.challenges.sectional.section_test_data_types import (
     DataSet, DataSetData, ExecutionParameters, RunResult)
 from src.perf_test_common import CalcEngine
@@ -74,9 +75,9 @@ def analyze_run_results():  # noqa: C901
             if len(times) == 0:
                 continue
             challenge_method_registration = (
-                [x for x in solutions_using_dask if x.strategy_name == strategy_name]
-                + [x for x in solutions_using_pyspark if x.strategy_name == strategy_name]
-                + [x for x in solutions_using_python_only if x.strategy_name == strategy_name])[0]
+                [x for x in STRATEGIES_USING_DASK_REGISTRY if x.strategy_name == strategy_name]
+                + [x for x in STRATEGIES_USING_PYSPARK_REGISTRY if x.strategy_name == strategy_name]
+                + [x for x in STRATEGIES_USING_PYTHON_ONLY_REGISTRY if x.strategy_name == strategy_name])[0]
 
             size_values = set(x.data.data_size.num_rows for x in times)
             for dataSize in size_values:

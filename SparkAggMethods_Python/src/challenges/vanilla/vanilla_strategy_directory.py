@@ -33,7 +33,7 @@ from src.six_field_test_data.six_generate_test_data.six_test_data_for_python_onl
     NumericalToleranceExpectations
 from src.utils.inspection import name_of_function
 
-SOLUTIONS_USING_DASK_REGISTRY: list[ChallengeMethodPythonDaskRegistration] = [
+STRATEGIES_USING_DASK_REGISTRY: list[ChallengeMethodPythonDaskRegistration] = [
     ChallengeMethodPythonDaskRegistration(
         strategy_name_2018=None,
         strategy_name=name_of_function(vanilla_dask_ddf_grp_apply),
@@ -63,7 +63,7 @@ SOLUTIONS_USING_DASK_REGISTRY: list[ChallengeMethodPythonDaskRegistration] = [
     ),
 ]
 
-SOLUTIONS_USING_PYSPARK_REGISTRY: list[ChallengeMethodPythonPysparkRegistration] = [
+STRATEGIES_USING_PYSPARK_REGISTRY: list[ChallengeMethodPythonPysparkRegistration] = [
     ChallengeMethodPythonPysparkRegistration(
         strategy_name_2018='vanilla_sql',
         strategy_name=name_of_function(vanilla_pyspark_sql),
@@ -137,7 +137,7 @@ SOLUTIONS_USING_PYSPARK_REGISTRY: list[ChallengeMethodPythonPysparkRegistration]
         delegate=vanilla_pyspark_rdd_mappart,
     ),
 ]
-SOLUTIONS_USING_PYTHON_ONLY_REGISTRY: list[ChallengeMethodPythonOnlyRegistration] = [
+STRATEGIES_USING_PYTHON_ONLY_REGISTRY: list[ChallengeMethodPythonOnlyRegistration] = [
     ChallengeMethodPythonOnlyRegistration(
         strategy_name_2018=None,
         strategy_name=name_of_function(vanilla_py_only_pd_grp_numba),
@@ -157,7 +157,7 @@ SOLUTIONS_USING_PYTHON_ONLY_REGISTRY: list[ChallengeMethodPythonOnlyRegistration
         delegate=vanilla_py_only_pd_grp_numpy,
     ),
 ]
-SOLUTIONS_USING_SCALA_REGISTRY = [
+STRATEGIES_USING_SCALA_REGISTRY = [
     ChallengeMethodRegistration(
         strategy_name_2018=None,
         strategy_name='vanilla_pyspark_sql',
@@ -201,7 +201,3 @@ SOLUTIONS_USING_SCALA_REGISTRY = [
         requires_gpu=False,
     ),
 ]
-
-STRATEGY_NAME_LIST_DASK = [x.strategy_name for x in SOLUTIONS_USING_DASK_REGISTRY]
-STRATEGY_NAME_LIST_PYSPARK = [x.strategy_name for x in SOLUTIONS_USING_PYSPARK_REGISTRY]
-STRATEGY_NAME_LIST_PYTHON_ONLY = [x.strategy_name for x in SOLUTIONS_USING_PYTHON_ONLY_REGISTRY]

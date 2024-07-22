@@ -26,16 +26,16 @@ from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_sql_null i
     cond_pyspark_sql_null
 from src.six_field_test_data.six_generate_test_data import \
     ChallengeMethodPythonPysparkRegistration
-from src.six_field_test_data.six_generate_test_data.six_test_data_for_python_only import \
-    NumericalToleranceExpectations
+from src.six_field_test_data.six_generate_test_data.six_test_data_for_dask import \
+    ChallengeMethodPythonDaskRegistration
+from src.six_field_test_data.six_generate_test_data.six_test_data_for_python_only import (
+    ChallengeMethodPythonOnlyRegistration, NumericalToleranceExpectations)
 from src.utils.inspection import name_of_function
 
-# solutions_using_dask: list[ChallengeMethodPythonDaskRegistration] = [
-# ]
-# solutions_using_python_only: list[ChallengeMethodPythonOnlyRegistration] = [
-# ]
+STRATEGIES_USING_DASK_REGISTRY: list[ChallengeMethodPythonDaskRegistration] = [
+]
 
-solutions_using_pyspark: list[ChallengeMethodPythonPysparkRegistration] = [
+STRATEGIES_USING_PYSPARK_REGISTRY: list[ChallengeMethodPythonPysparkRegistration] = [
     ChallengeMethodPythonPysparkRegistration(
         strategy_name_2018='cond_sql_join',
         strategy_name=name_of_function(cond_pyspark_sql_join),
@@ -156,4 +156,5 @@ solutions_using_pyspark: list[ChallengeMethodPythonPysparkRegistration] = [
 ]
 
 
-STRATEGY_NAME_LIST = [x.strategy_name for x in solutions_using_pyspark]
+STRATEGIES_USING_PYTHON_ONLY_REGISTRY: list[ChallengeMethodPythonOnlyRegistration] = [
+]

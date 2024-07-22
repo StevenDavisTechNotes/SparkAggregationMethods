@@ -1,0 +1,6 @@
+ strategy,interface,dataSize,elapsedTime,recordCount,finishedAt,engine,
+bi_level_py_only_pd_grp_numpy,pandas,90,0.004282,3,python_only,2024-07-22T18:55:34.239966,
+bi_level_py_only_pd_grp_numpy,pandas,900000,0.075368,3,python_only,2024-07-22T18:55:34.480473,
+bi_level_py_only_pd_grp_numpy,pandas,900000,0.095206,3,python_only,2024-07-22T18:55:34.721603,
+bi_level_py_only_pd_grp_numpy,pandas,900000,0.162321,3,python_only,2024-07-22T18:55:35.027974,
+bi_level_py_only_pd_grp_numpy,pandas,900000,0.943469,3,python_only,2024-07-22T18:55:36.114548,

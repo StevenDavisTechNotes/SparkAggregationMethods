@@ -60,7 +60,7 @@ class IChallengeMethodPythonPyspark(Protocol):
 
 @dataclass(frozen=True)
 class ChallengeMethodPythonPysparkRegistration:
-    original_strategy_name: str
+    strategy_name_2018: str
     strategy_name: str
     language: str
     interface: str

@@ -37,7 +37,7 @@ class PersistedRunResult:
     recordCount: int
 
 
-def derive_run_log_file_path(
+def derive_run_log_file_path_for_recording(
         engine: CalcEngine,
 ) -> str:
     match engine:
@@ -47,11 +47,25 @@ def derive_run_log_file_path(
             run_log = PYTHON_PYSPARK_RUN_LOG_FILE_PATH
         case CalcEngine.PYTHON_ONLY:
             run_log = PYTHON_ONLY_RUN_LOG_FILE_PATH
+        case CalcEngine.SCALA_SPARK:
+            assert False, "Scala engine not supported in Python"
         case _:
             raise ValueError(f"Unknown engine: {engine}")
     return os.path.join(
         root_folder_abs_path(),
         run_log)
+
+
+def derive_run_log_file_path_for_reading(
+        engine: CalcEngine,
+) -> str | None:
+    match engine:
+        case CalcEngine.DASK | CalcEngine.PYSPARK | CalcEngine.PYTHON_ONLY:
+            return derive_run_log_file_path_for_recording(engine)
+        case CalcEngine.SCALA_SPARK:
+            return None
+        case _:
+            raise ValueError(f"Unknown engine: {engine}")
 
 
 def regressor_from_run_result(
@@ -89,9 +103,9 @@ def write_run_result(
 
 
 def read_result_file() -> Iterable[PersistedRunResult]:
-    for engine in [CalcEngine.PYSPARK, CalcEngine.DASK]:
-        file_path = derive_run_log_file_path(engine)
-        if os.path.exists(file_path) is False:
+    for engine in CalcEngine:
+        file_path = derive_run_log_file_path_for_reading(engine)
+        if file_path is None or os.path.exists(file_path) is False:
             return
         with open(file_path, 'r', encoding='utf-8-sig') as f:
             for line in f:

@@ -1,5 +1,5 @@
 #!python
-# usage: python -m src.DedupePerfTest.DedupeReporter
+# usage: .\venv\Scripts\activate.ps1; python -m src.challenges.deduplication.dedupe_reporter
 import math
 from typing import NamedTuple, cast
 

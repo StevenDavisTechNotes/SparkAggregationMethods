@@ -16,7 +16,7 @@ class CalcEngine(StrEnum):
     DASK = 'dask'
     PYSPARK = 'pyspark'
     PYTHON_ONLY = 'python_only'
-    SCALA_SPARK = 'spark'
+    SCALA_SPARK = 'sc_spark'
 
 
 def count_iter(

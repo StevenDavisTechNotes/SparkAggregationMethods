@@ -7,7 +7,7 @@ import time
 from dataclasses import dataclass
 
 from src.challenges.bi_level.bi_level_record_runs import \
-    derive_run_log_file_path
+    derive_run_log_file_path_for_recording
 from src.challenges.bi_level.bi_level_strategy_directory import \
     STRATEGIES_USING_PYSPARK_REGISTRY
 from src.challenges.bi_level.bi_level_test_data_types import (
@@ -104,7 +104,7 @@ def do_test_runs(
         set_random_seed(args.random_seed)
     if args.shuffle:
         random.shuffle(itinerary)
-    with open(file=derive_run_log_file_path(ENGINE), mode='at+') as file:
+    with open(file=derive_run_log_file_path_for_recording(ENGINE), mode='at+') as file:
         write_header(file)
         for index, (challenge_method_registration, data_set) in enumerate(itinerary):
             spark_session.log.info("Working on %d of %d" %

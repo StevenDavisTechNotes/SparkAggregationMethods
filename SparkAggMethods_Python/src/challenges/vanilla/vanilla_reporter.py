@@ -1,5 +1,5 @@
 #!python
-# usage: python -m src.VanillaPerfTest.VanillaReporter
+# usage: .\venv\Scripts\activate.ps1; python -m src.challenges.vanilla.vanilla_reporter
 
 from src.challenges.vanilla.vanilla_record_runs import (
     EXPECTED_SIZES, FINAL_REPORT_FILE_PATH, PersistedRunResult,
@@ -57,6 +57,7 @@ def analyze_run_results():
         summary_status.extend(
             do_regression(
                 CHALLENGE,
+                engine,
                 challenge_method_list,
                 structured_test_results
             )

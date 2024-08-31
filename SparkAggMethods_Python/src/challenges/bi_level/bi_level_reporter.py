@@ -1,9 +1,11 @@
+#!python
+# usage: .\venv\Scripts\activate.ps1; python -m src.challenges.bi_level.bi_level_reporter
 
 import math
 from typing import NamedTuple, cast
 
 import numpy
-import scipy.stats.norm  # type: ignore
+import scipy
 
 from src.challenges.bi_level.bi_level_record_runs import (
     EXPECTED_SIZES, FINAL_REPORT_FILE_PATH, PersistedRunResult,

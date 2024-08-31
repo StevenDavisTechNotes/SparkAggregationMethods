@@ -6,7 +6,7 @@ import pandas as pd
 import scipy
 
 from src.challenges.vanilla.vanilla_record_runs import PersistedRunResult
-from src.perf_test_common import ChallengeMethodRegistration
+from src.perf_test_common import CalcEngine, ChallengeMethodRegistration
 from src.six_field_test_data.six_runner_base import \
     SummarizedPerformanceOfMethodAtDataSize
 from src.six_field_test_data.six_test_data_types import Challenge
@@ -31,6 +31,7 @@ def structure_test_results(
 
 def do_regression(
         challenge: Challenge,
+        engine: CalcEngine,
         challenge_method_list: Sequence[ChallengeMethodRegistration],
         test_results_by_strategy_name_by_data_size: dict[str, dict[int, list[PersistedRunResult]]],
 ) -> list[SummarizedPerformanceOfMethodAtDataSize]:
@@ -66,6 +67,7 @@ def do_regression(
                 challenge=challenge,
                 strategy_name=strategy_name,
                 language=method.language,
+                engine=engine,
                 interface=method.interface,
                 regressor=regressor_value,
                 number_of_runs=numRuns,

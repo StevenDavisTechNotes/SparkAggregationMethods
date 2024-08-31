@@ -36,6 +36,7 @@ class SummarizedPerformanceOfMethodAtDataSize:
     challenge: Challenge
     strategy_name: str
     language: str
+    engine: str
     interface: str
     regressor: int
     number_of_runs: int

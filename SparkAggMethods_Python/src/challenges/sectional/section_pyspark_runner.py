@@ -15,8 +15,8 @@ from pyspark.sql import DataFrame as PySparkDataFrame
 from src.challenges.sectional.section_generate_test_data import (
     DATA_SIZE_LIST_SECTIONAL, populate_data_sets)
 from src.challenges.sectional.section_record_runs import (
-    MAXIMUM_PROCESSABLE_SEGMENT, derive_run_log_file_path, write_header,
-    write_run_result)
+    MAXIMUM_PROCESSABLE_SEGMENT, derive_run_log_file_path_for_recording,
+    write_header, write_run_result)
 from src.challenges.sectional.section_strategy_directory import \
     STRATEGIES_USING_PYSPARK_REGISTRY
 from src.challenges.sectional.section_test_data_types import (
@@ -146,7 +146,7 @@ def do_test_runs(
     if args.shuffle:
         random.shuffle(itinerary)
 
-    with open(derive_run_log_file_path(ENGINE), 'at+') as file:
+    with open(derive_run_log_file_path_for_recording(ENGINE), 'at+') as file:
         write_header(file)
         for index, (challenge_method_registration, data_set) in enumerate(itinerary):
             spark_session.log.info(

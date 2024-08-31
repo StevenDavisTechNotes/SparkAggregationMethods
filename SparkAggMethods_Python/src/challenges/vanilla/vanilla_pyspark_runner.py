@@ -7,7 +7,8 @@ import random
 import time
 from dataclasses import dataclass
 
-from src.challenges.vanilla.vanilla_record_runs import derive_run_log_file_path
+from src.challenges.vanilla.vanilla_record_runs import \
+    derive_run_log_file_path_for_recording
 from src.challenges.vanilla.vanilla_strategy_directory import \
     STRATEGIES_USING_PYSPARK_REGISTRY
 from src.challenges.vanilla.vanilla_test_data_types import (
@@ -110,7 +111,7 @@ def do_test_runs(
         random.shuffle(itinerary)
     result_log_path_name = os.path.join(
         get_python_code_root_path(),
-        derive_run_log_file_path(ENGINE))
+        derive_run_log_file_path_for_recording(ENGINE))
     with open(result_log_path_name, 'at+') as file:
         write_header(file)
         for index, (challenge_method_registration, data_set) in enumerate(itinerary):

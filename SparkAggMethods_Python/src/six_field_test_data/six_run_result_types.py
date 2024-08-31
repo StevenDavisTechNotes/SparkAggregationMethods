@@ -3,7 +3,8 @@ import os
 from typing import Callable, TextIO
 
 from src.challenges.vanilla.vanilla_record_runs import (
-    PersistedRunResult, derive_run_log_file_path, engine_implied_language)
+    PersistedRunResult, derive_run_log_file_path_for_reading,
+    engine_implied_language)
 from src.perf_test_common import CalcEngine
 from src.six_field_test_data.six_generate_test_data import (
     ChallengeMethodPythonDaskRegistration,
@@ -17,9 +18,9 @@ def _read_python_file(
         engine: CalcEngine,
         qualifier: Callable[[PersistedRunResult], bool],
 ) -> list[PersistedRunResult]:
-    log_file_path = derive_run_log_file_path(engine)
+    log_file_path = derive_run_log_file_path_for_reading(engine)
     language = engine_implied_language(engine)
-    if not os.path.exists(log_file_path):
+    if log_file_path is None or not os.path.exists(log_file_path):
         return []
     test_runs: list[PersistedRunResult] = []
     with open(log_file_path, 'r') as f:
@@ -61,9 +62,9 @@ def _read_scala_file(
         engine: CalcEngine,
         qualifier: Callable[[PersistedRunResult], bool],
 ) -> list[PersistedRunResult]:
-    log_file_path = derive_run_log_file_path(engine)
+    log_file_path = derive_run_log_file_path_for_reading(engine)
     language = engine_implied_language(engine)
-    if not os.path.exists(log_file_path):
+    if log_file_path is None or not os.path.exists(log_file_path):
         return []
     test_runs: list[PersistedRunResult] = []
     with open(log_file_path, 'r') as f:

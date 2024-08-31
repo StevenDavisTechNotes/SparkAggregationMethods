@@ -1,3 +1,6 @@
+#!python
+# usage: .\venv\Scripts\activate.ps1; python -m src.challenges.conditional.conditional_reporter
+
 import math
 import os
 from typing import NamedTuple, cast
@@ -6,7 +9,7 @@ import numpy
 import scipy.stats
 
 from src.challenges.conditional.conditional_record_runs import (
-    FINAL_REPORT_FILE_PATH, derive_run_log_file_path)
+    FINAL_REPORT_FILE_PATH, derive_run_log_file_path_for_reading)
 from src.challenges.conditional.conditional_strategy_directory import \
     STRATEGIES_USING_PYSPARK_REGISTRY
 from src.perf_test_common import CalcEngine
@@ -99,9 +102,9 @@ def analyze_run_results():
 
 def read_run_files():
     cond_runs = {}
-    for engine in [CalcEngine.PYSPARK, CalcEngine.DASK]:
-        run_log_file_path = derive_run_log_file_path(engine)
-        if not os.path.exists(run_log_file_path):
+    for engine in CalcEngine:
+        run_log_file_path = derive_run_log_file_path_for_reading(engine)
+        if run_log_file_path is None or not os.path.exists(run_log_file_path):
             continue
         with open(run_log_file_path, 'r') as f:
             for line in f:

@@ -53,7 +53,7 @@ def structure_test_results(
     test_x_values = set(EXPECTED_SIZES).union([regressor_from_run_result(x) for x in test_runs])
     test_results = {method: {x: [] for x in test_x_values} for method in challenge_method_registrations}
     for result in test_runs:
-        test_results[result.strategy_name][result.dataSize].append(result)
+        test_results[result.strategy_name][regressor_from_run_result(result)].append(result)
     return test_results
 
 

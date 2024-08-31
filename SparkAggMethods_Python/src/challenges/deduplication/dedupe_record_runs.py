@@ -55,7 +55,7 @@ EXPECTED_NUM_RECORDS = sorted([
 ])
 
 
-def derive_run_log_file_path(
+def derive_run_log_file_path_for_recording(
         engine: CalcEngine,
 ) -> str:
     match engine:
@@ -68,6 +68,18 @@ def derive_run_log_file_path(
     return os.path.join(
         root_folder_abs_path(),
         run_log)
+
+
+def derive_run_log_file_path_for_reading(
+        engine: CalcEngine,
+) -> str | None:
+    match engine:
+        case CalcEngine.DASK | CalcEngine.PYSPARK | CalcEngine.PYTHON_ONLY:
+            return derive_run_log_file_path_for_recording(engine)
+        case CalcEngine.SCALA_SPARK:
+            return None
+        case _:
+            raise ValueError(f"Unknown engine: {engine}")
 
 
 def regressor_from_run_result(
@@ -110,7 +122,11 @@ def write_run_result(
 def read_result_file(
         engine: CalcEngine,
 ) -> Iterable[PersistedRunResult]:
-    with open(derive_run_log_file_path(engine), 'r') as f:
+    log_file_path = derive_run_log_file_path_for_reading(engine)
+    if log_file_path is None or not os.path.exists(log_file_path):
+        print(f"File not found: {log_file_path}")
+        return
+    with open(log_file_path, 'r') as f:
         for line in f:
             line = line.rstrip()
             if line.startswith("Working"):

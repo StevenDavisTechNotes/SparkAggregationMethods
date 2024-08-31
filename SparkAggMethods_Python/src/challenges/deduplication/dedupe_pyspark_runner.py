@@ -16,7 +16,8 @@ from pyspark.sql import Row
 from src.challenges.deduplication.dedupe_generate_test_data import (
     DATA_SIZE_LIST_DEDUPE, generate_test_data)
 from src.challenges.deduplication.dedupe_record_runs import (
-    RunResult, derive_run_log_file_path, write_header, write_run_result)
+    RunResult, derive_run_log_file_path_for_recording, write_header,
+    write_run_result)
 from src.challenges.deduplication.dedupe_strategy_directory import \
     STRATEGIES_USING_PYSPARK_REGISTRY
 from src.challenges.deduplication.dedupe_test_data_types import (
@@ -198,7 +199,7 @@ def run_tests(
         set_random_seed(args.random_seed)
     if args.shuffle is True:
         random.shuffle(itinerary)
-    with open(derive_run_log_file_path(ENGINE), 'at+') as result_log_file:
+    with open(derive_run_log_file_path_for_recording(ENGINE), 'at+') as result_log_file:
         write_header(result_log_file)
         for index, itinerary_item in enumerate(itinerary):
             match run_one_itinerary_step(

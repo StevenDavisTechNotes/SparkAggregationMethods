@@ -22,7 +22,7 @@ class PersistedRunResult:
     recordCount: int
 
 
-def derive_run_log_file_path(
+def derive_run_log_file_path_for_recording(
         engine: CalcEngine,
 ) -> str:
     match engine:
@@ -35,6 +35,18 @@ def derive_run_log_file_path(
     return os.path.join(
         root_folder_abs_path(),
         run_log)
+
+
+def derive_run_log_file_path_for_reading(
+        engine: CalcEngine,
+) -> str | None:
+    match engine:
+        case CalcEngine.DASK | CalcEngine.PYSPARK:
+            return derive_run_log_file_path_for_recording(engine)
+        case CalcEngine.SCALA_SPARK:
+            return None
+        case _:
+            raise ValueError(f"Unknown engine: {engine}")
 
 
 def regressor_from_run_result(

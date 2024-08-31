@@ -7,7 +7,8 @@ import random
 import time
 from typing import NamedTuple
 
-from src.challenges.vanilla.vanilla_record_runs import derive_run_log_file_path
+from src.challenges.vanilla.vanilla_record_runs import \
+    derive_run_log_file_path_for_recording
 from src.challenges.vanilla.vanilla_strategy_directory import \
     STRATEGIES_USING_DASK_REGISTRY
 from src.challenges.vanilla.vanilla_test_data_types import \
@@ -106,7 +107,7 @@ def do_test_runs(
         set_random_seed(args.random_seed)
     if args.shuffle:
         random.shuffle(itinerary)
-    with open(derive_run_log_file_path(ENGINE), 'at+') as file:
+    with open(derive_run_log_file_path_for_recording(ENGINE), 'at+') as file:
         write_header(file)
         for index, (challenge_method_registration, data_set) in enumerate(itinerary):
             print("Working on %d of %d" % (index, len(itinerary)))

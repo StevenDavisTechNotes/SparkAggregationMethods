@@ -1,5 +1,5 @@
 #!python
-# python -m SectionPerfTest.SectionReporter
+# usage: .\venv\Scripts\activate.ps1; python -m src.challenges.sectional.section_reporter
 import math
 import os
 from typing import NamedTuple, cast
@@ -10,7 +10,7 @@ import scipy.stats
 from src.challenges.sectional.section_generate_test_data import \
     DataSetDescription
 from src.challenges.sectional.section_record_runs import (
-    FINAL_REPORT_FILE_PATH, derive_run_log_file_path)
+    FINAL_REPORT_FILE_PATH, derive_run_log_file_path_for_reading)
 from src.challenges.sectional.section_strategy_directory import (
     STRATEGIES_USING_DASK_REGISTRY, STRATEGIES_USING_PYSPARK_REGISTRY,
     STRATEGIES_USING_PYTHON_ONLY_REGISTRY)
@@ -18,6 +18,8 @@ from src.challenges.sectional.section_test_data_types import (
     DataSet, DataSetData, ExecutionParameters, RunResult)
 from src.perf_test_common import CalcEngine
 from src.utils.linear_regression import linear_regression
+
+TEMP_RESULT_FILE_PATH = "d:/temp/SparkPerfTesting/temp.csv"
 
 
 class TestRegression(NamedTuple):
@@ -137,10 +139,10 @@ def analyze_run_results():  # noqa: C901
 
 def read_run_results() -> list[RunResult]:
     test_runs: list[RunResult] = []
-    with open('results/temp.csv', 'w') as out_fh:
-        for engine in [CalcEngine.PYSPARK, CalcEngine.DASK]:
-            run_log_file_path_for_engine = derive_run_log_file_path(engine)
-            if not os.path.exists(run_log_file_path_for_engine):
+    with open(TEMP_RESULT_FILE_PATH, 'w') as out_fh:
+        for engine in CalcEngine:
+            run_log_file_path_for_engine = derive_run_log_file_path_for_reading(engine)
+            if run_log_file_path_for_engine is None or not os.path.exists(run_log_file_path_for_engine):
                 continue
             with open(run_log_file_path_for_engine, 'rt') as f:
                 for line in f:
@@ -152,23 +154,23 @@ def read_run_results() -> list[RunResult]:
                         print("Excluding line: " + line)
                         continue
                     fields: list[str] = line.rstrip().split(',')
-                    test_status, test_method_name, test_method_interface, \
+                    test_status, test_strategy_name, test_method_interface, \
                         result_num_students, \
-                        result_dataSize, result_section_maximum, \
-                        result_elapsedTime, result_recordCount, \
-                        _finished_at \
+                        result_data_size, result_section_maximum, \
+                        result_elapsed_time, result_record_count, \
+                        _finished_at, *_rest \
                         = tuple(fields)
                     if test_status != 'success':
                         print("Excluding line: " + line)
                         continue
                     result = RunResult(
-                        strategy_name=test_method_name,
+                        strategy_name=test_strategy_name,
                         engine=engine,
                         success=test_status == "success",
                         data=DataSet(
                             data_size=DataSetDescription(
                                 num_students=int(result_num_students),
-                                section_size_max=int(result_dataSize) // int(result_section_maximum)
+                                section_size_max=int(result_data_size) // int(result_section_maximum)
                             ),
                             data=DataSetData(
                                 section_maximum=int(result_section_maximum),
@@ -181,12 +183,12 @@ def read_run_results() -> list[RunResult]:
                                 test_data_folder_location="N/A",
                             )
                         ),
-                        elapsed_time=float(result_elapsedTime),
-                        record_count=int(result_recordCount))
+                        elapsed_time=float(result_elapsed_time),
+                        record_count=int(result_record_count))
                     test_runs.append(result)
                     out_fh.write("%s,%s,%s,%d,%d,%f,%s\n" % (
                         engine.value,
-                        test_method_name, test_method_interface,
+                        test_strategy_name, test_method_interface,
                         result.data.data_size.num_rows // result.data.data.section_maximum,
                         result.data.data.section_maximum,
                         result.elapsed_time,

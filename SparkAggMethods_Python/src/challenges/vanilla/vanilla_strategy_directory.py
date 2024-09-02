@@ -1,3 +1,5 @@
+from src.challenges.vanilla.using_dask.vanilla_dask_bag_accumulate import \
+    vanilla_dask_bag_accumulate
 from src.challenges.vanilla.using_dask.vanilla_dask_ddf_grp_apply import \
     vanilla_dask_ddf_grp_apply
 from src.challenges.vanilla.using_dask.vanilla_dask_ddf_grp_udaf import \
@@ -34,6 +36,15 @@ from src.six_field_test_data.six_generate_test_data.six_test_data_for_python_onl
 from src.utils.inspection import name_of_function
 
 STRATEGIES_USING_DASK_REGISTRY: list[ChallengeMethodPythonDaskRegistration] = [
+    ChallengeMethodPythonDaskRegistration(
+        strategy_name_2018=None,
+        strategy_name=name_of_function(vanilla_dask_bag_accumulate),
+        language='python',
+        interface='bag',
+        numerical_tolerance=NumericalToleranceExpectations.SIMPLE_SUM,
+        requires_gpu=False,
+        delegate=vanilla_dask_bag_accumulate,
+    ),
     ChallengeMethodPythonDaskRegistration(
         strategy_name_2018=None,
         strategy_name=name_of_function(vanilla_dask_ddf_grp_apply),

@@ -46,7 +46,7 @@ class DataSetDaskWithAnswer(DataSetDask):
     answer: DataSetAnswer
 
 
-TChallengeAnswerPythonDask = Literal["infeasible"] | DaskBag | DaskDataFrame | pd.DataFrame
+TChallengeAnswerPythonDask = Literal["infeasible"] | DaskDataFrame | pd.DataFrame
 
 
 class IChallengeMethodPythonDask(Protocol):

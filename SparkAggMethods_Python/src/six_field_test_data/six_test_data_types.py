@@ -25,7 +25,7 @@ class Challenge(StrEnum):
     CONDITIONAL = 'conditional'
 
 
-class DataPoint(NamedTuple):
+class DataPointNT(NamedTuple):
     id: int
     grp: int
     subgrp: int
@@ -35,6 +35,36 @@ class DataPoint(NamedTuple):
     D: float
     E: float
     F: float
+
+
+@dataclass(frozen=True)
+class DataPointDC():
+    id: int
+    grp: int
+    subgrp: int
+    A: float
+    B: float
+    C: float
+    D: float
+    E: float
+    F: float
+
+
+@dataclass(frozen=True)
+class SubTotalDC():
+    running_count: int
+    running_max_of_D: float
+    running_sum_of_C: float
+    running_sum_of_E_squared: float
+    running_sum_of_E: float
+
+
+@dataclass(frozen=True)
+class TotalDC():
+    mean_of_C: float
+    max_of_D: float
+    var_of_E: float
+    var_of_E2: float
 
 
 DataPointSchema = DataTypes.StructType([
@@ -143,18 +173,23 @@ def populate_data_set_generic(
             )
         )
     )
-    staging_file_name_csv = os.path.join(
+    staging_file_name_parquet = os.path.join(
         exec_params.TestDataFolderLocation,
         "SixField_Test_Data",
         f"SixFieldTestData_{num_grp_1}_{num_grp_2}_{repetition}.parquet")
-    if os.path.exists(staging_file_name_csv) is False:
+    staging_file_name_csv = os.path.join(
+        exec_params.TestDataFolderLocation,
+        "SixField_Test_Data",
+        f"SixFieldTestData_{num_grp_1}_{num_grp_2}_{repetition}.csv")
+    if os.path.exists(staging_file_name_parquet) is False:
         generate_data_to_file(
-            file_name=staging_file_name_csv,
+            parquet_file_name=staging_file_name_parquet,
+            csv_file_name=staging_file_name_csv,
             numGrp1=num_grp_1,
             numGrp2=num_grp_2,
             repetition=repetition,
         )
-    df = pd.read_parquet(staging_file_name_csv)
+    df = pd.read_parquet(staging_file_name_parquet)
     assert len(df) == num_data_points
     vanilla_answer: pd.DataFrame = pd.DataFrame.from_records(
         [
@@ -226,7 +261,8 @@ def populate_data_set_generic(
 
 
 def generate_data_to_file(
-        file_name: str,
+        parquet_file_name: str,
+        csv_file_name: str,
         numGrp1: int,
         numGrp2: int,
         repetition: int,
@@ -243,11 +279,19 @@ def generate_data_to_file(
     df['D'] = np.random.uniform(1, 10, num_data_points)
     df['E'] = np.random.normal(0, 10, num_data_points)
     df['F'] = np.random.normal(1, 10, num_data_points)
-    Path(file_name).parent.mkdir(parents=True, exist_ok=True)
-    tmp_file_name = f'{file_name}_t'
-    with open(tmp_file_name, "wb") as fh:
-        df.to_parquet(fh)
-    os.rename(tmp_file_name, file_name)
+    Path(parquet_file_name).parent.mkdir(parents=True, exist_ok=True)
+    if True:
+        tmp_file_name = f'{parquet_file_name}_t'
+        with open(tmp_file_name, "wb") as fh:
+            df.to_parquet(fh)
+        os.rename(tmp_file_name, parquet_file_name)
+    if num_data_points < 1000:
+        tmp_file_name = f'{csv_file_name}_t'
+        with open(tmp_file_name, "wb") as fh:
+            df.to_csv(fh, index=False)
+        os.rename(tmp_file_name, csv_file_name)
+    elif os.path.exists(csv_file_name):
+        os.remove(csv_file_name)
 
 
 def generate_data_to_file_using_python_random(
@@ -257,7 +301,7 @@ def generate_data_to_file_using_python_random(
         repetition: int,
 ) -> None:
     data_points = [
-        DataPoint(
+        DataPointNT(
             id=i,
             grp=(i // numGrp2) % numGrp1,
             subgrp=i % numGrp2,

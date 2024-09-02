@@ -13,6 +13,7 @@ from src.six_field_test_data.six_test_data_types import (
 class NumericalToleranceExpectations(Enum):
     NUMPY = 1e-12
     NUMBA = 1e-10
+    SIMPLE_SUM = 1e-11
 
 # region PythonOnly version
 

@@ -4,19 +4,22 @@ from src.six_field_test_data.six_test_data_types import (DataPointNT,
                                                          SubTotalDC, TotalDC)
 
 
+def zero_subtotal(
+) -> SubTotalDC:
+    return SubTotalDC(
+        running_sum_of_C=0,
+        running_count=0,
+        running_max_of_D=-math.inf,
+        running_sum_of_E_squared=0,
+        running_sum_of_E=0,
+    )
+
+
 def accumulate_subtotal(
         prior: SubTotalDC | None,
         element: DataPointNT,
 ) -> SubTotalDC:
-    prior = (
-        prior if prior is not None else
-        SubTotalDC(
-            running_sum_of_C=0,
-            running_count=0,
-            running_max_of_D=-math.inf,
-            running_sum_of_E_squared=0,
-            running_sum_of_E=0,
-        ))
+    prior = prior if prior is not None else zero_subtotal()
     updated = SubTotalDC(
         running_sum_of_C=prior.running_sum_of_C + element.C,
         running_count=prior.running_count + 1,
@@ -28,9 +31,15 @@ def accumulate_subtotal(
 
 
 def combine_subtotals(
-        subtotal1: SubTotalDC,
-        subtotal2: SubTotalDC,
+        subtotal1: SubTotalDC | None,
+        subtotal2: SubTotalDC | None,
 ) -> SubTotalDC:
+    if subtotal1 is None:
+        if subtotal2 is None:
+            raise ValueError("At least one subtotal must be non-None")
+        return subtotal2
+    elif subtotal2 is None:
+        return subtotal1
     combined = SubTotalDC(
         running_sum_of_C=subtotal1.running_sum_of_C + subtotal2.running_sum_of_C,
         running_count=subtotal1.running_count + subtotal2.running_count,

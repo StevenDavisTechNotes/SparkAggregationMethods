@@ -30,12 +30,16 @@ CHALLENGE = Challenge.VANILLA
 
 DEBUG_ARGS = None if False else (
     []
-    + '--size 3_3_100k 3_3_1m'.split()
+    + '--size 3_3_10'.split()
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
     + ['--strategy',
-       'vanilla_dask_bag_accumulate',
+       #    'vanilla_dask_bag_accumulate',
+       #    'vanilla_dask_bag_fold',
+       'vanilla_dask_bag_foldby',
+       'vanilla_dask_bag_reduction',
+       'vanilla_dask_bag_map_partitions',
        #    'vanilla_dask_ddf_grp_apply',
        #    'vanilla_dask_ddf_grp_udaf',
        #    'vanilla_dask_sql_no_gpu',

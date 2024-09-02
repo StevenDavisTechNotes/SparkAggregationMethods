@@ -1,5 +1,13 @@
 from src.challenges.vanilla.using_dask.vanilla_dask_bag_accumulate import \
     vanilla_dask_bag_accumulate
+from src.challenges.vanilla.using_dask.vanilla_dask_bag_fold import \
+    vanilla_dask_bag_fold
+from src.challenges.vanilla.using_dask.vanilla_dask_bag_foldby import \
+    vanilla_dask_bag_foldby
+from src.challenges.vanilla.using_dask.vanilla_dask_bag_map_partitions import \
+    vanilla_dask_bag_map_partitions
+from src.challenges.vanilla.using_dask.vanilla_dask_bag_reduction import \
+    vanilla_dask_bag_reduction
 from src.challenges.vanilla.using_dask.vanilla_dask_ddf_grp_apply import \
     vanilla_dask_ddf_grp_apply
 from src.challenges.vanilla.using_dask.vanilla_dask_ddf_grp_udaf import \
@@ -44,6 +52,42 @@ STRATEGIES_USING_DASK_REGISTRY: list[ChallengeMethodPythonDaskRegistration] = [
         numerical_tolerance=NumericalToleranceExpectations.SIMPLE_SUM,
         requires_gpu=False,
         delegate=vanilla_dask_bag_accumulate,
+    ),
+    ChallengeMethodPythonDaskRegistration(
+        strategy_name_2018=None,
+        strategy_name=name_of_function(vanilla_dask_bag_fold),
+        language='python',
+        interface='bag',
+        numerical_tolerance=NumericalToleranceExpectations.SIMPLE_SUM,
+        requires_gpu=False,
+        delegate=vanilla_dask_bag_fold,
+    ),
+    ChallengeMethodPythonDaskRegistration(
+        strategy_name_2018=None,
+        strategy_name=name_of_function(vanilla_dask_bag_foldby),
+        language='python',
+        interface='bag',
+        numerical_tolerance=NumericalToleranceExpectations.SIMPLE_SUM,
+        requires_gpu=False,
+        delegate=vanilla_dask_bag_foldby,
+    ),
+    ChallengeMethodPythonDaskRegistration(
+        strategy_name_2018=None,
+        strategy_name=name_of_function(vanilla_dask_bag_map_partitions),
+        language='python',
+        interface='bag',
+        numerical_tolerance=NumericalToleranceExpectations.SIMPLE_SUM,
+        requires_gpu=False,
+        delegate=vanilla_dask_bag_map_partitions,
+    ),
+    ChallengeMethodPythonDaskRegistration(
+        strategy_name_2018=None,
+        strategy_name=name_of_function(vanilla_dask_bag_reduction),
+        language='python',
+        interface='bag',
+        numerical_tolerance=NumericalToleranceExpectations.SIMPLE_SUM,
+        requires_gpu=False,
+        delegate=vanilla_dask_bag_reduction,
     ),
     ChallengeMethodPythonDaskRegistration(
         strategy_name_2018=None,

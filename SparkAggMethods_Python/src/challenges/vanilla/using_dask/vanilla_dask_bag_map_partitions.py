@@ -1,4 +1,5 @@
 from dataclasses import asdict
+from typing import Iterable
 
 import pandas as pd
 from dask.bag.core import Bag as DaskBag
@@ -10,41 +11,50 @@ from src.six_field_test_data.six_generate_test_data import (
 from src.six_field_test_data.six_test_data_types import (DataPointNT,
                                                          ExecutionParameters,
                                                          SubTotalDC)
+from src.utils.ensure_has_memory import check_memory
 
 
-def vanilla_dask_bag_accumulate(
+def vanilla_dask_bag_map_partitions(
         exec_params: ExecutionParameters,
         data_set: DataSetDask
 ) -> TChallengeAnswerPythonDask:
-    if (data_set.data_size.points_per_index > 10**6):  # just takes too long
-        return "infeasible"
+    check_memory(throw=True)
     stage0: DaskBag = data_set.data.bag_src
     stage1 = (
         stage0
-        .accumulate(combine_with_running_subtotal, initial=dict())
+        .map_partitions(
+            combine_within_partition,
+        )
         .compute()
     )
-    stage2 = finalize(stage1)
-    return stage2
+    stage2 = combine_subtotals(stage1)
+    stage3 = finalize(stage2)
+    return stage3
 
 
-def combine_with_running_subtotal(
-        acc: dict[tuple[int, int], SubTotalDC],
-        element: DataPointNT,
+def combine_within_partition(
+        lst: Iterable[DataPointNT],
+) -> Iterable[tuple[tuple[int, int], SubTotalDC]]:
+    acc = dict()
+    for element in lst:
+        key = (element.grp, element.subgrp)
+        prior = acc[key] if key in acc else None
+        acc[key] = six_domain_logic.accumulate_subtotal(prior, element)
+    return acc.items()
+
+
+def combine_subtotals(
+        lst: Iterable[tuple[tuple[int, int], SubTotalDC]],
 ) -> dict[tuple[int, int], SubTotalDC]:
-    key = (element.grp, element.subgrp)
-    prior = acc[key] if key in acc else None
-    acc[key] = six_domain_logic.accumulate_subtotal(prior, element)
+    acc = dict()
+    for key, subtotal in lst:
+        acc[key] = six_domain_logic.combine_subtotals(acc.get(key), subtotal)
     return acc
 
 
 def finalize(
-        subtotal_list: list[dict[tuple[int, int], SubTotalDC]],
+        acc: dict[tuple[int, int], SubTotalDC],
 ) -> pd.DataFrame:
-    acc = dict()
-    for subtotal in subtotal_list:
-        for key, value in subtotal.items():
-            acc[key] = value
     df = pd.DataFrame.from_records(
         [
             {

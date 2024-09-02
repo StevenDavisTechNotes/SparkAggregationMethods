@@ -33,7 +33,7 @@ DATA_SIZES_LIST_VANILLA = [
         (10 ** 4, '3_3_10k'),
         (10 ** 5, '3_3_100k'),
         (10 ** 6, '3_3_1m'),
-        # (10 ** 7, '3_3_10m'),
-        # (10 ** 8, '3_3_100m'),
+        # (10 ** 7, '3_3_10m'), EOM during data generation
+        # (10 ** 8, '3_3_100m'), EOM during data generation
     ]
 ]

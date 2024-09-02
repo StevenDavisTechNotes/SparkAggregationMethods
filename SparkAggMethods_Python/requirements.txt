@@ -19,6 +19,7 @@ pyarrow>=4.0.0
 Py4J>=0.10.9.7
 pyspark==3.5.1
 pytest
-pytz 
+pytz
+psutil
 scipy
 statsmodels 

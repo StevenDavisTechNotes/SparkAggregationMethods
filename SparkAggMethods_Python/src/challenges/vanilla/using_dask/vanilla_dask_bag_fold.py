@@ -10,18 +10,21 @@ from src.six_field_test_data.six_generate_test_data import (
 from src.six_field_test_data.six_test_data_types import (DataPointNT,
                                                          ExecutionParameters,
                                                          SubTotalDC)
+from src.utils.ensure_has_memory import check_memory
 
 
-def vanilla_dask_bag_accumulate(
+def vanilla_dask_bag_fold(
         exec_params: ExecutionParameters,
         data_set: DataSetDask
 ) -> TChallengeAnswerPythonDask:
-    if (data_set.data_size.points_per_index > 10**6):  # just takes too long
-        return "infeasible"
+    check_memory(throw=True)
     stage0: DaskBag = data_set.data.bag_src
     stage1 = (
         stage0
-        .accumulate(combine_with_running_subtotal, initial=dict())
+        .fold(
+            binop=combine_with_running_subtotal,
+            combine=combine_subtotals,
+            initial=dict())
         .compute()
     )
     stage2 = finalize(stage1)
@@ -38,13 +41,19 @@ def combine_with_running_subtotal(
     return acc
 
 
-def finalize(
-        subtotal_list: list[dict[tuple[int, int], SubTotalDC]],
-) -> pd.DataFrame:
+def combine_subtotals(
+        lhs: dict[tuple[int, int], SubTotalDC],
+        rhs: dict[tuple[int, int], SubTotalDC],
+) -> dict[tuple[int, int], SubTotalDC]:
     acc = dict()
-    for subtotal in subtotal_list:
-        for key, value in subtotal.items():
-            acc[key] = value
+    for key in set(lhs.keys()).union(rhs.keys()):
+        acc[key] = six_domain_logic.combine_subtotals(lhs.get(key), rhs.get(key))
+    return acc
+
+
+def finalize(
+        acc: dict[tuple[int, int], SubTotalDC],
+) -> pd.DataFrame:
     df = pd.DataFrame.from_records(
         [
             {

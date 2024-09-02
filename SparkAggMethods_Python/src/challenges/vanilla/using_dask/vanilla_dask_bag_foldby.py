@@ -10,18 +10,22 @@ from src.six_field_test_data.six_generate_test_data import (
 from src.six_field_test_data.six_test_data_types import (DataPointNT,
                                                          ExecutionParameters,
                                                          SubTotalDC)
+from src.utils.ensure_has_memory import check_memory
 
 
-def vanilla_dask_bag_accumulate(
+def vanilla_dask_bag_foldby(
         exec_params: ExecutionParameters,
         data_set: DataSetDask
 ) -> TChallengeAnswerPythonDask:
-    if (data_set.data_size.points_per_index > 10**6):  # just takes too long
-        return "infeasible"
+    check_memory(throw=True)
     stage0: DaskBag = data_set.data.bag_src
-    stage1 = (
+    stage1 = dict(
         stage0
-        .accumulate(combine_with_running_subtotal, initial=dict())
+        .foldby(
+            key=lambda x: (x.grp, x.subgrp),
+            binop=combine_with_running_subtotal,
+            combine=combine_subtotals,
+            initial=None)
         .compute()
     )
     stage2 = finalize(stage1)
@@ -29,22 +33,22 @@ def vanilla_dask_bag_accumulate(
 
 
 def combine_with_running_subtotal(
-        acc: dict[tuple[int, int], SubTotalDC],
+        prior: SubTotalDC | None,
         element: DataPointNT,
-) -> dict[tuple[int, int], SubTotalDC]:
-    key = (element.grp, element.subgrp)
-    prior = acc[key] if key in acc else None
-    acc[key] = six_domain_logic.accumulate_subtotal(prior, element)
-    return acc
+) -> SubTotalDC:
+    return six_domain_logic.accumulate_subtotal(prior, element)
+
+
+def combine_subtotals(
+        lhs: SubTotalDC,
+        rhs: SubTotalDC,
+) -> SubTotalDC:
+    return six_domain_logic.combine_subtotals(lhs, rhs)
 
 
 def finalize(
-        subtotal_list: list[dict[tuple[int, int], SubTotalDC]],
+        acc: dict[tuple[int, int], SubTotalDC],
 ) -> pd.DataFrame:
-    acc = dict()
-    for subtotal in subtotal_list:
-        for key, value in subtotal.items():
-            acc[key] = value
     df = pd.DataFrame.from_records(
         [
             {

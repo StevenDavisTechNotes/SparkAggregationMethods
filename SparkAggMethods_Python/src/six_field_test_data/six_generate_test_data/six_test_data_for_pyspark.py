@@ -10,7 +10,7 @@ from src.perf_test_common import CalcEngine, ChallengeMethodRegistration
 from src.six_field_test_data.six_generate_test_data.six_test_data_for_python_only import \
     NumericalToleranceExpectations
 from src.six_field_test_data.six_test_data_types import (
-    Challenge, DataPoint, DataSetAnswer, DataSetDescription,
+    Challenge, DataPointNT, DataSetAnswer, DataSetDescription,
     ExecutionParameters, populate_data_set_generic)
 from src.utils.tidy_spark_session import TidySparkSession
 
@@ -23,7 +23,7 @@ class DataSetDataPyspark():
     agg_tgt_num_partitions_1_level: int
     agg_tgt_num_partitions_2_level: int
     df_src: PySparkDataFrame
-    rdd_src: RDD[DataPoint]
+    rdd_src: RDD[DataPointNT]
 
 
 def pick_agg_tgt_num_partitions_pyspark(data: DataSetDataPyspark, challenge: Challenge) -> int:
@@ -85,19 +85,19 @@ def populate_data_set_pyspark(
     raw_data = populate_data_set_generic(
         CalcEngine.PYSPARK,  exec_params, data_size=data_size)
     df = raw_data.df_src
-    rdd_src: RDD[DataPoint]
+    rdd_src: RDD[DataPointNT]
     if raw_data.num_data_points < raw_data.src_num_partitions:
         rdd_src = spark_session.spark.sparkContext.parallelize((
-            DataPoint(*r)  # type: ignore
+            DataPointNT(*r)  # type: ignore
             for r in cast(list[dict[str, Any]],
                           df.to_records(index=False))
         ), raw_data.src_num_partitions)
     else:
-        def union_rdd_set(lhs: RDD[DataPoint], rhs: RDD[DataPoint]) -> RDD[DataPoint]:
+        def union_rdd_set(lhs: RDD[DataPointNT], rhs: RDD[DataPointNT]) -> RDD[DataPointNT]:
             return lhs.union(rhs)
         rdd_src = reduce(union_rdd_set, [
             spark_session.spark.sparkContext.parallelize((
-                DataPoint(*r)
+                DataPointNT(*r)
                 for r in df[df["id"] % raw_data.src_num_partitions == i_part]
                 .to_records(index=False)
             ), 1)

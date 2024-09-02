@@ -11,7 +11,7 @@ from src.challenges.conditional.conditional_record_runs import \
 from src.challenges.conditional.conditional_strategy_directory import \
     STRATEGIES_USING_PYSPARK_REGISTRY
 from src.challenges.conditional.conditional_test_data_types import (
-    AGG_COLUMN_NAMES_3, DATA_SIZES_LIST_CONDITIONAL, GROUP_BY_COLUMNS)
+    AGGREGATION_COLUMNS_3, DATA_SIZES_LIST_CONDITIONAL, GROUP_BY_COLUMNS)
 from src.perf_test_common import CalcEngine
 from src.six_field_test_data.six_generate_test_data import (
     ChallengeMethodPythonPysparkRegistration, DataSetPysparkWithAnswer,
@@ -119,7 +119,7 @@ def do_test_runs(
                 spark_session=spark_session,
                 exec_params=args.exec_params,
                 challenge_method_registration=challenge_method_registration,
-                result_columns=GROUP_BY_COLUMNS+AGG_COLUMN_NAMES_3,
+                result_columns=GROUP_BY_COLUMNS+AGGREGATION_COLUMNS_3,
                 file=file,
                 data_set=data_set,
             )

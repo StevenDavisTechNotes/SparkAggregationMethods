@@ -8,7 +8,7 @@ from src.six_field_test_data.six_generate_test_data import (
 from src.six_field_test_data.six_generate_test_data.six_test_data_for_pyspark import \
     pick_agg_tgt_num_partitions_pyspark
 from src.six_field_test_data.six_test_data_types import (
-    MAX_DATA_POINTS_PER_SPARK_PARTITION, Challenge, DataPoint,
+    MAX_DATA_POINTS_PER_SPARK_PARTITION, Challenge, DataPointNT,
     ExecutionParameters)
 from src.utils.tidy_spark_session import TidySparkSession
 
@@ -20,7 +20,7 @@ def bi_level_pyspark_rdd_grp_map(
         exec_params: ExecutionParameters,
         data_set: DataSetPyspark
 ) -> TChallengePendingAnswerPythonPyspark:
-    rddSrc: RDD[DataPoint] = data_set.data.rdd_src
+    rddSrc: RDD[DataPointNT] = data_set.data.rdd_src
 
     if (
             data_set.description.num_data_points
@@ -60,7 +60,7 @@ class MutableRunningTotal:
 
 def process_data_1(
         grp: int,
-        iterator: Iterable[DataPoint]
+        iterator: Iterable[DataPointNT]
 ) -> Row:
     import math
     import statistics

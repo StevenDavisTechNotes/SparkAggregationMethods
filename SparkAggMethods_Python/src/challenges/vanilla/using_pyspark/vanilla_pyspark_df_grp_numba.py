@@ -3,7 +3,7 @@ import numpy
 import pandas as pd
 
 from src.challenges.vanilla.vanilla_test_data_types import (
-    pyspark_post_agg_schema, result_columns)
+    RESULT_COLUMNS, pyspark_post_agg_schema)
 from src.six_field_test_data.six_generate_test_data import (
     DataSetPyspark, TChallengePendingAnswerPythonPyspark)
 from src.six_field_test_data.six_test_data_types import ExecutionParameters
@@ -72,4 +72,4 @@ def inner_agg_method(
         my_numba_max(D),
         my_numba_var(E),
         my_loop_lift_var(E),
-    ]], columns=result_columns)
+    ]], columns=RESULT_COLUMNS)

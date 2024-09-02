@@ -4,7 +4,7 @@ from dask.dataframe import groupby
 from dask.dataframe.core import DataFrame as DaskDataFrame
 from pandas.core.groupby.generic import SeriesGroupBy
 
-from src.challenges.vanilla.vanilla_test_data_types import agg_columns
+from src.challenges.vanilla.vanilla_test_data_types import GROUP_BY_COLUMNS
 from src.six_field_test_data.six_generate_test_data import (
     DataSetDask, TChallengeAnswerPythonDask)
 from src.six_field_test_data.six_test_data_types import ExecutionParameters
@@ -53,7 +53,7 @@ def vanilla_dask_ddf_grp_udaf(
         right=dd2_just_var_of_E.compute(),
         on=['grp', 'subgrp'], how='inner')
     df3 = (
-        df2.loc[:, agg_columns]
+        df2.loc[:, GROUP_BY_COLUMNS]
         .sort_index()
         .reset_index(drop=False)
     )

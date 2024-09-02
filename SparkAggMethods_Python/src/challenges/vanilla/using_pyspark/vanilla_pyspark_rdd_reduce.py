@@ -7,7 +7,8 @@ from src.six_field_test_data.six_generate_test_data import (
     DataSetPyspark, TChallengePendingAnswerPythonPyspark)
 from src.six_field_test_data.six_generate_test_data.six_test_data_for_pyspark import \
     pick_agg_tgt_num_partitions_pyspark
-from src.six_field_test_data.six_test_data_types import (Challenge, DataPoint,
+from src.six_field_test_data.six_test_data_types import (Challenge,
+                                                         DataPointNT,
                                                          ExecutionParameters)
 from src.utils.tidy_spark_session import TidySparkSession
 
@@ -65,7 +66,7 @@ def create_accumulator() -> SubTotalDC:
 
 def merge_value_2(
         sub: SubTotalDC,
-        v: DataPoint,
+        v: DataPointNT,
 ) -> SubTotalDC:
     running_sum_of_E_squared = sub.running_sum_of_E_squared + v.E * v.E
     running_sum_of_E = sub.running_sum_of_E + v.E
@@ -78,7 +79,7 @@ def merge_value_2(
 
 
 def create_combiner_2(
-        v: DataPoint,
+        v: DataPointNT,
 ) -> SubTotalDC:
     return merge_value_2(create_accumulator(), v)
 

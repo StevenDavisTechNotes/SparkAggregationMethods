@@ -7,17 +7,17 @@ from src.six_field_test_data.six_test_data_types import (DataPointSchema,
                                                          DataSetDescription)
 
 GROUP_BY_COLUMNS = ['grp', 'subgrp']
-AGG_COLUMN_NAMES_3 = ['mean_of_C', 'max_of_D', 'cond_var_of_E']
-POST_AGG_SCHEMA_3 = DataTypes.StructType(
+AGGREGATION_COLUMNS_3 = ['mean_of_C', 'max_of_D', 'cond_var_of_E']
+POST_AGGREGATION_SCHEMA_3 = DataTypes.StructType(
     [x for x in DataPointSchema.fields if x.name in GROUP_BY_COLUMNS] +
     [DataTypes.StructField(name, DataTypes.DoubleType(), False)
-        for name in AGG_COLUMN_NAMES_3])
+        for name in AGGREGATION_COLUMNS_3])
 
-AGG_COLUMN_NAMES_4 = ['mean_of_C', 'max_of_D', 'cond_var_of_E', 'cond_var_of_E2']
-POST_AGG_SCHEMA_4 = DataTypes.StructType(
+AGGREGATION_COLUMNS_4 = ['mean_of_C', 'max_of_D', 'cond_var_of_E', 'cond_var_of_E2']
+POST_AGGREGATION_SCHEMA_4 = DataTypes.StructType(
     [x for x in DataPointSchema.fields if x.name in GROUP_BY_COLUMNS] +
     [DataTypes.StructField(name, DataTypes.DoubleType(), False)
-        for name in AGG_COLUMN_NAMES_4])
+        for name in AGGREGATION_COLUMNS_4])
 
 
 DATA_SIZES_LIST_CONDITIONAL = [

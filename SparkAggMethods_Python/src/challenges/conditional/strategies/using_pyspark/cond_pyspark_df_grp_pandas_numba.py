@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 
 from src.challenges.conditional.conditional_test_data_types import (
-    AGG_COLUMN_NAMES_4, GROUP_BY_COLUMNS, POST_AGG_SCHEMA_4)
+    AGGREGATION_COLUMNS_4, GROUP_BY_COLUMNS, POST_AGGREGATION_SCHEMA_4)
 from src.six_field_test_data.six_generate_test_data import (
     DataSetPyspark, TChallengePendingAnswerPythonPyspark)
 from src.six_field_test_data.six_test_data_types import ExecutionParameters
@@ -53,7 +53,7 @@ def cond_pyspark_df_grp_pandas_numba(
     df = (
         df
         .groupby(df.grp, df.subgrp)
-        .applyInPandas(inner_agg_method, POST_AGG_SCHEMA_4)
+        .applyInPandas(inner_agg_method, POST_AGGREGATION_SCHEMA_4)
     )
     df = df.orderBy(df.grp, df.subgrp)
     return df
@@ -74,4 +74,4 @@ def inner_agg_method(
         my_numba_max(D),
         my_numba_var(posE),
         my_loop_lift_var(posE),
-    ]], columns=GROUP_BY_COLUMNS + AGG_COLUMN_NAMES_4)
+    ]], columns=GROUP_BY_COLUMNS + AGGREGATION_COLUMNS_4)

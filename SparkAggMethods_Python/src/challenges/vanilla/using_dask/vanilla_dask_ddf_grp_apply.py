@@ -2,7 +2,7 @@ import pandas as pd
 from dask.dataframe.core import DataFrame as DaskDataFrame
 
 from src.challenges.vanilla.vanilla_test_data_types import (
-    dask_post_agg_schema, result_columns)
+    RESULT_COLUMNS, dask_post_agg_schema)
 from src.six_field_test_data.six_generate_test_data import (
     DataSetDask, TChallengeAnswerPythonDask)
 from src.six_field_test_data.six_test_data_types import ExecutionParameters
@@ -46,4 +46,4 @@ def inner_agg_method(
         D.max(),
         E.var(ddof=0),
         var_of_E2,
-    ]], columns=result_columns)
+    ]], columns=RESULT_COLUMNS)

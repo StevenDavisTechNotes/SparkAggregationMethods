@@ -8,7 +8,8 @@ from src.six_field_test_data.six_generate_test_data import (
     DataSetPyspark, TChallengePendingAnswerPythonPyspark)
 from src.six_field_test_data.six_generate_test_data.six_test_data_for_pyspark import \
     pick_agg_tgt_num_partitions_pyspark
-from src.six_field_test_data.six_test_data_types import (Challenge, DataPoint,
+from src.six_field_test_data.six_test_data_types import (Challenge,
+                                                         DataPointNT,
                                                          ExecutionParameters)
 from src.utils.tidy_spark_session import TidySparkSession
 
@@ -62,7 +63,7 @@ def vanilla_pyspark_rdd_mappart(
 
 
 def partition_triage(
-        iterator: Iterable[DataPoint],
+        iterator: Iterable[DataPointNT],
 ) -> Iterable[tuple[tuple[int, int], SubTotal]]:
     running_subtotals = {}
     for v in iterator:

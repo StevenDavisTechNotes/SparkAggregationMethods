@@ -11,7 +11,7 @@ from src.challenges.bi_level.bi_level_record_runs import \
 from src.challenges.bi_level.bi_level_strategy_directory import \
     STRATEGIES_USING_PYSPARK_REGISTRY
 from src.challenges.bi_level.bi_level_test_data_types import (
-    DATA_SIZES_LIST_BI_LEVEL, result_columns)
+    DATA_SIZES_LIST_BI_LEVEL, RESULT_COLUMNS)
 from src.perf_test_common import CalcEngine
 from src.six_field_test_data.six_generate_test_data import (
     ChallengeMethodPythonPysparkRegistration, DataSetPysparkWithAnswer,
@@ -115,7 +115,7 @@ def do_test_runs(
                 spark_session=spark_session,
                 exec_params=args.exec_params,
                 challenge_method_registration=challenge_method_registration,
-                result_columns=result_columns,
+                result_columns=RESULT_COLUMNS,
                 file=file,
                 data_set=data_set,
             )

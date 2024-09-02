@@ -2,8 +2,8 @@
 import numpy as np
 import pandas as pd
 
-from src.challenges.bi_level.bi_level_test_data_types import (postAggSchema,
-                                                              result_columns)
+from src.challenges.bi_level.bi_level_test_data_types import (RESULT_COLUMNS,
+                                                              postAggSchema)
 from src.six_field_test_data.six_generate_test_data import (
     DataSetPyspark, TChallengePendingAnswerPythonPyspark)
 from src.six_field_test_data.six_test_data_types import ExecutionParameters
@@ -70,4 +70,4 @@ def inner_agg_method(
         my_numba_max(D),
         sub_group_E.apply(lambda x: my_numba_var(np.array(x))).mean(),
         sub_group_E.apply(lambda x: my_loop_lift_var(np.array(x))).mean(),
-    ]], columns=result_columns)
+    ]], columns=RESULT_COLUMNS)

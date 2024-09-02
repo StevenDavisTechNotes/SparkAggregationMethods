@@ -2,8 +2,8 @@ from typing import cast
 
 import pandas as pd
 
-from src.challenges.bi_level.bi_level_test_data_types import (postAggSchema,
-                                                              result_columns)
+from src.challenges.bi_level.bi_level_test_data_types import (RESULT_COLUMNS,
+                                                              postAggSchema)
 from src.six_field_test_data.six_generate_test_data import (
     DataSetPyspark, TChallengePendingAnswerPythonPyspark)
 from src.six_field_test_data.six_test_data_types import ExecutionParameters
@@ -44,4 +44,4 @@ def inner_agg_method(
                   ((col_e * col_e).sum() / col_e.count() -
                    (col_e.sum() / col_e.count())**2)))
         .mean(),
-    ]], columns=result_columns)
+    ]], columns=RESULT_COLUMNS)

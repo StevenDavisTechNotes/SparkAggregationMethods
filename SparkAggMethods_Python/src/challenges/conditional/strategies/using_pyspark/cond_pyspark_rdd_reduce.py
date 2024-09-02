@@ -9,7 +9,8 @@ from src.six_field_test_data.six_generate_test_data import (
     DataSetPyspark, TChallengePendingAnswerPythonPyspark)
 from src.six_field_test_data.six_generate_test_data.six_test_data_for_pyspark import \
     pick_agg_tgt_num_partitions_pyspark
-from src.six_field_test_data.six_test_data_types import (Challenge, DataPoint,
+from src.six_field_test_data.six_test_data_types import (Challenge,
+                                                         DataPointNT,
                                                          ExecutionParameters)
 from src.utils.tidy_spark_session import TidySparkSession
 
@@ -39,7 +40,7 @@ def cond_pyspark_rdd_reduce(
 
 def merge_value_2(
         sub: SubTotal,
-        v: DataPoint,
+        v: DataPointNT,
 ) -> SubTotal:
     running_sum_of_C = sub.running_sum_of_C + v.C
     running_uncond_count = sub.running_uncond_count + 1
@@ -64,7 +65,7 @@ def merge_value_2(
 
 
 def create_combiner_2(
-        v: DataPoint,
+        v: DataPointNT,
 ) -> SubTotal:
     return merge_value_2(SubTotal(
         running_sum_of_C=0,

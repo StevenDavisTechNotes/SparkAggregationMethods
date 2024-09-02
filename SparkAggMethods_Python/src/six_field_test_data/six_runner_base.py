@@ -9,7 +9,7 @@ from pyspark import RDD
 from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import Row
 
-from src.challenges.vanilla.vanilla_test_data_types import result_columns
+from src.challenges.vanilla.vanilla_test_data_types import RESULT_COLUMNS
 from src.perf_test_common import CalcEngine
 from src.six_field_test_data.six_generate_test_data import (
     ChallengeMethodPythonDaskRegistration,
@@ -72,7 +72,7 @@ def test_one_step_in_dask_itinerary(
             if len(lst_answer) > 0:
                 df_answer = pd.DataFrame.from_records([x.asDict() for x in lst_answer])
             else:
-                df_answer = pd.DataFrame(columns=result_columns)
+                df_answer = pd.DataFrame(columns=RESULT_COLUMNS)
         case DaskDataFrame() as ddf:
             if ddf.npartitions > max(agg_tgt_num_partitions, exec_params.DefaultParallelism):
                 print(

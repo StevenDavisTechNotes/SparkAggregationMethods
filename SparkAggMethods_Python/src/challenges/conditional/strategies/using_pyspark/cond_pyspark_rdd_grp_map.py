@@ -8,7 +8,7 @@ from src.six_field_test_data.six_generate_test_data import (
 from src.six_field_test_data.six_generate_test_data.six_test_data_for_pyspark import \
     pick_agg_tgt_num_partitions_pyspark
 from src.six_field_test_data.six_test_data_types import (
-    MAX_DATA_POINTS_PER_SPARK_PARTITION, Challenge, DataPoint,
+    MAX_DATA_POINTS_PER_SPARK_PARTITION, Challenge, DataPointNT,
     ExecutionParameters)
 from src.utils.tidy_spark_session import TidySparkSession
 
@@ -41,7 +41,7 @@ def cond_pyspark_rdd_grp_map(
 
 def process_data_1(
         key: tuple[int, int],
-        iterator: Iterable[DataPoint],
+        iterator: Iterable[DataPointNT],
 ) -> Row:
     import math
     sum_of_C = 0

@@ -10,8 +10,8 @@ from src.perf_test_common import CalcEngine, ChallengeMethodRegistration
 from src.six_field_test_data.six_generate_test_data.six_test_data_for_python_only import \
     NumericalToleranceExpectations
 from src.six_field_test_data.six_test_data_types import (
-    Challenge, DataSetAnswer, DataSetDescription, ExecutionParameters,
-    populate_data_set_generic)
+    Challenge, DataPointNT, DataSetAnswer, DataSetDescription,
+    ExecutionParameters, populate_data_set_generic)
 
 # region Dask version
 
@@ -22,6 +22,7 @@ class DataSetDataDask:
     agg_tgt_num_partitions_1_level: int
     agg_tgt_num_partitions_2_level: int
     df_src: DaskDataFrame
+    bag_src: DaskBag
 
 
 def pick_agg_tgt_num_partitions_dask(data: DataSetDataDask, challenge: Challenge) -> int:
@@ -76,6 +77,7 @@ def populate_data_set_dask(
     raw_data = populate_data_set_generic(
         CalcEngine.DASK, exec_params, data_size)
     df_src: DaskDataFrame = from_pandas(raw_data.df_src, npartitions=raw_data.src_num_partitions)
+    bag_src: DaskBag = df_src.to_bag().map(lambda x: DataPointNT(*x))
     cnt, parts = len(df_src), len(df_src.divisions)
     print("Found %i rows in %i parts ratio %.1f" % (cnt, parts, cnt / parts))
     assert cnt == raw_data.num_data_points
@@ -86,6 +88,7 @@ def populate_data_set_dask(
             agg_tgt_num_partitions_1_level=raw_data.tgt_num_partitions_1_level,
             agg_tgt_num_partitions_2_level=raw_data.tgt_num_partitions_2_level,
             df_src=df_src,
+            bag_src=bag_src,
         ),
         answer=DataSetAnswer(
             vanilla_answer=raw_data.vanilla_answer,

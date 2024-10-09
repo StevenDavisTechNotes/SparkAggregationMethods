@@ -7,15 +7,12 @@ from typing import NamedTuple, cast
 import numpy
 import scipy.stats
 
-from src.challenges.sectional.section_generate_test_data import \
-    DataSetDescription
-from src.challenges.sectional.section_record_runs import (
-    FINAL_REPORT_FILE_PATH, derive_run_log_file_path_for_reading)
+from src.challenges.sectional.section_generate_test_data import DataSetDescription
+from src.challenges.sectional.section_record_runs import FINAL_REPORT_FILE_PATH, derive_run_log_file_path_for_reading
 from src.challenges.sectional.section_strategy_directory import (
-    STRATEGIES_USING_DASK_REGISTRY, STRATEGIES_USING_PYSPARK_REGISTRY,
-    STRATEGIES_USING_PYTHON_ONLY_REGISTRY)
-from src.challenges.sectional.section_test_data_types import (
-    DataSet, DataSetData, ExecutionParameters, RunResult)
+    STRATEGIES_USING_DASK_REGISTRY, STRATEGIES_USING_PYSPARK_REGISTRY, STRATEGIES_USING_PYTHON_ONLY_REGISTRY,
+)
+from src.challenges.sectional.section_test_data_types import DataSet, DataSetData, ExecutionParameters, RunResult
 from src.perf_test_common import CalcEngine
 from src.utils.linear_regression import linear_regression
 
@@ -82,8 +79,8 @@ def analyze_run_results():  # noqa: C901
                 + [x for x in STRATEGIES_USING_PYTHON_ONLY_REGISTRY if x.strategy_name == strategy_name])[0]
 
             size_values = set(x.data.data_size.num_rows for x in times)
-            for dataSize in size_values:
-                runs = [x for x in times if x.data.data_size.num_rows == dataSize]
+            for num_rows in size_values:
+                runs = [x for x in times if x.data.data_size.num_rows == num_rows]
                 ar: numpy.ndarray[float, numpy.dtype[numpy.float64]] \
                     = numpy.asarray([x.elapsed_time for x in runs], dtype=float)
                 numRuns = len(runs)
@@ -95,7 +92,7 @@ def analyze_run_results():  # noqa: C901
                     challenge_method_registration.strategy_name,
                     challenge_method_registration.interface,
                     challenge_method_registration.scale,
-                    len(ar), dataSize,
+                    len(ar), num_rows,
                     mean, stdev, rl, rh
                 )
             x_values = [float(x.data.data_size.num_rows) for x in times]

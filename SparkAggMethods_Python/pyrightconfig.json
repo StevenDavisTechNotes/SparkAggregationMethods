@@ -2,5 +2,6 @@
   "include": [
     "src"
   ],
-  "stubPath": "src/typings"
+  "stubPath": "src/typings",
+  "typeCheckingMode": "standard",
 }

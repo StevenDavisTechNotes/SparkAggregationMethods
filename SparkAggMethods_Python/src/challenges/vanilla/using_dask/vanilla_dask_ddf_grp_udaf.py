@@ -5,8 +5,7 @@ from dask.dataframe.core import DataFrame as DaskDataFrame
 from pandas.core.groupby.generic import SeriesGroupBy
 
 from src.challenges.vanilla.vanilla_test_data_types import GROUP_BY_COLUMNS
-from src.six_field_test_data.six_generate_test_data import (
-    DataSetDask, TChallengeAnswerPythonDask)
+from src.six_field_test_data.six_generate_test_data import DataSetDask, TChallengeAnswerPythonDask
 from src.six_field_test_data.six_test_data_types import ExecutionParameters
 
 
@@ -48,13 +47,18 @@ def vanilla_dask_ddf_grp_udaf(
         )
     )
     dd2_just_var_of_E = dd_grouped["E"].var(ddof=0).to_frame('var_of_E')
-    df2 = pd.merge(
-        left=dd2_main.compute(),
-        right=dd2_just_var_of_E.compute(),
-        on=['grp', 'subgrp'], how='inner')
-    df3 = (
-        df2.loc[:, GROUP_BY_COLUMNS]
-        .sort_index()
+    df2 = (
+        pd.merge(
+            left=dd2_main.compute(),
+            right=dd2_just_var_of_E.compute(),
+            on=['grp', 'subgrp'],
+            how='inner',
+        )
         .reset_index(drop=False)
+    )
+    df3 = (
+        df2
+        .sort_values(GROUP_BY_COLUMNS)
+        .reset_index(drop=True)
     )
     return df3

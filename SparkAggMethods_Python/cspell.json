@@ -8,6 +8,7 @@
         "asymreduce",
         "bilevel",
         "binop",
+        "Counterparty",
         "dask",
         "dataframe",
         "ddof",

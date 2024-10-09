@@ -1,17 +1,16 @@
 from dataclasses import dataclass
-from typing import Literal, Protocol
+from typing import Callable, Literal, Protocol
 
 import pandas as pd
 from dask.bag.core import Bag as DaskBag
 from dask.dataframe.core import DataFrame as DaskDataFrame
 from dask.dataframe.io.io import from_pandas
 
-from src.perf_test_common import CalcEngine, ChallengeMethodRegistration
-from src.six_field_test_data.six_generate_test_data.six_test_data_for_python_only import \
-    NumericalToleranceExpectations
+from src.perf_test_common import CalcEngine, SolutionInterface, SolutionInterfaceDask, SolutionLanguage
 from src.six_field_test_data.six_test_data_types import (
-    Challenge, DataPointNT, DataSetAnswer, DataSetDescription,
-    ExecutionParameters, populate_data_set_generic)
+    Challenge, DataPointNT, DataSetAnswer, DataSetDescription, ExecutionParameters, NumericalToleranceExpectations,
+    SixTestDataChallengeMethodRegistrationBase, populate_data_set_generic,
+)
 
 # region Dask version
 
@@ -59,14 +58,22 @@ class IChallengeMethodPythonDask(Protocol):
 
 
 @dataclass(frozen=True)
-class ChallengeMethodPythonDaskRegistration(ChallengeMethodRegistration):
-    # strategy_name: str
-    # language: str
-    # interface: str
+class ChallengeMethodPythonDaskRegistration(SixTestDataChallengeMethodRegistrationBase):
+    strategy_name: str
+    language: SolutionLanguage
+    engine: CalcEngine
+    interface: SolutionInterfaceDask
     numerical_tolerance: NumericalToleranceExpectations
-    # requires_gpu: bool
+    requires_gpu: bool
     delegate: IChallengeMethodPythonDask
 
+    @property
+    def delegate_getter(self) -> Callable:
+        return self.delegate
+
+    @property
+    def interface_getter(self) -> SolutionInterface:
+        return self.interface
 # endregion
 
 

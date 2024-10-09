@@ -1,19 +1,13 @@
 from dataclasses import dataclass
-from enum import Enum
-from typing import Literal, Protocol
+from typing import Callable, Literal, Protocol
 
 import pandas as pd
 
-from src.perf_test_common import CalcEngine, ChallengeMethodRegistration
+from src.perf_test_common import CalcEngine, SolutionInterface, SolutionInterfacePythonOnly, SolutionLanguage
 from src.six_field_test_data.six_test_data_types import (
-    Challenge, DataSetAnswer, DataSetDescription, ExecutionParameters,
-    populate_data_set_generic)
-
-
-class NumericalToleranceExpectations(Enum):
-    NUMPY = 1e-12
-    NUMBA = 1e-10
-    SIMPLE_SUM = 1e-11
+    Challenge, DataSetAnswer, DataSetDescription, ExecutionParameters, NumericalToleranceExpectations,
+    SixTestDataChallengeMethodRegistrationBase, populate_data_set_generic,
+)
 
 # region PythonOnly version
 
@@ -38,7 +32,7 @@ def pick_agg_tgt_num_partitions_python_only(data: DataSetDataPythonOnly, challen
 
 @dataclass(frozen=True)
 class DataSetPythonOnly():
-    data_size: DataSetDescription
+    description: DataSetDescription
     data: DataSetDataPythonOnly
 
 
@@ -60,14 +54,23 @@ class IChallengeMethodPythonOnly(Protocol):
 
 
 @dataclass(frozen=True)
-class ChallengeMethodPythonOnlyRegistration(ChallengeMethodRegistration):
-    # strategy_name: str
-    # language: str
-    # interface: str
+class ChallengeMethodPythonOnlyRegistration(SixTestDataChallengeMethodRegistrationBase):
+    strategy_name_2018: str | None
+    strategy_name: str
+    language: SolutionLanguage
+    engine: CalcEngine
+    interface: SolutionInterfacePythonOnly
     numerical_tolerance: NumericalToleranceExpectations
-    # requires_gpu: bool
+    requires_gpu: bool
     delegate: IChallengeMethodPythonOnly
 
+    @property
+    def delegate_getter(self) -> Callable:
+        return self.delegate
+
+    @property
+    def interface_getter(self) -> SolutionInterface:
+        return self.interface
 
 # endregion
 
@@ -80,7 +83,7 @@ def populate_data_set_python_only(
         CalcEngine.PYTHON_ONLY, exec_params, data_size)
     assert raw_data.num_data_points == data_size.num_data_points
     return DataSetPythonOnlyWithAnswer(
-        data_size=data_size,
+        description=data_size,
         data=DataSetDataPythonOnly(
             src_num_partitions=raw_data.src_num_partitions,
             agg_tgt_num_partitions_1_level=raw_data.tgt_num_partitions_1_level,

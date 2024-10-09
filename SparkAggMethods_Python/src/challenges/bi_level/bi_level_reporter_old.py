@@ -1,5 +1,5 @@
 #!python
-# usage: .\venv\Scripts\activate.ps1; python -m src.challenges.bi_level.bi_level_reporter
+# usage: .\venv\Scripts\activate.ps1; python -m src.challenges.bi_level.bi_level_reporter_old
 
 import math
 from typing import NamedTuple, cast
@@ -8,10 +8,11 @@ import numpy
 import scipy
 
 from src.challenges.bi_level.bi_level_record_runs import (
-    EXPECTED_SIZES, FINAL_REPORT_FILE_PATH, PersistedRunResult,
-    read_result_file, regressor_from_run_result)
-from src.challenges.bi_level.bi_level_strategy_directory import \
-    STRATEGIES_USING_PYSPARK_REGISTRY
+    EXPECTED_SIZES, FINAL_REPORT_FILE_PATH, BiLevelPersistedRunResult, BiLevelPersistedRunResultLog,
+    regressor_from_run_result,
+)
+from src.challenges.bi_level.bi_level_strategy_directory import STRATEGIES_USING_PYSPARK_REGISTRY
+from src.perf_test_common import CalcEngine, print_test_runs_summary
 from src.utils.linear_regression import linear_regression
 
 TEMP_RESULT_FILE_PATH = "d:/temp/SparkPerfTesting/temp.csv"
@@ -32,22 +33,24 @@ class PerformanceModelParameters(NamedTuple):
     s2_high: float
 
 
-def parse_results() -> list[PersistedRunResult]:
-    raw_test_runs: list[PersistedRunResult] = []
+def parse_results(calc_engine: CalcEngine) -> list[BiLevelPersistedRunResult]:
+    reader = BiLevelPersistedRunResultLog(calc_engine)
+    raw_test_runs = cast(
+        list[BiLevelPersistedRunResult],
+        reader.read_run_result_file())
     with open(TEMP_RESULT_FILE_PATH, 'w') as out_fh:
-        for result in read_result_file():
-            raw_test_runs.append(result)
+        for result in raw_test_runs:
             out_fh.write("%s,%s,%d,%d,%f,%d\n" % (
                 result.strategy_name, result.interface,
-                result.dataSize, result.relCard, result.elapsedTime, result.recordCount))
+                result.num_data_points, result.relative_cardinality, result.elapsed_time, result.record_count))
     if len(raw_test_runs) < 1:
         print("no tests")
     return raw_test_runs
 
 
 def structure_test_results(
-        test_runs: list[PersistedRunResult]
-) -> dict[str, dict[int, list[PersistedRunResult]]]:
+        test_runs: list[BiLevelPersistedRunResult]
+) -> dict[str, dict[int, list[BiLevelPersistedRunResult]]]:
     challenge_method_registrations = {x.strategy_name for x in STRATEGIES_USING_PYSPARK_REGISTRY}.union(
         [x.strategy_name for x in test_runs])
     test_x_values = set(EXPECTED_SIZES).union([regressor_from_run_result(x) for x in test_runs])
@@ -58,7 +61,7 @@ def structure_test_results(
 
 
 def make_runs_summary(
-        test_results: dict[str, dict[int, list[PersistedRunResult]]]
+        test_results: dict[str, dict[int, list[BiLevelPersistedRunResult]]]
 ) -> dict[str, dict[int, int]]:
     return {strategy_name:
             {x_variable: len(runs) for x_variable, runs in runs_for_strategy_name.items()}
@@ -66,10 +69,10 @@ def make_runs_summary(
 
 
 def analyze_run_results():
-    raw_test_runs = parse_results()
+    raw_test_runs = parse_results(CalcEngine.PYSPARK)
     test_runs_by_strategy_by_size = structure_test_results(raw_test_runs)
     test_runs_summary = make_runs_summary(test_runs_by_strategy_by_size)
-    print("test_runs_summary", test_runs_summary)
+    print_test_runs_summary(test_runs_summary)
     if any([num < 10 for details in test_runs_summary.values() for num in details.values()]):
         print("not enough data")
         return
@@ -79,7 +82,7 @@ def analyze_run_results():
     confidence = 0.95
     summary_status += "%s,%s,%s,%s,%s,%s,%s,%s\n" % (
         'Method', 'Interface',
-        'NumRuns', 'relCard', 'Elapsed Time', 'stdev', 'rl', 'rh'
+        'NumRuns', 'Relative Cardinality', 'Elapsed Time', 'stdev', 'rl', 'rh'
     )
     regression_status += '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (
         'Method', 'Interface',
@@ -93,7 +96,7 @@ def analyze_run_results():
         test_runs_by_size = test_runs_by_strategy_by_size[strategy_name]
         for regressor_value, runs in test_runs_by_size.items():
             ar: numpy.ndarray[float, numpy.dtype[numpy.float64]] \
-                = numpy.asarray([x.elapsedTime for x in runs], dtype=float)
+                = numpy.asarray([x.elapsed_time for x in runs], dtype=float)
             numRuns = len(runs)
             mean = numpy.mean(ar)
             stdev = cast(float, numpy.std(ar, ddof=1))
@@ -104,8 +107,8 @@ def analyze_run_results():
                 numRuns, regressor_value, mean, stdev, rl, rh
             )
         times = [x for lst in test_runs_by_size.values() for x in lst]
-        x_values = [float(x.relCard) for x in times]
-        y_values = [float(x.elapsedTime) for x in times]
+        x_values = [float(x.relative_cardinality) for x in times]
+        y_values = [float(x.elapsed_time) for x in times]
         match linear_regression(x_values, y_values, confidence):
             case None:
                 print("No regression")

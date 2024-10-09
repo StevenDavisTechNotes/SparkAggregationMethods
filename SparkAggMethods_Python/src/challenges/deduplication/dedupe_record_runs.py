@@ -3,8 +3,7 @@ import os
 from dataclasses import dataclass
 from typing import Iterable, TextIO
 
-from src.challenges.deduplication.dedupe_test_data_types import \
-    ChallengeMethodPythonPysparkRegistration
+from src.challenges.deduplication.dedupe_test_data_types import ChallengeMethodPythonPysparkRegistration
 from src.perf_test_common import CalcEngine
 from src.utils.utils import always_true, root_folder_abs_path
 
@@ -14,30 +13,30 @@ FINAL_REPORT_FILE_PATH = 'results/dedupe_results.csv'
 
 
 @dataclass(frozen=True)
-class RunResult:
-    numSources: int
-    actualNumPeople: int
-    dataSize: int
-    dataSizeExp: int
-    elapsedTime: float
-    foundNumPeople: int
-    IsCloudMode: bool
-    CanAssumeNoDupesPerPartition: bool
+class DedupeRunResult:
+    num_sources: int
+    num_people_actual: int
+    num_data_points: int
+    data_size_exponent: int
+    elapsed_time: float
+    num_people_found: int
+    in_cloud_mode: bool
+    can_assume_no_duplicates_per_partition: bool
 
 
 @dataclass(frozen=True)
-class PersistedRunResult:
+class DedupePersistedRunResult:
     status: str
     strategy_name: str
     interface: str
-    numSources: int
-    dataSize: int
-    dataSizeExp: int
-    actualNumPeople: int
-    elapsedTime: float
-    foundNumPeople: int
-    IsCloudMode: bool
-    CanAssumeNoDupesPerPartition: bool
+    num_sources: int
+    num_data_points: int
+    data_size_exponent: int
+    num_people_actual: int
+    elapsed_time: float
+    num_people_found: int
+    in_cloud_mode: bool
+    can_assume_no_duplicates_per_partition: bool
 
 
 EXPECTED_NUM_RECORDS = sorted([
@@ -83,9 +82,9 @@ def derive_run_log_file_path_for_reading(
 
 
 def regressor_from_run_result(
-        result: PersistedRunResult,
+        result: DedupePersistedRunResult,
 ) -> int:
-    return result.dataSize
+    return result.num_data_points
 
 
 def write_header(
@@ -93,35 +92,35 @@ def write_header(
 ) -> None:
     print(",".join((
         " result",
-        "strategy", "interface", "numSources",
-        "dataSize", "dataSizeExp", "actualNumPeople",
-        "elapsedTime", "foundNumPeople",
-        "IsCloudMode", "CanAssumeNoDupesPerPartition",
-        "finishedAt")), file=file)
+        "strategy", "interface", "num_sources",
+        "num_data_points", "data_size_exponent", "num_people_actual",
+        "elapsed_time", "num_people_found",
+        "in_cloud_mode", "can_assume_no_duplicates_per_partition",
+        "finished_at")), file=file)
     file.flush()
 
 
 def write_run_result(
         success: bool,
         challenge_method_registration: ChallengeMethodPythonPysparkRegistration,
-        result: RunResult,
+        result: DedupeRunResult,
         file: TextIO
 ) -> None:
     print(",".join([str(x) for x in [
         "success" if success else "failure",
-        challenge_method_registration.strategy_name, challenge_method_registration.interface, result.numSources,
-        result.dataSize, result.dataSizeExp, result.actualNumPeople,
-        result.elapsedTime, result.foundNumPeople,
-        "TRUE" if result.IsCloudMode else "FALSE",
-        "TRUE" if result.CanAssumeNoDupesPerPartition else "FALSE",
+        challenge_method_registration.strategy_name, challenge_method_registration.interface, result.num_sources,
+        result.num_data_points, result.data_size_exponent, result.num_people_actual,
+        result.elapsed_time, result.num_people_found,
+        "TRUE" if result.in_cloud_mode else "FALSE",
+        "TRUE" if result.can_assume_no_duplicates_per_partition else "FALSE",
         datetime.datetime.now().isoformat()]]
     ), file=file)
     file.flush()
 
 
-def read_result_file(
+def read_run_result_file(
         engine: CalcEngine,
-) -> Iterable[PersistedRunResult]:
+) -> Iterable[DedupePersistedRunResult]:
     log_file_path = derive_run_log_file_path_for_reading(engine)
     if log_file_path is None or not os.path.exists(log_file_path):
         print(f"File not found: {log_file_path}")
@@ -150,18 +149,18 @@ def read_result_file(
             if test_status != 'success':
                 print("Excluding line: " + line)
                 continue
-            result = PersistedRunResult(
+            result = DedupePersistedRunResult(
                 status=test_status,
                 strategy_name=strategy_name,
                 interface=interface,
-                numSources=int(result_numSources),
-                dataSize=int(result_dataSize),
-                dataSizeExp=int(result_dataSizeExp),
-                actualNumPeople=int(result_actualNumPeople),
-                elapsedTime=float(result_elapsedTime),
-                foundNumPeople=int(result_foundNumPeople),
-                IsCloudMode=bool(result_IsCloudMode),
-                CanAssumeNoDupesPerPartition=bool(
+                num_sources=int(result_numSources),
+                num_data_points=int(result_dataSize),
+                data_size_exponent=int(result_dataSizeExp),
+                num_people_actual=int(result_actualNumPeople),
+                elapsed_time=float(result_elapsedTime),
+                num_people_found=int(result_foundNumPeople),
+                in_cloud_mode=bool(result_IsCloudMode),
+                can_assume_no_duplicates_per_partition=bool(
                     result_CanAssumeNoDupesPerPartition),
             )
             yield result

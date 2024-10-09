@@ -2,8 +2,7 @@
 import numpy
 import pandas as pd
 
-from src.six_field_test_data.six_generate_test_data import (
-    DataSetPythonOnly, TChallengePythonOnlyAnswer)
+from src.six_field_test_data.six_generate_test_data import DataSetPythonOnly, TChallengePythonOnlyAnswer
 from src.six_field_test_data.six_test_data_types import ExecutionParameters
 
 try:
@@ -43,7 +42,7 @@ def vanilla_py_only_pd_grp_numba(
 ) -> TChallengePythonOnlyAnswer:
     if numba is None:
         return "infeasible"
-    if data_set.data_size.num_data_points > 9 * 10**6:
+    if data_set.description.num_data_points > 9 * 10**6:
         return "infeasible"
 
     df = data_set.data.df_src

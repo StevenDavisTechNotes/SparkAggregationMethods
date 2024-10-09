@@ -1,6 +1,6 @@
 # Helpful Notes
 
-<!-- cSpell: ignore venv, childitem, autopep8, pyright, findstr, pycache -->
+<!-- cSpell: ignore venv, childitem, autopep8, pyright, findstr, pycache, pytest -->
 
 ## Installing Python on Windows
 Use Microsoft Store or [download link](https://www.python.org/downloads/release/python-397/)
@@ -32,8 +32,9 @@ Then Close and reopen VSCode
 ## Handy command lines
 
 ```
+. .\venv\Scripts\Activate.ps1
 flake8 src
-clear && flake8 src && pyright src
+clear && flake8 src && pyright src && python -m pytest src
 autopep8 --recursive --diff src | findstr /i /c:'--- original/'
 autopep8 --recursive  --in-place src
 & "cspell-cli" "src/**/*.py" "--no-summary" "--no-progress" "--exclude" "__pycache__" "--exclude" ".git" "--exclude" "venv" "--fail-fast"

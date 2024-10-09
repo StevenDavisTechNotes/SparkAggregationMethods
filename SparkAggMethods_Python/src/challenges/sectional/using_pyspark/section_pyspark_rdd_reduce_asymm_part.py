@@ -3,15 +3,15 @@ from typing import cast
 
 from pyspark import RDD, StorageLevel
 
-from src.challenges.sectional.domain_logic.section_data_parsers import (
-    parse_line_to_types, rdd_typed_with_index_factory)
+from src.challenges.sectional.domain_logic.section_data_parsers import parse_line_to_types, rdd_typed_with_index_factory
 from src.challenges.sectional.domain_logic.section_snippet_subtotal_type import (
-    CompletedStudent, StudentSnippet1, completed_from_snippet_1, grade_summary,
-    merge_snippet_lists_1, student_snippet_from_typed_row_1)
+    CompletedStudent, StudentSnippet1, completed_from_snippet_1, grade_summary, merge_snippet_lists_1,
+    student_snippet_from_typed_row_1,
+)
 from src.challenges.sectional.section_test_data_types import (
-    DataSet, LabeledTypedRow, StudentSummary, TChallengePythonPysparkAnswer)
-from src.utils.non_commutative_tree_aggregate import \
-    non_commutative_tree_aggregate
+    DataSet, LabeledTypedRow, StudentSummary, TChallengePythonPysparkAnswer,
+)
+from src.utils.non_commutative_tree_aggregate import non_commutative_tree_aggregate
 from src.utils.tidy_spark_session import TidySparkSession
 
 
@@ -19,7 +19,7 @@ def section_reduce_partials_broken(
         spark_session: TidySparkSession,
         data_set: DataSet,
 ) -> TChallengePythonPysparkAnswer:
-    dataSize = data_set.data_size.num_rows
+    num_rows = data_set.data_size.num_rows
     filename = data_set.data.test_filepath
     TargetNumPartitions = data_set.data.target_num_partitions
     MaximumProcessableSegment = data_set.exec_params.maximum_processable_segment
@@ -27,11 +27,11 @@ def section_reduce_partials_broken(
     rdd1: RDD[LabeledTypedRow] \
         = rdd_typed_with_index_factory(
         spark_session, filename, TargetNumPartitions)
-    dataSize = rdd1.count()
+    num_rows = rdd1.count()
     rdd2: RDD[list[StudentSnippet1]] = rdd1 \
         .map(lambda x: [student_snippet_from_typed_row_1(x.Index, x.Value)])
     targetDepth = max(1, math.ceil(
-        math.log(dataSize / MaximumProcessableSegment, MaximumProcessableSegment - 2)))
+        math.log(num_rows / MaximumProcessableSegment, MaximumProcessableSegment - 2)))
     students1: list[StudentSnippet1] \
         = rdd2.treeAggregate(
         [], merge_snippet_lists_1, merge_snippet_lists_1, depth=targetDepth)

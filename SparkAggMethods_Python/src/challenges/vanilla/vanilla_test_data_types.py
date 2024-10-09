@@ -1,7 +1,6 @@
 import pyspark.sql.types as DataTypes
 
-from src.six_field_test_data.six_test_data_types import (DataPointSchema,
-                                                         DataSetDescription)
+from src.six_field_test_data.six_test_data_types import DataPointSchema, DataSetDescription
 from src.utils.spark_helpers import make_empty_pd_dataframe_from_spark_types
 
 GROUP_BY_COLUMNS = ['grp', 'subgrp']

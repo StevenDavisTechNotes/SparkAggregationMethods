@@ -5,40 +5,39 @@ import numpy
 import pandas as pd
 import scipy
 
-from src.challenges.vanilla.vanilla_record_runs import PersistedRunResult
-from src.perf_test_common import CalcEngine, ChallengeMethodRegistration
-from src.six_field_test_data.six_runner_base import \
-    SummarizedPerformanceOfMethodAtDataSize
+from src.perf_test_common import CalcEngine, ChallengeMethodRegistrationBase, PersistedRunResultBase
+from src.six_field_test_data.six_runner_base import SummarizedPerformanceOfMethodAtDataSize
 from src.six_field_test_data.six_test_data_types import Challenge
 
 
 def structure_test_results(
         *,
-        challenge_method_list: Sequence[ChallengeMethodRegistration],
+        challenge_method_list: Sequence[ChallengeMethodRegistrationBase],
         expected_sizes: list[int],
-        test_runs: list[PersistedRunResult],
-        regressor_from_run_result: Callable[[PersistedRunResult], int],
-) -> dict[str, dict[int, list[PersistedRunResult]]]:
+        test_runs: list[PersistedRunResultBase],
+        regressor_from_run_result: Callable[[PersistedRunResultBase], int],
+) -> dict[str, dict[int, list[PersistedRunResultBase]]]:
     strategy_names = (
         {x.strategy_name for x in challenge_method_list}
         .union([x.strategy_name for x in test_runs]))
     test_x_values = set(expected_sizes).union([regressor_from_run_result(x) for x in test_runs])
     test_results_by_strategy_name_by_data_size = {method: {x: [] for x in test_x_values} for method in strategy_names}
     for result in test_runs:
-        test_results_by_strategy_name_by_data_size[result.strategy_name][result.data_size].append(result)
+        x_value = regressor_from_run_result(result)
+        test_results_by_strategy_name_by_data_size[result.strategy_name][x_value].append(result)
     return test_results_by_strategy_name_by_data_size
 
 
 def do_regression(
         challenge: Challenge,
         engine: CalcEngine,
-        challenge_method_list: Sequence[ChallengeMethodRegistration],
-        test_results_by_strategy_name_by_data_size: dict[str, dict[int, list[PersistedRunResult]]],
+        challenge_method_list: Sequence[ChallengeMethodRegistrationBase],
+        test_results_by_strategy_name_by_data_size: dict[str, dict[int, list[PersistedRunResultBase]]],
 ) -> list[SummarizedPerformanceOfMethodAtDataSize]:
     confidence = 0.95
     challenge_method_list = sorted(
         challenge_method_list,
-        key=lambda x: (x.language, x.interface, x.strategy_name))
+        key=lambda x: (x.language, x.interface_getter, x.strategy_name))
     challenge_method_by_strategy_name = ({
         x.strategy_name: x for x in challenge_method_list
     } | {
@@ -68,7 +67,7 @@ def do_regression(
                 strategy_name=strategy_name,
                 language=method.language,
                 engine=engine,
-                interface=method.interface,
+                interface=method.interface_getter,
                 regressor=regressor_value,
                 number_of_runs=numRuns,
                 elapsed_time_avg=mean,

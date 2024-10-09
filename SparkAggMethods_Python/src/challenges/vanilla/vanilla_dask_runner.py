@@ -7,42 +7,40 @@ import random
 import time
 from typing import NamedTuple
 
-from src.challenges.vanilla.vanilla_record_runs import \
-    derive_run_log_file_path_for_recording
-from src.challenges.vanilla.vanilla_strategy_directory import \
-    STRATEGIES_USING_DASK_REGISTRY
-from src.challenges.vanilla.vanilla_test_data_types import \
-    DATA_SIZES_LIST_VANILLA
+from challenges.vanilla.vanilla_test_data_types import DATA_SIZES_LIST_VANILLA
+from src.challenges.vanilla.vanilla_record_runs import VanillaPythonRunResultFileWriter, VanillaRunResult
+from src.challenges.vanilla.vanilla_strategy_directory import STRATEGIES_USING_DASK_REGISTRY
 from src.perf_test_common import CalcEngine
 from src.six_field_test_data.six_generate_test_data import (
-    ChallengeMethodPythonDaskRegistration, DataSetDaskWithAnswer,
-    populate_data_set_dask)
-from src.six_field_test_data.six_run_result_types import write_header
-from src.six_field_test_data.six_runner_base import \
-    test_one_step_in_dask_itinerary
+    ChallengeMethodPythonDaskRegistration, DataSetDaskWithAnswer, populate_data_set_dask,
+)
+from src.six_field_test_data.six_runner_base import test_one_step_in_dask_itinerary
 from src.six_field_test_data.six_test_data_types import (
-    SHARED_LOCAL_TEST_DATA_FILE_LOCATION, Challenge, ExecutionParameters)
+    SHARED_LOCAL_TEST_DATA_FILE_LOCATION, Challenge, ExecutionParameters,
+)
 from src.utils.tidy_spark_session import LOCAL_NUM_EXECUTORS
 from src.utils.utils import always_true, set_random_seed
 
-ENGINE = CalcEngine.DASK
 CHALLENGE = Challenge.VANILLA
 
-DEBUG_ARGS = None if False else (
+
+ENGINE = CalcEngine.DASK
+
+DEBUG_ARGS = None if True else (
     []
     + '--size 3_3_10'.split()
-    + '--runs 1'.split()
+    + '--runs 10'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
     + ['--strategy',
-       #    'vanilla_dask_bag_accumulate',
-       #    'vanilla_dask_bag_fold',
+       'vanilla_dask_bag_accumulate',
+       'vanilla_dask_bag_fold',
        'vanilla_dask_bag_foldby',
        'vanilla_dask_bag_reduction',
        'vanilla_dask_bag_map_partitions',
-       #    'vanilla_dask_ddf_grp_apply',
-       #    'vanilla_dask_ddf_grp_udaf',
-       #    'vanilla_dask_sql_no_gpu',
+       'vanilla_dask_ddf_grp_apply',
+       'vanilla_dask_ddf_grp_udaf',
+       'vanilla_dask_sql_no_gpu',
        ]
 )
 
@@ -112,17 +110,26 @@ def do_test_runs(
         set_random_seed(args.random_seed)
     if args.shuffle:
         random.shuffle(itinerary)
-    with open(derive_run_log_file_path_for_recording(ENGINE), 'at+') as file:
-        write_header(file)
+    with VanillaPythonRunResultFileWriter(ENGINE) as file:
         for index, (challenge_method_registration, data_set) in enumerate(itinerary):
             print("Working on %d of %d" % (index, len(itinerary)))
             print(f"Working on {challenge_method_registration.strategy_name} for {data_set.data_size.size_code}")
-            test_one_step_in_dask_itinerary(
+            base_run_result = test_one_step_in_dask_itinerary(
                 challenge=CHALLENGE,
                 exec_params=args.exec_params,
                 challenge_method_registration=challenge_method_registration,
-                file=file,
                 data_set=data_set,
+            )
+            if base_run_result is None:
+                continue
+            file.write_run_result(
+                challenge_method_registration,
+                VanillaRunResult(
+                    engine=base_run_result.engine,
+                    num_data_points=base_run_result.num_data_points,
+                    elapsed_time=base_run_result.elapsed_time,
+                    record_count=base_run_result.record_count,
+                )
             )
             gc.collect()
             time.sleep(0.1)

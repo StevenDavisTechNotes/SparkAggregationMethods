@@ -1,17 +1,18 @@
 from dataclasses import dataclass
 from functools import reduce
-from typing import Any, Literal, Protocol, cast
+from typing import Any, Callable, Literal, Protocol, cast
 
 from pyspark import RDD, StorageLevel
 from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import Row
 
-from src.perf_test_common import CalcEngine, ChallengeMethodRegistration
-from src.six_field_test_data.six_generate_test_data.six_test_data_for_python_only import \
-    NumericalToleranceExpectations
+from src.perf_test_common import (
+    CalcEngine, SolutionInterface, SolutionInterfacePySpark, SolutionInterfaceScalaSpark, SolutionLanguage,
+)
 from src.six_field_test_data.six_test_data_types import (
-    Challenge, DataPointNT, DataSetAnswer, DataSetDescription,
-    ExecutionParameters, populate_data_set_generic)
+    Challenge, DataPointNT, DataSetAnswer, DataSetDescription, ExecutionParameters, NumericalToleranceExpectations,
+    SixTestDataChallengeMethodRegistrationBase, populate_data_set_generic,
+)
 from src.utils.tidy_spark_session import TidySparkSession
 
 # region PySpark version
@@ -65,14 +66,42 @@ class IChallengeMethodPythonPyspark(Protocol):
 
 
 @dataclass(frozen=True)
-class ChallengeMethodPythonPysparkRegistration(ChallengeMethodRegistration):
-    # original_strategy_name: str
-    # strategy_name: str
-    # language: str
-    # interface: str
+class ChallengeMethodPythonPysparkRegistration(SixTestDataChallengeMethodRegistrationBase):
+    strategy_name_2018: str | None
+    strategy_name: str
+    language: SolutionLanguage
+    engine: CalcEngine
+    interface: SolutionInterfacePySpark
     numerical_tolerance: NumericalToleranceExpectations
-    # requires_gpu: bool
+    requires_gpu: bool
     delegate: IChallengeMethodPythonPyspark
+
+    @property
+    def delegate_getter(self) -> Callable:
+        return self.delegate
+
+    @property
+    def interface_getter(self) -> SolutionInterface:
+        return self.interface
+
+
+@dataclass(frozen=True)
+class ChallengeMethodScalaSparkRegistration(SixTestDataChallengeMethodRegistrationBase):
+    strategy_name_2018: str | None
+    strategy_name: str
+    language: SolutionLanguage
+    engine: CalcEngine
+    interface: SolutionInterfaceScalaSpark
+    numerical_tolerance: NumericalToleranceExpectations
+    requires_gpu: bool
+
+    @property
+    def delegate_getter(self) -> Callable | None:
+        return None
+
+    @property
+    def interface_getter(self) -> SolutionInterface:
+        return self.interface
 
 
 # endregion

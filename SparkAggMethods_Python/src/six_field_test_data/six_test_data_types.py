@@ -3,7 +3,7 @@ import os
 import pickle
 import random
 from dataclasses import dataclass
-from enum import StrEnum
+from enum import Enum, StrEnum
 from pathlib import Path
 from typing import NamedTuple
 
@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 import pyspark.sql.types as DataTypes
 
-from src.perf_test_common import CalcEngine
+from src.perf_test_common import CalcEngine, ChallengeMethodRegistrationBase, SolutionLanguage
 from src.utils.utils import always_true, int_divide_round_up
 
 SHARED_LOCAL_TEST_DATA_FILE_LOCATION = "d:/temp/SparkPerfTesting"
@@ -123,14 +123,6 @@ class ExecutionParameters:
 
 
 @dataclass(frozen=True)
-class RunResult:
-    engine: CalcEngine
-    dataSize: int
-    elapsedTime: float
-    recordCount: int
-
-
-@dataclass(frozen=True)
 class DataSetGeneric():
     num_data_points: int
     src_num_partitions: int
@@ -140,6 +132,24 @@ class DataSetGeneric():
     vanilla_answer: pd.DataFrame
     bilevel_answer: pd.DataFrame
     conditional_answer: pd.DataFrame
+
+
+class NumericalToleranceExpectations(Enum):
+    NUMPY = 1e-12
+    NUMBA = 1e-10
+    SIMPLE_SUM = 1e-11
+
+
+@dataclass(frozen=True)
+class SixTestDataChallengeMethodRegistrationBase(ChallengeMethodRegistrationBase):
+    strategy_name_2018: str | None
+    strategy_name: str
+    language: SolutionLanguage
+    engine: CalcEngine
+    # interface: SolutionInterface
+    numerical_tolerance: NumericalToleranceExpectations
+    requires_gpu: bool
+    # delegate: Callable | None
 
 
 def populate_data_set_generic(

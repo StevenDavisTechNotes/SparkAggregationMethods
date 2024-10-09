@@ -1,10 +1,8 @@
 import pandas as pd
 from dask.dataframe.core import DataFrame as DaskDataFrame
 
-from src.challenges.vanilla.vanilla_test_data_types import (
-    RESULT_COLUMNS, dask_post_agg_schema)
-from src.six_field_test_data.six_generate_test_data import (
-    DataSetDask, TChallengeAnswerPythonDask)
+from src.challenges.vanilla.vanilla_test_data_types import GROUP_BY_COLUMNS, RESULT_COLUMNS, dask_post_agg_schema
+from src.six_field_test_data.six_generate_test_data import DataSetDask, TChallengeAnswerPythonDask
 from src.six_field_test_data.six_test_data_types import ExecutionParameters
 
 
@@ -22,7 +20,7 @@ def vanilla_dask_ddf_grp_apply(
     )
     df3 = (
         df2.compute()
-        .sort_values(["grp", "subgrp"])
+        .sort_values(GROUP_BY_COLUMNS)
         .reset_index(drop=True)
     )
     return df3

@@ -4,7 +4,8 @@ from dataclasses import dataclass
 from typing import TextIO
 
 from src.challenges.sectional.section_test_data_types import (
-    ChallengeMethodPysparkRegistration, DataSetDescription, RunResult)
+    ChallengeMethodPysparkRegistration, DataSetDescription, RunResult,
+)
 from src.perf_test_common import CalcEngine
 from src.utils.utils import root_folder_abs_path
 
@@ -62,7 +63,7 @@ def write_header(
         file: TextIO,
 ) -> None:
     print(
-        ' status,strategy,interface,NumStudents,dataSize,sectionMaximum,elapsedTime,recordCount,finishedAt,',
+        ' status,strategy,interface,num_students,num_rows,section_maximum,elapsed_time,record_count,finished_at,',
         file=file)
     file.flush()
 

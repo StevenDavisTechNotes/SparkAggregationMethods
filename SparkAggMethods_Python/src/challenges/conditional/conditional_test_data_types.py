@@ -3,8 +3,7 @@ from typing import NamedTuple
 
 import pyspark.sql.types as DataTypes
 
-from src.six_field_test_data.six_test_data_types import (DataPointSchema,
-                                                         DataSetDescription)
+from src.six_field_test_data.six_test_data_types import DataPointSchema, DataSetDescription
 
 GROUP_BY_COLUMNS = ['grp', 'subgrp']
 AGGREGATION_COLUMNS_3 = ['mean_of_C', 'max_of_D', 'cond_var_of_E']

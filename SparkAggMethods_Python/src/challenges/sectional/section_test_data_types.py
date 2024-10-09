@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from enum import StrEnum
 from typing import Callable, Iterable, Literal, NamedTuple, Protocol
 
 import pandas as pd
@@ -6,7 +7,10 @@ import pyspark.sql.types as DataTypes
 from pyspark import RDD
 from pyspark.sql import DataFrame as PySparkDataFrame
 
-from src.perf_test_common import CalcEngine
+from src.perf_test_common import (
+    CalcEngine, ChallengeMethodRegistrationBase, SolutionInterface, SolutionInterfaceDask, SolutionInterfacePySpark,
+    SolutionInterfacePythonOnly, SolutionLanguage,
+)
 from src.utils.tidy_spark_session import TidySparkSession
 
 
@@ -127,12 +131,22 @@ class RunResult:
     record_count: int
 
 
+class SolutionScale(StrEnum):
+    WHOLE_FILE = 'whole_file'
+    WHOLE_SECTION = 'whole_section'
+    THREE_ROWS = 'three_rows'
+    FINAL_SUMMARIES = 'final_summaries'
+    SINGLE_LINE = 'singleline'
+
+
 @dataclass(frozen=True)
-class TestMethodBase:
+class SectionChallengeMethodRegistrationBase(ChallengeMethodRegistrationBase):
     strategy_name: str
-    language: str
-    interface: str
-    scale: str
+    language: SolutionLanguage
+    engine: CalcEngine
+    # interface: str
+    scale: SolutionScale
+    requires_gpu: bool
 
 
 TChallengePythonAnswer = (
@@ -152,9 +166,17 @@ class IChallengeMethodPythonDaskRegistration(Protocol):
 
 
 @dataclass(frozen=True)
-class ChallengeMethodDaskRegistration(TestMethodBase):
-    requires_gpu: bool
+class ChallengeMethodDaskRegistration(SectionChallengeMethodRegistrationBase):
+    interface: SolutionInterfaceDask
     delegate: IChallengeMethodPythonDaskRegistration
+
+    @property
+    def delegate_getter(self) -> Callable:
+        return self.delegate
+
+    @property
+    def interface_getter(self) -> SolutionInterface:
+        return self.interface
 
 
 class IChallengeMethodPythonPysparkRegistration(Protocol):
@@ -167,10 +189,18 @@ class IChallengeMethodPythonPysparkRegistration(Protocol):
 
 
 @dataclass(frozen=True)
-class ChallengeMethodPysparkRegistration(TestMethodBase):
-    original_strategy_name: str
-    requires_gpu: bool
+class ChallengeMethodPysparkRegistration(SectionChallengeMethodRegistrationBase):
+    strategy_name_2018: str
+    interface: SolutionInterfacePySpark
     delegate: IChallengeMethodPythonPysparkRegistration
+
+    @property
+    def delegate_getter(self) -> Callable:
+        return self.delegate
+
+    @property
+    def interface_getter(self) -> SolutionInterface:
+        return self.interface
 
 
 class IChallengeMethodPythonOnlyRegistration(Protocol):
@@ -182,6 +212,14 @@ class IChallengeMethodPythonOnlyRegistration(Protocol):
 
 
 @dataclass(frozen=True)
-class ChallengeMethodPythonOnlyRegistration(TestMethodBase):
-    requires_gpu: bool
+class ChallengeMethodPythonOnlyRegistration(SectionChallengeMethodRegistrationBase):
+    interface: SolutionInterfacePythonOnly
     delegate: IChallengeMethodPythonOnlyRegistration
+
+    @property
+    def delegate_getter(self) -> Callable:
+        return self.delegate
+
+    @property
+    def interface_getter(self) -> SolutionInterface:
+        return self.interface

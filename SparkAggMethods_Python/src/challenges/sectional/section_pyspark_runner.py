@@ -12,28 +12,25 @@ from typing import Iterable, TextIO
 from pyspark import RDD
 from pyspark.sql import DataFrame as PySparkDataFrame
 
-from src.challenges.sectional.section_generate_test_data import (
-    DATA_SIZE_LIST_SECTIONAL, populate_data_sets)
+from src.challenges.sectional.section_generate_test_data import DATA_SIZE_LIST_SECTIONAL, populate_data_sets
 from src.challenges.sectional.section_record_runs import (
-    MAXIMUM_PROCESSABLE_SEGMENT, derive_run_log_file_path_for_recording,
-    write_header, write_run_result)
-from src.challenges.sectional.section_strategy_directory import \
-    STRATEGIES_USING_PYSPARK_REGISTRY
+    MAXIMUM_PROCESSABLE_SEGMENT, derive_run_log_file_path_for_recording, write_header, write_run_result,
+)
+from src.challenges.sectional.section_strategy_directory import STRATEGIES_USING_PYSPARK_REGISTRY
 from src.challenges.sectional.section_test_data_types import (
-    ChallengeMethodPysparkRegistration, DataSetWithAnswer, ExecutionParameters,
-    RunResult, StudentSummary)
-from src.challenges.sectional.using_pyspark.section_nospark_single_threaded import \
-    section_nospark_logic
+    ChallengeMethodPysparkRegistration, DataSetWithAnswer, ExecutionParameters, RunResult, StudentSummary,
+)
+from src.challenges.sectional.using_python_only.section_py_only_single_threaded import section_py_only_single_threaded
 from src.perf_test_common import CalcEngine, count_iter
 from src.utils.tidy_spark_session import LOCAL_NUM_EXECUTORS, TidySparkSession
 from src.utils.utils import always_true, set_random_seed
 
 ENGINE = CalcEngine.PYSPARK
-DEBUG_ARGS = None if False else (
+DEBUG_ARGS = None if True else (
     []
     + '--size 1'.split()
     # + ['--no-check']
-    + '--runs 1'.split()
+    + '--runs 10'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
     # + ['--strategy',
@@ -117,7 +114,7 @@ def do_test_runs(
                 data_size=data_set.data_size,
                 data=data_set.data,
                 exec_params=args.exec_params,
-                answer_generator=lambda: section_nospark_logic(data_set),
+                answer_generator=lambda: section_py_only_single_threaded(data_set),
             ) for data_set in data_sets_wo_answers
         ]
     else:

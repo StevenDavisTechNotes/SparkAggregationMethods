@@ -13,17 +13,13 @@ from pyspark import RDD
 from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import Row
 
-from src.challenges.deduplication.dedupe_generate_test_data import (
-    DATA_SIZE_LIST_DEDUPE, generate_test_data)
+from src.challenges.deduplication.dedupe_generate_test_data import DATA_SIZE_LIST_DEDUPE, generate_test_data
 from src.challenges.deduplication.dedupe_record_runs import (
-    RunResult, derive_run_log_file_path_for_recording, write_header,
-    write_run_result)
-from src.challenges.deduplication.dedupe_strategy_directory import \
-    STRATEGIES_USING_PYSPARK_REGISTRY
-from src.challenges.deduplication.dedupe_test_data_types import (
-    DataSet, ExecutionParameters)
-from src.challenges.deduplication.domain_logic.dedupe_expected_results import (
-    ItineraryItem, verify_correctness)
+    DedupeRunResult, derive_run_log_file_path_for_recording, write_header, write_run_result,
+)
+from src.challenges.deduplication.dedupe_strategy_directory import STRATEGIES_USING_PYSPARK_REGISTRY
+from src.challenges.deduplication.dedupe_test_data_types import DataSet, ExecutionParameters
+from src.challenges.deduplication.domain_logic.dedupe_expected_results import ItineraryItem, verify_correctness
 from src.perf_test_common import CalcEngine
 from src.utils.tidy_spark_session import TidySparkSession
 from src.utils.utils import always_true, set_random_seed
@@ -31,10 +27,10 @@ from src.utils.utils import always_true, set_random_seed
 ENGINE = CalcEngine.PYSPARK
 
 
-DEBUG_ARGS = None if False else (
+DEBUG_ARGS = None if True else (
     []
     + '--size 2'.split()
-    + '--runs 1'.split()
+    + '--runs 10'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
     # + ['--strategy',
@@ -116,7 +112,7 @@ def parse_args() -> Arguments:
 def run_one_itinerary_step(
         index: int, num_itinerary_stops: int, itinerary_item: ItineraryItem,
         args: Arguments, spark_session: TidySparkSession
-) -> tuple[bool, RunResult] | Literal["infeasible"]:
+) -> tuple[bool, DedupeRunResult] | Literal["infeasible"]:
     exec_params = args.exec_params
     log = spark_session.log
     log.info("Working on %d of %d" % (index, num_itinerary_stops))
@@ -164,17 +160,17 @@ def run_one_itinerary_step(
     foundNumPeople = len(foundPeople)
     success = verify_correctness(itinerary_item, foundPeople)
     assert success is True
-    result = RunResult(
-        numSources=itinerary_item.data_set.num_sources,
-        actualNumPeople=itinerary_item.data_set.num_people,
-        dataSize=itinerary_item.data_set.data_size,
-        dataSizeExp=round(
+    result = DedupeRunResult(
+        num_sources=itinerary_item.data_set.num_sources,
+        num_people_actual=itinerary_item.data_set.num_people,
+        num_data_points=itinerary_item.data_set.data_size,
+        data_size_exponent=round(
             math.log10(
                 itinerary_item.data_set.data_size)),
-        elapsedTime=elapsedTime,
-        foundNumPeople=foundNumPeople,
-        IsCloudMode=exec_params.InCloudMode,
-        CanAssumeNoDupesPerPartition=exec_params.CanAssumeNoDupesPerPartition)
+        elapsed_time=elapsedTime,
+        num_people_found=foundNumPeople,
+        in_cloud_mode=exec_params.InCloudMode,
+        can_assume_no_duplicates_per_partition=exec_params.CanAssumeNoDupesPerPartition)
     return success, result
 
 

@@ -1,48 +1,4 @@
-# 2023-07-18
- strategy,interface,dataSize,elapsedTime,recordCount,finishedAt,
-cond_sql_join,sql,90,1.652777,9,2023-07-19T06:00:37.146881
-cond_fluent_join,fluent,90,0.871859,9,2023-07-19T06:00:38.154671
-cond_sql_null,sql,90,0.642385,9,2023-07-19T06:00:38.933582
-cond_fluent_null,fluent,90,0.555474,9,2023-07-19T06:00:39.621422
-cond_fluent_zero,fluent,90,0.613533,9,2023-07-19T06:00:40.366793
- strategy,interface,dataSize,elapsedTime,recordCount,finishedAt,
-cond_sql_join,sql,90,1.702355,9,2023-07-19T06:07:43.605301
-cond_fluent_join,fluent,90,1.035135,9,2023-07-19T06:07:44.776798
-cond_sql_null,sql,90,0.715177,9,2023-07-19T06:07:45.629670
-cond_fluent_null,fluent,90,0.481565,9,2023-07-19T06:07:46.241369
-cond_fluent_zero,fluent,90,0.562356,9,2023-07-19T06:07:46.946460
-cond_pandas,pandas,90,4.778733,9,2023-07-19T06:07:51.857814
-cond_pandas_numba,pandas,90,15.026733,9,2023-07-19T06:08:07.029354
-cond_sql_nested,sql,90,0.842639,9,2023-07-19T06:08:08.048116
-cond_fluent_nested,fluent,90,0.829770,9,2023-07-19T06:08:09.024095
-cond_fluent_window,fluent,90,1.087462,9,2023-07-19T06:08:10.263134
- strategy,interface,dataSize,elapsedTime,recordCount,finishedAt,
-cond_sql_join,sql,90,1.643074,9,2023-07-19T06:19:18.943110
-cond_fluent_join,fluent,90,0.874648,9,2023-07-19T06:19:19.954820
-cond_sql_null,sql,90,0.763503,9,2023-07-19T06:19:20.849753
-cond_fluent_null,fluent,90,0.445564,9,2023-07-19T06:19:21.420768
-cond_fluent_zero,fluent,90,0.607145,9,2023-07-19T06:19:22.183588
-cond_pandas,pandas,90,4.068570,9,2023-07-19T06:19:26.382551
-cond_pandas_numba,pandas,90,13.712160,9,2023-07-19T06:19:40.237727
-cond_sql_nested,sql,90,0.785269,9,2023-07-19T06:19:41.196491
-cond_fluent_nested,fluent,90,0.840100,9,2023-07-19T06:19:42.186952
-cond_fluent_window,fluent,90,1.124722,9,2023-07-19T06:19:43.461106
-cond_rdd_grpmap,rdd,90,28.692069,9,2023-07-19T06:20:12.307838
-# 2023-09-03
- strategy,interface,dataSize,elapsedTime,recordCount,finishedAt,
-cond_sql_join,sql,90000,1.620777,9,2023-09-03T15:56:00.161640
-cond_fluent_join,fluent,90000,0.901135,9,2023-09-03T15:56:01.235533
-cond_sql_null,sql,90000,0.807383,9,2023-09-03T15:56:02.191906
-cond_fluent_null,fluent,90000,0.474863,9,2023-09-03T15:56:02.807881
-cond_fluent_zero,fluent,90000,0.582863,9,2023-09-03T15:56:03.524841
-cond_pandas,pandas,90000,7.924811,9,2023-09-03T15:56:11.594032
-cond_pandas_numba,pandas,90000,16.079109,9,2023-09-03T15:56:27.820041
-cond_sql_nested,sql,90000,0.963826,9,2023-09-03T15:56:28.931394
-cond_fluent_nested,fluent,90000,1.085951,9,2023-09-03T15:56:30.173322
-cond_fluent_window,fluent,90000,1.857683,9,2023-09-03T15:56:32.183853
-cond_rdd_reduce,rdd,90000,25.973301,9,2023-09-03T15:56:58.304747
-cond_rdd_mappart,rdd,90000,24.567636,9,2023-09-03T15:57:23.022490
- strategy,interface,dataSize,elapsedTime,recordCount,finishedAt,engine,
+ strategy,interface,num_data_points,elapsed_time,record_count,engine,finished_at,
 cond_sql_join,sql,90,1.644436,9,pyspark,2023-12-25T13:38:35.260778,
 cond_fluent_join,fluent,90,0.953881,9,pyspark,2023-12-25T13:38:36.403091,
 cond_sql_null,sql,90,0.716320,9,pyspark,2023-12-25T13:38:37.279755,
@@ -52,8 +8,8 @@ cond_pandas,pandas,90,5.044028,9,pyspark,2023-12-25T13:38:43.957630,
 cond_pandas_numba,pandas,90,10.905276,9,pyspark,2023-12-25T13:38:55.040958,
 cond_sql_nested,sql,90,0.808743,9,pyspark,2023-12-25T13:38:56.016043,
 cond_fluent_nested,fluent,90,0.834783,9,pyspark,2023-12-25T13:38:57.000024,
- strategy,interface,dataSize,elapsedTime,recordCount,finishedAt,engine,
- strategy,interface,dataSize,elapsedTime,recordCount,finishedAt,engine,
+ strategy,interface,num_data_points,elapsed_time,record_count,engine,finished_at,
+ strategy,interface,num_data_points,elapsed_time,record_count,engine,finished_at,
 cond_sql_join,sql,90,1.523287,9,pyspark,2023-12-25T13:41:53.335345,
 cond_fluent_join,fluent,90,0.935111,9,pyspark,2023-12-25T13:41:54.436060,
 cond_sql_null,sql,90,0.805328,9,pyspark,2023-12-25T13:41:55.396579,
@@ -67,7 +23,7 @@ cond_fluent_window,fluent,90,1.074001,9,pyspark,2023-12-25T13:42:15.044579,
 cond_rdd_grpmap,rdd,90,31.524479,9,pyspark,2023-12-25T13:42:46.725057,
 cond_rdd_reduce,rdd,90,23.910311,9,pyspark,2023-12-25T13:43:10.804701,
 cond_rdd_mappart,rdd,90,24.104466,9,pyspark,2023-12-25T13:43:35.078039,
- strategy,interface,dataSize,elapsedTime,recordCount,finishedAt,engine,
+ strategy,interface,num_data_points,elapsed_time,record_count,engine,finished_at,
 cond_sql_join,sql,90,1.629973,9,pyspark,2023-12-25T13:59:49.222700,
 cond_fluent_join,fluent,90,0.919623,9,pyspark,2023-12-25T13:59:50.303493,
 cond_sql_null,sql,90,0.779971,9,pyspark,2023-12-25T13:59:51.253392,
@@ -81,7 +37,7 @@ cond_fluent_window,fluent,90,1.108876,9,pyspark,2023-12-25T14:00:11.428575,
 cond_rdd_grpmap,rdd,90,31.336614,9,pyspark,2023-12-25T14:00:42.920742,
 cond_rdd_reduce,rdd,90,24.585995,9,pyspark,2023-12-25T14:01:07.661126,
 cond_rdd_mappart,rdd,90,24.573706,9,pyspark,2023-12-25T14:01:32.393359,
- strategy,interface,dataSize,elapsedTime,recordCount,finishedAt,engine,
+ strategy,interface,num_data_points,elapsed_time,record_count,engine,finished_at,
 cond_sql_join,sql,90,0.763285,9,pyspark,2023-12-30T10:17:41.246279,
 cond_fluent_join,fluent,90,0.690114,9,pyspark,2023-12-30T10:17:42.094669,
 cond_sql_null,sql,90,0.516823,9,pyspark,2023-12-30T10:17:42.768208,
@@ -95,7 +51,7 @@ cond_fluent_window,fluent,90,0.996118,9,pyspark,2023-12-30T10:18:04.230635,
 cond_rdd_grpmap,rdd,90,29.551591,9,pyspark,2023-12-30T10:18:33.929456,
 cond_rdd_reduce,rdd,90,23.625093,9,pyspark,2023-12-30T10:18:57.711226,
 cond_rdd_mappart,rdd,90,23.759268,9,pyspark,2023-12-30T10:19:21.611013,
- strategy,interface,dataSize,elapsedTime,recordCount,finishedAt,engine,
+ strategy,interface,num_data_points,elapsed_time,record_count,engine,finished_at,
 cond_sql_join,sql,90,0.716498,9,pyspark,2023-12-30T10:37:01.369686,
 cond_fluent_join,fluent,90,0.646382,9,pyspark,2023-12-30T10:37:02.170979,
 cond_sql_null,sql,90,0.514580,9,pyspark,2023-12-30T10:37:02.829254,
@@ -109,7 +65,7 @@ cond_fluent_window,fluent,90,0.972450,9,pyspark,2023-12-30T10:37:22.428501,
 cond_rdd_grpmap,rdd,90,33.193063,9,pyspark,2023-12-30T10:37:55.779803,
 cond_rdd_reduce,rdd,90,25.324475,9,pyspark,2023-12-30T10:38:21.265787,
 cond_rdd_mappart,rdd,90,23.392007,9,pyspark,2023-12-30T10:38:44.800360,
- strategy,interface,dataSize,elapsedTime,recordCount,finishedAt,engine,
+ strategy,interface,num_data_points,elapsed_time,record_count,engine,finished_at,
 cond_pyspark_sql_join,sql,90,0.806515,9,pyspark,2023-12-31T23:27:06.625868,
 cond_pyspark_df_join,fluent,90,0.714981,9,pyspark,2023-12-31T23:27:07.503676,
 cond_pyspark_sql_null,sql,90,0.618723,9,pyspark,2023-12-31T23:27:08.282327,
@@ -123,7 +79,7 @@ cond_pyspark_df_window,fluent,90,1.219641,9,pyspark,2023-12-31T23:27:28.575358,
 cond_pyspark_rdd_grp_map,rdd,90,31.332089,9,pyspark,2023-12-31T23:28:00.057565,
 cond_pyspark_rdd_reduce,rdd,90,24.901330,9,pyspark,2023-12-31T23:28:25.112069,
 cond_pyspark_rdd_map_part,rdd,90,24.867032,9,pyspark,2023-12-31T23:28:50.144202,
- strategy,interface,dataSize,elapsedTime,recordCount,finishedAt,engine,
+ strategy,interface,num_data_points,elapsed_time,record_count,engine,finished_at,
 cond_pyspark_sql_join,sql,90,0.687323,9,pyspark,2024-01-07T16:06:55.020889,
 cond_pyspark_df_join,fluent,90,0.708814,9,pyspark,2024-01-07T16:06:55.862922,
 cond_pyspark_sql_null,sql,90,0.468100,9,pyspark,2024-01-07T16:06:56.464642,
@@ -136,7 +92,7 @@ cond_pyspark_df_window,fluent,90,0.834799,9,pyspark,2024-01-07T16:07:04.520948,
 cond_pyspark_rdd_grp_map,rdd,90,32.499538,9,pyspark,2024-01-07T16:07:37.153903,
 cond_pyspark_rdd_reduce,rdd,90,25.722269,9,pyspark,2024-01-07T16:08:03.006110,
 cond_pyspark_rdd_map_part,rdd,90,25.882846,9,pyspark,2024-01-07T16:08:29.020532,
- strategy,interface,dataSize,elapsedTime,recordCount,finishedAt,engine,
+ strategy,interface,num_data_points,elapsed_time,record_count,engine,finished_at,
 cond_pyspark_sql_join,sql,90,0.785386,9,pyspark,2024-01-08T21:14:19.528405,
 cond_pyspark_df_join,fluent,90,0.755831,9,pyspark,2024-01-08T21:14:20.420549,
 cond_pyspark_sql_null,sql,90,0.445431,9,pyspark,2024-01-08T21:14:20.996713,
@@ -149,7 +105,7 @@ cond_pyspark_df_window,fluent,90,0.965377,9,pyspark,2024-01-08T21:14:29.510623,
 cond_pyspark_rdd_grp_map,rdd,90,34.235917,9,pyspark,2024-01-08T21:15:03.873286,
 cond_pyspark_rdd_reduce,rdd,90,27.137176,9,pyspark,2024-01-08T21:15:31.147230,
 cond_pyspark_rdd_map_part,rdd,90,27.456748,9,pyspark,2024-01-08T21:15:58.740025,
- strategy,interface,dataSize,elapsedTime,recordCount,finishedAt,engine,
+ strategy,interface,num_data_points,elapsed_time,record_count,engine,finished_at,
 cond_pyspark_sql_join,sql,90,0.752803,9,pyspark,2024-06-29T22:57:30.551774,
 cond_pyspark_df_join,fluent,90,0.458228,9,pyspark,2024-06-29T22:57:31.153694,
 cond_pyspark_sql_null,sql,90,0.425826,9,pyspark,2024-06-29T22:57:31.718193,
@@ -163,7 +119,7 @@ cond_pyspark_df_window,fluent,90,0.835299,9,pyspark,2024-06-29T22:57:44.106250,
 cond_pyspark_rdd_grp_map,rdd,90,38.168493,9,pyspark,2024-06-29T22:58:22.435704,
 cond_pyspark_rdd_reduce,rdd,90,29.554223,9,pyspark,2024-06-29T22:58:52.128922,
 cond_pyspark_rdd_map_part,rdd,90,29.765779,9,pyspark,2024-06-29T22:59:22.044976,
- strategy,interface,dataSize,elapsedTime,recordCount,finishedAt,engine,
+ strategy,interface,num_data_points,elapsed_time,record_count,engine,finished_at,
 cond_pyspark_sql_join,sql,90,1.487534,9,pyspark,2024-06-29T23:03:10.218840,
 cond_pyspark_df_join,fluent,90,0.718296,9,pyspark,2024-06-29T23:03:11.081092,
 cond_pyspark_sql_null,sql,90,0.567641,9,pyspark,2024-06-29T23:03:11.796753,
@@ -177,7 +133,7 @@ cond_pyspark_df_window,fluent,90,0.891381,9,pyspark,2024-06-29T23:03:24.435820,
 cond_pyspark_rdd_grp_map,rdd,90,37.607778,9,pyspark,2024-06-29T23:04:02.190046,
 cond_pyspark_rdd_reduce,rdd,90,30.134520,9,pyspark,2024-06-29T23:04:32.471034,
 cond_pyspark_rdd_map_part,rdd,90,30.422438,9,pyspark,2024-06-29T23:05:03.036104,
- strategy,interface,dataSize,elapsedTime,recordCount,finishedAt,engine,
+ strategy,interface,num_data_points,elapsed_time,record_count,engine,finished_at,
 cond_pyspark_sql_join,sql,90,0.598915,9,pyspark,2024-06-29T23:39:12.263899,
 cond_pyspark_df_join,fluent,90,0.406553,9,pyspark,2024-06-29T23:39:12.806762,
 cond_pyspark_sql_null,sql,90,0.357219,9,pyspark,2024-06-29T23:39:13.296092,
@@ -191,7 +147,7 @@ cond_pyspark_df_window,fluent,90,0.674387,9,pyspark,2024-06-29T23:39:24.124762,
 cond_pyspark_rdd_grp_map,rdd,90,37.414490,9,pyspark,2024-06-29T23:40:01.672695,
 cond_pyspark_rdd_reduce,rdd,90,29.056991,9,pyspark,2024-06-29T23:40:30.869851,
 cond_pyspark_rdd_map_part,rdd,90,29.059567,9,pyspark,2024-06-29T23:41:00.065938,
- strategy,interface,dataSize,elapsedTime,recordCount,finishedAt,engine,
+ strategy,interface,num_data_points,elapsed_time,record_count,engine,finished_at,
 cond_pyspark_sql_join,sql,90,0.717488,9,pyspark,2024-07-07T16:22:46.505335,
 cond_pyspark_df_join,fluent,90,0.594509,9,pyspark,2024-07-07T16:22:47.244276,
 cond_pyspark_sql_null,sql,90,0.537423,9,pyspark,2024-07-07T16:22:47.966948,
@@ -202,3 +158,17 @@ cond_pyspark_df_grp_pandas_numba,pandas,90,7.234669,9,pyspark,2024-07-07T16:23:0
 cond_pyspark_sql_nested,sql,90,0.622605,9,pyspark,2024-07-07T16:23:00.782474,
 cond_pyspark_df_nested,fluent,90,0.648702,9,pyspark,2024-07-07T16:23:01.576025,
 cond_pyspark_df_window,fluent,90,0.920293,9,pyspark,2024-07-07T16:23:02.643381,
+ strategy,interface,num_data_points,elapsed_time,record_count,engine,finished_at,
+cond_pyspark_sql_join,sql,90,2.584539,9,pyspark,2024-10-08T21:10:44.407367,
+cond_pyspark_df_join,fluent,90,1.221684,9,pyspark,2024-10-08T21:10:45.815975,
+cond_pyspark_sql_null,sql,90,0.941735,9,pyspark,2024-10-08T21:10:46.923064,
+cond_pyspark_df_null,fluent,90,0.456642,9,pyspark,2024-10-08T21:10:47.567248,
+cond_pyspark_df_zero,fluent,90,0.694981,9,pyspark,2024-10-08T21:10:48.436040,
+cond_pyspark_df_grp_pandas,pandas,90,4.970277,9,pyspark,2024-10-08T21:10:53.575465,
+cond_pyspark_df_grp_pandas_numba,pandas,90,8.578723,9,pyspark,2024-10-08T21:11:02.310710,
+cond_pyspark_sql_nested,sql,90,1.162804,9,pyspark,2024-10-08T21:11:03.642086,
+cond_pyspark_df_nested,fluent,90,1.249008,9,pyspark,2024-10-08T21:11:05.052558,
+cond_pyspark_df_window,fluent,90,1.627201,9,pyspark,2024-10-08T21:11:06.854865,
+cond_pyspark_rdd_grp_map,rdd,90,46.570691,9,pyspark,2024-10-08T21:11:53.591082,
+cond_pyspark_rdd_reduce,rdd,90,44.422572,9,pyspark,2024-10-08T21:12:38.187158,
+cond_pyspark_rdd_map_part,rdd,90,35.919531,9,pyspark,2024-10-08T21:13:14.275625,

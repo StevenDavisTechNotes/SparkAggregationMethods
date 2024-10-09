@@ -1,11 +1,14 @@
 from dataclasses import dataclass
-from typing import Literal, Protocol
+from typing import Callable, Literal, Protocol
 
 import pyspark.sql.types as DataTypes
 from pyspark import RDD
 from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import Row
 
+from src.perf_test_common import (
+    CalcEngine, ChallengeMethodRegistrationBase, SolutionInterface, SolutionInterfacePySpark, SolutionLanguage,
+)
 from src.utils.tidy_spark_session import TidySparkSession
 
 
@@ -59,13 +62,22 @@ class IChallengeMethodPythonPyspark(Protocol):
 
 
 @dataclass(frozen=True)
-class ChallengeMethodPythonPysparkRegistration:
+class ChallengeMethodPythonPysparkRegistration(ChallengeMethodRegistrationBase):
     strategy_name_2018: str
     strategy_name: str
-    language: str
-    interface: str
+    language: SolutionLanguage
+    engine: CalcEngine
+    interface: SolutionInterfacePySpark
     requires_gpu: bool
     delegate: IChallengeMethodPythonPyspark
+
+    @property
+    def interface_getter(self) -> SolutionInterface:
+        return self.interface
+
+    @property
+    def delegate_getter(self) -> Callable | None:
+        return self.delegate
 
 
 @dataclass(frozen=True)

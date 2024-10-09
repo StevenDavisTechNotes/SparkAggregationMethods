@@ -6,30 +6,26 @@ import random
 import time
 from dataclasses import dataclass
 
-from src.challenges.bi_level.bi_level_record_runs import \
-    derive_run_log_file_path_for_recording
-from src.challenges.bi_level.bi_level_strategy_directory import \
-    STRATEGIES_USING_PYSPARK_REGISTRY
-from src.challenges.bi_level.bi_level_test_data_types import (
-    DATA_SIZES_LIST_BI_LEVEL, RESULT_COLUMNS)
+from src.challenges.bi_level.bi_level_record_runs import BiLevelPythonRunResultFileWriter, BiLevelRunResult
+from src.challenges.bi_level.bi_level_strategy_directory import STRATEGIES_USING_PYSPARK_REGISTRY
+from src.challenges.bi_level.bi_level_test_data_types import DATA_SIZES_LIST_BI_LEVEL, RESULT_COLUMNS
 from src.perf_test_common import CalcEngine
 from src.six_field_test_data.six_generate_test_data import (
-    ChallengeMethodPythonPysparkRegistration, DataSetPysparkWithAnswer,
-    populate_data_set_pyspark)
-from src.six_field_test_data.six_run_result_types import write_header
-from src.six_field_test_data.six_runner_base import \
-    test_one_step_in_pyspark_itinerary
+    ChallengeMethodPythonPysparkRegistration, DataSetPysparkWithAnswer, populate_data_set_pyspark,
+)
+from src.six_field_test_data.six_runner_base import test_one_step_in_pyspark_itinerary
 from src.six_field_test_data.six_test_data_types import (
-    SHARED_LOCAL_TEST_DATA_FILE_LOCATION, Challenge, ExecutionParameters)
+    SHARED_LOCAL_TEST_DATA_FILE_LOCATION, Challenge, ExecutionParameters,
+)
 from src.utils.tidy_spark_session import LOCAL_NUM_EXECUTORS, TidySparkSession
 from src.utils.utils import always_true, set_random_seed
 
 DEBUG_ARGS = None if False else (
     []
-    + '--size 3_3_10'.split()
+    + '--size 3_3k_100'.split()
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
-    + ['--no-shuffle']
+    # + ['--no-shuffle']
     # + ['--strategy',
     #    'bi_level_pyspark_rdd_grp_map',
     #    'bi_level_pyspark_rdd_map_part',
@@ -104,21 +100,30 @@ def do_test_runs(
         set_random_seed(args.random_seed)
     if args.shuffle:
         random.shuffle(itinerary)
-    with open(file=derive_run_log_file_path_for_recording(ENGINE), mode='at+') as file:
-        write_header(file)
+    with BiLevelPythonRunResultFileWriter(ENGINE) as file:
         for index, (challenge_method_registration, data_set) in enumerate(itinerary):
             spark_session.log.info("Working on %d of %d" %
                                    (index, len(itinerary)))
             print(f"Working on {challenge_method_registration.strategy_name} for {data_set.description.size_code}")
-            test_one_step_in_pyspark_itinerary(
+            base_run_result = test_one_step_in_pyspark_itinerary(
                 challenge=CHALLENGE,
                 spark_session=spark_session,
                 exec_params=args.exec_params,
                 challenge_method_registration=challenge_method_registration,
                 result_columns=RESULT_COLUMNS,
-                file=file,
                 data_set=data_set,
             )
+            if base_run_result is None:
+                continue
+            file.write_run_result(
+                challenge_method_registration=challenge_method_registration,
+                result=BiLevelRunResult(
+                    engine=ENGINE,
+                    num_data_points=data_set.description.num_data_points,
+                    elapsed_time=base_run_result.elapsed_time,
+                    record_count=base_run_result.record_count,
+                    relative_cardinality=data_set.description.relative_cardinality_between_groupings,
+                ))
             gc.collect()
             time.sleep(0.1)
 

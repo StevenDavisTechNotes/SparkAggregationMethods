@@ -1,6 +1,5 @@
 import time
 from dataclasses import dataclass
-from typing import TextIO
 
 import pandas as pd
 from dask.dataframe.core import DataFrame as DaskDataFrame
@@ -8,24 +7,17 @@ from pyspark import RDD
 from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import Row
 
-from src.perf_test_common import CalcEngine
+from src.perf_test_common import CalcEngine, RunResultBase
 from src.six_field_test_data.six_generate_test_data import (
-    ChallengeMethodPythonDaskRegistration,
-    ChallengeMethodPythonOnlyRegistration,
-    ChallengeMethodPythonPysparkRegistration, DataSetDaskWithAnswer,
-    DataSetPysparkWithAnswer, DataSetPythonOnlyWithAnswer)
-from src.six_field_test_data.six_generate_test_data.six_test_data_for_dask import \
-    pick_agg_tgt_num_partitions_dask
-from src.six_field_test_data.six_generate_test_data.six_test_data_for_pyspark import \
-    pick_agg_tgt_num_partitions_pyspark
-from src.six_field_test_data.six_generate_test_data.six_test_data_for_python_only import \
-    NumericalToleranceExpectations
-from src.six_field_test_data.six_run_result_types import write_run_result
-from src.six_field_test_data.six_test_data_types import (Challenge,
-                                                         DataSetAnswer,
-                                                         DataSetDescription,
-                                                         ExecutionParameters,
-                                                         RunResult)
+    ChallengeMethodPythonDaskRegistration, ChallengeMethodPythonOnlyRegistration,
+    ChallengeMethodPythonPysparkRegistration, DataSetDaskWithAnswer, DataSetPysparkWithAnswer,
+    DataSetPythonOnlyWithAnswer,
+)
+from src.six_field_test_data.six_generate_test_data.six_test_data_for_dask import pick_agg_tgt_num_partitions_dask
+from src.six_field_test_data.six_generate_test_data.six_test_data_for_pyspark import pick_agg_tgt_num_partitions_pyspark
+from src.six_field_test_data.six_test_data_types import (
+    Challenge, DataSetAnswer, DataSetDescription, ExecutionParameters, NumericalToleranceExpectations,
+)
 from src.utils.tidy_spark_session import TidySparkSession
 
 
@@ -48,9 +40,8 @@ def test_one_step_in_dask_itinerary(
         challenge: Challenge,
         exec_params: ExecutionParameters,
         challenge_method_registration: ChallengeMethodPythonDaskRegistration,
-        file: TextIO,
         data_set: DataSetDaskWithAnswer,
-):
+) -> RunResultBase | None:
     startedTime = time.time()
     agg_tgt_num_partitions = pick_agg_tgt_num_partitions_dask(data_set.data, challenge)
     df_answer: pd.DataFrame
@@ -70,7 +61,7 @@ def test_one_step_in_dask_itinerary(
         case pd.DataFrame() as df_answer:
             finishedTime = time.time()
         case "infeasible":
-            return
+            return None
         case _:
             raise ValueError("No result returned")
     result = process_answer(
@@ -83,7 +74,7 @@ def test_one_step_in_dask_itinerary(
         df_answer=df_answer,
         finishedTime=finishedTime,
     )
-    write_run_result(challenge_method_registration, result, file)
+    return result
 
 
 def test_one_step_in_pyspark_itinerary(
@@ -92,9 +83,8 @@ def test_one_step_in_pyspark_itinerary(
         exec_params: ExecutionParameters,
         challenge_method_registration: ChallengeMethodPythonPysparkRegistration,
         result_columns: list[str],
-        file: TextIO,
         data_set: DataSetPysparkWithAnswer,
-):
+) -> RunResultBase | None:
     def check_partitions(rdd: RDD):
         agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(data_set.data, challenge)
         if rdd.getNumPartitions() > max(agg_tgt_num_partitions, exec_params.DefaultParallelism):
@@ -129,7 +119,7 @@ def test_one_step_in_pyspark_itinerary(
                     case _:
                         df_answer = pd.DataFrame.from_records([x._asdict() for x in answer])
         case "infeasible":
-            return
+            return None
         case _:
             raise ValueError("Must return at least 1 type")
     result = process_answer(
@@ -142,7 +132,7 @@ def test_one_step_in_pyspark_itinerary(
         df_answer=df_answer,
         finishedTime=finishedTime,
     )
-    write_run_result(challenge_method_registration, result, file)
+    return result
 
 
 def test_one_step_in_python_only_itinerary(
@@ -150,10 +140,9 @@ def test_one_step_in_python_only_itinerary(
         exec_params: ExecutionParameters,
         challenge_method_registration: ChallengeMethodPythonOnlyRegistration,
         numerical_tolerance: NumericalToleranceExpectations,
-        file: TextIO,
         data_set: DataSetPythonOnlyWithAnswer,
         correct_answer: DataSetAnswer,
-):
+) -> RunResultBase | None:
     startedTime = time.time()
     match challenge_method_registration.delegate(
             exec_params=exec_params,
@@ -163,20 +152,19 @@ def test_one_step_in_python_only_itinerary(
             df_answer = pandas_df
             finishedTime = time.time()
         case "infeasible":
-            return
+            return None
         case _:
             raise ValueError("Must return at least 1 type")
-    result = process_answer(
+    return process_answer(
         engine=CalcEngine.PYTHON_ONLY,
         challenge=challenge,
-        data_size=data_set.data_size,
+        data_size=data_set.description,
         correct_answer=data_set.answer.answer_for_challenge(challenge),
         numerical_tolerance=numerical_tolerance,
         startedTime=startedTime,
         df_answer=df_answer,
         finishedTime=finishedTime,
     )
-    write_run_result(challenge_method_registration, result, file)
 
 
 def process_answer(
@@ -188,7 +176,7 @@ def process_answer(
         startedTime: float,
         df_answer: pd.DataFrame,
         finishedTime: float,
-):
+) -> RunResultBase:
     if challenge == Challenge.BI_LEVEL:
         if 'avg_var_of_E2' not in df_answer:
             df_answer['avg_var_of_E2'] = df_answer['avg_var_of_E']
@@ -205,10 +193,11 @@ def process_answer(
         .abs().max().max())
     status = abs_diff < numerical_tolerance.value
     assert (status is True)
-    recordCount = len(df_answer)
-    result = RunResult(
+    record_count = len(df_answer)
+    result = RunResultBase(
         engine=engine,
-        dataSize=data_size.num_data_points,
-        elapsedTime=finishedTime - startedTime,
-        recordCount=recordCount)
+        num_data_points=data_size.num_data_points,
+        elapsed_time=finishedTime - startedTime,
+        record_count=record_count,
+    )
     return result

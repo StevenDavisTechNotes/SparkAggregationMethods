@@ -1,25 +1,24 @@
 from typing import Any, Iterable, cast
 
-from src.challenges.sectional.domain_logic.section_data_parsers import \
-    rdd_typed_with_index_factory
-from src.challenges.sectional.domain_logic.section_mutable_subtotal_type import (
-    MutableStudent, MutableTrimester)
+from src.challenges.sectional.domain_logic.section_data_parsers import rdd_typed_with_index_factory
+from src.challenges.sectional.domain_logic.section_mutable_subtotal_type import MutableStudent, MutableTrimester
 from src.challenges.sectional.section_test_data_types import (
-    ClassLine, DataSet, LabeledTypedRow, StudentHeader, StudentSummary,
-    TChallengePythonPysparkAnswer, TrimesterFooter, TrimesterHeader, TypedLine)
+    ClassLine, LabeledTypedRow, SectionDataSet, StudentHeader, StudentSummary, TChallengePythonPysparkAnswer,
+    TrimesterFooter, TrimesterHeader, TypedLine,
+)
 from src.utils.tidy_spark_session import TidySparkSession
 
 
 def section_pyspark_rdd_mappart_odd_even(
         spark_session: TidySparkSession,
-        data_set: DataSet,
+        data_set: SectionDataSet,
 ) -> TChallengePythonPysparkAnswer:
-    if data_set.data_size.num_students > pow(10, 7-1):
+    if data_set.data_description.num_students > pow(10, 7-1):
         # unreliable
         return "infeasible"
-    section_maximum_size = data_set.data.section_maximum
-    filename = data_set.data.test_filepath
-    target_num_partitions = data_set.data.target_num_partitions
+    section_maximum_size = data_set.exec_params.section_maximum
+    filename = data_set.exec_params.source_data_file_path
+    target_num_partitions = data_set.exec_params.target_num_partitions
 
     SegmentOffset = section_maximum_size - 1
     SegmentExtra = 2 * section_maximum_size

@@ -1,7 +1,8 @@
 import pytest
 
 from src.challenges.sectional.domain_logic.section_snippet_subtotal_type import (
-    FIRST_LAST_NEITHER, CompletedStudent, StudentSnippet2, complete_snippets_2)
+    FIRST_LAST_NEITHER, CompletedStudent, StudentSnippet2, complete_snippets_2,
+)
 
 
 @pytest.fixture
@@ -59,7 +60,3 @@ def test_maybe_not_started_yet(baked_snippet: StudentSnippet2):
             back_is_clean=back_is_clean)
         assert completedItems == []
         assert remaining_snippets == [baked_snippet]
-
-
-if __name__ == "__main__":
-    print("here")

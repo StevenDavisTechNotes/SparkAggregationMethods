@@ -2,16 +2,17 @@ import pyspark.sql.functions as func
 from pyspark.sql.window import Window
 
 from src.six_field_test_data.six_generate_test_data import (
-    DataSetPyspark, TChallengePendingAnswerPythonPyspark)
-from src.six_field_test_data.six_test_data_types import ExecutionParameters
+    SixFieldDataSetPyspark, TSixFieldChallengePendingAnswerPythonPyspark,
+)
+from src.six_field_test_data.six_test_data_types import SixTestExecutionParameters
 from src.utils.tidy_spark_session import TidySparkSession
 
 
 def bi_level_pyspark_df_window(
         spark_session: TidySparkSession,
-        exec_params: ExecutionParameters,
-        data_set: DataSetPyspark
-) -> TChallengePendingAnswerPythonPyspark:
+        exec_params: SixTestExecutionParameters,
+        data_set: SixFieldDataSetPyspark
+) -> TSixFieldChallengePendingAnswerPythonPyspark:
     df = data_set.data.df_src
     window = Window \
         .partitionBy(df.grp, df.subgrp) \

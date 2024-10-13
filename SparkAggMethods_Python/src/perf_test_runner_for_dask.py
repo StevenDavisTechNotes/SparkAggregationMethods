@@ -18,5 +18,6 @@ def main():
 
 
 if __name__ == "__main__":
+    print(f"Running {__file__}")
     main()
     print("Done!")

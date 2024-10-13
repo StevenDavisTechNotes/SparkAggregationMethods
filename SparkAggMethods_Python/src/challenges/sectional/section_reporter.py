@@ -7,16 +7,30 @@ from typing import NamedTuple, cast
 import numpy
 import scipy.stats
 
-from src.challenges.sectional.section_generate_test_data import DataSetDescription
-from src.challenges.sectional.section_record_runs import FINAL_REPORT_FILE_PATH, derive_run_log_file_path_for_reading
+from src.challenges.sectional.section_record_runs import (
+    FINAL_REPORT_FILE_PATH, SectionPersistedRunResult, SectionPythonPersistedRunResultLog, derive_run_log_file_path,
+    regressor_from_run_result,
+)
 from src.challenges.sectional.section_strategy_directory import (
     STRATEGIES_USING_DASK_REGISTRY, STRATEGIES_USING_PYSPARK_REGISTRY, STRATEGIES_USING_PYTHON_ONLY_REGISTRY,
 )
-from src.challenges.sectional.section_test_data_types import DataSet, DataSetData, ExecutionParameters, RunResult
-from src.perf_test_common import CalcEngine
+from src.perf_test_common import (
+    CalcEngine, Challenge, SolutionLanguage, SummarizedPerformanceOfMethodAtDataSize, parse_interface_python,
+)
 from src.utils.linear_regression import linear_regression
 
-TEMP_RESULT_FILE_PATH = "d:/temp/SparkPerfTesting/temp.csv"
+LANGUAGE = SolutionLanguage.PYTHON
+CHALLENGE = Challenge.SECTIONAL
+EXPECTED_SIZES = [
+    1,
+    10,
+    100,
+    1000,
+    10000,
+    100000,
+    1000000,
+    10000000
+]
 
 
 class TestRegression(NamedTuple):
@@ -35,8 +49,8 @@ class TestRegression(NamedTuple):
     s2_high: float
 
 
-def analyze_run_results():  # noqa: C901
-    test_runs = read_run_results()
+def analyze_run_results_old():
+    test_runs = read_run_results_old()
     if len(test_runs) < 1:
         print("no tests")
         return
@@ -78,9 +92,9 @@ def analyze_run_results():  # noqa: C901
                 + [x for x in STRATEGIES_USING_PYSPARK_REGISTRY if x.strategy_name == strategy_name]
                 + [x for x in STRATEGIES_USING_PYTHON_ONLY_REGISTRY if x.strategy_name == strategy_name])[0]
 
-            size_values = set(x.data.data_size.num_rows for x in times)
+            size_values = set(x.num_source_rows for x in times)
             for num_rows in size_values:
-                runs = [x for x in times if x.data.data_size.num_rows == num_rows]
+                runs = [x for x in times if x.num_source_rows == num_rows]
                 ar: numpy.ndarray[float, numpy.dtype[numpy.float64]] \
                     = numpy.asarray([x.elapsed_time for x in runs], dtype=float)
                 numRuns = len(runs)
@@ -95,7 +109,7 @@ def analyze_run_results():  # noqa: C901
                     len(ar), num_rows,
                     mean, stdev, rl, rh
                 )
-            x_values = [float(x.data.data_size.num_rows) for x in times]
+            x_values = [float(x.num_source_rows) for x in times]
             y_values = [x.elapsed_time for x in times]
             match linear_regression(x_values, y_values, confidence):
                 case None:
@@ -134,66 +148,79 @@ def analyze_run_results():  # noqa: C901
         f.write("\n")
 
 
-def read_run_results() -> list[RunResult]:
-    test_runs: list[RunResult] = []
-    with open(TEMP_RESULT_FILE_PATH, 'w') as out_fh:
-        for engine in CalcEngine:
-            run_log_file_path_for_engine = derive_run_log_file_path_for_reading(engine)
-            if run_log_file_path_for_engine is None or not os.path.exists(run_log_file_path_for_engine):
-                continue
-            with open(run_log_file_path_for_engine, 'rt') as f:
-                for line in f:
-                    line = line.rstrip()
-                    if line.startswith("Working"):
-                        print("Excluding line: " + line)
-                        continue
-                    if line.find(',') < 0:
-                        print("Excluding line: " + line)
-                        continue
-                    fields: list[str] = line.rstrip().split(',')
-                    test_status, test_strategy_name, test_method_interface, \
-                        result_num_students, \
-                        result_data_size, result_section_maximum, \
-                        result_elapsed_time, result_record_count, \
-                        _finished_at, *_rest \
-                        = tuple(fields)
-                    if test_status != 'success':
-                        print("Excluding line: " + line)
-                        continue
-                    result = RunResult(
-                        strategy_name=test_strategy_name,
-                        engine=engine,
-                        success=test_status == "success",
-                        data=DataSet(
-                            data_size=DataSetDescription(
-                                num_students=int(result_num_students),
-                                section_size_max=int(result_data_size) // int(result_section_maximum)
-                            ),
-                            data=DataSetData(
-                                section_maximum=int(result_section_maximum),
-                                test_filepath="N/A",
-                                target_num_partitions=-1,
-                            ),
-                            exec_params=ExecutionParameters(
-                                default_parallelism=-1,
-                                maximum_processable_segment=-1,
-                                test_data_folder_location="N/A",
-                            )
-                        ),
-                        elapsed_time=float(result_elapsed_time),
-                        record_count=int(result_record_count))
-                    test_runs.append(result)
-                    out_fh.write("%s,%s,%s,%d,%d,%f,%s\n" % (
-                        engine.value,
-                        test_strategy_name, test_method_interface,
-                        result.data.data_size.num_rows // result.data.data.section_maximum,
-                        result.data.data.section_maximum,
-                        result.elapsed_time,
-                        result.record_count))
+def read_run_results_old() -> list[SectionPersistedRunResult]:
+    test_runs: list[SectionPersistedRunResult] = []
+    for engine in CalcEngine:
+        run_log_file_path_for_engine = derive_run_log_file_path(engine)
+        if run_log_file_path_for_engine is None or not os.path.exists(run_log_file_path_for_engine):
+            continue
+        with open(run_log_file_path_for_engine, 'rt') as f:
+            for line in f:
+                line = line.rstrip()
+                if line.startswith("Working"):
+                    print("Excluding line: " + line)
+                    continue
+                if line.find(',') < 0:
+                    print("Excluding line: " + line)
+                    continue
+                fields: list[str] = line.rstrip().split(',')
+                status, strategy_name, interface, \
+                    num_students, \
+                    result_num_source_rows, \
+                    section_maximum, \
+                    elapsed_time, \
+                    num_output_rows, \
+                    finished_at, *_rest \
+                    = tuple(fields)
+                if status != 'success':
+                    print("Excluding line: " + line)
+                    continue
+                result = SectionPersistedRunResult(
+                    num_source_rows=int(result_num_source_rows),
+                    strategy_name=strategy_name,
+                    language=LANGUAGE,
+                    engine=engine,
+                    interface=parse_interface_python(interface, engine),
+                    status=status,
+                    section_maximum=int(section_maximum),
+                    num_students=int(num_students),
+                    elapsed_time=float(elapsed_time),
+                    num_output_rows=int(num_output_rows),
+                    finished_at=finished_at,
+                )
+                test_runs.append(result)
 
     return test_runs
 
 
+def analyze_run_results_new():
+    summary_status: list[SummarizedPerformanceOfMethodAtDataSize] = []
+    engine = CalcEngine.PYSPARK
+    challenge_method_list = STRATEGIES_USING_PYSPARK_REGISTRY
+    reader = SectionPythonPersistedRunResultLog(engine)
+    raw_test_runs = reader.read_run_result_file()
+    structured_test_results = reader.structure_test_results(
+        challenge_method_list=challenge_method_list,
+        expected_sizes=EXPECTED_SIZES,
+        regressor_from_run_result=regressor_from_run_result,
+        test_runs=raw_test_runs,
+    )
+    summary_status.extend(
+        reader.do_regression(
+            challenge=CHALLENGE,
+            engine=engine,
+            challenge_method_list=challenge_method_list,
+            test_results_by_strategy_name_by_data_size=structured_test_results,
+        )
+    )
+    reader.print_summary(
+        rows=summary_status,
+        file_report_file_path=FINAL_REPORT_FILE_PATH,
+    )
+
+
 if __name__ == "__main__":
-    analyze_run_results()
+    print(f"Running {__file__}")
+    analyze_run_results_new()
+    analyze_run_results_old()
     print("Done!")

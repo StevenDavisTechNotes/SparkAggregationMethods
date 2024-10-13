@@ -2,6 +2,7 @@
   "include": [
     "src"
   ],
+  "autoSearchPaths": [],
   "stubPath": "src/typings",
   "typeCheckingMode": "standard",
 }

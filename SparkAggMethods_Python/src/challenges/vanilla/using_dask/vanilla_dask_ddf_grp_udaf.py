@@ -6,7 +6,7 @@ from pandas.core.groupby.generic import SeriesGroupBy
 
 from src.challenges.vanilla.vanilla_test_data_types import GROUP_BY_COLUMNS
 from src.six_field_test_data.six_generate_test_data import DataSetDask, TChallengeAnswerPythonDask
-from src.six_field_test_data.six_test_data_types import ExecutionParameters
+from src.six_field_test_data.six_test_data_types import SixTestExecutionParameters
 
 
 def ddof_0_do_chunk(s: SeriesGroupBy) -> tuple[pd.Series, pd.Series, pd.Series]:
@@ -24,10 +24,10 @@ def ddof_0_do_finalize(count: pd.Series, sum: pd.Series, sum2: pd.Series):
 
 
 def vanilla_dask_ddf_grp_udaf(
-        exec_params: ExecutionParameters,
+        exec_params: SixTestExecutionParameters,
         data_set: DataSetDask
 ) -> TChallengeAnswerPythonDask:
-    if (data_set.data_size.points_per_index > 10**4):
+    if (data_set.data_description.points_per_index > 10**4):
         return "infeasible"
     df: DaskDataFrame = data_set.data.df_src
     custom_var_ddof_0 = groupby.Aggregation(

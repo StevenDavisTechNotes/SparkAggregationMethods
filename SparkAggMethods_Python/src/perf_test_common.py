@@ -1,10 +1,21 @@
+import math
 import os
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from enum import StrEnum
-from typing import Callable, Iterable, TextIO
+from dataclasses import asdict, dataclass
+from dataclasses import fields as dataclass_fields
+from enum import Enum, StrEnum
+from typing import Callable, Generic, Iterable, Sequence, TextIO, TypeVar
 
+import numpy
 import pandas as pd
+import scipy
+
+ELAPSED_TIME_COLUMN_NAME: str = 'elapsed_time'
+
+
+class SolutionLanguage(StrEnum):
+    PYTHON = 'python'
+    SCALA = 'scala'
 
 
 class CalcEngine(StrEnum):
@@ -14,9 +25,16 @@ class CalcEngine(StrEnum):
     SCALA_SPARK = 'sc_spark'
 
 
-class SolutionLanguage(StrEnum):
-    PYTHON = 'python'
-    SCALA = 'scala'
+class Challenge(StrEnum):
+    VANILLA = 'vanilla'
+    BI_LEVEL = 'bilevel'
+    CONDITIONAL = 'conditional'
+    SECTIONAL = 'sectional'
+    DEDUPLICATION = 'deduplication'
+
+
+class SolutionInterfaceInvalid(StrEnum):
+    INVALID = 'invalid'
 
 
 class SolutionInterfaceDask(StrEnum):
@@ -43,33 +61,81 @@ class SolutionInterfaceScalaSpark(StrEnum):
     SPARK_DATAFRAME_PANDAS = 'pandas'
 
 
+class NumericalToleranceExpectations(Enum):
+    NOT_APPLICABLE = -1.0
+    NUMPY = 1e-12
+    NUMBA = 1e-10
+    SIMPLE_SUM = 1e-11
+
+
 SolutionInterface = (
-    SolutionInterfaceDask
+    SolutionInterfaceInvalid
+    | SolutionInterfaceDask
     | SolutionInterfacePythonOnly
     | SolutionInterfacePySpark
     | SolutionInterfaceScalaSpark
 )
 
+SolutionInterfacePython = (
+    SolutionInterfaceDask
+    | SolutionInterfacePythonOnly
+    | SolutionInterfacePySpark
+)
+TSolutionInterface = TypeVar(
+    'TSolutionInterface',
+    SolutionInterfaceInvalid,
+    SolutionInterfaceDask,
+    SolutionInterfacePythonOnly,
+    SolutionInterfacePySpark,
+    SolutionInterfaceScalaSpark,
+    SolutionInterfacePython,
+    SolutionInterface,
+)
+TChallengeMethodDelegate = TypeVar('TChallengeMethodDelegate', bound=Callable)
+
+
+def parse_interface_any(
+        interface: str,
+        engine: CalcEngine,
+) -> SolutionInterface:
+    match engine:
+        case CalcEngine.DASK:
+            return SolutionInterfaceDask(interface)
+        case CalcEngine.PYSPARK:
+            return SolutionInterfacePySpark(interface)
+        case CalcEngine.PYTHON_ONLY:
+            return SolutionInterfacePythonOnly(interface)
+        case CalcEngine.SCALA_SPARK:
+            return SolutionInterfaceScalaSpark(interface)
+        case _:
+            raise ValueError(f"Unknown engine: {engine}")
+
+
+def parse_interface_python(
+        interface: str,
+        engine: CalcEngine,
+) -> SolutionInterfacePython:
+    match engine:
+        case CalcEngine.DASK:
+            return SolutionInterfaceDask(interface)
+        case CalcEngine.PYSPARK:
+            return SolutionInterfacePySpark(interface)
+        case CalcEngine.PYTHON_ONLY:
+            return SolutionInterfacePythonOnly(interface)
+        case _:
+            raise ValueError(f"Unknown engine: {engine}")
+
 
 @dataclass(frozen=True)
-class ChallengeMethodRegistrationBase(ABC):
+class ChallengeMethodRegistrationBase(Generic[TSolutionInterface, TChallengeMethodDelegate]):
+    # for ChallengeMethodRegistrationBase
     strategy_name_2018: str | None
     strategy_name: str
     language: SolutionLanguage
     engine: CalcEngine
-    # interface: SolutionInterface
+    interface: TSolutionInterface
     requires_gpu: bool
-    # delegate: Callable | None
-
-    @property
-    @abstractmethod
-    def delegate_getter(self) -> Callable | None:
-        pass
-
-    @property
-    @abstractmethod
-    def interface_getter(self) -> SolutionInterface:
-        pass
+    delegate: TChallengeMethodDelegate
 
 
 def count_iter(
@@ -81,28 +147,74 @@ def count_iter(
     return count
 
 
-@dataclass(frozen=True)
-class PersistedRunResultBase:
-    strategy_name: str
-    language: str
-    engine: CalcEngine
-    strategy_w_language_name: str
-    interface: str
-    num_data_points: int
-    elapsed_time: float
-    record_count: int
+class DataSetDescriptionBase(ABC):
+    debugging_only: bool
+    num_source_rows: int
+    size_code: str
+
+    def __init__(
+            self,
+            *,
+            debugging_only: bool,
+            num_source_rows: int,
+            size_code: str,
+    ):
+        self.debugging_only = debugging_only
+        self.num_source_rows = num_source_rows
+        self.size_code = size_code
+
+    @classmethod
+    def regressor_field_name(cls) -> str:
+        raise NotImplementedError()
+
+    @property
+    def regressor_value(self) -> int:
+        value = getattr(self, self.regressor_field_name())
+        assert isinstance(value, int)
+        return value
 
 
 @dataclass(frozen=True)
 class RunResultBase:
-    engine: CalcEngine
-    num_data_points: int
-    # relative_cardinality: int
+    num_source_rows: int
     elapsed_time: float
-    record_count: int
+    num_output_rows: int
+    finished_at: str | None
 
 
-class PersistedRunResultLog(ABC):
+@dataclass(frozen=True)
+class PersistedRunResultBase(Generic[TSolutionInterface], RunResultBase):
+    # for RunResultBase
+    num_source_rows: int
+    elapsed_time: float
+    num_output_rows: int
+    finished_at: str | None
+    # for PersistedRunResultBase
+    language: SolutionLanguage
+    engine: CalcEngine
+    interface: TSolutionInterface
+    strategy_name: str
+
+
+TPersistedRunResult = TypeVar('TPersistedRunResult', bound=PersistedRunResultBase)
+
+
+@dataclass(frozen=True)
+class SummarizedPerformanceOfMethodAtDataSize:
+    challenge: Challenge
+    strategy_name: str
+    language: str
+    engine: str
+    interface: str
+    regressor: int
+    number_of_runs: int
+    elapsed_time_avg: float
+    elapsed_time_std: float
+    elapsed_time_rl: float
+    elapsed_time_rh: float
+
+
+class PersistedRunResultLog(Generic[TPersistedRunResult], ABC):
     engine: CalcEngine
     language: SolutionLanguage
 
@@ -115,7 +227,7 @@ class PersistedRunResultLog(ABC):
         self.language = language
 
     @abstractmethod
-    def derive_run_log_file_path_for_reading(self) -> str | None:
+    def derive_run_log_file_path(self) -> str | None:
         pass
 
     @abstractmethod
@@ -125,24 +237,23 @@ class PersistedRunResultLog(ABC):
             line: str,
             last_header_line: list[str],
             fields: list[str],
-    ) -> PersistedRunResultBase | None:
+    ) -> TPersistedRunResult | None:
         pass
 
     @abstractmethod
     def result_looks_valid(
             self,
-            result: PersistedRunResultBase,
+            result: TPersistedRunResult,
     ) -> bool:
         pass
 
     def read_run_result_file(
             self,
-    ) -> list[PersistedRunResultBase]:
-        log_file_path = self.derive_run_log_file_path_for_reading()
-        # language = engine_implied_language(engine)
+    ) -> list[TPersistedRunResult]:
+        log_file_path = self.derive_run_log_file_path()
         if log_file_path is None or not os.path.exists(log_file_path):
             return []
-        test_runs: list[PersistedRunResultBase] = []
+        test_runs: list[TPersistedRunResult] = []
         last_header_line: list[str] | None = None
         with open(log_file_path, 'r') as f:
             for i_line, line in enumerate(f):
@@ -170,37 +281,135 @@ class PersistedRunResultLog(ABC):
                 test_runs.append(result)
         return test_runs
 
+    def structure_test_results(
+            self,
+            *,
+            challenge_method_list: Sequence[ChallengeMethodRegistrationBase],
+            expected_sizes: list[int],
+            test_runs: list[TPersistedRunResult],
+            regressor_from_run_result: Callable[[TPersistedRunResult], int],
+    ) -> dict[str, dict[int, list[TPersistedRunResult]]]:
+        strategy_names = (
+            {x.strategy_name for x in challenge_method_list}
+            .union([x.strategy_name for x in test_runs]))
+        test_x_values = set(expected_sizes).union([regressor_from_run_result(x) for x in test_runs])
+        test_results_by_strategy_name_by_data_size = {method: {x: []
+                                                               for x in test_x_values} for method in strategy_names}
+        for result in test_runs:
+            x_value = regressor_from_run_result(result)
+            test_results_by_strategy_name_by_data_size[result.strategy_name][x_value].append(result)
+        return test_results_by_strategy_name_by_data_size
 
-class RunResultFileWriterBase(ABC):
+    def do_regression(
+            self,
+            *,
+            challenge: Challenge,
+            engine: CalcEngine,
+            challenge_method_list: Sequence[ChallengeMethodRegistrationBase],
+            test_results_by_strategy_name_by_data_size: dict[str, dict[int, list[TPersistedRunResult]]],
+    ) -> list[SummarizedPerformanceOfMethodAtDataSize]:
+        confidence = 0.95
+        challenge_method_list = sorted(
+            challenge_method_list,
+            key=lambda x: (x.language, x.interface, x.strategy_name))
+        challenge_method_by_strategy_name = ({
+            x.strategy_name: x for x in challenge_method_list
+        } | {
+            x.strategy_name_2018: x for x in challenge_method_list
+            if x.strategy_name_2018 is not None
+        })
+
+        rows: list[SummarizedPerformanceOfMethodAtDataSize] = []
+        for strategy_name in test_results_by_strategy_name_by_data_size:
+            print("Looking to analyze %s" % strategy_name)
+            method = challenge_method_by_strategy_name[strategy_name]
+            for regressor_value in test_results_by_strategy_name_by_data_size[strategy_name]:
+                runs = test_results_by_strategy_name_by_data_size[strategy_name][regressor_value]
+                ar: numpy.ndarray[float, numpy.dtype[numpy.float64]] \
+                    = numpy.asarray([x.elapsed_time for x in runs], dtype=float)
+                numRuns = len(runs)
+                mean = numpy.mean(ar).item()
+                stdev = numpy.std(ar, ddof=1).item()
+                rl, rh = (
+                    scipy.stats.norm.interval(
+                        confidence, loc=mean, scale=stdev / math.sqrt(numRuns))
+                    if numRuns > 1 else
+                    (math.nan, math.nan)
+                )
+                rows.append(SummarizedPerformanceOfMethodAtDataSize(
+                    challenge=challenge,
+                    strategy_name=strategy_name,
+                    language=method.language,
+                    engine=engine,
+                    interface=method.interface,
+                    regressor=regressor_value,
+                    number_of_runs=numRuns,
+                    elapsed_time_avg=mean,
+                    elapsed_time_std=stdev,
+                    elapsed_time_rl=rl,
+                    elapsed_time_rh=rh,
+                ))
+        return rows
+
+    @staticmethod
+    def print_summary(
+            rows: list[SummarizedPerformanceOfMethodAtDataSize],
+            file_report_file_path: str,
+    ):
+        df = pd.DataFrame([x.__dict__ for x in rows])
+        df = df.sort_values(by=['challenge', 'strategy_name', 'language', 'regressor'])
+        print(df)
+        df.to_csv(file_report_file_path, index=False)
+
+
+class RunResultFileWriterBase(Generic[TSolutionInterface], ABC):
     file: TextIO
-    engine: CalcEngine
     language: SolutionLanguage
+    engine: CalcEngine
+    persisted_row_type: type
 
     def __init__(
             self,
             *,
             file_name: str,
+            language: SolutionLanguage,
             engine: CalcEngine,
-            language: SolutionLanguage
+            persisted_row_type: type
     ):
         self.file = open(file_name, mode='at+')
-        self.engine = engine
         self.language = language
+        self.engine = engine
+        self.persisted_row_type = persisted_row_type
         self.write_header()
 
-    @abstractmethod
     def write_header(
             self,
     ) -> None:
-        pass
+        header = ' '+','.join(sorted(
+            [x.name for x in dataclass_fields(self.persisted_row_type)]
+        ))+','
+        print(header, file=self.file)
+        self.file.flush()
 
     @abstractmethod
     def write_run_result(
             self,
             challenge_method_registration: ChallengeMethodRegistrationBase,
-            result: RunResultBase,
+            run_result: RunResultBase,
     ) -> None:
-        pass
+        ...
+
+    def _persist_run_result(
+            self,
+            persisted_result_row: PersistedRunResultBase[TSolutionInterface],
+    ) -> None:
+        dict_result = asdict(persisted_result_row)
+        line = ','.join(
+            str(getattr(persisted_result_row, field_name))
+            for field_name in sorted(dict_result)
+        )+','
+        print(line, file=self.file)
+        self.file.flush()
 
     def close(self):
         self.file.flush()

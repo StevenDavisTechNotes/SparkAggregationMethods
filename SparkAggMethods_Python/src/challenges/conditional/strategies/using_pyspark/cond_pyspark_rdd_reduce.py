@@ -5,9 +5,11 @@ from pyspark import RDD
 from pyspark.sql import Row
 
 from src.challenges.conditional.conditional_test_data_types import SubTotal
-from src.six_field_test_data.six_generate_test_data import DataSetPyspark, TChallengePendingAnswerPythonPyspark
+from src.six_field_test_data.six_generate_test_data import (
+    SixFieldDataSetPyspark, TSixFieldChallengePendingAnswerPythonPyspark,
+)
 from src.six_field_test_data.six_generate_test_data.six_test_data_for_pyspark import pick_agg_tgt_num_partitions_pyspark
-from src.six_field_test_data.six_test_data_types import Challenge, DataPointNT, ExecutionParameters
+from src.six_field_test_data.six_test_data_types import Challenge, DataPointNT, SixTestExecutionParameters
 from src.utils.tidy_spark_session import TidySparkSession
 
 CHALLENGE = Challenge.CONDITIONAL
@@ -15,9 +17,9 @@ CHALLENGE = Challenge.CONDITIONAL
 
 def cond_pyspark_rdd_reduce(
         spark_session: TidySparkSession,
-        exec_params: ExecutionParameters,
-        data_set: DataSetPyspark,
-) -> TChallengePendingAnswerPythonPyspark:
+        exec_params: SixTestExecutionParameters,
+        data_set: SixFieldDataSetPyspark,
+) -> TSixFieldChallengePendingAnswerPythonPyspark:
     agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(data_set.data, CHALLENGE)
 
     rddResult = cast(

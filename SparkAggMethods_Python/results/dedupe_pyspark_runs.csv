@@ -1,11 +1,9 @@
 # 2023-07-18
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
+ status,strategy_name,interface,num_sources,num_source_rows,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
 success,dedupe_pandas,pandas,2,1020,3,1000,7.361911773681641,1000,FALSE,TRUE,pyspark,2023-07-19T21:33:56.669725
 success,dedupe_pandas,pandas,3,2020,3,1000,11.87335205078125,1000,FALSE,TRUE,pyspark,2023-07-19T21:34:08.747876
 success,dedupe_pandas,pandas,6,5020,4,1000,43.11310529708862,1000,FALSE,TRUE,pyspark,2023-07-19T21:34:52.056985
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
+ status,strategy_name,interface,num_sources,num_source_rows,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
 success,dedupe_pandas,pandas,2,11,1,10,6.205129623413086,10,FALSE,TRUE,pyspark,2023-07-19T21:35:50.693410
 success,dedupe_pandas,pandas,3,21,1,10,5.947879076004028,10,FALSE,TRUE,pyspark,2023-07-19T21:35:56.781287
 success,dedupe_pandas,pandas,6,51,2,10,8.333061933517456,10,FALSE,TRUE,pyspark,2023-07-19T21:36:05.271537
@@ -18,7 +16,7 @@ success,dedupe_pandas,pandas,6,5020,4,1000,43.21083164215088,1000,FALSE,TRUE,pys
 success,dedupe_pandas,pandas,2,10200,4,10000,26.327037811279297,10000,FALSE,TRUE,pyspark,2023-07-19T21:37:53.981163
 success,dedupe_pandas,pandas,3,20200,4,10000,440.28564453125,10000,FALSE,TRUE,pyspark,2023-07-19T21:45:14.691199
 success,dedupe_pandas,pandas,6,50200,5,10000,3497.8098118305206,10000,FALSE,TRUE,pyspark,2023-07-19T22:43:32.923359
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
+ status,strategy_name,interface,num_sources,num_source_rows,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
 success,dedupe_pandas,pandas,2,11,1,10,6.579393148422241,10,FALSE,TRUE,pyspark,2023-07-20T06:03:11.904760
 success,dedupe_pandas,pandas,3,21,1,10,6.48085618019104,10,FALSE,TRUE,pyspark,2023-07-20T06:03:18.525578
 success,dedupe_pandas,pandas,6,51,2,10,8.392466068267822,10,FALSE,TRUE,pyspark,2023-07-20T06:03:27.053378
@@ -51,41 +49,34 @@ success,dedupe_fluent_nested_withCol,fluent,3,202,2,100,1.7358314990997314,100,F
 success,dedupe_fluent_nested_withCol,fluent,6,502,3,100,1.749765396118164,100,FALSE,TRUE,pyspark,2023-07-20T07:19:45.811718
 success,dedupe_fluent_nested_withCol,fluent,2,1020,3,1000,1.7735223770141602,1000,FALSE,TRUE,pyspark,2023-07-20T07:19:47.744680
 success,dedupe_fluent_nested_withCol,fluent,3,2020,3,1000,7.562493085861206,1000,FALSE,TRUE,pyspark,2023-07-20T07:19:55.468103
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
+ status,strategy_name,interface,num_sources,num_source_rows,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
 success,dedupe_fluent_nested_withCol,fluent,2,102,2,100,2.592069149017334,100,FALSE,TRUE,pyspark,2023-07-20T07:47:40.092615
 success,dedupe_fluent_nested_withCol,fluent,3,202,2,100,2.0064661502838135,100,FALSE,TRUE,pyspark,2023-07-20T07:47:42.240634
 success,dedupe_fluent_nested_withCol,fluent,6,502,3,100,1.970632791519165,100,FALSE,TRUE,pyspark,2023-07-20T07:47:44.349565
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
+ status,strategy_name,interface,num_sources,num_source_rows,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
 success,dedupe_fluent_nested_withCol,fluent,2,102,2,100,2.591656446456909,100,FALSE,TRUE,pyspark,2023-07-20T10:42:25.909400
 success,dedupe_fluent_nested_withCol,fluent,3,202,2,100,1.9257078170776367,100,FALSE,TRUE,pyspark,2023-07-20T10:42:27.960320
 success,dedupe_fluent_nested_withCol,fluent,6,502,3,100,2.0000431537628174,100,FALSE,TRUE,pyspark,2023-07-20T10:42:30.085605
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
+ status,strategy_name,interface,num_sources,num_source_rows,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
 success,dedupe_fluent_nested_withCol,fluent,2,102,2,100,2.466352939605713,100,FALSE,TRUE,pyspark,2023-07-20T10:48:47.943164
 success,dedupe_fluent_nested_withCol,fluent,3,202,2,100,1.9733319282531738,100,FALSE,TRUE,pyspark,2023-07-20T10:48:50.045445
 success,dedupe_fluent_nested_withCol,fluent,6,502,3,100,1.998715877532959,100,FALSE,TRUE,pyspark,2023-07-20T10:48:52.165650
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
+ status,strategy_name,interface,num_sources,num_source_rows,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
 success,dedupe_fluent_nested_withCol,fluent,2,102,2,100,2.4581544399261475,100,FALSE,TRUE,pyspark,2023-07-20T10:50:33.320204
 success,dedupe_fluent_nested_withCol,fluent,3,202,2,100,1.9106740951538086,100,FALSE,TRUE,pyspark,2023-07-20T10:50:35.349972
 success,dedupe_fluent_nested_withCol,fluent,6,502,3,100,1.9349238872528076,100,FALSE,TRUE,pyspark,2023-07-20T10:50:37.410619
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
+ status,strategy_name,interface,num_sources,num_source_rows,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
 success,dedupe_fluent_nested_withCol,fluent,2,102,2,100,2.42440128326416,100,FALSE,TRUE,pyspark,2023-07-20T10:53:39.770159
 success,dedupe_fluent_nested_withCol,fluent,3,202,2,100,1.8934473991394043,100,FALSE,TRUE,pyspark,2023-07-20T10:53:41.795033
 success,dedupe_fluent_nested_withCol,fluent,6,502,3,100,1.9278769493103027,100,FALSE,TRUE,pyspark,2023-07-20T10:53:43.848354
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
+ status,strategy_name,interface,num_sources,num_source_rows,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
 success,dedupe_fluent_nested_withCol,fluent,2,1020,3,1000,2.6267480850219727,1000,FALSE,TRUE,pyspark,2023-07-20T10:59:42.286031
 success,dedupe_fluent_nested_withCol,fluent,3,2020,3,1000,7.666298866271973,1000,FALSE,TRUE,pyspark,2023-07-20T10:59:50.097304
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
+ status,strategy_name,interface,num_sources,num_source_rows,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
 success,dedupe_fluent_nested_withCol,fluent,2,11,1,10,30.417622566223145,10,FALSE,TRUE,pyspark,2023-07-20T21:17:56.383899
 success,dedupe_fluent_nested_withCol,fluent,3,21,1,10,21.834140062332153,10,FALSE,TRUE,pyspark,2023-07-20T21:18:18.357382
 success,dedupe_fluent_nested_withCol,fluent,6,51,2,10,22.01309823989868,10,FALSE,TRUE,pyspark,2023-07-20T21:18:40.509468
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
+ status,strategy_name,interface,num_sources,num_source_rows,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
 success,dedupe_pandas,pandas,2,10200,4,10000,26.902926206588745,10000,FALSE,TRUE,pyspark,2023-07-20T21:19:48.076785
 success,dedupe_pandas,pandas,3,20200,4,10000,407.8847625255585,10000,FALSE,TRUE,pyspark,2023-07-20T21:26:36.376902
 success,dedupe_pandas,pandas,6,50200,5,10000,3084.181872844696,10000,FALSE,TRUE,pyspark,2023-07-20T22:18:01.023449
@@ -93,7 +84,7 @@ success,dedupe_fluent_nested_python,fluent,2,10200,4,10000,7.978799819946289,100
 success,dedupe_fluent_nested_python,fluent,3,20200,4,10000,91.2423210144043,10000,FALSE,TRUE,pyspark,2023-07-20T22:19:41.159211
 success,dedupe_fluent_nested_python,fluent,6,50200,5,10000,281.3760898113251,10000,FALSE,TRUE,pyspark,2023-07-20T22:24:22.924104
 success,dedupe_fluent_nested_withCol,fluent,2,10200,4,10000,22.890111684799194,10000,FALSE,TRUE,pyspark,2023-07-20T22:24:46.217465
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
+ status,strategy_name,interface,num_sources,num_source_rows,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
 success,dedupe_pandas,pandas,2,10200,4,10000,31.19897747039795,10000,FALSE,TRUE,pyspark,2023-07-21T08:01:27.496713
 success,dedupe_pandas,pandas,3,20200,4,10000,381.6599440574646,10000,FALSE,TRUE,pyspark,2023-07-21T08:07:49.565997
 success,dedupe_pandas,pandas,6,50200,5,10000,3048.087548494339,10000,FALSE,TRUE,pyspark,2023-07-21T08:58:38.055722
@@ -101,21 +92,21 @@ success,dedupe_fluent_nested_python,fluent,2,10200,4,10000,9.70890188217163,1000
 success,dedupe_fluent_nested_python,fluent,3,20200,4,10000,85.07015895843506,10000,FALSE,TRUE,pyspark,2023-07-21T09:00:13.628049
 success,dedupe_fluent_nested_python,fluent,6,50200,5,10000,300.5468056201935,10000,FALSE,TRUE,pyspark,2023-07-21T09:05:14.571560
 success,dedupe_fluent_nested_withCol,fluent,2,10200,4,10000,33.978445529937744,10000,FALSE,TRUE,pyspark,2023-07-21T09:05:48.949774
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
+ status,strategy_name,interface,num_sources,num_source_rows,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
 success,dedupe_fluent_nested_withCol,fluent,2,1020,3,1000,24.436503410339355,1000,FALSE,TRUE,pyspark,2023-07-21T13:18:50.860762
 success,dedupe_fluent_nested_withCol,fluent,3,2020,3,1000,23.77716851234436,1000,FALSE,TRUE,pyspark,2023-07-21T13:19:14.808001
 success,dedupe_fluent_nested_withCol,fluent,6,5020,4,1000,23.636062383651733,1000,FALSE,TRUE,pyspark,2023-07-21T13:19:38.610229
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
+ status,strategy_name,interface,num_sources,num_source_rows,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
 success,dedupe_fluent_nested_withCol,fluent,2,10200,4,10000,159.01347422599792,10000,FALSE,TRUE,pyspark,2023-07-21T13:23:17.078860
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
+ status,strategy_name,interface,num_sources,num_source_rows,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
 success,dedupe_pandas,pandas,2,10200,4,10000,39.57620596885681,10000,FALSE,TRUE,pyspark,2023-07-21T18:28:28.103886
 success,dedupe_pandas,pandas,3,20200,4,10000,350.04468631744385,10000,FALSE,TRUE,pyspark,2023-07-21T18:34:18.568150
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
+ status,strategy_name,interface,num_sources,num_source_rows,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
+ status,strategy_name,interface,num_sources,num_source_rows,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
 success,dedupe_fluent_windows,fluent,2,10200,4,10000,328.1262128353119,10000,FALSE,TRUE,pyspark,2023-07-21T19:06:46.909017
 success,dedupe_fluent_windows,fluent,3,20200,4,10000,1265.5389742851257,10000,FALSE,TRUE,pyspark,2023-07-21T19:27:52.720976
 success,dedupe_fluent_windows,fluent,6,50200,5,10000,7499.370779037476,10000,FALSE,TRUE,pyspark,2023-07-21T21:32:52.390380
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
+ status,strategy_name,interface,num_sources,num_source_rows,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
 success,dedupe_rdd_groupby,rdd,2,10200,4,10000,8.410318851470947,10000,FALSE,TRUE,pyspark,2023-07-21T22:00:39.073427
 success,dedupe_rdd_groupby,rdd,3,20200,4,10000,85.28780841827393,10000,FALSE,TRUE,pyspark,2023-07-21T22:02:04.604558
 success,dedupe_rdd_groupby,rdd,6,50200,5,10000,320.8790669441223,10000,FALSE,TRUE,pyspark,2023-07-21T22:07:25.733978
@@ -125,107 +116,25 @@ success,dedupe_rdd_mappart,rdd,6,50200,5,10000,391.8616464138031,10000,FALSE,TRU
 success,dedupe_rdd_reduce,rdd,2,10200,4,10000,6.270786285400391,10000,FALSE,TRUE,pyspark,2023-07-21T22:17:58.902379
 success,dedupe_rdd_reduce,rdd,3,20200,4,10000,80.40801858901978,10000,FALSE,TRUE,pyspark,2023-07-21T22:19:19.574352
 success,dedupe_rdd_reduce,rdd,6,50200,5,10000,313.51819109916687,10000,FALSE,TRUE,pyspark,2023-07-21T22:24:33.355336
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
-success,dedupe_pandas,pandas,2,2,0,1,4.316376209259033,1,FALSE,TRUE,pyspark,2023-07-22T08:56:55.436449
-success,dedupe_pandas,pandas,3,3,0,1,3.6640031337738037,1,FALSE,TRUE,pyspark,2023-07-22T08:56:59.224464
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
-success,dedupe_pandas,pandas,2,2,0,1,3.870070457458496,1,FALSE,TRUE,pyspark,2023-07-22T09:23:33.627655
-success,dedupe_pandas,pandas,3,3,0,1,3.699968099594116,1,FALSE,TRUE,pyspark,2023-07-22T09:23:37.472806
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
-success,dedupe_pandas,pandas,2,2,0,1,3.524850368499756,1,FALSE,TRUE,pyspark,2023-07-22T09:49:18.898756
-success,dedupe_pandas,pandas,3,3,0,1,3.795905828475952,1,FALSE,TRUE,pyspark,2023-07-22T09:49:30.962791
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
-success,dedupe_pandas,pandas,2,2,0,1,3.6148533821105957,1,FALSE,TRUE,pyspark,2023-07-22T09:56:21.254769
-success,dedupe_pandas,pandas,3,3,0,1,3.7858119010925293,1,FALSE,TRUE,pyspark,2023-07-22T09:56:25.176541
-success,dedupe_pandas,pandas,2,3,0,2,3.3978469371795654,2,FALSE,TRUE,pyspark,2023-07-22T09:56:28.710638
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
-success,dedupe_pandas,pandas,2,2,0,1,3.6841201782226562,1,FALSE,TRUE,pyspark,2023-07-22T10:02:59.130788
-success,dedupe_pandas,pandas,3,3,0,1,3.7289369106292725,1,FALSE,TRUE,pyspark,2023-07-22T10:04:24.128465
-success,dedupe_pandas,pandas,2,3,0,2,3.354219436645508,2,FALSE,TRUE,pyspark,2023-07-22T10:04:32.574878
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
-success,dedupe_pandas,pandas,2,2,0,1,3.5871872901916504,1,FALSE,TRUE,pyspark,2023-07-22T10:06:08.049614
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
-success,dedupe_pandas,pandas,2,2,0,1,3.3437204360961914,1,FALSE,TRUE,pyspark,2023-07-22T11:04:15.661698
-success,dedupe_pandas,pandas,3,3,0,1,3.478529214859009,1,FALSE,TRUE,pyspark,2023-07-22T11:04:23.505214
-success,dedupe_pandas,pandas,6,6,1,1,5.755805730819702,1,FALSE,TRUE,pyspark,2023-07-22T11:04:33.770057
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
-success,dedupe_pandas,pandas,2,2,0,1,17.80075430870056,1,FALSE,TRUE,pyspark,2023-07-22T11:06:32.872768
-success,dedupe_pandas,pandas,3,3,0,1,3.4738011360168457,1,FALSE,TRUE,pyspark,2023-07-22T11:06:42.244370
-success,dedupe_pandas,pandas,6,6,1,1,5.756753206253052,1,FALSE,TRUE,pyspark,2023-07-22T11:06:50.972174
-success,dedupe_fluent_nested_withCol,fluent,2,2,0,1,22.23240828514099,1,FALSE,TRUE,pyspark,2023-07-22T11:07:17.746891
-success,dedupe_fluent_nested_withCol,fluent,3,3,0,1,21.347310781478882,1,FALSE,TRUE,pyspark,2023-07-22T11:07:42.823982
-success,dedupe_fluent_nested_withCol,fluent,6,6,1,1,21.499983072280884,1,FALSE,TRUE,pyspark,2023-07-22T11:08:13.652970
 # 2023-07-22
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
+ status,strategy_name,interface,num_sources,num_source_rows,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
 success,dedupe_pandas,pandas,6,50200,5,10000,3291.272482395172,10000,FALSE,TRUE,pyspark,2023-07-22T12:10:05.215347
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
+ status,strategy_name,interface,num_sources,num_source_rows,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
 success,dedupe_fluent_nested_python,fluent,6,50200,5,10000,311.1252522468567,10000,FALSE,TRUE,pyspark,2023-07-22T12:29:57.618481
 success,dedupe_fluent_windows,fluent,6,50200,5,10000,7571.451246023178,10000,FALSE,TRUE,pyspark,2023-07-22T14:36:09.333267
 success,dedupe_rdd_groupby,rdd,6,50200,5,10000,317.1746883392334,10000,FALSE,TRUE,pyspark,2023-07-22T14:41:26.810894
 success,dedupe_rdd_mappart,rdd,6,50200,5,10000,411.6769952774048,10000,FALSE,TRUE,pyspark,2023-07-22T14:48:18.760065
 success,dedupe_rdd_reduce,rdd,6,50200,5,10000,334.8340630531311,10000,FALSE,TRUE,pyspark,2023-07-22T14:53:53.863167
 # 2023-09-03
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
+ status,strategy_name,interface,num_sources,num_source_rows,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
+ status,strategy_name,interface,num_sources,num_source_rows,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
 success,dedupe_pandas,pandas,6,50200,5,10000,3658.6085538864136,10000,FALSE,TRUE,pyspark,2023-09-03T22:24:48.603779
 success,dedupe_fluent_nested_python,fluent,6,50200,5,10000,345.26695132255554,10000,FALSE,TRUE,pyspark,2023-09-03T22:30:34.182668
 success,dedupe_fluent_windows,fluent,6,50200,5,10000,7211.760504722595,10000,FALSE,TRUE,pyspark,2023-09-04T00:30:46.233276
 success,dedupe_rdd_groupby,rdd,6,50200,5,10000,334.7028331756592,10000,FALSE,TRUE,pyspark,2023-09-04T00:36:21.212857
 success,dedupe_rdd_mappart,rdd,6,50200,5,10000,407.6830003261566,10000,FALSE,TRUE,pyspark,2023-09-04T00:43:09.177864
 success,dedupe_rdd_reduce,rdd,6,50200,5,10000,325.53313398361206,10000,FALSE,TRUE,pyspark,2023-09-04T00:48:34.994596
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
-success,dedupe_pandas,pandas,2,2,0,1,4.333016395568848,1,FALSE,TRUE,pyspark,2023-12-25T15:11:10.331856
-success,dedupe_fluent_nested_python,fluent,2,2,0,1,7.081915855407715,1,FALSE,TRUE,pyspark,2023-12-25T15:11:17.538571
-success,dedupe_fluent_nested_withCol,fluent,2,2,0,1,25.707415342330933,1,FALSE,TRUE,pyspark,2023-12-25T15:11:43.370904
-success,dedupe_fluent_windows,fluent,2,2,0,1,14.723369836807251,1,FALSE,TRUE,pyspark,2023-12-25T15:11:58.225437
-success,dedupe_rdd_groupby,rdd,2,2,0,1,7.361128091812134,1,FALSE,TRUE,pyspark,2023-12-25T15:12:05.720128
-success,dedupe_rdd_mappart,rdd,2,2,0,1,7.319827556610107,1,FALSE,TRUE,pyspark,2023-12-25T15:12:13.164007
-success,dedupe_rdd_reduce,rdd,2,2,0,1,7.331759691238403,1,FALSE,TRUE,pyspark,2023-12-25T15:12:20.621529
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
-success,dedupe_pandas,pandas,2,2,0,1,3.435338258743286,1,FALSE,TRUE,pyspark,2023-12-30T11:18:52.580279
-success,dedupe_fluent_nested_python,fluent,2,2,0,1,6.733180522918701,1,FALSE,TRUE,pyspark,2023-12-30T11:18:59.436248
-success,dedupe_fluent_nested_withCol,fluent,2,2,0,1,25.406729698181152,1,FALSE,TRUE,pyspark,2023-12-30T11:19:24.960744
-success,dedupe_fluent_windows,fluent,2,2,0,1,14.395800352096558,1,FALSE,TRUE,pyspark,2023-12-30T11:19:39.482492
-success,dedupe_rdd_groupby,rdd,2,2,0,1,7.138030529022217,1,FALSE,TRUE,pyspark,2023-12-30T11:19:46.749353
-success,dedupe_rdd_mappart,rdd,2,2,0,1,7.2217857837677,1,FALSE,TRUE,pyspark,2023-12-30T11:19:54.096442
-success,dedupe_rdd_reduce,rdd,2,2,0,1,7.230281114578247,1,FALSE,TRUE,pyspark,2023-12-30T11:20:01.453646
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
-success,dedupe_pandas,pandas,2,2,0,1,3.6364667415618896,1,FALSE,TRUE,pyspark,2023-12-30T11:55:02.989381
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
-success,dedupe_pyspark_df_nested_pandas,pandas,2,2,0,1,3.3951058387756348,1,FALSE,TRUE,pyspark,2024-01-07T16:15:26.098393
-success,dedupe_pyspark_df_nested_python,fluent,2,2,0,1,7.667065620422363,1,FALSE,TRUE,pyspark,2024-01-07T16:15:33.895622
-success,dedupe_pyspark_df_nested_w_col,fluent,2,2,0,1,30.081928968429565,1,FALSE,TRUE,pyspark,2024-01-07T16:16:04.108155
-success,dedupe_pyspark_df_window,fluent,2,2,0,1,15.792253494262695,1,FALSE,TRUE,pyspark,2024-01-07T16:16:20.031797
-success,dedupe_pyspark_rdd_grp,rdd,2,2,0,1,8.36967396736145,1,FALSE,TRUE,pyspark,2024-01-07T16:16:28.539036
-success,dedupe_pyspark_rdd_map_part,rdd,2,2,0,1,8.108246326446533,1,FALSE,TRUE,pyspark,2024-01-07T16:16:36.776749
-success,dedupe_pyspark_rdd_reduce,rdd,2,2,0,1,7.8595287799835205,1,FALSE,TRUE,pyspark,2024-01-07T16:16:44.767454
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
-success,dedupe_pyspark_df_nested_pandas,pandas,2,2,0,1,3.6926164627075195,1,FALSE,TRUE,pyspark,2024-06-29T23:29:17.665350
-success,dedupe_pyspark_df_nested_python,fluent,2,2,0,1,8.379684686660767,1,FALSE,TRUE,pyspark,2024-06-29T23:29:26.194177
-success,dedupe_pyspark_df_nested_w_col,fluent,2,2,0,1,31.82647967338562,1,FALSE,TRUE,pyspark,2024-06-29T23:29:58.167155
-success,dedupe_pyspark_df_window,fluent,2,2,0,1,17.941146850585938,1,FALSE,TRUE,pyspark,2024-06-29T23:30:16.254004
-success,dedupe_pyspark_rdd_grp,rdd,2,2,0,1,8.535406351089478,1,FALSE,TRUE,pyspark,2024-06-29T23:30:24.932490
-success,dedupe_pyspark_rdd_map_part,rdd,2,2,0,1,8.895249843597412,1,FALSE,TRUE,pyspark,2024-06-29T23:30:33.972595
-success,dedupe_pyspark_rdd_reduce,rdd,2,2,0,1,9.371909618377686,1,FALSE,TRUE,pyspark,2024-06-29T23:30:43.504934
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,engine,finished_at
-success,dedupe_pyspark_df_nested_pandas,pandas,2,2,0,1,3.235645055770874,1,FALSE,TRUE,pyspark,2024-06-29T23:48:32.191672
-success,dedupe_pyspark_df_nested_python,fluent,2,2,0,1,7.761926651000977,1,FALSE,TRUE,pyspark,2024-06-29T23:48:40.094565
-success,dedupe_pyspark_df_nested_w_col,fluent,2,2,0,1,29.946941137313843,1,FALSE,TRUE,pyspark,2024-06-29T23:49:10.178132
-success,dedupe_pyspark_df_window,fluent,2,2,0,1,16.648404598236084,1,FALSE,TRUE,pyspark,2024-06-29T23:49:26.962717
-success,dedupe_pyspark_rdd_grp,rdd,2,2,0,1,8.43975043296814,1,FALSE,TRUE,pyspark,2024-06-29T23:49:35.546179
-success,dedupe_pyspark_rdd_map_part,rdd,2,2,0,1,8.50407338142395,1,FALSE,TRUE,pyspark,2024-06-29T23:49:44.184861
-success,dedupe_pyspark_rdd_reduce,rdd,2,2,0,1,8.52354383468628,1,FALSE,TRUE,pyspark,2024-06-29T23:49:52.845533
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,finished_at
-success,dedupe_pyspark_df_nested_pandas,pandas,2,2,0,1,6.445836782455444,1,FALSE,TRUE,2024-10-08T21:13:43.894253
-success,dedupe_pyspark_df_nested_python,fluent,2,2,0,1,11.1532301902771,1,FALSE,TRUE,2024-10-08T21:13:55.189699
-success,dedupe_pyspark_df_nested_w_col,fluent,2,2,0,1,40.822720766067505,1,FALSE,TRUE,2024-10-08T21:14:36.161071
-success,dedupe_pyspark_df_window,fluent,2,2,0,1,23.792535305023193,1,FALSE,TRUE,2024-10-08T21:15:00.101291
-success,dedupe_pyspark_rdd_grp,rdd,2,2,0,1,12.005391120910645,1,FALSE,TRUE,2024-10-08T21:15:12.253376
-success,dedupe_pyspark_rdd_map_part,rdd,2,2,0,1,12.67812705039978,1,FALSE,TRUE,2024-10-08T21:15:25.069615
-success,dedupe_pyspark_rdd_reduce,rdd,2,2,0,1,12.654791355133057,1,FALSE,TRUE,2024-10-08T21:15:37.872154
- result,strategy,interface,num_sources,num_data_points,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,finished_at
+ status,strategy_name,interface,num_sources,num_source_rows,data_size_exponent,num_people_actual,elapsed_time,num_people_found,in_cloud_mode,can_assume_no_duplicates_per_partition,finished_at
 success,dedupe_pyspark_df_window,fluent,3,202,2,100,19.814901113510132,100,FALSE,TRUE,2024-10-08T22:22:45.057534
 success,dedupe_pyspark_rdd_reduce,rdd,3,21,1,10,9.045623302459717,10,FALSE,TRUE,2024-10-08T22:22:54.218941
 success,dedupe_pyspark_df_window,fluent,2,102,2,100,17.068132638931274,100,FALSE,TRUE,2024-10-08T22:23:11.402929

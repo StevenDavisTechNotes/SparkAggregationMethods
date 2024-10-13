@@ -3,37 +3,35 @@ import os
 import pyspark.sql.types as DataTypes
 from pyspark import RDD
 
-from src.challenges.sectional.domain_logic.section_data_parsers import (
-    parse_line_to_row, row_to_student_summary)
-from src.challenges.sectional.section_generate_test_data import \
-    TEST_DATA_FILE_LOCATION
+from src.challenges.sectional.domain_logic.section_data_parsers import parse_line_to_row, row_to_student_summary
+from src.challenges.sectional.section_generate_test_data import TEST_DATA_FILE_LOCATION
 from src.challenges.sectional.section_test_data_types import (
-    DataSet, SparseLineSchema, StudentSummary, TChallengePythonPysparkAnswer)
-from src.challenges.sectional.using_pyspark.section_pyspark_rdd_prep_shared import \
-    section_pyspark_rdd_prep_shared
+    SectionDataSet, SparseLineSchema, StudentSummary, TChallengePythonPysparkAnswer,
+)
+from src.challenges.sectional.using_pyspark.section_pyspark_rdd_prep_shared import section_pyspark_rdd_prep_shared
 from src.utils.tidy_spark_session import TidySparkSession
 
 
 def section_pyspark_df_prep_grp_csv(
         spark_session: TidySparkSession,
-        data_set: DataSet,
+        data_set: SectionDataSet,
 ) -> TChallengePythonPysparkAnswer:
-    if data_set.data_size.num_students > pow(10, 8-1):
+    if data_set.data_description.num_students > pow(10, 8-1):
         # times out
         return "infeasible"
     spark = spark_session.spark
-    sectionMaximum = data_set.data.section_maximum
-    filename = data_set.data.test_filepath
+    section_maximum = data_set.exec_params.section_maximum
+    filename = data_set.exec_params.source_data_file_path
     SparseLineWithSectionIdLineNoSchema = DataTypes.StructType([
         DataTypes.StructField("SectionId", DataTypes.IntegerType(), True),
         DataTypes.StructField("LineNumber", DataTypes.IntegerType(), True)] +
         SparseLineSchema.fields)
 
-    interFileName = convert_to_row_csv(filename)
+    intermediate_file_nameFileName = convert_to_row_csv(filename)
     df = spark.read.format("csv") \
         .schema(SparseLineWithSectionIdLineNoSchema) \
-        .load(interFileName)
-    df = section_pyspark_rdd_prep_shared(df, sectionMaximum)
+        .load(intermediate_file_nameFileName)
+    df = section_pyspark_rdd_prep_shared(df, section_maximum)
     rdd: RDD[StudentSummary] = (
         df.rdd
         .map(row_to_student_summary)

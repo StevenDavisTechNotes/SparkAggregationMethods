@@ -6,8 +6,7 @@ from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import Row
 
 from src.challenges.deduplication.dedupe_generate_test_data import name_hash
-from src.challenges.deduplication.dedupe_test_data_types import (
-    ItineraryItem, RecordSparseStruct)
+from src.challenges.deduplication.dedupe_test_data_types import DedupeItineraryItem, RecordSparseStruct
 
 
 def arrange_field_order(
@@ -31,13 +30,14 @@ def arrange_field_order(
 
 
 def verify_correctness(
-        itinerary_items: ItineraryItem,
+        itinerary_items: DedupeItineraryItem,
         lst: list[Row],
-):
+) -> bool:
     try:
         lst.sort(key=lambda x: int(x.FieldA))
-        actual_num_people = itinerary_items.data_set.num_people
-        num_sources = itinerary_items.data_set.num_sources
+        data_description = itinerary_items.data_set.data_description
+        actual_num_people = data_description.num_people
+        num_sources = data_description.num_sources
         secret_keys = {x.SecretKey for x in lst}
         expected_secret_keys = set(range(1, actual_num_people + 1))
         if secret_keys != expected_secret_keys:
@@ -58,30 +58,64 @@ def verify_correctness(
     return True
 
 
-def verify_single_line(  # noqa: C901
+def verify_single_line(
         NumSources: int,
         NumBRecords: int,
         index: int,
-        row: Row) -> None:
+        row: Row,
+) -> None:
     i = index + 1
+    verify_first_name(row, i)
+    verify_last_name(row, i)
+    verify_street_address(row, i)
+    verify_city(row, i)
+    verify_zip_code(row, i)
+    verify_secret_key(row, i)
+    verify_column_a(row, i)
+    verify_column_b(NumSources, NumBRecords, row, i)
+    verify_column_c(NumSources, row, i)
+    verify_column_d(NumSources, row, i)
+    verify_column_e(NumSources, row, i)
+    verify_column_f(NumSources, row, i)
+
+
+def verify_first_name(row: Row, i: int) -> None:
     if f"FFFFFFA{i}_{name_hash(i)}" != row.FirstName:
-        raise Exception(
-            f"{i}: FFFFFFA{i}_{name_hash(i)} != {row.FirstName}")
+        raise Exception(f"{i}: FFFFFFA{i}_{name_hash(i)} != {row.FirstName}")
+
+
+def verify_last_name(row: Row, i: int) -> None:
     if f'LLLLLLA{i}_{name_hash(i)}' != row.LastName:
-        raise Exception(
-            f'{i}: LLLLLLA{i}_{name_hash(i)} != {row.LastName}')
+        raise Exception(f'{i}: LLLLLLA{i}_{name_hash(i)} != {row.LastName}')
+
+
+def verify_street_address(row: Row, i: int) -> None:
     if f'{i} Main St' != row.StreetAddress:
         raise Exception(f'{i} Main St != row.StreetAddress')
+
+
+def verify_city(row: Row, i: int) -> None:
     if 'Plaineville ME' != row.City:
-        raise Exception('{i}: Plaineville ME != {row.City}')
+        raise Exception(f'{i}: Plaineville ME != {row.City}')
+
+
+def verify_zip_code(row: Row, i: int) -> None:
     if f'{(i-1) % 100:05d}' != row.ZipCode:
         raise Exception(f'{(i-1) % 100:05d} != {row.ZipCode}')
+
+
+def verify_secret_key(row: Row, i: int) -> None:
     if i != row.SecretKey:
         raise Exception(f'{i}: {i} != SecretKey={row.SecretKey}')
+
+
+def verify_column_a(row: Row, i: int) -> None:
     if f'{i*2}' != row.FieldA:
         raise Exception(f'{i}: {i*2} != FieldA={row.FieldA}')
 
-    if (NumSources < 2) or (i > NumBRecords):
+
+def verify_column_b(num_sources: int, num_b_records: int, row: Row, i: int) -> None:
+    if (num_sources < 2) or (i > num_b_records):
         if row.FieldB is not None:
             raise Exception(
                 "{i}: row.FieldB is not None, NumSources={NumSources}, NumBRecords={NumBRecords}")
@@ -89,7 +123,9 @@ def verify_single_line(  # noqa: C901
         if f'{i*3}' != row.FieldB:
             raise Exception(f'{i}: {i*3} != FieldB={row.FieldB}')
 
-    if NumSources < 3:
+
+def verify_column_c(num_sources: int, row: Row, i: int) -> None:
+    if num_sources < 3:
         if row.FieldC is not None:
             raise Exception(
                 "{i}: row.FieldC is not None, NumSources={NumSources}")
@@ -97,7 +133,9 @@ def verify_single_line(  # noqa: C901
         if f'{i*5}' != row.FieldC:
             raise Exception(f'{i}: {i*5} != FieldC={row.FieldC}')
 
-    if NumSources < 4:
+
+def verify_column_d(num_sources: int, row: Row, i: int) -> None:
+    if num_sources < 4:
         if row.FieldD is not None:
             raise Exception(
                 "{i}: row.FieldD is not None, NumSources={NumSources}")
@@ -105,7 +143,9 @@ def verify_single_line(  # noqa: C901
         if f'{i*7}' != row.FieldD:
             raise Exception(f'{i}: {i*7} != FieldD={row.FieldD}')
 
-    if NumSources < 5:
+
+def verify_column_e(num_sources: int, row: Row, i: int) -> None:
+    if num_sources < 5:
         if row.FieldE is not None:
             raise Exception(
                 "{i}: row.FieldE is not None, NumSources={NumSources}")
@@ -113,7 +153,9 @@ def verify_single_line(  # noqa: C901
         if f'{i*11}' != row.FieldE:
             raise Exception(f'{i}: {i*11} != FieldE={row.FieldE}')
 
-    if NumSources < 6:
+
+def verify_column_f(num_sources: int, row: Row, i: int) -> None:
+    if num_sources < 6:
         if row.FieldF is not None:
             raise Exception(
                 "{i}: row.FieldF is not None, NumSources={NumSources}")

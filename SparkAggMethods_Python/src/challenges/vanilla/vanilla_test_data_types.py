@@ -1,6 +1,8 @@
+import inspect
+
 import pyspark.sql.types as DataTypes
 
-from src.six_field_test_data.six_test_data_types import DataPointSchema, DataSetDescription
+from src.six_field_test_data.six_test_data_types import DataPointSchema, SixTestDataSetDescription
 from src.utils.spark_helpers import make_empty_pd_dataframe_from_spark_types
 
 GROUP_BY_COLUMNS = ['grp', 'subgrp']
@@ -17,12 +19,49 @@ pyspark_post_agg_schema = DataTypes.StructType(
 dask_post_agg_schema = make_empty_pd_dataframe_from_spark_types(pyspark_post_agg_schema)
 
 
+class VanillaDataSetDescription(SixTestDataSetDescription):
+    # for DataSetDescriptionBase
+    debugging_only: bool
+    num_source_rows: int
+    size_code: str
+    # for SixTestDataSetDescription
+    num_grp_1: int
+    num_grp_2: int
+    points_per_index: int
+    relative_cardinality_between_groupings: int
+
+    def __init__(
+            self,
+            debugging_only: bool,
+            num_grp_1: int,
+            num_grp_2: int,
+            points_per_index: int,
+            size_code: str,
+    ):
+        super().__init__(
+            # for DataSetDescriptionBase
+            debugging_only=debugging_only,
+            num_grp_1=num_grp_1,
+            num_grp_2=num_grp_2,
+            # for SixTestDataSetDescription
+            points_per_index=points_per_index,
+            size_code=size_code,
+        )
+
+    @classmethod
+    def regressor_field_name(cls) -> str:
+        regressor_field_name = "num_source_rows"
+        assert regressor_field_name in inspect.get_annotations(cls)
+        return regressor_field_name
+
+
 DATA_SIZES_LIST_VANILLA = [
-    DataSetDescription(
+    VanillaDataSetDescription(
         size_code=code,
         num_grp_1=3,
         num_grp_2=3,
         points_per_index=scale,
+        debugging_only=False,
     )
     for scale, code in [
         (10 ** 0, '3_3_1'),
@@ -31,8 +70,8 @@ DATA_SIZES_LIST_VANILLA = [
         (10 ** 3, '3_3_1k'),
         (10 ** 4, '3_3_10k'),
         (10 ** 5, '3_3_100k'),
-        (10 ** 6, '3_3_1m'),
-        # (10 ** 7, '3_3_10m'), EOM during data generation
-        # (10 ** 8, '3_3_100m'), EOM during data generation
+        # (10 ** 6, '3_3_1m'),  load data EOM ever since numpy.array is used for the answer generation
+        # (10 ** 7, '3_3_10m'),  load data EOM ever since numpy.array is used for the answer generation
+        # (10 ** 8, '3_3_100m'),  load data EOM ever since numpy.array is used for the answer generation
     ]
 ]

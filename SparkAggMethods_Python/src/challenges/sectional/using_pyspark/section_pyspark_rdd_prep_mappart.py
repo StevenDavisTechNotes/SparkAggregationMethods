@@ -1,25 +1,24 @@
 from pyspark import RDD
 
-from src.challenges.sectional.domain_logic.section_data_parsers import \
-    identify_section_using_intermediate_file
-from src.challenges.sectional.domain_logic.section_mutable_subtotal_type import \
-    aggregate_typed_rows_to_grades
+from src.challenges.sectional.domain_logic.section_data_parsers import identify_section_using_intermediate_file
+from src.challenges.sectional.domain_logic.section_mutable_subtotal_type import aggregate_typed_rows_to_grades
 from src.challenges.sectional.section_test_data_types import (
-    ClassLine, DataSet, StudentHeader, StudentSummary,
-    TChallengePythonPysparkAnswer, TrimesterFooter, TrimesterHeader, TypedLine)
+    ClassLine, SectionDataSet, StudentHeader, StudentSummary, TChallengePythonPysparkAnswer, TrimesterFooter,
+    TrimesterHeader, TypedLine,
+)
 from src.utils.tidy_spark_session import TidySparkSession
 
 
 def section_pyspark_rdd_prep_mappart(
         spark_session: TidySparkSession,
-        data_set: DataSet,
+        data_set: SectionDataSet,
 ) -> TChallengePythonPysparkAnswer:
-    if data_set.data_size.num_students > pow(10, 8 - 1):
+    if data_set.data_description.num_students > pow(10, 8 - 1):
         # takes too long
         return "infeasible"
     sc = spark_session.spark_context
-    filename = data_set.data.test_filepath
-    target_num_partitions = data_set.data.target_num_partitions
+    filename = data_set.exec_params.source_data_file_path
+    target_num_partitions = data_set.exec_params.target_num_partitions
 
     interFileName = identify_section_using_intermediate_file(filename)
     rdd1: RDD[tuple[tuple[int, int], TypedLine]] = (
@@ -88,8 +87,10 @@ def parse_line_to_types_with_line_no(
         f"Unknown parsed row type {row_type} on line {lineNumber} in file {filename}")
 
 
-if __name__ == "__main__":
-    prepped_file_path = "D:\\temp\\SparkPerfTesting\\temp.csv"
+def print_test_data_file(
+        prepped_file_path: str,
+) -> None:
+    print(f"Running {__file__}")
     with open(prepped_file_path, "rt") as fh:
         for i_line, line in enumerate(fh):
             parse_line_to_types_with_line_no(prepped_file_path, i_line, line.rstrip())

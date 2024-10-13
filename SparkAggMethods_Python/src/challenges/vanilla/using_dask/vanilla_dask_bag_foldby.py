@@ -5,16 +5,13 @@ from dask.bag.core import Bag as DaskBag
 
 from src.challenges.vanilla.vanilla_test_data_types import RESULT_COLUMNS
 from src.six_field_test_data import six_domain_logic
-from src.six_field_test_data.six_generate_test_data import (
-    DataSetDask, TChallengeAnswerPythonDask)
-from src.six_field_test_data.six_test_data_types import (DataPointNT,
-                                                         ExecutionParameters,
-                                                         SubTotalDC)
+from src.six_field_test_data.six_generate_test_data import DataSetDask, TChallengeAnswerPythonDask
+from src.six_field_test_data.six_test_data_types import DataPointNT, SixTestExecutionParameters, SubTotalDC
 from src.utils.ensure_has_memory import check_memory
 
 
 def vanilla_dask_bag_foldby(
-        exec_params: ExecutionParameters,
+        exec_params: SixTestExecutionParameters,
         data_set: DataSetDask
 ) -> TChallengeAnswerPythonDask:
     check_memory(throw=True)

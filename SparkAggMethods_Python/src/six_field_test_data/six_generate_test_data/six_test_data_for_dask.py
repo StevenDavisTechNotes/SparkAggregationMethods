@@ -1,18 +1,16 @@
 from dataclasses import dataclass
-from typing import Callable, Literal, Protocol
+from typing import Literal, Protocol
 
 import pandas as pd
 from dask.bag.core import Bag as DaskBag
 from dask.dataframe.core import DataFrame as DaskDataFrame
 from dask.dataframe.io.io import from_pandas
 
-from src.perf_test_common import CalcEngine, SolutionInterface, SolutionInterfaceDask, SolutionLanguage
+from src.perf_test_common import CalcEngine, SolutionInterfaceDask, SolutionLanguage
 from src.six_field_test_data.six_test_data_types import (
-    Challenge, DataPointNT, DataSetAnswer, DataSetDescription, ExecutionParameters, NumericalToleranceExpectations,
-    SixTestDataChallengeMethodRegistrationBase, populate_data_set_generic,
+    Challenge, DataPointNT, DataSetAnswers, NumericalToleranceExpectations, SixTestDataChallengeMethodRegistrationBase,
+    SixTestDataSetDescription, SixTestExecutionParameters, populate_data_set_generic,
 )
-
-# region Dask version
 
 
 @dataclass(frozen=True)
@@ -36,13 +34,13 @@ def pick_agg_tgt_num_partitions_dask(data: DataSetDataDask, challenge: Challenge
 
 @dataclass(frozen=True)
 class DataSetDask:
-    data_size: DataSetDescription
+    data_description: SixTestDataSetDescription
     data: DataSetDataDask
 
 
 @dataclass(frozen=True)
 class DataSetDaskWithAnswer(DataSetDask):
-    answer: DataSetAnswer
+    answer: DataSetAnswers
 
 
 TChallengeAnswerPythonDask = Literal["infeasible"] | DaskDataFrame | pd.DataFrame
@@ -52,13 +50,17 @@ class IChallengeMethodPythonDask(Protocol):
     def __call__(
         self,
         *,
-        exec_params: ExecutionParameters,
+        exec_params: SixTestExecutionParameters,
         data_set: DataSetDask,
     ) -> TChallengeAnswerPythonDask: ...
 
 
 @dataclass(frozen=True)
-class ChallengeMethodPythonDaskRegistration(SixTestDataChallengeMethodRegistrationBase):
+class ChallengeMethodPythonDaskRegistration(
+    SixTestDataChallengeMethodRegistrationBase[
+        SolutionInterfaceDask, IChallengeMethodPythonDask
+    ]
+):
     strategy_name: str
     language: SolutionLanguage
     engine: CalcEngine
@@ -67,19 +69,10 @@ class ChallengeMethodPythonDaskRegistration(SixTestDataChallengeMethodRegistrati
     requires_gpu: bool
     delegate: IChallengeMethodPythonDask
 
-    @property
-    def delegate_getter(self) -> Callable:
-        return self.delegate
-
-    @property
-    def interface_getter(self) -> SolutionInterface:
-        return self.interface
-# endregion
-
 
 def populate_data_set_dask(
-        exec_params: ExecutionParameters,
-        data_size: DataSetDescription,
+        exec_params: SixTestExecutionParameters,
+        data_size: SixTestDataSetDescription,
 ) -> DataSetDaskWithAnswer:
     raw_data = populate_data_set_generic(
         CalcEngine.DASK, exec_params, data_size)
@@ -87,9 +80,9 @@ def populate_data_set_dask(
     bag_src: DaskBag = df_src.to_bag().map(lambda x: DataPointNT(*x))
     cnt, parts = len(df_src), len(df_src.divisions)
     print("Found %i rows in %i parts ratio %.1f" % (cnt, parts, cnt / parts))
-    assert cnt == raw_data.num_data_points
+    assert cnt == raw_data.num_source_rows
     return DataSetDaskWithAnswer(
-        data_size=data_size,
+        data_description=data_size,
         data=DataSetDataDask(
             src_num_partitions=raw_data.src_num_partitions,
             agg_tgt_num_partitions_1_level=raw_data.tgt_num_partitions_1_level,
@@ -97,7 +90,7 @@ def populate_data_set_dask(
             df_src=df_src,
             bag_src=bag_src,
         ),
-        answer=DataSetAnswer(
+        answer=DataSetAnswers(
             vanilla_answer=raw_data.vanilla_answer,
             bilevel_answer=raw_data.bilevel_answer,
             conditional_answer=raw_data.conditional_answer,

@@ -5,18 +5,15 @@ from dask.bag.core import Bag as DaskBag
 
 from src.challenges.vanilla.vanilla_test_data_types import RESULT_COLUMNS
 from src.six_field_test_data import six_domain_logic
-from src.six_field_test_data.six_generate_test_data import (
-    DataSetDask, TChallengeAnswerPythonDask)
-from src.six_field_test_data.six_test_data_types import (DataPointNT,
-                                                         ExecutionParameters,
-                                                         SubTotalDC)
+from src.six_field_test_data.six_generate_test_data import DataSetDask, TChallengeAnswerPythonDask
+from src.six_field_test_data.six_test_data_types import DataPointNT, SixTestExecutionParameters, SubTotalDC
 
 
 def vanilla_dask_bag_accumulate(
-        exec_params: ExecutionParameters,
+        exec_params: SixTestExecutionParameters,
         data_set: DataSetDask
 ) -> TChallengeAnswerPythonDask:
-    if (data_set.data_size.points_per_index > 10**6):  # just takes too long
+    if (data_set.data_description.points_per_index > 10**6):  # just takes too long
         return "infeasible"
     stage0: DaskBag = data_set.data.bag_src
     stage1 = (

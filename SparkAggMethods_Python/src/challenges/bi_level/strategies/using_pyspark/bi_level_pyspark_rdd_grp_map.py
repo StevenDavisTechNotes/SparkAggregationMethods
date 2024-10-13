@@ -3,10 +3,12 @@ from typing import Iterable, cast
 from pyspark import RDD
 from pyspark.sql import Row
 
-from src.six_field_test_data.six_generate_test_data import DataSetPyspark, TChallengePendingAnswerPythonPyspark
+from src.six_field_test_data.six_generate_test_data import (
+    SixFieldDataSetPyspark, TSixFieldChallengePendingAnswerPythonPyspark,
+)
 from src.six_field_test_data.six_generate_test_data.six_test_data_for_pyspark import pick_agg_tgt_num_partitions_pyspark
 from src.six_field_test_data.six_test_data_types import (
-    MAX_DATA_POINTS_PER_SPARK_PARTITION, Challenge, DataPointNT, ExecutionParameters,
+    MAX_DATA_POINTS_PER_SPARK_PARTITION, Challenge, DataPointNT, SixTestExecutionParameters,
 )
 from src.utils.tidy_spark_session import TidySparkSession
 
@@ -15,15 +17,15 @@ CHALLENGE = Challenge.BI_LEVEL
 
 def bi_level_pyspark_rdd_grp_map(
         spark_session: TidySparkSession,
-        exec_params: ExecutionParameters,
-        data_set: DataSetPyspark
-) -> TChallengePendingAnswerPythonPyspark:
+        exec_params: SixTestExecutionParameters,
+        data_set: SixFieldDataSetPyspark
+) -> TSixFieldChallengePendingAnswerPythonPyspark:
     rddSrc: RDD[DataPointNT] = data_set.data.rdd_src
 
     if (
-            data_set.description.num_data_points
+            data_set.data_description.num_source_rows
             > MAX_DATA_POINTS_PER_SPARK_PARTITION
-            * data_set.description.num_grp_1
+            * data_set.data_description.num_grp_1
     ):
         # This strategy only works if all of the values per key can fit into memory at once.
         return "infeasible"

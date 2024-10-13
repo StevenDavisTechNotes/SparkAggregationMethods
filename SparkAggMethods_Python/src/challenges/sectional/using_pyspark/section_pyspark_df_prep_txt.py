@@ -2,25 +2,26 @@ import pyspark.sql.types as DataTypes
 from pyspark.sql import Row
 
 from src.challenges.sectional.domain_logic.section_data_parsers import (
-    identify_section_using_intermediate_file, row_to_student_summary)
+    identify_section_using_intermediate_file, row_to_student_summary,
+)
 from src.challenges.sectional.section_test_data_types import (
-    DataSet, SparseLineSchema, TChallengePythonPysparkAnswer)
-from src.challenges.sectional.using_pyspark.section_pyspark_rdd_prep_shared import \
-    section_pyspark_rdd_prep_shared
+    SectionDataSet, SparseLineSchema, TChallengePythonPysparkAnswer,
+)
+from src.challenges.sectional.using_pyspark.section_pyspark_rdd_prep_shared import section_pyspark_rdd_prep_shared
 from src.utils.tidy_spark_session import TidySparkSession
 
 
 def section_pyspark_df_prep_txt(
         spark_session: TidySparkSession,
-        data_set: DataSet,
+        data_set: SectionDataSet,
 ) -> TChallengePythonPysparkAnswer:
-    if data_set.data_size.num_students > pow(10, 8-1):
+    if data_set.data_description.num_students > pow(10, 8-1):
         # times out
         return "infeasible"
     sc = spark_session.spark_context
     spark = spark_session.spark
-    sectionMaximum = data_set.data.section_maximum
-    filename = data_set.data.test_filepath
+    sectionMaximum = data_set.exec_params.section_maximum
+    filename = data_set.exec_params.source_data_file_path
 
     SparseLineWithSectionIdLineNoSchema = DataTypes.StructType([
         DataTypes.StructField("SectionId", DataTypes.IntegerType(), True),
@@ -28,7 +29,7 @@ def section_pyspark_df_prep_txt(
         SparseLineSchema.fields)
 
     interFileName = identify_section_using_intermediate_file(filename)
-    rdd = sc.textFile(interFileName, data_set.data.target_num_partitions) \
+    rdd = sc.textFile(interFileName, data_set.exec_params.target_num_partitions) \
         .zipWithIndex() \
         .map(parse_line_to_row_with_line_no)
     df = spark.createDataFrame(rdd, SparseLineWithSectionIdLineNoSchema)

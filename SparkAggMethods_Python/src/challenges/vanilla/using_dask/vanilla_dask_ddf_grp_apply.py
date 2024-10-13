@@ -3,14 +3,14 @@ from dask.dataframe.core import DataFrame as DaskDataFrame
 
 from src.challenges.vanilla.vanilla_test_data_types import GROUP_BY_COLUMNS, RESULT_COLUMNS, dask_post_agg_schema
 from src.six_field_test_data.six_generate_test_data import DataSetDask, TChallengeAnswerPythonDask
-from src.six_field_test_data.six_test_data_types import ExecutionParameters
+from src.six_field_test_data.six_test_data_types import SixTestExecutionParameters
 
 
 def vanilla_dask_ddf_grp_apply(
-        exec_params: ExecutionParameters,
+        exec_params: SixTestExecutionParameters,
         data_set: DataSetDask
 ) -> TChallengeAnswerPythonDask:
-    if (data_set.data_size.points_per_index > 10**4):
+    if (data_set.data_description.points_per_index > 10**4):
         return "infeasible"
     df: DaskDataFrame = data_set.data.df_src
     df2 = (

@@ -3,9 +3,9 @@ import pyspark.sql.types as DataTypes
 from pyspark.sql import Window
 
 from src.challenges.deduplication.dedupe_test_data_types import (
-    DataSet, ExecutionParameters, TChallengePendingAnswerPythonPyspark)
-from src.challenges.deduplication.domain_logic.dedupe_domain_methods import \
-    udfMatchSingleName
+    DedupePySparkDataSet, ExecutionParameters, TChallengePendingAnswerPythonPyspark,
+)
+from src.challenges.deduplication.domain_logic.dedupe_domain_methods import udfMatchSingleName
 from src.utils.spark_helpers import zip_dataframe_with_index
 from src.utils.tidy_spark_session import TidySparkSession
 
@@ -13,14 +13,14 @@ from src.utils.tidy_spark_session import TidySparkSession
 def dedupe_pyspark_df_window(
         spark_session: TidySparkSession,
         exec_params: ExecutionParameters,
-        data_set: DataSet,
+        data_set: DedupePySparkDataSet,
 ) -> TChallengePendingAnswerPythonPyspark:
-    if data_set.data_size > 50200:
+    if data_set.data_description.num_source_rows > 50200:
         return "infeasible"
     dfSrc = data_set.df
 
     numPartitions = max(
-        4 * exec_params.NumExecutors,  # cross product
+        4 * exec_params.num_executors,  # cross product
         data_set.grouped_num_partitions)
     df = zip_dataframe_with_index(dfSrc, spark=spark_session.spark, colName="RowId")
     df = df \
@@ -127,5 +127,5 @@ def dedupe_pyspark_df_window(
             func.min(df.FieldE).alias("FieldE"),
             func.min(df.FieldF).alias("FieldF")) \
         .drop(df.GroupId) \
-        .repartition(2 * exec_params.NumExecutors)
+        .repartition(2 * exec_params.num_executors)
     return df

@@ -2,28 +2,29 @@ from typing import Iterable, cast
 
 from pyspark import RDD
 
-from src.challenges.sectional.domain_logic.section_data_parsers import \
-    rdd_typed_with_index_factory
-from src.challenges.sectional.domain_logic.section_mutable_subtotal_type import (
-    MutableStudent, MutableTrimester)
+from src.challenges.sectional.domain_logic.section_data_parsers import rdd_typed_with_index_factory
+from src.challenges.sectional.domain_logic.section_mutable_subtotal_type import MutableStudent, MutableTrimester
 from src.challenges.sectional.section_test_data_types import (
-    ClassLine, DataSet, LabeledTypedRow, StudentHeader, StudentSummary,
-    TChallengePythonPysparkAnswer, TrimesterFooter, TrimesterHeader, TypedLine)
+    ClassLine, LabeledTypedRow, SectionDataSet, StudentHeader, StudentSummary, TChallengePythonPysparkAnswer,
+    TrimesterFooter, TrimesterHeader, TypedLine,
+)
 from src.utils.tidy_spark_session import TidySparkSession
 
 
 def section_pyspark_rdd_join_mappart(
         spark_session: TidySparkSession,
-        data_set: DataSet,
+        data_set: SectionDataSet,
 ) -> TChallengePythonPysparkAnswer:
-    if data_set.data_size.num_students > pow(10, 7-1):
+    if data_set.data_description.num_students > pow(10, 7-1):
         # times out
         return "infeasible"
-    target_num_partitions = data_set.data.target_num_partitions
+    target_num_partitions = data_set.exec_params.target_num_partitions
     sc = spark_session.spark_context
     rdd1: RDD[LabeledTypedRow] \
         = rdd_typed_with_index_factory(
-            spark_session, data_set.data.test_filepath, data_set.data.target_num_partitions)
+            spark_session,
+            data_set.exec_params.source_data_file_path,
+            data_set.exec_params.target_num_partitions)
     NumRows = rdd1.count()
     rdd2: RDD[tuple[int, str, TypedLine]] = (
         rdd1

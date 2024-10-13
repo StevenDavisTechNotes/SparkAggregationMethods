@@ -4,10 +4,9 @@ import pyspark.sql.types as DataTypes
 from pyspark.sql import DataFrame as PySparkDataFrame
 
 from src.challenges.deduplication.dedupe_test_data_types import (
-    DataSet, ExecutionParameters, RecordSparseStruct,
-    TChallengePendingAnswerPythonPyspark)
-from src.challenges.deduplication.domain_logic.dedupe_domain_methods import \
-    match_single_name
+    DedupePySparkDataSet, ExecutionParameters, RecordSparseStruct, TChallengePendingAnswerPythonPyspark,
+)
+from src.challenges.deduplication.domain_logic.dedupe_domain_methods import match_single_name
 from src.utils.spark_helpers import zip_dataframe_with_index
 from src.utils.tidy_spark_session import TidySparkSession
 
@@ -15,14 +14,14 @@ from src.utils.tidy_spark_session import TidySparkSession
 def dedupe_pyspark_df_nested_pandas(
         spark_session: TidySparkSession,
         exec_params: ExecutionParameters,
-        data_set: DataSet,
+        data_set: DedupePySparkDataSet,
 ) -> TChallengePendingAnswerPythonPyspark:
     dfSrc = data_set.df
-    if data_set.data_size > 50200:
+    if data_set.data_description.num_source_rows > 50200:
         return "infeasible"
 
     spark = spark_session.spark
-    numPartitions = exec_params.NumExecutors
+    numPartitions = exec_params.num_executors
     df: PySparkDataFrame = zip_dataframe_with_index(dfSrc, spark=spark, colName="RowId")
     df = df.withColumn(
         "BlockingKey",

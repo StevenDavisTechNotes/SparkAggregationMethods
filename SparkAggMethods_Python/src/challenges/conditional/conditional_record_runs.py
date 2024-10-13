@@ -1,49 +1,50 @@
-import datetime
+import datetime as dt
 import os
 from dataclasses import dataclass
 
 from src.perf_test_common import (
     CalcEngine, ChallengeMethodRegistrationBase, PersistedRunResultBase, PersistedRunResultLog, RunResultBase,
-    RunResultFileWriterBase, SolutionLanguage,
+    RunResultFileWriterBase, SolutionLanguage, TSolutionInterface, parse_interface_python,
 )
 from src.utils.utils import root_folder_abs_path
 
-T_PYTHON_PYSPARK_RUN_LOG_FILE_PATH = 'results/conditional_pyspark_runs.csv'
-T_PYTHON_DASK_RUN_LOG_FILE_PATH = 'results/conditional_dask_runs.csv'
+PYTHON_PYSPARK_RUN_LOG_FILE_PATH = 'results/conditional_pyspark_runs.csv'
+PYTHON_DASK_RUN_LOG_FILE_PATH = 'results/conditional_dask_runs.csv'
 FINAL_REPORT_FILE_PATH = 'results/cond_results.csv'
 EXPECTED_SIZES = [3 * 3 * 10**x for x in range(1, 5 + 2)]
 
 
 @dataclass(frozen=True)
 class ConditionalRunResult(RunResultBase):
-    # engine: CalcEngine
-    # num_data_points: int
-    # elapsedTime: float
-    # record_count: int
-    pass
+    # for RunResultBase
+    num_source_rows: int
+    elapsed_time: float
+    num_output_rows: int
+    finished_at: str | None
 
 
 @dataclass(frozen=True)
-class ConditionalPersistedRunResult(PersistedRunResultBase):
-    # strategy_name: str
-    # language: str
-    # engine: CalcEngine
-    # strategy_w_language_name: str
-    # interface: str
-    # num_data_points: int
-    # elapsed_time: float
-    # record_count: int
-    pass
+class ConditionalPersistedRunResult(PersistedRunResultBase[TSolutionInterface], ConditionalRunResult):
+    # for RunResultBase
+    num_source_rows: int
+    elapsed_time: float
+    num_output_rows: int
+    finished_at: str | None
+    # for PersistedRunResultBase
+    language: SolutionLanguage
+    engine: CalcEngine
+    interface: TSolutionInterface
+    strategy_name: str
 
 
-def derive_run_log_file_path_for_recording(
+def derive_run_log_file_path(
         engine: CalcEngine,
 ) -> str:
     match engine:
         case  CalcEngine.PYSPARK:
-            run_log = T_PYTHON_PYSPARK_RUN_LOG_FILE_PATH
+            run_log = PYTHON_PYSPARK_RUN_LOG_FILE_PATH
         case CalcEngine.DASK:
-            run_log = T_PYTHON_DASK_RUN_LOG_FILE_PATH
+            run_log = PYTHON_DASK_RUN_LOG_FILE_PATH
         case _:
             raise ValueError(f"Unknown engine: {engine}")
     return os.path.join(
@@ -51,26 +52,14 @@ def derive_run_log_file_path_for_recording(
         run_log)
 
 
-def derive_run_log_file_path_for_reading(
-        engine: CalcEngine,
-) -> str | None:
-    match engine:
-        case CalcEngine.DASK | CalcEngine.PYSPARK:
-            return derive_run_log_file_path_for_recording(engine)
-        case CalcEngine.SCALA_SPARK:
-            return None
-        case _:
-            raise ValueError(f"Unknown engine: {engine}")
-
-
 def regressor_from_run_result(
         result: PersistedRunResultBase,
 ) -> int:
     assert isinstance(result, ConditionalPersistedRunResult)
-    return result.num_data_points
+    return result.num_source_rows
 
 
-class ConditionalPersistedRunResultLog(PersistedRunResultLog):
+class ConditionalPersistedRunResultLog(PersistedRunResultLog[ConditionalPersistedRunResult]):
     def __init__(
             self,
             engine: CalcEngine,
@@ -88,52 +77,45 @@ class ConditionalPersistedRunResultLog(PersistedRunResultLog):
             language=language,
         )
 
-    def derive_run_log_file_path_for_reading(
+    def derive_run_log_file_path(
             self,
     ) -> str | None:
-        match self.engine:
-            case CalcEngine.DASK | CalcEngine.PYSPARK | CalcEngine.PYTHON_ONLY:
-                return os.path.join(
-                    root_folder_abs_path(),
-                    derive_run_log_file_path_for_recording(self.engine),
-                )
-            case CalcEngine.SCALA_SPARK:
-                return None
-            case _:
-                raise ValueError(f"Unknown engine: {self.engine}")
+        return derive_run_log_file_path(self.engine)
 
     def result_looks_valid(
             self,
             result: PersistedRunResultBase,
     ) -> bool:
         assert isinstance(result, ConditionalPersistedRunResult)
-        return result.record_count == 9
+        return result.num_output_rows == 9
 
     def read_regular_line_from_log_file(
             self,
             line: str,
             fields: list[str],
-    ) -> PersistedRunResultBase | None:
-        strategy_name, interface, result_data_size, \
-            result_elapsed_time, result_record_count, \
-            result_finished_at, result_engine  \
+    ) -> ConditionalPersistedRunResult | None:
+        strategy_name, interface, num_source_rows, \
+            elapsed_time, num_output_rows, \
+            finished_at, engine  \
             = tuple(fields)
+        assert engine == self.engine.value
         result = ConditionalPersistedRunResult(
             strategy_name=strategy_name,
             language=self.language,
             engine=self.engine,
-            strategy_w_language_name=f"{strategy_name}_{self.language}",
-            interface=interface,
-            num_data_points=int(result_data_size),
-            elapsed_time=float(result_elapsed_time),
-            record_count=int(result_record_count))
+            interface=parse_interface_python(interface, self.engine),
+            num_source_rows=int(num_source_rows),
+            elapsed_time=float(elapsed_time),
+            num_output_rows=int(num_output_rows),
+            finished_at=finished_at,
+        )
         return result
 
     def read_scala_line_from_log_file(
             self,
             line: str,
             fields: list[str],
-    ) -> PersistedRunResultBase | None:
+    ) -> ConditionalPersistedRunResult | None:
         outcome, strategy_name, interface, expected_size, returnedSize, elapsed_time = tuple(
             fields)
         if outcome != 'success':
@@ -146,11 +128,12 @@ class ConditionalPersistedRunResultLog(PersistedRunResultLog):
             strategy_name=strategy_name,
             engine=self.engine,
             language=self.language,
-            strategy_w_language_name=f"{strategy_name}_{self.language}",
-            interface=interface,
-            num_data_points=int(expected_size),
+            interface=parse_interface_python(interface, self.engine),
+            num_source_rows=int(expected_size),
             elapsed_time=float(elapsed_time),
-            record_count=-1)
+            num_output_rows=-1,
+            finished_at=None,
+        )
         return result
 
     def read_line_from_log_file(
@@ -159,7 +142,7 @@ class ConditionalPersistedRunResultLog(PersistedRunResultLog):
             line: str,
             last_header_line: list[str],
             fields: list[str],
-    ) -> PersistedRunResultBase | None:
+    ) -> ConditionalPersistedRunResult | None:
         match self.engine:
             case CalcEngine.DASK | CalcEngine.PYSPARK | CalcEngine.PYTHON_ONLY:
                 return self.read_regular_line_from_log_file(line, fields)
@@ -173,19 +156,11 @@ class ConditionalPythonRunResultFileWriter(RunResultFileWriterBase):
             self,
             engine: CalcEngine,
     ):
-        match engine:
-            case CalcEngine.DASK | CalcEngine.PYSPARK | CalcEngine.PYTHON_ONLY:
-                language = SolutionLanguage.PYTHON
-            case CalcEngine.SCALA_SPARK:
-                raise ValueError("Scala has its own writer")
-            case _:
-                raise ValueError(f"Unknown engine: {engine}")
-        self.engine = engine
-        self.language = language
         super().__init__(
-            file_name=__class__.derive_run_log_file_path_for_recording(engine),
+            file_name=derive_run_log_file_path(engine),
+            language=SolutionLanguage.PYTHON,
             engine=engine,
-            language=language,
+            persisted_row_type=ConditionalPersistedRunResult,
         )
 
     def __enter__(self) -> 'ConditionalPythonRunResultFileWriter':
@@ -194,34 +169,22 @@ class ConditionalPythonRunResultFileWriter(RunResultFileWriterBase):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
 
-    @staticmethod
-    def derive_run_log_file_path_for_recording(
-            engine: CalcEngine,
-    ) -> str:
-        return os.path.join(
-            root_folder_abs_path(),
-            derive_run_log_file_path_for_recording(engine),
-        )
-
-    def write_header(
-            self,
-    ) -> None:
-        print(' strategy,interface,num_data_points,elapsed_time,record_count,engine,finished_at,', file=self.file)
-        self.file.flush()
-
     def write_run_result(
             self,
             challenge_method_registration: ChallengeMethodRegistrationBase,
-            result: RunResultBase,
+            run_result: RunResultBase,
     ) -> None:
-        assert isinstance(result, ConditionalRunResult)
+        assert isinstance(run_result, ConditionalRunResult)
         assert self.engine == challenge_method_registration.engine
-        assert challenge_method_registration.engine == result.engine
-        print("%s,%s,%d,%f,%d,%s,%s," % (
-            challenge_method_registration.strategy_name,
-            challenge_method_registration.interface_getter,
-            result.num_data_points, result.elapsed_time, result.record_count,
-            challenge_method_registration.engine.value,
-            datetime.datetime.now().isoformat()
-        ), file=self.file)
+        self._persist_run_result(ConditionalPersistedRunResult(
+            num_source_rows=run_result.num_source_rows,
+            elapsed_time=run_result.elapsed_time,
+            num_output_rows=run_result.num_output_rows,
+            finished_at=dt.datetime.now().isoformat(),
+
+            language=SolutionLanguage.PYTHON,
+            engine=challenge_method_registration.engine,
+            interface=challenge_method_registration.interface,
+            strategy_name=challenge_method_registration.strategy_name,
+        ))
         self.file.flush()

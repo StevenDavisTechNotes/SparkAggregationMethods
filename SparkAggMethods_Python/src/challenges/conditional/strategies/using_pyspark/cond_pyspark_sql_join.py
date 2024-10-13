@@ -1,15 +1,16 @@
 
 from src.six_field_test_data.six_generate_test_data import (
-    DataSetPyspark, TChallengePendingAnswerPythonPyspark)
-from src.six_field_test_data.six_test_data_types import ExecutionParameters
+    SixFieldDataSetPyspark, TSixFieldChallengePendingAnswerPythonPyspark,
+)
+from src.six_field_test_data.six_test_data_types import SixTestExecutionParameters
 from src.utils.tidy_spark_session import TidySparkSession
 
 
 def cond_pyspark_sql_join(
         spark_session: TidySparkSession,
-        exec_params: ExecutionParameters,
-        data_set: DataSetPyspark,
-) -> TChallengePendingAnswerPythonPyspark:
+        exec_params: SixTestExecutionParameters,
+        data_set: SixFieldDataSetPyspark,
+) -> TSixFieldChallengePendingAnswerPythonPyspark:
     spark = spark_session.spark
     spark.catalog.dropTempView("example_data")
     data_set.data.df_src.createTempView("example_data")

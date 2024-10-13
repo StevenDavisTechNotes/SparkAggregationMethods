@@ -5,13 +5,10 @@ import pyspark.sql.functions as func
 import pyspark.sql.types as DataTypes
 from pyspark.sql import DataFrame as PySparkDataFrame
 
-from src.challenges.deduplication.dedupe_test_data_types import \
-    RecordSparseStruct
+from src.challenges.deduplication.dedupe_test_data_types import RecordSparseStruct
 
-MatchThreshold = 0.9
-# must be 0.4316546762589928 < threshold < 0.9927007299270073 @ 10k
-
-# region Shared
+MATCH_THRESHOLD = 0.9
+# must be 0.4316546762589928 < MATCH_THRESHOLD < 0.9927007299270073 @ 10k
 
 
 T = TypeVar('T', bound=float | str)
@@ -33,8 +30,6 @@ def first_not_null(
         if x is not None:
             return x
     return None
-# endregion
-# region IsMatch
 
 
 def is_match(
@@ -51,7 +46,7 @@ def is_match(
     actualRatioFirstName = SequenceMatcher(
         None, iFirstName, jFirstName) \
         .ratio()
-    if actualRatioFirstName < MatchThreshold:
+    if actualRatioFirstName < MATCH_THRESHOLD:
         if iSecretKey == jSecretKey:
             raise Exception(
                 "FirstName non-match "
@@ -62,7 +57,7 @@ def is_match(
     actualRatioLastName = SequenceMatcher(
         None, iLastName, jLastName) \
         .ratio()
-    if actualRatioLastName < MatchThreshold:
+    if actualRatioLastName < MATCH_THRESHOLD:
         if iSecretKey == jSecretKey:
             raise Exception(
                 "LastName non-match "
@@ -88,7 +83,7 @@ def match_single_name(
     actualRatio = SequenceMatcher(
         None, lhs, rhs) \
         .ratio()
-    if actualRatio < MatchThreshold:
+    if actualRatio < MATCH_THRESHOLD:
         if iSecretKey == jSecretKey:
             raise Exception(
                 f"Name non-match for {iSecretKey} with itself {lhs} {rhs} ratio={actualRatio}")
@@ -100,8 +95,6 @@ MatchSingleName_Returns = DataTypes.BooleanType()
 
 udfMatchSingleName = func.udf(
     match_single_name, MatchSingleName_Returns)
-# endregion
-# region Shared block processing
 
 
 def nest_blocks_dataframe(
@@ -354,5 +347,3 @@ def single_pass_rec_list(
     firstOrderEdges = None
     mergedItems = merge_items_rec_list(blockedData, connectedComponents)
     return mergedItems
-
-# endregion

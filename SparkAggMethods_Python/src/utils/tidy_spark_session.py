@@ -18,7 +18,6 @@ def get_python_code_root_path() -> str:
 
 @dataclass(frozen=True)
 class OpenSparkSession:
-    # python_code_root_path: str
     python_interpreter_path: str
     python_src_code_path: str
     spark_session: SparkSession
@@ -34,7 +33,7 @@ def open_spark_session(
 ) -> OpenSparkSession:
     findspark.init()
     python_code_root_path = get_python_code_root_path()
-    python_src_code_path = python_code_root_path  # os.path.join(python_code_root_path, "src")
+    python_src_code_path = python_code_root_path
     path_to_python_interpreter = os.path.join(
         python_code_root_path, "venv", "scripts", "python.exe")
     os.environ["PYSPARK_PYTHON"] = path_to_python_interpreter
@@ -67,7 +66,6 @@ def open_spark_session(
             spark_scratch_folder,
             "SectionAggCheckpoint"))
     return OpenSparkSession(
-        # python_code_root_path=python_code_root_path,
         python_interpreter_path=path_to_python_interpreter,
         python_src_code_path=python_src_code_path,
         spark_session=spark_session,

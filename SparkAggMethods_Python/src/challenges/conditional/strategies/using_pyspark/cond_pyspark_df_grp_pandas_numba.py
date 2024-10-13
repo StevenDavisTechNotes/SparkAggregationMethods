@@ -3,10 +3,12 @@ import numpy as np
 import pandas as pd
 
 from src.challenges.conditional.conditional_test_data_types import (
-    AGGREGATION_COLUMNS_4, GROUP_BY_COLUMNS, POST_AGGREGATION_SCHEMA_4)
+    AGGREGATION_COLUMNS_4, GROUP_BY_COLUMNS, POST_AGGREGATION_SCHEMA_4,
+)
 from src.six_field_test_data.six_generate_test_data import (
-    DataSetPyspark, TChallengePendingAnswerPythonPyspark)
-from src.six_field_test_data.six_test_data_types import ExecutionParameters
+    SixFieldDataSetPyspark, TSixFieldChallengePendingAnswerPythonPyspark,
+)
+from src.six_field_test_data.six_test_data_types import SixTestExecutionParameters
 from src.utils.tidy_spark_session import TidySparkSession
 
 try:
@@ -43,9 +45,9 @@ except ImportError:
 
 def cond_pyspark_df_grp_pandas_numba(
         spark_session: TidySparkSession,
-        exec_params: ExecutionParameters,
-        data_set: DataSetPyspark,
-) -> TChallengePendingAnswerPythonPyspark:
+        exec_params: SixTestExecutionParameters,
+        data_set: SixFieldDataSetPyspark,
+) -> TSixFieldChallengePendingAnswerPythonPyspark:
     df = data_set.data.df_src
     if numba is None:
         return "infeasible"

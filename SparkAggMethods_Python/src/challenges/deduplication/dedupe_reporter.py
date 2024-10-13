@@ -4,17 +4,35 @@ import math
 from typing import NamedTuple, cast
 
 import numpy
-import scipy.stats
+import scipy
 
 from src.challenges.deduplication.dedupe_record_runs import (
-    EXPECTED_NUM_RECORDS, FINAL_REPORT_FILE_PATH, DedupePersistedRunResult, read_run_result_file,
+    EXPECTED_NUM_RECORDS, FINAL_REPORT_FILE_PATH, DedupePersistedRunResult, DedupePersistedRunResultLog,
     regressor_from_run_result,
 )
 from src.challenges.deduplication.dedupe_strategy_directory import STRATEGIES_USING_PYSPARK_REGISTRY
-from src.perf_test_common import CalcEngine, print_test_runs_summary
+from src.perf_test_common import CalcEngine, Challenge, SummarizedPerformanceOfMethodAtDataSize
 from src.utils.linear_regression import linear_regression
 
-TEMP_RESULT_FILE_PATH = "d:/temp/SparkPerfTesting/temp.csv"
+CHALLENGE = Challenge.BI_LEVEL
+
+EXPECTED_SIZES = [
+    11,
+    21,
+    51,
+    102,
+    202,
+    502,
+    1020,
+    2020,
+    5020,
+    10200,
+    20200,
+    50200,
+    102000,
+    202000,
+    502000
+]
 
 
 class TestRegression(NamedTuple):
@@ -46,7 +64,7 @@ def structure_test_results(
                 for x in test_x_values}
         for method in challenge_method_registrations}
     for result in test_runs:
-        test_results[result.strategy_name][result.num_data_points] \
+        test_results[result.strategy_name][result.num_source_rows] \
             .append(result)
     return test_results
 
@@ -61,24 +79,18 @@ def make_runs_summary(
     }
 
 
-def analyze_run_results(
+def analyze_run_results_old(
         engine: CalcEngine,
 ):
-    raw_test_runs: list[DedupePersistedRunResult] = []
-    with open(TEMP_RESULT_FILE_PATH, 'w') as out_fh:
-        for result in read_run_result_file(engine):
-            out_fh.write("%s,%s,%d,%d,%d,%d,%f\n" % (
-                result.strategy_name, result.interface,
-                result.num_sources, result.num_people_actual,
-                result.num_data_points, result.data_size_exponent,
-                result.elapsed_time))
-            raw_test_runs.append(result)
+    # raw_test_runs = list(read_run_result_file(engine))
+    reader = DedupePersistedRunResultLog(engine)
+    raw_test_runs = reader.read_run_result_file()
     if len(raw_test_runs) < 1:
         print("no tests")
     test_runs_by_strategy_by_size: dict[
         str, dict[int, list[DedupePersistedRunResult]]] = structure_test_results(raw_test_runs)
     test_runs_summary = make_runs_summary(test_runs_by_strategy_by_size)
-    print_test_runs_summary(test_runs_summary)
+    # print_test_runs_summary(test_runs_summary)
     if any([num < 10 for details in test_runs_summary.values() for num in details.values()]):
         print("not enough data")
         return
@@ -114,7 +126,7 @@ def analyze_run_results(
                 mean, stdev, rl, rh
             )
         times = [x for lst in test_runs_by_size.values() for x in lst]
-        x_values = [math.log10(x.num_data_points) for x in times]
+        x_values = [math.log10(x.num_source_rows) for x in times]
         y_values = [math.log10(x.elapsed_time) for x in times]
         match linear_regression(x_values, y_values, confidence):
             case None:
@@ -149,7 +161,32 @@ def analyze_run_results(
         f.write("\n")
 
 
+def analyze_run_results_new():
+    summary_status: list[SummarizedPerformanceOfMethodAtDataSize] = []
+    engine = CalcEngine.PYSPARK
+    challenge_method_list = STRATEGIES_USING_PYSPARK_REGISTRY
+    reader = DedupePersistedRunResultLog(engine)
+    raw_test_runs = reader.read_run_result_file()
+    structured_test_results = reader.structure_test_results(
+        challenge_method_list=challenge_method_list,
+        expected_sizes=EXPECTED_SIZES,
+        regressor_from_run_result=regressor_from_run_result,
+        test_runs=raw_test_runs,
+    )
+    summary_status.extend(
+        reader.do_regression(
+            challenge=CHALLENGE,
+            engine=engine,
+            challenge_method_list=challenge_method_list,
+            test_results_by_strategy_name_by_data_size=structured_test_results
+        )
+    )
+    reader.print_summary(summary_status, FINAL_REPORT_FILE_PATH)
+
+
 if __name__ == "__main__":
-    analyze_run_results(CalcEngine.PYSPARK)
-    analyze_run_results(CalcEngine.DASK)
+    print(f"Running {__file__}")
+    analyze_run_results_new()
+    analyze_run_results_old(CalcEngine.PYSPARK)
+    analyze_run_results_old(CalcEngine.DASK)
     print("Done!")

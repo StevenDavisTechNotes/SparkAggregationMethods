@@ -2,14 +2,14 @@ from typing import Callable, Iterable, NamedTuple, cast
 
 from pyspark import RDD, SparkContext, StorageLevel
 
-from src.challenges.sectional.domain_logic.section_data_parsers import \
-    rdd_typed_with_index_factory
+from src.challenges.sectional.domain_logic.section_data_parsers import rdd_typed_with_index_factory
 from src.challenges.sectional.domain_logic.section_snippet_subtotal_type import (
-    FIRST_LAST_FIRST, FIRST_LAST_LAST, FIRST_LAST_NEITHER, CompletedStudent,
-    StudentSnippet2, complete_snippets_2, grade_summary, marge_snippets_2,
-    student_snippet_from_typed_row_2)
+    FIRST_LAST_FIRST, FIRST_LAST_LAST, FIRST_LAST_NEITHER, CompletedStudent, StudentSnippet2, complete_snippets_2,
+    grade_summary, marge_snippets_2, student_snippet_from_typed_row_2,
+)
 from src.challenges.sectional.section_test_data_types import (
-    DataSet, LabeledTypedRow, StudentSummary, TChallengePythonPysparkAnswer)
+    LabeledTypedRow, SectionDataSet, StudentSummary, TChallengePythonPysparkAnswer,
+)
 from src.utils.tidy_spark_session import TidySparkSession
 from src.utils.utils import int_divide_round_up
 
@@ -21,21 +21,21 @@ class StudentSnippetWIndex(NamedTuple):
 
 def section_pyspark_rdd_mappart_partials(
         spark_session: TidySparkSession,
-        data_set: DataSet,
+        data_set: SectionDataSet,
 ) -> TChallengePythonPysparkAnswer:
-    if data_set.data_size.num_students > pow(10, 5-1):
+    if data_set.data_description.num_students > pow(10, 5-1):
         # unreliable in local mode
         return "infeasible"
     sc = spark_session.spark_context
-    expected_row_count = data_set.data_size.num_rows
-    filename = data_set.data.test_filepath
+    expected_row_count = data_set.data_description.num_source_rows
+    filename = data_set.exec_params.source_data_file_path
     default_parallelism = data_set.exec_params.default_parallelism
     maximum_processable_segment = data_set.exec_params.maximum_processable_segment
     targetNumPartitions = int_divide_round_up(expected_row_count + 2, maximum_processable_segment)
     rdd_orig: RDD[LabeledTypedRow] = rdd_typed_with_index_factory(spark_session, filename, targetNumPartitions)
 
     def report_num_completed(complete_count: int) -> None:
-        print(f"Completed {complete_count} of {data_set.data_size.num_students}")
+        print(f"Completed {complete_count} of {data_set.data_description.num_students}")
 
     rdd_answer = section_mappart_partials_logic(
         sc=sc,

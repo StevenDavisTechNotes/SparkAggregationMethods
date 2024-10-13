@@ -1,10 +1,10 @@
-import datetime
+import datetime as dt
 import os
 from dataclasses import dataclass
 
 from src.perf_test_common import (
     CalcEngine, ChallengeMethodRegistrationBase, PersistedRunResultBase, PersistedRunResultLog, RunResultBase,
-    RunResultFileWriterBase, SolutionLanguage,
+    RunResultFileWriterBase, SolutionInterface, SolutionInterfaceScalaSpark, SolutionLanguage, parse_interface_python,
 )
 from src.utils.utils import root_folder_abs_path
 
@@ -18,24 +18,25 @@ EXPECTED_SIZES = [3 * 3 * 10**x for x in range(0, 6 + 1)]
 
 @dataclass(frozen=True)
 class VanillaRunResult(RunResultBase):
-    # engine: CalcEngine
-    # data_size: int
-    # elapsed_time: float
-    # record_count: int
-    pass
+    # for RunResultBase
+    num_source_rows: int
+    elapsed_time: float
+    num_output_rows: int
+    finished_at: str | None
 
 
 @dataclass(frozen=True)
-class VanillaPersistedRunResult(PersistedRunResultBase):
-    # strategy_name: str
-    # language: str
-    # engine: CalcEngine
-    # strategy_w_language_name: str
-    # interface: str
-    # data_size: int
-    # elapsed_time: float
-    # record_count: int
-    pass
+class VanillaPersistedRunResult(PersistedRunResultBase[SolutionInterface], VanillaRunResult):
+    # for RunResultBase
+    num_source_rows: int
+    elapsed_time: float
+    num_output_rows: int
+    finished_at: str | None
+    # for PersistedRunResultBase
+    language: SolutionLanguage
+    engine: CalcEngine
+    interface: SolutionInterface
+    strategy_name: str
 
 
 def derive_run_log_file_path_for_recording(
@@ -57,7 +58,7 @@ def derive_run_log_file_path_for_recording(
         run_log)
 
 
-class VanillaPersistedRunResultLog(PersistedRunResultLog):
+class VanillaPersistedRunResultLog(PersistedRunResultLog[VanillaPersistedRunResult]):
     def __init__(
             self,
             engine: CalcEngine,
@@ -75,7 +76,7 @@ class VanillaPersistedRunResultLog(PersistedRunResultLog):
             language=language,
         )
 
-    def derive_run_log_file_path_for_reading(
+    def derive_run_log_file_path(
             self,
     ) -> str | None:
         match self.engine:
@@ -91,36 +92,37 @@ class VanillaPersistedRunResultLog(PersistedRunResultLog):
 
     def result_looks_valid(
             self,
-            result: PersistedRunResultBase,
+            result: VanillaPersistedRunResult,
     ) -> bool:
         assert isinstance(result, VanillaPersistedRunResult)
-        return result.record_count == 9
+        return result.num_output_rows == 9
 
     def read_regular_line_from_log_file(
             self,
             line: str,
             fields: list[str],
-    ) -> PersistedRunResultBase | None:
-        strategy_name, interface, result_data_size, \
-            result_elapsed_time, result_record_count, \
-            result_finished_at, result_engine  \
+    ) -> VanillaPersistedRunResult | None:
+        strategy_name, interface, num_source_rows, \
+            elapsed_time, num_output_rows, \
+            finished_at, result_engine  \
             = tuple(fields)
         result = VanillaPersistedRunResult(
             strategy_name=strategy_name,
             language=self.language,
             engine=self.engine,
-            strategy_w_language_name=f"{strategy_name}_{self.language}",
-            interface=interface,
-            num_data_points=int(result_data_size),
-            elapsed_time=float(result_elapsed_time),
-            record_count=int(result_record_count))
+            interface=parse_interface_python(interface, self.engine),
+            num_source_rows=int(num_source_rows),
+            elapsed_time=float(elapsed_time),
+            num_output_rows=int(num_output_rows),
+            finished_at=finished_at,
+        )
         return result
 
     def read_scala_line_from_log_file(
             self,
             line: str,
             fields: list[str],
-    ) -> PersistedRunResultBase | None:
+    ) -> VanillaPersistedRunResult | None:
         outcome, strategy_name, interface, expected_size, returnedSize, elapsed_time = tuple(
             fields)
         if outcome != 'success':
@@ -133,11 +135,11 @@ class VanillaPersistedRunResultLog(PersistedRunResultLog):
             strategy_name=strategy_name,
             engine=self.engine,
             language=self.language,
-            strategy_w_language_name=f"{strategy_name}_{self.language}",
-            interface=interface,
-            num_data_points=int(expected_size),
+            interface=SolutionInterfaceScalaSpark(interface),
+            num_source_rows=int(expected_size),
             elapsed_time=float(elapsed_time),
-            record_count=-1,
+            num_output_rows=-1,
+            finished_at=None,
         )
         return result
 
@@ -147,12 +149,19 @@ class VanillaPersistedRunResultLog(PersistedRunResultLog):
             line: str,
             last_header_line: list[str],
             fields: list[str],
-    ) -> PersistedRunResultBase | None:
+    ) -> VanillaPersistedRunResult | None:
         match self.engine:
             case CalcEngine.DASK | CalcEngine.PYSPARK | CalcEngine.PYTHON_ONLY:
                 return self.read_regular_line_from_log_file(line, fields)
             case CalcEngine.SCALA_SPARK:
                 return self.read_scala_line_from_log_file(line, fields)
+
+
+def regressor_from_run_result(
+        result: PersistedRunResultBase,
+) -> int:
+    assert isinstance(result, VanillaPersistedRunResult)
+    return result.num_source_rows
 
 
 class VanillaPythonRunResultFileWriter(RunResultFileWriterBase):
@@ -161,19 +170,11 @@ class VanillaPythonRunResultFileWriter(RunResultFileWriterBase):
             self,
             engine: CalcEngine,
     ):
-        match engine:
-            case CalcEngine.DASK | CalcEngine.PYSPARK | CalcEngine.PYTHON_ONLY:
-                language = SolutionLanguage.PYTHON
-            case CalcEngine.SCALA_SPARK:
-                raise ValueError("Scala has its own writer")
-            case _:
-                raise ValueError(f"Unknown engine: {engine}")
-        self.engine = engine
-        self.language = language
         super().__init__(
             file_name=__class__.derive_run_log_file_path_for_recording(engine),
+            language=SolutionLanguage.PYTHON,
             engine=engine,
-            language=language,
+            persisted_row_type=VanillaPersistedRunResult,
         )
 
     def __enter__(self) -> 'VanillaPythonRunResultFileWriter':
@@ -191,25 +192,30 @@ class VanillaPythonRunResultFileWriter(RunResultFileWriterBase):
             derive_run_log_file_path_for_recording(engine),
         )
 
-    def write_header(
-            self,
-    ) -> None:
-        print(' strategy,interface,num_data_points,elapsed_time,record_count,engine,finished_at,', file=self.file)
-        self.file.flush()
-
     def write_run_result(
             self,
             challenge_method_registration: ChallengeMethodRegistrationBase,
-            result: RunResultBase,
+            run_result: RunResultBase,
     ) -> None:
-        assert isinstance(result, VanillaRunResult)
+        assert isinstance(run_result, VanillaRunResult)
         assert self.engine == challenge_method_registration.engine
-        assert challenge_method_registration.engine == result.engine
-        print("%s,%s,%d,%f,%d,%s,%s," % (
-            challenge_method_registration.strategy_name,
-            challenge_method_registration.interface_getter,
-            result.num_data_points, result.elapsed_time, result.record_count,
-            challenge_method_registration.engine.value,
-            datetime.datetime.now().isoformat()
-        ), file=self.file)
+        # print("%s,%s,%d,%f,%d,%s,%s," % (
+        #     challenge_method_registration.strategy_name,
+        #     challenge_method_registration.interface,
+        #     result.num_source_rows, result.elapsed_time, result.num_output_rows,
+        #     challenge_method_registration.engine.value,
+        #     dt.datetime.now().isoformat(),
+        # ), file=self.file)
+        # self.file.flush()
+        self._persist_run_result(VanillaPersistedRunResult(
+            num_source_rows=run_result.num_source_rows,
+            elapsed_time=run_result.elapsed_time,
+            num_output_rows=run_result.num_output_rows,
+            finished_at=dt.datetime.now().isoformat(),
+
+            language=SolutionLanguage.PYTHON,
+            engine=challenge_method_registration.engine,
+            interface=challenge_method_registration.interface,
+            strategy_name=challenge_method_registration.strategy_name,
+        ))
         self.file.flush()

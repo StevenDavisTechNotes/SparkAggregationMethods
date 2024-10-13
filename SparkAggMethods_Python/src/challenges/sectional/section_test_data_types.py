@@ -1,3 +1,4 @@
+import inspect
 from dataclasses import dataclass
 from enum import StrEnum
 from typing import Callable, Iterable, Literal, NamedTuple, Protocol
@@ -8,8 +9,9 @@ from pyspark import RDD
 from pyspark.sql import DataFrame as PySparkDataFrame
 
 from src.perf_test_common import (
-    CalcEngine, ChallengeMethodRegistrationBase, SolutionInterface, SolutionInterfaceDask, SolutionInterfacePySpark,
-    SolutionInterfacePythonOnly, SolutionLanguage,
+    CalcEngine, ChallengeMethodRegistrationBase, DataSetDescriptionBase, SolutionInterfaceDask,
+    SolutionInterfacePySpark, SolutionInterfacePythonOnly, SolutionLanguage, TChallengeMethodDelegate,
+    TSolutionInterface,
 )
 from src.utils.tidy_spark_session import TidySparkSession
 
@@ -21,7 +23,6 @@ class ExecutionParameters:
     test_data_folder_location: str
 
 
-# region GenData
 class StudentHeader(NamedTuple):
     StudentId: int
     StudentName: str
@@ -85,50 +86,60 @@ class LabeledTypedRow(NamedTuple):
 
 
 NumDepartments = 4
-# endregion
 
 
-@dataclass(frozen=True)
-class DataSetDescription:
+class SectionDataSetDescription(DataSetDescriptionBase):
+    # for DataSetDescriptionBase
+    debugging_only: bool
+    num_source_rows: int
+    size_code: str
+    # for SectionDataSetDescription
+    i_scale: int
     num_students: int
     section_size_max: int
 
-    @property
-    def size_code(self) -> str:
-        return str(self.num_students)
+    def __init__(
+            self,
+            *,
+            i_scale: int,
+            num_students: int,
+            section_size_max: int,
+    ) -> None:
+        debugging_only = False
+        num_source_rows = num_students * section_size_max
+        size_code = str(num_students)
+        super().__init__(
+            debugging_only=debugging_only,
+            num_source_rows=num_source_rows,
+            size_code=size_code,
+        )
+        self.i_scale = i_scale
+        self.num_students = num_students
+        self.section_size_max = section_size_max
 
-    @property
-    def num_rows(self) -> int:
-        return self.num_students * self.section_size_max
+    @classmethod
+    def regressor_field_name(cls) -> str:
+        regressor_field_name = "num_students"
+        assert regressor_field_name in inspect.get_annotations(cls)
+        return regressor_field_name
 
 
 @dataclass(frozen=True)
-class DataSetData:
+class SectionPySparkExecutionParameters(ExecutionParameters):
     target_num_partitions: int
     section_maximum: int
-    test_filepath: str
+    source_data_file_path: str
 
 
 @dataclass(frozen=True)
-class DataSet():
-    data_size: DataSetDescription
-    data: DataSetData
-    exec_params: ExecutionParameters
+class SectionDataSet():
+    data_description: SectionDataSetDescription
+    exec_params: SectionPySparkExecutionParameters
 
 
 @dataclass(frozen=True)
-class DataSetWithAnswer(DataSet):
+class SectionDataSetWithAnswer(SectionDataSet):
     answer_generator: Callable[[], Iterable[StudentSummary]] | None
-
-
-@dataclass(frozen=True)
-class RunResult:
-    strategy_name: str
-    engine: CalcEngine
-    success: bool
-    data: DataSet
-    elapsed_time: float
-    record_count: int
 
 
 class SolutionScale(StrEnum):
@@ -140,13 +151,21 @@ class SolutionScale(StrEnum):
 
 
 @dataclass(frozen=True)
-class SectionChallengeMethodRegistrationBase(ChallengeMethodRegistrationBase):
+class SectionChallengeMethodRegistrationBase(
+    ChallengeMethodRegistrationBase[
+        TSolutionInterface, TChallengeMethodDelegate
+    ]
+):
+    # for ChallengeMethodRegistrationBase
+    strategy_name_2018: str | None
     strategy_name: str
     language: SolutionLanguage
     engine: CalcEngine
-    # interface: str
-    scale: SolutionScale
+    interface: TSolutionInterface
     requires_gpu: bool
+    delegate: TChallengeMethodDelegate
+    # for SixTestDataChallengeMethodRegistrationBase
+    scale: SolutionScale
 
 
 TChallengePythonAnswer = (
@@ -156,70 +175,54 @@ TChallengePythonPysparkAnswer = (
     Literal["infeasible"] | list[StudentSummary] | RDD[StudentSummary] | PySparkDataFrame)
 
 
-class IChallengeMethodPythonDaskRegistration(Protocol):
+class ISectionChallengeMethodPythonDask(Protocol):
     def __call__(
         self,
         *,
         spark_session: TidySparkSession,
-        data_set: DataSet
+        data_set: SectionDataSet
     ) -> TChallengePythonAnswer: ...
 
 
 @dataclass(frozen=True)
-class ChallengeMethodDaskRegistration(SectionChallengeMethodRegistrationBase):
+class ChallengeMethodDaskRegistration(
+    SectionChallengeMethodRegistrationBase[
+        SolutionInterfaceDask, ISectionChallengeMethodPythonDask
+    ]
+):
     interface: SolutionInterfaceDask
-    delegate: IChallengeMethodPythonDaskRegistration
-
-    @property
-    def delegate_getter(self) -> Callable:
-        return self.delegate
-
-    @property
-    def interface_getter(self) -> SolutionInterface:
-        return self.interface
+    delegate: ISectionChallengeMethodPythonDask
 
 
-class IChallengeMethodPythonPysparkRegistration(Protocol):
+class ISectionChallengeMethodPythonPyspark(Protocol):
     def __call__(
         self,
         *,
         spark_session: TidySparkSession,
-        data_set: DataSet
+        data_set: SectionDataSet
     ) -> TChallengePythonPysparkAnswer: ...
 
 
 @dataclass(frozen=True)
-class ChallengeMethodPysparkRegistration(SectionChallengeMethodRegistrationBase):
+class SectionChallengeMethodPysparkRegistration(
+    SectionChallengeMethodRegistrationBase[SolutionInterfacePySpark, ISectionChallengeMethodPythonPyspark]
+):
     strategy_name_2018: str
     interface: SolutionInterfacePySpark
-    delegate: IChallengeMethodPythonPysparkRegistration
-
-    @property
-    def delegate_getter(self) -> Callable:
-        return self.delegate
-
-    @property
-    def interface_getter(self) -> SolutionInterface:
-        return self.interface
+    delegate: ISectionChallengeMethodPythonPyspark
 
 
-class IChallengeMethodPythonOnlyRegistration(Protocol):
+class ISectionChallengeMethodPythonOnly(Protocol):
     def __call__(
         self,
         *,
-        data_set: DataSet
+        data_set: SectionDataSet
     ) -> TChallengePythonAnswer: ...
 
 
 @dataclass(frozen=True)
-class ChallengeMethodPythonOnlyRegistration(SectionChallengeMethodRegistrationBase):
+class SectionChallengeMethodPythonOnlyRegistration(
+    SectionChallengeMethodRegistrationBase[SolutionInterfacePythonOnly, ISectionChallengeMethodPythonOnly]
+):
     interface: SolutionInterfacePythonOnly
-    delegate: IChallengeMethodPythonOnlyRegistration
-
-    @property
-    def delegate_getter(self) -> Callable:
-        return self.delegate
-
-    @property
-    def interface_getter(self) -> SolutionInterface:
-        return self.interface
+    delegate: ISectionChallengeMethodPythonOnly

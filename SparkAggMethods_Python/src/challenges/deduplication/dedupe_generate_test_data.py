@@ -1,46 +1,29 @@
 # cSpell: ignore Plaineville
 import hashlib
 import os
-from dataclasses import dataclass
 from functools import reduce
 from pathlib import Path
 
 import pyspark.sql.functions as func
 from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import SparkSession
+from terminology import in_red
 
 from src.challenges.deduplication.dedupe_test_data_types import (
-    DataSet, ExecutionParameters, RecordSparseStruct)
+    DedupeDataSetDescription, DedupePySparkDataSet, ExecutionParameters, RecordSparseStruct,
+)
 from src.utils.utils import always_true, int_divide_round_up
-
-
-@dataclass(frozen=True)
-class DataSetDescription:
-    size_code: str
-    num_people: int
-    num_b_recs: int
-    num_sources: int
-    data_size: int
-
 
 MAX_EXPONENT = 5
 DATA_SIZE_LIST_DEDUPE = [
-    DataSetDescription(
-        size_code=data_size_code,
+    DedupeDataSetDescription(
         num_people=num_people,
         num_b_recs=num_b_recs,
         num_sources=num_sources,
-        data_size=num_rows,
     )
     for num_people in [10**x for x in range(0, MAX_EXPONENT + 1)]
     for num_sources in [2, 3, 6]
     if always_true(num_b_recs := max(1, 2 * num_people // 100))
-    if always_true(num_rows := (num_sources - 1) * num_people + num_b_recs)
-    if always_true(logical_data_size := num_sources * num_people)
-    if always_true(data_size_code :=
-                   str(logical_data_size)
-                   if logical_data_size < 1000 else
-                   f'{logical_data_size//1000}k')
 ]
 MAX_DATA_POINTS_PER_PARTITION: int = 10000
 
@@ -85,18 +68,19 @@ def generate_test_data(
     data_size_code_list: list[str],
     spark: SparkSession,
     exec_params: ExecutionParameters
-) -> list[DataSet]:
+) -> list[DedupePySparkDataSet]:
     root_path = os.path.join(
-        exec_params.TestDataFolderLocation, "Dedupe_Test_Data")
+        exec_params.test_data_folder_location, "Dedupe_Test_Data")
     source_codes = ['A', 'B', 'C', 'D', 'E', 'F']
 
     Path(root_path).mkdir(parents=True, exist_ok=True)
-    all_data_sets: list[DataSet] = []
+    all_data_sets: list[DedupePySparkDataSet] = []
     target_data_size_list = [x for x in DATA_SIZE_LIST_DEDUPE if x.size_code in data_size_code_list]
-    for num_people in sorted({x.num_people for x in target_data_size_list}):
+    for target_data_size in sorted(target_data_size_list, key=lambda x: x.num_people):
+        num_people = target_data_size.num_people
         generate_data_files(root_path, source_codes, num_people)
         single_source_data_frames: list[PySparkDataFrame]
-        if exec_params.CanAssumeNoDupesPerPartition:
+        if exec_params.can_assume_no_dupes_per_partition:
             single_source_data_frames = [
                 (spark.read
                  .csv(
@@ -126,28 +110,32 @@ def generate_test_data(
             3: combine_sources(3),
             6: combine_sources(6),
         }
-        if exec_params.CanAssumeNoDupesPerPartition is False:  # Scramble
+        if exec_params.can_assume_no_dupes_per_partition is False:
+            # then scramble
             quantized_data_sets = {
-                k: df.repartition(exec_params.NumExecutors)
+                k: df.repartition(exec_params.num_executors)
                 for k, df in quantized_data_sets.items()
             }
         for df in quantized_data_sets.values():
             df.persist()
-        for num_sources, df in quantized_data_sets.items():
-            data_size = df.count()
-            if data_size not in [x.data_size for x in target_data_size_list]:
-                continue
-            num_partitions = max(
-                exec_params.DefaultParallelism,
-                int_divide_round_up(
-                    data_size,
-                    MAX_DATA_POINTS_PER_PARTITION))
-            all_data_sets.append(DataSet(
-                num_people=num_people,
-                num_sources=num_sources,
-                data_size=data_size,
-                grouped_num_partitions=num_partitions,
-                df=df))
+        df = quantized_data_sets[target_data_size.num_sources]
+        actual_data_size = df.count()
+        if actual_data_size != target_data_size.num_source_rows:
+            print(in_red(
+                f"Bad result for {target_data_size.num_people}, "
+                f"{target_data_size.num_sources} sources, expected "
+                f"{target_data_size.num_source_rows}, got {actual_data_size}!"))
+            exit(11)
+        num_partitions = max(
+            exec_params.default_parallelism,
+            int_divide_round_up(
+                actual_data_size,
+                MAX_DATA_POINTS_PER_PARTITION))
+        all_data_sets.append(DedupePySparkDataSet(
+            data_description=target_data_size,
+            grouped_num_partitions=num_partitions,
+            df=df,
+        ))
     return all_data_sets
 
 

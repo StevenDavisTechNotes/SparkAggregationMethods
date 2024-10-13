@@ -1,7 +1,8 @@
 from functools import reduce
 
 from src.challenges.sectional.domain_logic.section_snippet_subtotal_type import (
-    FIRST_LAST_NEITHER, StudentSnippet2, marge_snippets_2)
+    FIRST_LAST_NEITHER, StudentSnippet2, marge_snippets_2,
+)
 
 
 class Test_full_set:
@@ -588,7 +589,3 @@ class Test_full_set:
             LastMajor=1,
             Credits=[20, 11, 22, 24],
             WeightedGradeTotal=[65, 53, 60, 80])
-
-
-if __name__ == "__main__":
-    print("here")

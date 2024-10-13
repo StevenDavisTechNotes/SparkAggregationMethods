@@ -24,7 +24,7 @@ from src.challenges.bi_level.strategies.using_python_only.bi_level_py_only_pd_gr
 from src.perf_test_common import (
     CalcEngine, SolutionInterfaceDask, SolutionInterfacePySpark, SolutionInterfacePythonOnly, SolutionLanguage,
 )
-from src.six_field_test_data.six_generate_test_data import ChallengeMethodPythonPysparkRegistration
+from src.six_field_test_data.six_generate_test_data import SixFieldChallengeMethodPythonPysparkRegistration
 from src.six_field_test_data.six_generate_test_data.six_test_data_for_dask import ChallengeMethodPythonDaskRegistration
 from src.six_field_test_data.six_generate_test_data.six_test_data_for_python_only import (
     ChallengeMethodPythonOnlyRegistration,
@@ -75,8 +75,8 @@ STRATEGIES_USING_DASK_REGISTRY: list[ChallengeMethodPythonDaskRegistration] = [
     ),
 ]
 
-STRATEGIES_USING_PYSPARK_REGISTRY: list[ChallengeMethodPythonPysparkRegistration] = [
-    ChallengeMethodPythonPysparkRegistration(
+STRATEGIES_USING_PYSPARK_REGISTRY: list[SixFieldChallengeMethodPythonPysparkRegistration] = [
+    SixFieldChallengeMethodPythonPysparkRegistration(
         strategy_name_2018='bi_sql_join',
         strategy_name=name_of_function(bi_level_pyspark_sql_join),
         language=SolutionLanguage.PYTHON,
@@ -86,7 +86,7 @@ STRATEGIES_USING_PYSPARK_REGISTRY: list[ChallengeMethodPythonPysparkRegistration
         numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=bi_level_pyspark_sql_join
     ),
-    ChallengeMethodPythonPysparkRegistration(
+    SixFieldChallengeMethodPythonPysparkRegistration(
         strategy_name_2018='bi_fluent_join',
         strategy_name=name_of_function(bi_level_pyspark_df_join),
         language=SolutionLanguage.PYTHON,
@@ -96,7 +96,7 @@ STRATEGIES_USING_PYSPARK_REGISTRY: list[ChallengeMethodPythonPysparkRegistration
         numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=bi_level_pyspark_df_join
     ),
-    ChallengeMethodPythonPysparkRegistration(
+    SixFieldChallengeMethodPythonPysparkRegistration(
         strategy_name_2018='bi_pandas',
         strategy_name=name_of_function(bi_level_pyspark_df_grp_pandas),
         language=SolutionLanguage.PYTHON,
@@ -106,7 +106,7 @@ STRATEGIES_USING_PYSPARK_REGISTRY: list[ChallengeMethodPythonPysparkRegistration
         numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=bi_level_pyspark_df_grp_pandas
     ),
-    ChallengeMethodPythonPysparkRegistration(
+    SixFieldChallengeMethodPythonPysparkRegistration(
         strategy_name_2018='bi_pandas_numba',
         strategy_name=name_of_function(bi_level_pyspark_df_grp_pandas_numba),
         language=SolutionLanguage.PYTHON,
@@ -116,7 +116,7 @@ STRATEGIES_USING_PYSPARK_REGISTRY: list[ChallengeMethodPythonPysparkRegistration
         numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=bi_level_pyspark_df_grp_pandas_numba
     ),
-    ChallengeMethodPythonPysparkRegistration(
+    SixFieldChallengeMethodPythonPysparkRegistration(
         strategy_name_2018='bi_sql_nested',
         strategy_name=name_of_function(bi_level_pyspark_sql_nested),
         language=SolutionLanguage.PYTHON,
@@ -126,7 +126,7 @@ STRATEGIES_USING_PYSPARK_REGISTRY: list[ChallengeMethodPythonPysparkRegistration
         numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=bi_level_pyspark_sql_nested
     ),
-    ChallengeMethodPythonPysparkRegistration(
+    SixFieldChallengeMethodPythonPysparkRegistration(
         strategy_name_2018='bi_fluent_nested',
         strategy_name=name_of_function(bi_level_pyspark_df_nested),
         language=SolutionLanguage.PYTHON,
@@ -136,7 +136,7 @@ STRATEGIES_USING_PYSPARK_REGISTRY: list[ChallengeMethodPythonPysparkRegistration
         numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=bi_level_pyspark_df_nested
     ),
-    ChallengeMethodPythonPysparkRegistration(
+    SixFieldChallengeMethodPythonPysparkRegistration(
         strategy_name_2018='bi_fluent_window',
         strategy_name=name_of_function(bi_level_pyspark_df_window),
         language=SolutionLanguage.PYTHON,
@@ -146,7 +146,7 @@ STRATEGIES_USING_PYSPARK_REGISTRY: list[ChallengeMethodPythonPysparkRegistration
         numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=bi_level_pyspark_df_window
     ),
-    ChallengeMethodPythonPysparkRegistration(
+    SixFieldChallengeMethodPythonPysparkRegistration(
         strategy_name_2018='bi_rdd_grpmap',
         strategy_name=name_of_function(bi_level_pyspark_rdd_grp_map),
         language=SolutionLanguage.PYTHON,
@@ -156,7 +156,7 @@ STRATEGIES_USING_PYSPARK_REGISTRY: list[ChallengeMethodPythonPysparkRegistration
         numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=bi_level_pyspark_rdd_grp_map
     ),
-    ChallengeMethodPythonPysparkRegistration(
+    SixFieldChallengeMethodPythonPysparkRegistration(
         strategy_name_2018='bi_rdd_reduce1',
         strategy_name=name_of_function(bi_level_pyspark_rdd_reduce_1),
         language=SolutionLanguage.PYTHON,
@@ -166,7 +166,7 @@ STRATEGIES_USING_PYSPARK_REGISTRY: list[ChallengeMethodPythonPysparkRegistration
         numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=bi_level_pyspark_rdd_reduce_1
     ),
-    ChallengeMethodPythonPysparkRegistration(
+    SixFieldChallengeMethodPythonPysparkRegistration(
         strategy_name_2018='bi_rdd_reduce2',
         strategy_name=name_of_function(bi_level_pyspark_rdd_reduce_2),
         language=SolutionLanguage.PYTHON,
@@ -176,7 +176,7 @@ STRATEGIES_USING_PYSPARK_REGISTRY: list[ChallengeMethodPythonPysparkRegistration
         numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=bi_level_pyspark_rdd_reduce_2
     ),
-    ChallengeMethodPythonPysparkRegistration(
+    SixFieldChallengeMethodPythonPysparkRegistration(
         strategy_name_2018='bi_rdd_mappart',
         strategy_name=name_of_function(bi_level_pyspark_rdd_map_part),
         language=SolutionLanguage.PYTHON,

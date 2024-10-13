@@ -4,9 +4,9 @@ import random
 from pathlib import Path
 
 from src.challenges.sectional.section_test_data_types import (
-    DataSet, DataSetData, DataSetDescription, ExecutionParameters,
-    NumDepartments)
-from src.utils.utils import always_true, int_divide_round_up
+    ExecutionParameters, NumDepartments, SectionDataSet, SectionDataSetDescription, SectionPySparkExecutionParameters,
+)
+from src.utils.utils import int_divide_round_up
 
 TEST_DATA_FILE_LOCATION = 'd:/temp/SparkPerfTesting'
 NUM_TRIMESTERS = 8
@@ -16,12 +16,12 @@ SECTION_SIZE_MAXIMUM = (1 + NUM_TRIMESTERS * (1 + NUM_CLASSES_PER_TRIMESTER + 1)
 
 LARGEST_EXPONENT = 7  # some can operate at 8 or above
 DATA_SIZE_LIST_SECTIONAL = [
-    DataSetDescription(
-        num_students=num_students,
+    SectionDataSetDescription(
+        i_scale=i_scale,
+        num_students=10**i_scale,
         section_size_max=SECTION_SIZE_MAXIMUM,
     )
     for i_scale in range(0, LARGEST_EXPONENT + 1)
-    if always_true(num_students := 10**i_scale)
 ]
 
 
@@ -73,8 +73,8 @@ def populate_data_files(
 def populate_data_sets(
         exec_params: ExecutionParameters,
         make_new_files: bool,
-) -> list[DataSet]:
-    datasets: list[DataSet] = []
+) -> list[SectionDataSet]:
+    datasets: list[SectionDataSet] = []
     num_students = 1
     for i_scale in range(0, LARGEST_EXPONENT + 1):
         num_students = 10**i_scale
@@ -92,16 +92,15 @@ def populate_data_sets(
                 data_size,
                 exec_params.maximum_processable_segment))
         datasets.append(
-            DataSet(
-                data_size=DataSetDescription(
-                    num_students=num_students,
-                    section_size_max=SECTION_SIZE_MAXIMUM,
-                ),
-                data=DataSetData(
+            SectionDataSet(
+                data_description=DATA_SIZE_LIST_SECTIONAL[i_scale],
+                exec_params=SectionPySparkExecutionParameters(
+                    default_parallelism=exec_params.default_parallelism,
+                    maximum_processable_segment=exec_params.maximum_processable_segment,
+                    test_data_folder_location=exec_params.test_data_folder_location,
                     section_maximum=SECTION_SIZE_MAXIMUM,
-                    test_filepath=file_path,
+                    source_data_file_path=file_path,
                     target_num_partitions=src_num_partitions,
                 ),
-                exec_params=exec_params,
             ))
     return datasets

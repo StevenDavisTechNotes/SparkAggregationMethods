@@ -41,8 +41,13 @@ def parse_results(calc_engine: CalcEngine) -> list[BiLevelPersistedRunResult]:
     with open(TEMP_RESULT_FILE_PATH, 'w') as out_fh:
         for result in raw_test_runs:
             out_fh.write("%s,%s,%d,%d,%f,%d\n" % (
-                result.strategy_name, result.interface,
-                result.num_data_points, result.relative_cardinality, result.elapsed_time, result.record_count))
+                result.strategy_name,
+                result.interface,
+                result.num_source_rows,
+                result.relative_cardinality_between_groupings,
+                result.elapsed_time,
+                result.num_output_rows,
+            ))
     if len(raw_test_runs) < 1:
         print("no tests")
     return raw_test_runs
@@ -107,7 +112,7 @@ def analyze_run_results():
                 numRuns, regressor_value, mean, stdev, rl, rh
             )
         times = [x for lst in test_runs_by_size.values() for x in lst]
-        x_values = [float(x.relative_cardinality) for x in times]
+        x_values = [float(x.relative_cardinality_between_groupings) for x in times]
         y_values = [float(x.elapsed_time) for x in times]
         match linear_regression(x_values, y_values, confidence):
             case None:
@@ -144,5 +149,6 @@ def analyze_run_results():
 
 
 if __name__ == "__main__":
+    print(f"Running {__file__}")
     analyze_run_results()
     print("Done!")

@@ -4,23 +4,25 @@ from pyspark import RDD
 from pyspark.sql import Row
 
 from src.challenges.deduplication.dedupe_test_data_types import (
-    DataSet, ExecutionParameters, TChallengePendingAnswerPythonPyspark)
+    DedupePySparkDataSet, ExecutionParameters, TChallengePendingAnswerPythonPyspark,
+)
 from src.challenges.deduplication.domain_logic.dedupe_domain_methods import (
-    blocking_function, combine_row_list, is_match)
+    blocking_function, combine_row_list, is_match,
+)
 from src.utils.tidy_spark_session import TidySparkSession
 
 
 def dedupe_pyspark_rdd_reduce(
         spark_session: TidySparkSession,
         exec_params: ExecutionParameters,
-        data_set: DataSet,
+        data_set: DedupePySparkDataSet,
 ) -> TChallengePendingAnswerPythonPyspark:
-    if data_set.data_size > 502000:
+    if data_set.data_description.num_source_rows > 502000:
         return "infeasible"
     dfSrc = data_set.df
     numPartitions = data_set.grouped_num_partitions
     appendRowToList = append_row_to_list_disjoint \
-        if exec_params.CanAssumeNoDupesPerPartition \
+        if exec_params.can_assume_no_dupes_per_partition \
         else append_row_to_list_mixed
     rdd2: RDD[tuple[int, Row]] = \
         dfSrc.rdd \

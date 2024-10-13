@@ -22,10 +22,10 @@ from src.perf_test_common import (
 )
 from src.six_field_test_data.six_generate_test_data import (
     ChallengeMethodPythonDaskRegistration, ChallengeMethodPythonOnlyRegistration,
-    ChallengeMethodPythonPysparkRegistration,
+    SixFieldChallengeMethodPythonPysparkRegistration,
 )
 from src.six_field_test_data.six_generate_test_data.six_test_data_for_pyspark import (
-    ChallengeMethodScalaSparkRegistration,
+    SixFieldChallengeMethodScalaSparkRegistration, TSixFieldChallengePendingAnswerPythonPyspark,
 )
 from src.six_field_test_data.six_test_data_types import NumericalToleranceExpectations
 from src.utils.inspection import name_of_function
@@ -113,8 +113,8 @@ STRATEGIES_USING_DASK_REGISTRY: list[ChallengeMethodPythonDaskRegistration] = [
     ),
 ]
 
-STRATEGIES_USING_PYSPARK_REGISTRY: list[ChallengeMethodPythonPysparkRegistration] = [
-    ChallengeMethodPythonPysparkRegistration(
+STRATEGIES_USING_PYSPARK_REGISTRY: list[SixFieldChallengeMethodPythonPysparkRegistration] = [
+    SixFieldChallengeMethodPythonPysparkRegistration(
         strategy_name_2018='vanilla_sql',
         strategy_name=name_of_function(vanilla_pyspark_sql),
         language=SolutionLanguage.PYTHON,
@@ -124,7 +124,7 @@ STRATEGIES_USING_PYSPARK_REGISTRY: list[ChallengeMethodPythonPysparkRegistration
         numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=vanilla_pyspark_sql
     ),
-    ChallengeMethodPythonPysparkRegistration(
+    SixFieldChallengeMethodPythonPysparkRegistration(
         strategy_name_2018='vanilla_fluent',
         strategy_name=name_of_function(vanilla_pyspark_df_grp_builtin),
         language=SolutionLanguage.PYTHON,
@@ -134,7 +134,7 @@ STRATEGIES_USING_PYSPARK_REGISTRY: list[ChallengeMethodPythonPysparkRegistration
         numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=vanilla_pyspark_df_grp_builtin,
     ),
-    ChallengeMethodPythonPysparkRegistration(
+    SixFieldChallengeMethodPythonPysparkRegistration(
         strategy_name_2018='vanilla_pandas',
         strategy_name=name_of_function(vanilla_pyspark_df_grp_pandas),
         language=SolutionLanguage.PYTHON,
@@ -144,7 +144,7 @@ STRATEGIES_USING_PYSPARK_REGISTRY: list[ChallengeMethodPythonPysparkRegistration
         numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=vanilla_pyspark_df_grp_pandas,
     ),
-    ChallengeMethodPythonPysparkRegistration(
+    SixFieldChallengeMethodPythonPysparkRegistration(
         strategy_name_2018='vanilla_pandas_numpy',
         strategy_name=name_of_function(vanilla_pyspark_df_grp_numpy),
         language=SolutionLanguage.PYTHON,
@@ -154,7 +154,7 @@ STRATEGIES_USING_PYSPARK_REGISTRY: list[ChallengeMethodPythonPysparkRegistration
         numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=vanilla_pyspark_df_grp_numpy,
     ),
-    ChallengeMethodPythonPysparkRegistration(
+    SixFieldChallengeMethodPythonPysparkRegistration(
         strategy_name_2018='vanilla_pandas_numba',
         strategy_name=name_of_function(vanilla_pyspark_df_grp_numba),
         language=SolutionLanguage.PYTHON,
@@ -164,7 +164,7 @@ STRATEGIES_USING_PYSPARK_REGISTRY: list[ChallengeMethodPythonPysparkRegistration
         numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=vanilla_pyspark_df_grp_numba,
     ),
-    ChallengeMethodPythonPysparkRegistration(
+    SixFieldChallengeMethodPythonPysparkRegistration(
         strategy_name_2018='vanilla_rdd_grpmap',
         strategy_name=name_of_function(vanilla_pyspark_rdd_grp_map),
         language=SolutionLanguage.PYTHON,
@@ -174,7 +174,7 @@ STRATEGIES_USING_PYSPARK_REGISTRY: list[ChallengeMethodPythonPysparkRegistration
         numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=vanilla_pyspark_rdd_grp_map,
     ),
-    ChallengeMethodPythonPysparkRegistration(
+    SixFieldChallengeMethodPythonPysparkRegistration(
         strategy_name_2018='vanilla_rdd_reduce',
         strategy_name=name_of_function(vanilla_pyspark_rdd_reduce),
         language=SolutionLanguage.PYTHON,
@@ -184,7 +184,7 @@ STRATEGIES_USING_PYSPARK_REGISTRY: list[ChallengeMethodPythonPysparkRegistration
         numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=vanilla_pyspark_rdd_reduce,
     ),
-    ChallengeMethodPythonPysparkRegistration(
+    SixFieldChallengeMethodPythonPysparkRegistration(
         strategy_name_2018='vanilla_rdd_mappart',
         strategy_name=name_of_function(vanilla_pyspark_rdd_mappart),
         language=SolutionLanguage.PYTHON,
@@ -217,8 +217,14 @@ STRATEGIES_USING_PYTHON_ONLY_REGISTRY: list[ChallengeMethodPythonOnlyRegistratio
         delegate=vanilla_py_only_pd_grp_numpy,
     ),
 ]
+
+
+def ScalaSparkMethodPlaceholder() -> TSixFieldChallengePendingAnswerPythonPyspark:
+    raise NotImplementedError("ScalaSparkMethodPlaceholder")
+
+
 STRATEGIES_USING_SCALA_REGISTRY = [
-    ChallengeMethodScalaSparkRegistration(
+    SixFieldChallengeMethodScalaSparkRegistration(
         strategy_name_2018='vanilla_pyspark_sql',
         strategy_name='vanilla_sc_spark_sql',
         language=SolutionLanguage.SCALA,
@@ -226,8 +232,9 @@ STRATEGIES_USING_SCALA_REGISTRY = [
         interface=SolutionInterfaceScalaSpark.SPARK_SQL,
         numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         requires_gpu=False,
+        delegate=ScalaSparkMethodPlaceholder,
     ),
-    ChallengeMethodScalaSparkRegistration(
+    SixFieldChallengeMethodScalaSparkRegistration(
         strategy_name_2018='vanilla_fluent',
         strategy_name='vanilla_sc_spark_fluent',
         language=SolutionLanguage.SCALA,
@@ -235,8 +242,9 @@ STRATEGIES_USING_SCALA_REGISTRY = [
         interface=SolutionInterfaceScalaSpark.SPARK_SQL,
         numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         requires_gpu=False,
+        delegate=ScalaSparkMethodPlaceholder,
     ),
-    ChallengeMethodScalaSparkRegistration(
+    SixFieldChallengeMethodScalaSparkRegistration(
         strategy_name_2018='vanilla_udaf',
         strategy_name='vanilla_sc_spark_udaf',
         language=SolutionLanguage.SCALA,
@@ -244,8 +252,9 @@ STRATEGIES_USING_SCALA_REGISTRY = [
         interface=SolutionInterfaceScalaSpark.SPARK_SQL,
         numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         requires_gpu=False,
+        delegate=ScalaSparkMethodPlaceholder,
     ),
-    ChallengeMethodScalaSparkRegistration(
+    SixFieldChallengeMethodScalaSparkRegistration(
         strategy_name_2018='vanilla_rdd_grpmap',
         strategy_name='vanilla_sc_spark_rdd_grpmap',
         language=SolutionLanguage.SCALA,
@@ -253,8 +262,9 @@ STRATEGIES_USING_SCALA_REGISTRY = [
         interface=SolutionInterfaceScalaSpark.SPARK_RDD,
         numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         requires_gpu=False,
+        delegate=ScalaSparkMethodPlaceholder,
     ),
-    ChallengeMethodScalaSparkRegistration(
+    SixFieldChallengeMethodScalaSparkRegistration(
         strategy_name_2018='vanilla_rdd_reduce',
         strategy_name='vanilla_sc_spark_rdd_reduce',
         language=SolutionLanguage.SCALA,
@@ -262,8 +272,9 @@ STRATEGIES_USING_SCALA_REGISTRY = [
         interface=SolutionInterfaceScalaSpark.SPARK_RDD,
         numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         requires_gpu=False,
+        delegate=ScalaSparkMethodPlaceholder,
     ),
-    ChallengeMethodScalaSparkRegistration(
+    SixFieldChallengeMethodScalaSparkRegistration(
         strategy_name_2018='vanilla_rdd_mappart',
         strategy_name='vanilla_sc_spark_rdd_mappart',
         language=SolutionLanguage.SCALA,
@@ -271,5 +282,6 @@ STRATEGIES_USING_SCALA_REGISTRY = [
         interface=SolutionInterfaceScalaSpark.SPARK_RDD,
         numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         requires_gpu=False,
+        delegate=ScalaSparkMethodPlaceholder,
     ),
 ]

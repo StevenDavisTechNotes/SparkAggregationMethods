@@ -3,16 +3,15 @@ from typing import cast
 from dask.dataframe.core import DataFrame as DaskDataFrame
 from dask_sql import Context
 
-from src.six_field_test_data.six_generate_test_data import (
-    DataSetDask, TChallengeAnswerPythonDask)
-from src.six_field_test_data.six_test_data_types import ExecutionParameters
+from src.six_field_test_data.six_generate_test_data import DataSetDask, TChallengeAnswerPythonDask
+from src.six_field_test_data.six_test_data_types import SixTestExecutionParameters
 
 # pyright: reportArgumentType=false
 # pyright: reportCallIssue=false
 
 
 def bi_level_dask_sql_nested_no_gpu(
-        exec_params: ExecutionParameters,
+        exec_params: SixTestExecutionParameters,
         data_set: DataSetDask,
 ) -> TChallengeAnswerPythonDask:
     df = data_set.data.df_src

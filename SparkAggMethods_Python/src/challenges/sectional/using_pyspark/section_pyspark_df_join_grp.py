@@ -3,26 +3,25 @@ import pyspark.sql.types as DataTypes
 from pyspark.sql import Row
 from pyspark.sql.window import Window
 
-from src.challenges.sectional.domain_logic.section_data_parsers import (
-    parse_line_to_row, row_to_student_summary)
-from src.challenges.sectional.section_record_runs import \
-    MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT
+from src.challenges.sectional.domain_logic.section_data_parsers import parse_line_to_row, row_to_student_summary
+from src.challenges.sectional.section_record_runs import MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT
 from src.challenges.sectional.section_test_data_types import (
-    DataSet, SparseLineSchema, TChallengePythonPysparkAnswer)
+    SectionDataSet, SparseLineSchema, TChallengePythonPysparkAnswer,
+)
 from src.utils.tidy_spark_session import TidySparkSession
 
 
 def section_join_groupby(
         spark_session: TidySparkSession,
-        data_set: DataSet,
+        data_set: SectionDataSet,
 ) -> TChallengePythonPysparkAnswer:
-    if data_set.data_size.num_students > pow(10, MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT - 1):
+    if data_set.data_description.num_students > pow(10, MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT - 1):
         return "infeasible"
     sc = spark_session.spark_context
     spark = spark_session.spark
-    sectionMaximum = data_set.data.section_maximum
+    sectionMaximum = data_set.exec_params.section_maximum
 
-    rdd = sc.textFile(data_set.data.test_filepath, data_set.data.target_num_partitions)
+    rdd = sc.textFile(data_set.exec_params.source_data_file_path, data_set.exec_params.target_num_partitions)
 
     NumRows = rdd.count()
     rdd = (

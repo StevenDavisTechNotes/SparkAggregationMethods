@@ -25,6 +25,7 @@ py -3.11 -m venv venv
 python -c "import sys; print(sys.executable)"
 .\venv\Scripts\python.exe -m pip install --upgrade pip
 pip install -r .\requirements.txt
+pip3 freeze > frozen_requirements.txt
 
 ```
 Then Close and reopen VSCode
@@ -34,7 +35,7 @@ Then Close and reopen VSCode
 ```
 . .\venv\Scripts\Activate.ps1
 flake8 src
-clear && flake8 src && pyright src && python -m pytest src
+.\venv\Scripts\Activate.ps1; clear && flake8 src && pyright src && python -m pytest src
 autopep8 --recursive --diff src | findstr /i /c:'--- original/'
 autopep8 --recursive  --in-place src
 & "cspell-cli" "src/**/*.py" "--no-summary" "--no-progress" "--exclude" "__pycache__" "--exclude" ".git" "--exclude" "venv" "--fail-fast"

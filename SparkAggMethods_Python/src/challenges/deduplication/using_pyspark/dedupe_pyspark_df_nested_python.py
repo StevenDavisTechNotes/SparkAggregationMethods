@@ -1,19 +1,20 @@
 import pyspark.sql.functions as func
 
 from src.challenges.deduplication.dedupe_test_data_types import (
-    DataSet, ExecutionParameters, TChallengePendingAnswerPythonPyspark)
+    DedupePySparkDataSet, ExecutionParameters, TChallengePendingAnswerPythonPyspark,
+)
 from src.challenges.deduplication.domain_logic.dedupe_domain_methods import (
-    SinglePass_RecList_DF_Returns, nest_blocks_dataframe, single_pass_rec_list,
-    unnest_blocks_dataframe)
+    SinglePass_RecList_DF_Returns, nest_blocks_dataframe, single_pass_rec_list, unnest_blocks_dataframe,
+)
 from src.utils.tidy_spark_session import TidySparkSession
 
 
 def dedupe_pyspark_df_nested_python(
         spark_session: TidySparkSession,
         exec_params: ExecutionParameters,
-        data_set: DataSet,
+        data_set: DedupePySparkDataSet,
 ) -> TChallengePendingAnswerPythonPyspark:
-    if data_set.data_size > 502000:
+    if data_set.data_description.num_source_rows > 502000:
         return "infeasible"
 
     dfSrc = data_set.df

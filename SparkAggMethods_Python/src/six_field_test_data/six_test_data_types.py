@@ -3,7 +3,6 @@ import os
 import pickle
 import random
 from dataclasses import dataclass
-from enum import Enum, StrEnum
 from pathlib import Path
 from typing import NamedTuple
 
@@ -11,18 +10,15 @@ import numpy as np
 import pandas as pd
 import pyspark.sql.types as DataTypes
 
-from src.perf_test_common import CalcEngine, ChallengeMethodRegistrationBase, SolutionLanguage
+from src.perf_test_common import (
+    CalcEngine, Challenge, ChallengeMethodRegistrationBase, DataSetDescriptionBase, NumericalToleranceExpectations,
+    SolutionLanguage, TChallengeMethodDelegate, TSolutionInterface,
+)
 from src.utils.utils import always_true, int_divide_round_up
 
 SHARED_LOCAL_TEST_DATA_FILE_LOCATION = "d:/temp/SparkPerfTesting"
 MAX_DATA_POINTS_PER_SPARK_PARTITION = 5 * 10**3
 MAX_DATA_POINTS_PER_DASK_PARTITION = 1 * 10**5
-
-
-class Challenge(StrEnum):
-    VANILLA = 'vanilla'
-    BI_LEVEL = 'bilevel'
-    CONDITIONAL = 'conditional'
 
 
 class DataPointNT(NamedTuple):
@@ -79,24 +75,41 @@ DataPointSchema = DataTypes.StructType([
     DataTypes.StructField('F', DataTypes.DoubleType(), False)])
 
 
-@dataclass(frozen=True)
-class DataSetDescription:
+class SixTestDataSetDescription(DataSetDescriptionBase):
+    # for DataSetDescriptionBase
+    debugging_only: bool
+    num_source_rows: int
     size_code: str
+    # for SixTestDataSetDescription
     num_grp_1: int
     num_grp_2: int
     points_per_index: int
+    relative_cardinality_between_groupings: int
 
-    @property
-    def num_data_points(self) -> int:
-        return self.num_grp_1 * self.num_grp_2 * self.points_per_index
-
-    @property
-    def relative_cardinality_between_groupings(self) -> int:
-        return self.num_grp_2 // self.num_grp_1
+    def __init__(
+            self,
+            *,
+            debugging_only: bool,
+            num_grp_1: int,
+            num_grp_2: int,
+            points_per_index: int,
+            size_code: str,
+    ):
+        num_source_rows = num_grp_1 * num_grp_2 * points_per_index
+        relative_cardinality_between_groupings = num_grp_2 // num_grp_1
+        super().__init__(
+            debugging_only=debugging_only,
+            num_source_rows=num_source_rows,
+            size_code=size_code,
+        )
+        self.num_grp_1 = num_grp_1
+        self.num_grp_2 = num_grp_2
+        self.points_per_index = points_per_index
+        self.relative_cardinality_between_groupings = relative_cardinality_between_groupings
 
 
 @dataclass(frozen=True)
-class DataSetAnswer():
+class DataSetAnswers():
     vanilla_answer: pd.DataFrame
     bilevel_answer: pd.DataFrame
     conditional_answer: pd.DataFrame
@@ -117,14 +130,14 @@ class DataSetAnswer():
 
 
 @dataclass(frozen=True)
-class ExecutionParameters:
-    DefaultParallelism: int
-    TestDataFolderLocation: str
+class SixTestExecutionParameters:
+    default_parallelism: int
+    test_data_folder_location: str
 
 
 @dataclass(frozen=True)
-class DataSetGeneric():
-    num_data_points: int
+class SixTestDataSetWAnswers():
+    num_source_rows: int
     src_num_partitions: int
     tgt_num_partitions_1_level: int
     tgt_num_partitions_2_level: int
@@ -134,29 +147,27 @@ class DataSetGeneric():
     conditional_answer: pd.DataFrame
 
 
-class NumericalToleranceExpectations(Enum):
-    NUMPY = 1e-12
-    NUMBA = 1e-10
-    SIMPLE_SUM = 1e-11
-
-
 @dataclass(frozen=True)
-class SixTestDataChallengeMethodRegistrationBase(ChallengeMethodRegistrationBase):
+class SixTestDataChallengeMethodRegistrationBase(
+    ChallengeMethodRegistrationBase[TSolutionInterface, TChallengeMethodDelegate]
+):
+    # for ChallengeMethodRegistrationBase
     strategy_name_2018: str | None
     strategy_name: str
     language: SolutionLanguage
     engine: CalcEngine
-    # interface: SolutionInterface
-    numerical_tolerance: NumericalToleranceExpectations
+    interface: TSolutionInterface
     requires_gpu: bool
-    # delegate: Callable | None
+    delegate: TChallengeMethodDelegate
+    # for SixTestDataChallengeMethodRegistrationBase
+    numerical_tolerance: NumericalToleranceExpectations
 
 
 def populate_data_set_generic(
         engine: CalcEngine,
-        exec_params: ExecutionParameters,
-        data_size: DataSetDescription,
-) -> DataSetGeneric:
+        exec_params: SixTestExecutionParameters,
+        data_size: SixTestDataSetDescription,
+) -> SixTestDataSetWAnswers:
     num_grp_1 = data_size.num_grp_1
     num_grp_2 = data_size.num_grp_2
     repetition = data_size.points_per_index
@@ -176,7 +187,7 @@ def populate_data_set_generic(
     src_num_partitions = (
         1 if max_data_points_per_partition < 0 else
         max(
-            exec_params.DefaultParallelism,
+            exec_params.default_parallelism,
             int_divide_round_up(
                 num_data_points,
                 max_data_points_per_partition,
@@ -184,11 +195,11 @@ def populate_data_set_generic(
         )
     )
     staging_file_name_parquet = os.path.join(
-        exec_params.TestDataFolderLocation,
+        exec_params.test_data_folder_location,
         "SixField_Test_Data",
         f"SixFieldTestData_{num_grp_1}_{num_grp_2}_{repetition}.parquet")
     staging_file_name_csv = os.path.join(
-        exec_params.TestDataFolderLocation,
+        exec_params.test_data_folder_location,
         "SixField_Test_Data",
         f"SixFieldTestData_{num_grp_1}_{num_grp_2}_{repetition}.csv")
     if os.path.exists(staging_file_name_parquet) is False:
@@ -258,8 +269,8 @@ def populate_data_set_generic(
           f"src_num_partitions={src_num_partitions} "
           f"each {num_grp_1 * num_grp_2 * repetition/src_num_partitions:.1f}")
 
-    return DataSetGeneric(
-        num_data_points=num_data_points,
+    return SixTestDataSetWAnswers(
+        num_source_rows=num_data_points,
         src_num_partitions=src_num_partitions,
         tgt_num_partitions_1_level=num_grp_1,
         tgt_num_partitions_2_level=num_grp_1 * num_grp_2,

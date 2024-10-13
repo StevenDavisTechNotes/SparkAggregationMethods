@@ -8,6 +8,7 @@ from src.challenges.bi_level import bi_level_python_only_runner
 from src.challenges.vanilla import vanilla_python_only_runner
 
 if __name__ == "__main__":
+    print(f"Running {__file__}")
     bi_level_python_only_runner.main()
     # conditional_python_only_runner.main()
     # dedupe_python_only_runner.main()

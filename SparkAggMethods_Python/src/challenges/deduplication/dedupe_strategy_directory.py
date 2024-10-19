@@ -1,3 +1,5 @@
+from spark_agg_methods_common_python.utils.inspection import name_of_function
+
 from src.challenges.deduplication.dedupe_test_data_types import DedupeChallengeMethodPythonPysparkRegistration
 from src.challenges.deduplication.using_pyspark.dedupe_pyspark_df_nested_pandas import dedupe_pyspark_df_nested_pandas
 from src.challenges.deduplication.using_pyspark.dedupe_pyspark_df_nested_python import dedupe_pyspark_df_nested_python
@@ -7,7 +9,6 @@ from src.challenges.deduplication.using_pyspark.dedupe_pyspark_rdd_grp import de
 from src.challenges.deduplication.using_pyspark.dedupe_pyspark_rdd_map_part import dedupe_pyspark_rdd_map_part
 from src.challenges.deduplication.using_pyspark.dedupe_pyspark_rdd_reduce import dedupe_pyspark_rdd_reduce
 from src.perf_test_common import CalcEngine, SolutionInterfacePySpark, SolutionLanguage
-from src.utils.inspection import name_of_function
 
 # STRATEGIES_USING_DASK_REGISTRY: list[ChallengeMethodPythonDaskRegistration] = [
 # ]

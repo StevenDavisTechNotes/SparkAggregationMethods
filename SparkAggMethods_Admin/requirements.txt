@@ -1,0 +1,15 @@
+# gc requirements.txt | sort > c:\temp\t.txt
+# pip install -r requirements.txt
+# pip freeze > frozen_requirements.txt
+autopep8
+flake8
+# numba
+numpy
+pandas
+prettyprinter
+psutil 
+pytest
+pytz
+psutil
+scipy
+statsmodels 

@@ -1,6 +1,7 @@
 from typing import Callable, Iterable, NamedTuple, cast
 
 from pyspark import RDD, SparkContext, StorageLevel
+from spark_agg_methods_common_python.utils.utils import int_divide_round_up
 
 from src.challenges.sectional.domain_logic.section_data_parsers import rdd_typed_with_index_factory
 from src.challenges.sectional.domain_logic.section_snippet_subtotal_type import (
@@ -11,7 +12,6 @@ from src.challenges.sectional.section_test_data_types import (
     LabeledTypedRow, SectionDataSet, StudentSummary, TChallengePythonPysparkAnswer,
 )
 from src.utils.tidy_spark_session import TidySparkSession
-from src.utils.utils import int_divide_round_up
 
 
 class StudentSnippetWIndex(NamedTuple):

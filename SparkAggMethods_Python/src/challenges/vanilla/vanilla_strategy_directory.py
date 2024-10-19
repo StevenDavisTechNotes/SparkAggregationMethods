@@ -1,3 +1,5 @@
+from spark_agg_methods_common_python.utils.inspection import name_of_function
+
 from src.challenges.vanilla.using_dask.vanilla_dask_bag_accumulate import vanilla_dask_bag_accumulate
 from src.challenges.vanilla.using_dask.vanilla_dask_bag_fold import vanilla_dask_bag_fold
 from src.challenges.vanilla.using_dask.vanilla_dask_bag_foldby import vanilla_dask_bag_foldby
@@ -28,7 +30,6 @@ from src.six_field_test_data.six_generate_test_data.six_test_data_for_pyspark im
     SixFieldChallengeMethodScalaSparkRegistration, TSixFieldChallengePendingAnswerPythonPyspark,
 )
 from src.six_field_test_data.six_test_data_types import NumericalToleranceExpectations
-from src.utils.inspection import name_of_function
 
 STRATEGIES_USING_DASK_REGISTRY: list[ChallengeMethodPythonDaskRegistration] = [
     ChallengeMethodPythonDaskRegistration(

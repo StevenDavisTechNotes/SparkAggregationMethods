@@ -9,12 +9,12 @@ from typing import NamedTuple
 import numpy as np
 import pandas as pd
 import pyspark.sql.types as DataTypes
+from spark_agg_methods_common_python.utils.utils import always_true, int_divide_round_up
 
 from src.perf_test_common import (
     CalcEngine, Challenge, ChallengeMethodRegistrationBase, DataSetDescriptionBase, NumericalToleranceExpectations,
     SolutionLanguage, TChallengeMethodDelegate, TSolutionInterface,
 )
-from src.utils.utils import always_true, int_divide_round_up
 
 SHARED_LOCAL_TEST_DATA_FILE_LOCATION = "d:/temp/SparkPerfTesting"
 MAX_DATA_POINTS_PER_SPARK_PARTITION = 5 * 10**3

@@ -7,6 +7,8 @@ import random
 import time
 from dataclasses import dataclass
 
+from spark_agg_methods_common_python.utils.utils import always_true, set_random_seed
+
 from src.challenge_strategy_registry import (
     ChallengeResultLogFileRegistration, ChallengeStrategyRegistration, update_challenge_strategy_registration,
 )
@@ -26,7 +28,6 @@ from src.six_field_test_data.six_test_data_types import (
     SHARED_LOCAL_TEST_DATA_FILE_LOCATION, Challenge, SixTestExecutionParameters,
 )
 from src.utils.tidy_spark_session import LOCAL_NUM_EXECUTORS, TidySparkSession
-from src.utils.utils import always_true, set_random_seed
 
 DEBUG_ARGS = None if True else (
     []

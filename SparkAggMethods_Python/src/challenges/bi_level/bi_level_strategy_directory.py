@@ -1,3 +1,5 @@
+from spark_agg_methods_common_python.utils.inspection import name_of_function
+
 from src.challenges.bi_level.strategies.using_dask.bi_level_dask_sql_nested import bi_level_dask_sql_nested_no_gpu
 from src.challenges.bi_level.strategies.using_dask.bi_level_dask_sql_single_join import (
     bi_level_dask_sql_single_join_no_gpu,
@@ -30,7 +32,6 @@ from src.six_field_test_data.six_generate_test_data.six_test_data_for_python_onl
     ChallengeMethodPythonOnlyRegistration,
 )
 from src.six_field_test_data.six_test_data_types import NumericalToleranceExpectations
-from src.utils.inspection import name_of_function
 
 STRATEGIES_USING_DASK_REGISTRY: list[ChallengeMethodPythonDaskRegistration] = [
     # ChallengeMethodPythonDaskRegistration(

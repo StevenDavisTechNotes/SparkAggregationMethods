@@ -2,12 +2,12 @@ from dataclasses import asdict
 
 import pandas as pd
 from dask.bag.core import Bag as DaskBag
+from spark_agg_methods_common_python.utils.ensure_has_memory import check_memory
 
 from src.challenges.vanilla.vanilla_test_data_types import RESULT_COLUMNS
 from src.six_field_test_data import six_domain_logic
 from src.six_field_test_data.six_generate_test_data import DataSetDask, TChallengeAnswerPythonDask
 from src.six_field_test_data.six_test_data_types import DataPointNT, SixTestExecutionParameters, SubTotalDC
-from src.utils.ensure_has_memory import check_memory
 
 
 def vanilla_dask_bag_fold(

@@ -7,12 +7,12 @@ from pathlib import Path
 import pyspark.sql.functions as func
 from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import SparkSession
+from spark_agg_methods_common_python.utils.utils import always_true, int_divide_round_up
 from terminology import in_red
 
 from src.challenges.deduplication.dedupe_test_data_types import (
     DedupeDataSetDescription, DedupePySparkDataSet, ExecutionParameters, RecordSparseStruct,
 )
-from src.utils.utils import always_true, int_divide_round_up
 
 MAX_EXPONENT = 5
 DATA_SIZE_LIST_DEDUPE = [

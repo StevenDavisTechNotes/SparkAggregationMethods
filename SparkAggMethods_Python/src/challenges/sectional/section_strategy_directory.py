@@ -1,3 +1,5 @@
+from spark_agg_methods_common_python.utils.inspection import name_of_function
+
 from src.challenges.sectional.section_test_data_types import (
     ChallengeMethodDaskRegistration, SectionChallengeMethodPysparkRegistration,
     SectionChallengeMethodPythonOnlyRegistration, SolutionScale,
@@ -21,7 +23,6 @@ from src.challenges.sectional.using_pyspark.section_pyspark_rdd_reduce_asymm_par
 )
 from src.challenges.sectional.using_python_only.section_py_only_single_threaded import section_py_only_single_threaded
 from src.perf_test_common import CalcEngine, SolutionInterfacePySpark, SolutionInterfacePythonOnly, SolutionLanguage
-from src.utils.inspection import name_of_function
 
 STRATEGIES_USING_DASK_REGISTRY: list[ChallengeMethodDaskRegistration] = [
 ]

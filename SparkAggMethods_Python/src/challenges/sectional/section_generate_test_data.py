@@ -3,10 +3,11 @@ import os
 import random
 from pathlib import Path
 
+from spark_agg_methods_common_python.utils.utils import int_divide_round_up
+
 from src.challenges.sectional.section_test_data_types import (
     ExecutionParameters, NumDepartments, SectionDataSet, SectionDataSetDescription, SectionPySparkExecutionParameters,
 )
-from src.utils.utils import int_divide_round_up
 
 TEST_DATA_FILE_LOCATION = 'd:/temp/SparkPerfTesting'
 NUM_TRIMESTERS = 8

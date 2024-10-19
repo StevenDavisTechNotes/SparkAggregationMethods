@@ -20,13 +20,13 @@ python --version # to double confirm
 
 rm venv -r # to remove the venv folder
 get-childitem src -include __pycache__ -recurse | remove-item -Force -Recurse
-py -3.11 -m venv venv
+py -3.13 -m venv venv
 .\venv\Scripts\Activate.ps1
 python -c "import sys; print(sys.executable)"
 .\venv\Scripts\python.exe -m pip install --upgrade pip
 pip install -r .\requirements.txt
-pip3 freeze > frozen_requirements.txt
 pip install -e 'C:\Src\GitHub_Hosted\SparkAggMethods2\SparkAggMethods_CommonPython\' --config-settings editable_mode=compat
+
 ```
 Then Close and reopen VSCode
 
@@ -35,7 +35,7 @@ Then Close and reopen VSCode
 ```
 . .\venv\Scripts\Activate.ps1
 flake8 src
-.\venv\Scripts\Activate.ps1; clear && flake8 src && pyright src && python -m pytest src
+clear && flake8 src && pyright src && python -m pytest src
 autopep8 --recursive --diff src | findstr /i /c:'--- original/'
 autopep8 --recursive  --in-place src
 & "cspell-cli" "src/**/*.py" "--no-summary" "--no-progress" "--exclude" "__pycache__" "--exclude" ".git" "--exclude" "venv" "--fail-fast"
@@ -49,7 +49,7 @@ Look to see what version of Spark and Dask you are going to use, and then work b
   - (Download)(https://spark.apache.org/downloads.html)
     - Pre-built for Apache Hadoop 3.3 and later
     - Unzip to `D:\Programs\spark-3.4.3-bin-hadoop3`
-- Python 3.11
+- Python
   - https://www.python.org/downloads/
 - Java JDK 17
   - https://www.oracle.com/java/technologies/downloads/#java17

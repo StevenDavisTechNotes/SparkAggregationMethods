@@ -1,3 +1,5 @@
+from spark_agg_methods_common_python.utils.inspection import name_of_function
+
 from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_df_grp_pandas import cond_pyspark_df_grp_pandas
 from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_df_grp_pandas_numba import (
     cond_pyspark_df_grp_pandas_numba,
@@ -20,7 +22,6 @@ from src.six_field_test_data.six_generate_test_data.six_test_data_for_python_onl
     ChallengeMethodPythonOnlyRegistration,
 )
 from src.six_field_test_data.six_test_data_types import NumericalToleranceExpectations
-from src.utils.inspection import name_of_function
 
 STRATEGIES_USING_DASK_REGISTRY: list[ChallengeMethodPythonDaskRegistration] = [
 ]

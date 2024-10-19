@@ -7,6 +7,8 @@ import random
 import time
 from typing import NamedTuple
 
+from spark_agg_methods_common_python.utils.utils import always_true, set_random_seed
+
 from src.challenge_strategy_registry import (
     ChallengeResultLogFileRegistration, ChallengeStrategyRegistration, update_challenge_strategy_registration,
 )
@@ -24,17 +26,16 @@ from src.six_field_test_data.six_test_data_types import (
     SHARED_LOCAL_TEST_DATA_FILE_LOCATION, Challenge, SixTestExecutionParameters,
 )
 from src.utils.tidy_spark_session import LOCAL_NUM_EXECUTORS
-from src.utils.utils import always_true, set_random_seed
 
 LANGUAGE = SolutionLanguage.PYTHON
 ENGINE = CalcEngine.DASK
 CHALLENGE = Challenge.VANILLA
 
 
-DEBUG_ARGS = None if True else (
+DEBUG_ARGS = None if False else (
     []
     + '--size 3_3_10'.split()
-    + '--runs 10'.split()
+    + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
     + ['--strategy',
@@ -43,8 +44,8 @@ DEBUG_ARGS = None if True else (
        'vanilla_dask_bag_foldby',
        'vanilla_dask_bag_reduction',
        'vanilla_dask_bag_map_partitions',
-       'vanilla_dask_ddf_grp_apply',
-       'vanilla_dask_ddf_grp_udaf',
+       #    'vanilla_dask_ddf_grp_apply',
+       #    'vanilla_dask_ddf_grp_udaf',
        'vanilla_dask_sql_no_gpu',
        ]
 )

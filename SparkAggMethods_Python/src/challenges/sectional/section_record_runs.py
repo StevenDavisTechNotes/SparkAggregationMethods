@@ -1,11 +1,12 @@
 import os
 from dataclasses import dataclass
 
+from spark_agg_methods_common_python.utils.utils import root_folder_abs_path
+
 from src.perf_test_common import (
     CalcEngine, ChallengeMethodRegistrationBase, PersistedRunResultBase, PersistedRunResultLog, RunResultBase,
     RunResultFileWriterBase, SolutionInterface, SolutionLanguage, parse_interface_python,
 )
-from src.utils.utils import root_folder_abs_path
 
 PYTHON_PYSPARK_RUN_LOG_FILE_PATH: str = 'results/section_pyspark_runs.csv'
 PYTHON_DASK_RUN_LOG_FILE_PATH: str = 'results/section_dask_runs.csv'

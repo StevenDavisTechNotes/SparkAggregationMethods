@@ -13,6 +13,7 @@ from typing import Literal
 from pyspark import RDD
 from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import Row
+from spark_agg_methods_common_python.utils.utils import always_true, set_random_seed
 
 from src.challenge_strategy_registry import (
     ChallengeResultLogFileRegistration, ChallengeStrategyRegistration, update_challenge_strategy_registration,
@@ -30,7 +31,6 @@ from src.perf_test_common import (
     ELAPSED_TIME_COLUMN_NAME, CalcEngine, Challenge, NumericalToleranceExpectations, SolutionLanguage,
 )
 from src.utils.tidy_spark_session import TidySparkSession
-from src.utils.utils import always_true, set_random_seed
 
 LANGUAGE = SolutionLanguage.PYTHON
 ENGINE = CalcEngine.PYSPARK

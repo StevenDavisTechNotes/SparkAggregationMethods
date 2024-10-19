@@ -1,0 +1,7 @@
+{
+  "include": [
+    "spark_agg_methods_common_python"
+  ],
+  "autoSearchPaths": [],
+  "typeCheckingMode": "standard",
+}

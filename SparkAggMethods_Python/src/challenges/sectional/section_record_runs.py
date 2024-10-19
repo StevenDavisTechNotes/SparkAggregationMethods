@@ -1,8 +1,6 @@
 import os
 from dataclasses import dataclass
 
-from spark_agg_methods_common_python.utils.utils import root_folder_abs_path
-
 from src.perf_test_common import (
     CalcEngine, ChallengeMethodRegistrationBase, PersistedRunResultBase, PersistedRunResultLog, RunResultBase,
     RunResultFileWriterBase, SolutionInterface, SolutionLanguage, parse_interface_python,
@@ -56,9 +54,7 @@ def derive_run_log_file_path(
             run_log = PYTHON_DASK_RUN_LOG_FILE_PATH
         case _:
             raise ValueError(f"Unknown engine: {engine}")
-    return os.path.join(
-        root_folder_abs_path(),
-        run_log)
+    return os.path.abspath(run_log)
 
 
 def regressor_from_run_result(

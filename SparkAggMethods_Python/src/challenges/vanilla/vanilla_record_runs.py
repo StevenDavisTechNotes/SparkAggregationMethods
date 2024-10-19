@@ -2,8 +2,6 @@ import datetime as dt
 import os
 from dataclasses import dataclass
 
-from spark_agg_methods_common_python.utils.utils import root_folder_abs_path
-
 from src.perf_test_common import (
     CalcEngine, ChallengeMethodRegistrationBase, PersistedRunResultBase, PersistedRunResultLog, RunResultBase,
     RunResultFileWriterBase, SolutionInterface, SolutionInterfaceScalaSpark, SolutionLanguage, parse_interface_python,
@@ -54,9 +52,7 @@ def derive_run_log_file_path_for_recording(
             run_log = SCALA_RUN_LOG_FILE_PATH
         case _:
             raise ValueError(f"Unknown engine: {engine}")
-    return os.path.join(
-        root_folder_abs_path(),
-        run_log)
+    return os.path.abspath(run_log)
 
 
 class VanillaPersistedRunResultLog(PersistedRunResultLog[VanillaPersistedRunResult]):
@@ -82,10 +78,7 @@ class VanillaPersistedRunResultLog(PersistedRunResultLog[VanillaPersistedRunResu
     ) -> str | None:
         match self.engine:
             case CalcEngine.DASK | CalcEngine.PYSPARK | CalcEngine.PYTHON_ONLY:
-                return os.path.join(
-                    root_folder_abs_path(),
-                    derive_run_log_file_path_for_recording(self.engine),
-                )
+                return derive_run_log_file_path_for_recording(self.engine)
             case CalcEngine.SCALA_SPARK:
                 return None
             case _:
@@ -188,10 +181,7 @@ class VanillaPythonRunResultFileWriter(RunResultFileWriterBase):
     def derive_run_log_file_path_for_recording(
             engine: CalcEngine,
     ) -> str:
-        return os.path.join(
-            root_folder_abs_path(),
-            derive_run_log_file_path_for_recording(engine),
-        )
+        return derive_run_log_file_path_for_recording(engine)
 
     def write_run_result(
             self,

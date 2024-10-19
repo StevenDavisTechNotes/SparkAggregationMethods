@@ -12,6 +12,7 @@ dependencies = [
     "psutil",
     "pytest",
     "pytz",
+    "scipy",
 ]
 
 

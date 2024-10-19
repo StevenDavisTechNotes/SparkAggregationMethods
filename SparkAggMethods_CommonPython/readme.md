@@ -14,18 +14,18 @@ Use Microsoft Store or [download link](https://www.python.org/downloads/release/
 - Disable MAX_PATH
 
 Go into Windows Terminal
-```sh
+```ps1
 py -0  # to see what version is default
 python --version # to double confirm
 
 rm venv -r # to remove the venv folder
-get-childitem src -include __pycache__ -recurse | remove-item -Force -Recurse
+get-childitem spark_agg_methods_common_python -include __pycache__ -recurse | remove-item -Force -Recurse
 py -3.13 -m venv venv
 .\venv\Scripts\Activate.ps1
 python -c "import sys; print(sys.executable)"
 .\venv\Scripts\python.exe -m pip install --upgrade pip
 pip install -r .\requirements.txt
-
+pip freeze > frozen_requirements.txt
 ```
 Then Close and reopen VSCode
 
@@ -33,11 +33,11 @@ Then Close and reopen VSCode
 
 ```
 . .\venv\Scripts\Activate.ps1
-flake8 src
-clear && flake8 src && pyright src && python -m pytest src
-autopep8 --recursive --diff src | findstr /i /c:'--- original/'
-autopep8 --recursive  --in-place src
-& "cspell-cli" "src/**/*.py" "--no-summary" "--no-progress" "--exclude" "__pycache__" "--exclude" ".git" "--exclude" "venv" "--fail-fast"
+flake8 spark_agg_methods_common_python
+clear && flake8 spark_agg_methods_common_python && pyright spark_agg_methods_common_python && python -m pytest spark_agg_methods_common_python
+autopep8 --recursive --diff spark_agg_methods_common_python | findstr /i /c:'--- original/'
+autopep8 --recursive  --in-place spark_agg_methods_common_python
+& "cspell-cli" "spark_agg_methods_common_python/**/*.py" "--no-summary" "--no-progress" "--exclude" "__pycache__" "--exclude" ".git" "--exclude" "venv" "--fail-fast"
 ```
 
 ## Installing PySpark on Windows

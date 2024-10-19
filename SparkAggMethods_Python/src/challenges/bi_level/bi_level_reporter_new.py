@@ -1,5 +1,9 @@
 #!python
 # usage: .\venv\Scripts\activate.ps1; python -m src.challenges.bi_level.bi_level_reporter
+from spark_agg_methods_common_python.perf_test_common import (
+    CalcEngine, Challenge, PersistedRunResultBase, SummarizedPerformanceOfMethodAtDataSize,
+)
+
 from src.challenges.bi_level.bi_level_record_runs import (
     EXPECTED_SIZES, FINAL_REPORT_FILE_PATH, BiLevelPersistedRunResult, BiLevelPersistedRunResultLog,
     regressor_from_run_result,
@@ -7,8 +11,6 @@ from src.challenges.bi_level.bi_level_record_runs import (
 from src.challenges.bi_level.bi_level_strategy_directory import (
     STRATEGIES_USING_DASK_REGISTRY, STRATEGIES_USING_PYSPARK_REGISTRY, STRATEGIES_USING_PYTHON_ONLY_REGISTRY,
 )
-from src.perf_test_common import CalcEngine, PersistedRunResultBase, SummarizedPerformanceOfMethodAtDataSize
-from src.six_field_test_data.six_test_data_types import Challenge
 
 CHALLENGE = Challenge.BI_LEVEL
 

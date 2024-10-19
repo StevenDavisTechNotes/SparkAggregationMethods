@@ -12,7 +12,10 @@ from typing import Iterable, Literal
 
 from pyspark import RDD
 from pyspark.sql import DataFrame as PySparkDataFrame
-from spark_agg_methods_common_python.utils.utils import always_true, set_random_seed
+from spark_agg_methods_common_python.perf_test_common import (
+    ELAPSED_TIME_COLUMN_NAME, CalcEngine, Challenge, NumericalToleranceExpectations, SolutionLanguage,
+)
+from spark_agg_methods_common_python.utils.utils import always_true, count_iter, set_random_seed
 
 from src.challenge_strategy_registry import (
     ChallengeResultLogFileRegistration, ChallengeStrategyRegistration, update_challenge_strategy_registration,
@@ -27,10 +30,6 @@ from src.challenges.sectional.section_test_data_types import (
     StudentSummary,
 )
 from src.challenges.sectional.using_python_only.section_py_only_single_threaded import section_py_only_single_threaded
-from src.perf_test_common import (
-    ELAPSED_TIME_COLUMN_NAME, CalcEngine, NumericalToleranceExpectations, SolutionLanguage, count_iter,
-)
-from src.six_field_test_data.six_test_data_types import Challenge
 from src.utils.tidy_spark_session import LOCAL_NUM_EXECUTORS, TidySparkSession
 
 DEBUG_ARGS = None if True else (

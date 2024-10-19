@@ -1,12 +1,11 @@
 import os
 from dataclasses import dataclass
 
-from spark_agg_methods_common_python.utils.utils import always_true
-
-from src.perf_test_common import (
+from spark_agg_methods_common_python.perf_test_common import (
     CalcEngine, ChallengeMethodRegistrationBase, PersistedRunResultBase, PersistedRunResultLog, RunResultBase,
     RunResultFileWriterBase, SolutionInterfacePython, SolutionLanguage, parse_interface_python,
 )
+from spark_agg_methods_common_python.utils.utils import always_true
 
 PYTHON_PYSPARK_RUN_LOG_FILE_PATH = 'results/dedupe_pyspark_runs.csv'
 PYTHON_DASK_RUN_LOG_FILE_PATH = 'results/dedupe_dask_runs.csv'

@@ -7,25 +7,27 @@ import random
 import time
 from dataclasses import dataclass
 
+from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
+    SHARED_LOCAL_TEST_DATA_FILE_LOCATION, SixTestExecutionParameters,
+)
+from spark_agg_methods_common_python.perf_test_common import (
+    ELAPSED_TIME_COLUMN_NAME, CalcEngine, Challenge, SolutionLanguage,
+)
 from spark_agg_methods_common_python.utils.utils import always_true, set_random_seed
 
 from src.challenge_strategy_registry import (
     ChallengeResultLogFileRegistration, ChallengeStrategyRegistration, update_challenge_strategy_registration,
+)
+from src.challenges.six_field_test_data.six_runner_pyspark_base import test_one_step_in_pyspark_itinerary
+from src.challenges.six_field_test_data.six_test_data_for_pyspark import (
+    SixFieldChallengeMethodPythonPysparkRegistration, SixFieldDataSetPysparkWithAnswer, populate_data_set_pyspark,
 )
 from src.challenges.vanilla.vanilla_record_runs import (
     PYTHON_PYSPARK_RUN_LOG_FILE_PATH, VanillaPythonRunResultFileWriter, VanillaRunResult,
 )
 from src.challenges.vanilla.vanilla_strategy_directory import STRATEGIES_USING_PYSPARK_REGISTRY
 from src.challenges.vanilla.vanilla_test_data_types import (
-    DATA_SIZES_LIST_VANILLA, RESULT_COLUMNS, VanillaDataSetDescription,
-)
-from src.perf_test_common import ELAPSED_TIME_COLUMN_NAME, CalcEngine, SolutionLanguage
-from src.six_field_test_data.six_generate_test_data import (
-    SixFieldChallengeMethodPythonPysparkRegistration, SixFieldDataSetPysparkWithAnswer, populate_data_set_pyspark,
-)
-from src.six_field_test_data.six_runner_base import test_one_step_in_pyspark_itinerary
-from src.six_field_test_data.six_test_data_types import (
-    SHARED_LOCAL_TEST_DATA_FILE_LOCATION, Challenge, SixTestExecutionParameters,
+    DATA_SIZES_LIST_VANILLA, VANILLA_RESULT_COLUMNS, VanillaDataSetDescription,
 )
 from src.utils.tidy_spark_session import LOCAL_NUM_EXECUTORS, TidySparkSession
 
@@ -116,7 +118,7 @@ def do_test_runs(
                 spark_session=spark_session,
                 exec_params=args.exec_params,
                 challenge_method_registration=challenge_method_registration,
-                result_columns=RESULT_COLUMNS,
+                result_columns=VANILLA_RESULT_COLUMNS,
                 data_set=data_set,
             )
             if base_run_result is None:

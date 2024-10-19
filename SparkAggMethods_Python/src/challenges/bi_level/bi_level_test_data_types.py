@@ -1,12 +1,13 @@
 import inspect
 
 import pyspark.sql.types as DataTypes
+from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import SixTestDataSetDescription
 
-from src.six_field_test_data.six_test_data_types import DataPointSchema, SixTestDataSetDescription
+from src.challenges.six_field_test_data.six_field_pyspark_test_data import DataPointSchema
 
 GROUP_BY_COLUMNS = ['grp']
 AGGREGATION_COLUMNS = ['mean_of_C', 'max_of_D', 'avg_var_of_E', 'avg_var_of_E2']
-RESULT_COLUMNS = GROUP_BY_COLUMNS + AGGREGATION_COLUMNS
+BI_LEVEL_RESULT_COLUMNS = GROUP_BY_COLUMNS + AGGREGATION_COLUMNS
 postAggSchema = DataTypes.StructType(
     [x for x in DataPointSchema.fields if x.name in GROUP_BY_COLUMNS] +
     [DataTypes.StructField(name, DataTypes.DoubleType(), False) for name in AGGREGATION_COLUMNS])

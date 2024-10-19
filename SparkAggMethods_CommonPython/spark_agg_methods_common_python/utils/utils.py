@@ -1,7 +1,6 @@
 import multiprocessing
-import os
 import random
-from typing import Any
+from typing import Any, Iterable
 
 import numpy
 
@@ -28,3 +27,12 @@ def set_random_seed(
 ) -> None:
     random.seed(seed)
     numpy.random.seed(seed + 1)
+
+
+def count_iter(
+        iterator: Iterable
+):
+    count = 0
+    for _ in iterator:
+        count += 1
+    return count

@@ -1,3 +1,7 @@
+from spark_agg_methods_common_python.perf_test_common import (
+    CalcEngine, NumericalToleranceExpectations, SolutionInterfaceDask, SolutionInterfacePySpark,
+    SolutionInterfacePythonOnly, SolutionLanguage,
+)
 from spark_agg_methods_common_python.utils.inspection import name_of_function
 
 from src.challenges.bi_level.strategies.using_dask.bi_level_dask_sql_nested import bi_level_dask_sql_nested_no_gpu
@@ -23,15 +27,11 @@ from src.challenges.bi_level.strategies.using_pyspark.bi_level_pyspark_sql_neste
 from src.challenges.bi_level.strategies.using_python_only.bi_level_py_only_pd_grp_numpy import (
     bi_level_py_only_pd_grp_numpy,
 )
-from src.perf_test_common import (
-    CalcEngine, SolutionInterfaceDask, SolutionInterfacePySpark, SolutionInterfacePythonOnly, SolutionLanguage,
+from src.challenges.six_field_test_data.six_test_data_for_dask import ChallengeMethodPythonDaskRegistration
+from src.challenges.six_field_test_data.six_test_data_for_pyspark import (
+    SixFieldChallengeMethodPythonPysparkRegistration,
 )
-from src.six_field_test_data.six_generate_test_data import SixFieldChallengeMethodPythonPysparkRegistration
-from src.six_field_test_data.six_generate_test_data.six_test_data_for_dask import ChallengeMethodPythonDaskRegistration
-from src.six_field_test_data.six_generate_test_data.six_test_data_for_python_only import (
-    ChallengeMethodPythonOnlyRegistration,
-)
-from src.six_field_test_data.six_test_data_types import NumericalToleranceExpectations
+from src.challenges.six_field_test_data.six_test_data_for_python_only import ChallengeMethodPythonOnlyRegistration
 
 STRATEGIES_USING_DASK_REGISTRY: list[ChallengeMethodPythonDaskRegistration] = [
     # ChallengeMethodPythonDaskRegistration(

@@ -13,6 +13,9 @@ from typing import Literal
 from pyspark import RDD
 from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import Row
+from spark_agg_methods_common_python.perf_test_common import (
+    ELAPSED_TIME_COLUMN_NAME, CalcEngine, Challenge, NumericalToleranceExpectations, SolutionLanguage,
+)
 from spark_agg_methods_common_python.utils.utils import always_true, set_random_seed
 
 from src.challenge_strategy_registry import (
@@ -27,9 +30,6 @@ from src.challenges.deduplication.dedupe_test_data_types import (
     DedupeDataSetDescription, DedupePySparkDataSet, ExecutionParameters,
 )
 from src.challenges.deduplication.domain_logic.dedupe_expected_results import DedupeItineraryItem, verify_correctness
-from src.perf_test_common import (
-    ELAPSED_TIME_COLUMN_NAME, CalcEngine, Challenge, NumericalToleranceExpectations, SolutionLanguage,
-)
 from src.utils.tidy_spark_session import TidySparkSession
 
 LANGUAGE = SolutionLanguage.PYTHON

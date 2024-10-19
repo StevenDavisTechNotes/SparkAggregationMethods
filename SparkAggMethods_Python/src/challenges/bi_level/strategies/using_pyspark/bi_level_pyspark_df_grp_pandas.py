@@ -1,12 +1,14 @@
 from typing import cast
 
 import pandas as pd
+from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
+    SixTestExecutionParameters,
+)
 
-from src.challenges.bi_level.bi_level_test_data_types import RESULT_COLUMNS, postAggSchema
-from src.six_field_test_data.six_generate_test_data import (
+from src.challenges.bi_level.bi_level_test_data_types import BI_LEVEL_RESULT_COLUMNS, postAggSchema
+from src.challenges.six_field_test_data.six_test_data_for_pyspark import (
     SixFieldDataSetPyspark, TSixFieldChallengePendingAnswerPythonPyspark,
 )
-from src.six_field_test_data.six_test_data_types import SixTestExecutionParameters
 from src.utils.tidy_spark_session import TidySparkSession
 
 
@@ -44,4 +46,4 @@ def inner_agg_method(
                   ((col_e * col_e).sum() / col_e.count() -
                    (col_e.sum() / col_e.count())**2)))
         .mean(),
-    ]], columns=RESULT_COLUMNS)
+    ]], columns=BI_LEVEL_RESULT_COLUMNS)

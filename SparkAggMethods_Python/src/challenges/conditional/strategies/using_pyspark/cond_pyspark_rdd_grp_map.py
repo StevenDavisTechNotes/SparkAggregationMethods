@@ -2,13 +2,12 @@ from typing import Iterable, cast
 
 from pyspark import RDD
 from pyspark.sql import Row
-
-from src.six_field_test_data.six_generate_test_data import (
-    SixFieldDataSetPyspark, TSixFieldChallengePendingAnswerPythonPyspark,
-)
-from src.six_field_test_data.six_generate_test_data.six_test_data_for_pyspark import pick_agg_tgt_num_partitions_pyspark
-from src.six_field_test_data.six_test_data_types import (
+from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
     MAX_DATA_POINTS_PER_SPARK_PARTITION, Challenge, DataPointNT, SixTestExecutionParameters,
+)
+
+from src.challenges.six_field_test_data.six_test_data_for_pyspark import (
+    SixFieldDataSetPyspark, TSixFieldChallengePendingAnswerPythonPyspark, pick_agg_tgt_num_partitions_pyspark,
 )
 from src.utils.tidy_spark_session import TidySparkSession
 

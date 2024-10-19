@@ -10,3 +10,4 @@ prettyprinter
 psutil 
 pytest
 pytz
+scipy

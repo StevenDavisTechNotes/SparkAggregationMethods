@@ -8,24 +8,26 @@ import random
 import time
 from dataclasses import dataclass
 
+from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
+    SHARED_LOCAL_TEST_DATA_FILE_LOCATION, SixTestExecutionParameters,
+)
+from spark_agg_methods_common_python.perf_test_common import (
+    ELAPSED_TIME_COLUMN_NAME, CalcEngine, Challenge, SolutionLanguage,
+)
 from spark_agg_methods_common_python.utils.utils import always_true, set_random_seed
 
 from src.challenge_strategy_registry import (
     ChallengeResultLogFileRegistration, ChallengeStrategyRegistration, update_challenge_strategy_registration,
+)
+from src.challenges.six_field_test_data.six_runner_python_only_base import test_one_step_in_python_only_itinerary
+from src.challenges.six_field_test_data.six_test_data_for_python_only import (
+    ChallengeMethodPythonOnlyRegistration, DataSetPythonOnlyWithAnswer, populate_data_set_python_only,
 )
 from src.challenges.vanilla.vanilla_record_runs import (
     PYTHON_ONLY_RUN_LOG_FILE_PATH, VanillaPythonRunResultFileWriter, VanillaRunResult,
 )
 from src.challenges.vanilla.vanilla_strategy_directory import STRATEGIES_USING_PYTHON_ONLY_REGISTRY
 from src.challenges.vanilla.vanilla_test_data_types import DATA_SIZES_LIST_VANILLA, VanillaDataSetDescription
-from src.perf_test_common import ELAPSED_TIME_COLUMN_NAME, CalcEngine, SolutionLanguage
-from src.six_field_test_data.six_generate_test_data import (
-    ChallengeMethodPythonOnlyRegistration, DataSetPythonOnlyWithAnswer, populate_data_set_python_only,
-)
-from src.six_field_test_data.six_runner_base import test_one_step_in_python_only_itinerary
-from src.six_field_test_data.six_test_data_types import (
-    SHARED_LOCAL_TEST_DATA_FILE_LOCATION, Challenge, SixTestExecutionParameters,
-)
 
 LANGUAGE = SolutionLanguage.PYTHON
 ENGINE = CalcEngine.PYTHON_ONLY

@@ -2,8 +2,7 @@ import json
 from pathlib import Path
 
 from pydantic import BaseModel, TypeAdapter
-
-from src.perf_test_common import CalcEngine, Challenge, SolutionLanguage
+from spark_agg_methods_common_python.perf_test_common import CalcEngine, Challenge, SolutionLanguage
 
 REGISTRY_FILE_PATH = "./results/challenge_strategy_registration.json"
 

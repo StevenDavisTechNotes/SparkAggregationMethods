@@ -1,7 +1,7 @@
 import os
 from dataclasses import dataclass
 
-from src.perf_test_common import (
+from spark_agg_methods_common_python.perf_test_common import (
     CalcEngine, ChallengeMethodRegistrationBase, PersistedRunResultBase, PersistedRunResultLog, RunResultBase,
     RunResultFileWriterBase, SolutionInterface, SolutionLanguage, parse_interface_python,
 )

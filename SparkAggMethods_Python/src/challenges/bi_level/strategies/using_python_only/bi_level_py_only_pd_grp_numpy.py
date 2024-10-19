@@ -2,9 +2,13 @@ from typing import cast
 
 import numpy
 import pandas as pd
+from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
+    SixTestExecutionParameters,
+)
 
-from src.six_field_test_data.six_generate_test_data import DataSetPythonOnly, TChallengePythonOnlyAnswer
-from src.six_field_test_data.six_test_data_types import SixTestExecutionParameters
+from src.challenges.six_field_test_data.six_test_data_for_python_only import (
+    DataSetPythonOnly, TChallengePythonOnlyAnswer,
+)
 
 
 def bi_level_py_only_pd_grp_numpy(

@@ -7,6 +7,12 @@ import random
 import time
 from typing import NamedTuple
 
+from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
+    SHARED_LOCAL_TEST_DATA_FILE_LOCATION, SixTestExecutionParameters,
+)
+from spark_agg_methods_common_python.perf_test_common import (
+    ELAPSED_TIME_COLUMN_NAME, CalcEngine, Challenge, SolutionLanguage,
+)
 from spark_agg_methods_common_python.utils.utils import always_true, set_random_seed
 
 from src.challenge_strategy_registry import (
@@ -17,13 +23,9 @@ from src.challenges.bi_level.bi_level_record_runs import (
 )
 from src.challenges.bi_level.bi_level_strategy_directory import STRATEGIES_USING_DASK_REGISTRY
 from src.challenges.bi_level.bi_level_test_data_types import DATA_SIZES_LIST_BI_LEVEL, BiLevelDataSetDescription
-from src.perf_test_common import ELAPSED_TIME_COLUMN_NAME, CalcEngine, SolutionLanguage
-from src.six_field_test_data.six_generate_test_data import (
+from src.challenges.six_field_test_data.six_runner_dask_base import test_one_step_in_dask_itinerary
+from src.challenges.six_field_test_data.six_test_data_for_dask import (
     ChallengeMethodPythonDaskRegistration, DataSetDaskWithAnswer, populate_data_set_dask,
-)
-from src.six_field_test_data.six_runner_base import test_one_step_in_dask_itinerary
-from src.six_field_test_data.six_test_data_types import (
-    SHARED_LOCAL_TEST_DATA_FILE_LOCATION, Challenge, SixTestExecutionParameters,
 )
 from src.utils.tidy_spark_session import LOCAL_NUM_EXECUTORS
 

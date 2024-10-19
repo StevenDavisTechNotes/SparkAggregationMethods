@@ -1,3 +1,6 @@
+from spark_agg_methods_common_python.perf_test_common import (
+    CalcEngine, NumericalToleranceExpectations, SolutionInterfacePySpark, SolutionLanguage,
+)
 from spark_agg_methods_common_python.utils.inspection import name_of_function
 
 from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_df_grp_pandas import cond_pyspark_df_grp_pandas
@@ -15,13 +18,11 @@ from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_rdd_reduce
 from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_sql_join import cond_pyspark_sql_join
 from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_sql_nested import cond_pyspark_sql_nested
 from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_sql_null import cond_pyspark_sql_null
-from src.perf_test_common import CalcEngine, SolutionInterfacePySpark, SolutionLanguage
-from src.six_field_test_data.six_generate_test_data import SixFieldChallengeMethodPythonPysparkRegistration
-from src.six_field_test_data.six_generate_test_data.six_test_data_for_dask import ChallengeMethodPythonDaskRegistration
-from src.six_field_test_data.six_generate_test_data.six_test_data_for_python_only import (
-    ChallengeMethodPythonOnlyRegistration,
+from src.challenges.six_field_test_data.six_test_data_for_dask import ChallengeMethodPythonDaskRegistration
+from src.challenges.six_field_test_data.six_test_data_for_pyspark import (
+    SixFieldChallengeMethodPythonPysparkRegistration,
 )
-from src.six_field_test_data.six_test_data_types import NumericalToleranceExpectations
+from src.challenges.six_field_test_data.six_test_data_for_python_only import ChallengeMethodPythonOnlyRegistration
 
 STRATEGIES_USING_DASK_REGISTRY: list[ChallengeMethodPythonDaskRegistration] = [
 ]

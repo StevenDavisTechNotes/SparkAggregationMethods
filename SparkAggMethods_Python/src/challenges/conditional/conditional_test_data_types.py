@@ -2,8 +2,9 @@ import inspect
 from typing import NamedTuple
 
 import pyspark.sql.types as DataTypes
+from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import SixTestDataSetDescription
 
-from src.six_field_test_data.six_test_data_types import DataPointSchema, SixTestDataSetDescription
+from src.challenges.six_field_test_data.six_field_pyspark_test_data import DataPointSchema
 
 GROUP_BY_COLUMNS = ['grp', 'subgrp']
 AGGREGATION_COLUMNS_3 = ['mean_of_C', 'max_of_D', 'cond_var_of_E']

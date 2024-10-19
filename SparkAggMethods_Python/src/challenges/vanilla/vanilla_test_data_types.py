@@ -1,15 +1,16 @@
 import inspect
 
 import pyspark.sql.types as DataTypes
+from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import SixTestDataSetDescription
 
-from src.six_field_test_data.six_test_data_types import DataPointSchema, SixTestDataSetDescription
+from src.challenges.six_field_test_data.six_field_pyspark_test_data import DataPointSchema
 from src.utils.spark_helpers import make_empty_pd_dataframe_from_spark_types
 
 GROUP_BY_COLUMNS = ['grp', 'subgrp']
 AGGREGATION_COLUMNS_NON_NULL = ['mean_of_C', 'max_of_D']
 AGGREGATION_COLUMNS_NULLABLE = ['var_of_E', 'var_of_E2']
 AGGREGATION_COLUMNS = AGGREGATION_COLUMNS_NON_NULL + AGGREGATION_COLUMNS_NULLABLE
-RESULT_COLUMNS = GROUP_BY_COLUMNS + AGGREGATION_COLUMNS
+VANILLA_RESULT_COLUMNS = GROUP_BY_COLUMNS + AGGREGATION_COLUMNS
 pyspark_post_agg_schema = DataTypes.StructType(
     [x for x in DataPointSchema.fields if x.name in GROUP_BY_COLUMNS]
     + [DataTypes.StructField(name, DataTypes.DoubleType(), False)

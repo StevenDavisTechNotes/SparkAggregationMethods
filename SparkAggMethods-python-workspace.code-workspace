@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "SparkAggMethods_CommonPython"
+		},
+		{
+			"path": "SparkAggMethods_PySpark"
+		},
+		{
+			"path": "SparkAggMethods_PythonDask"
+		},
+		{
+			"path": "SparkAggMethods_PythonOnly"
+		}
+	]
+}

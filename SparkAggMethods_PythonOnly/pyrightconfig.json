@@ -1,0 +1,6 @@
+{
+  "include": ["src"],
+  "autoSearchPaths": false,
+  "stubPath": "src/typings",
+  "typeCheckingMode": "standard",
+}

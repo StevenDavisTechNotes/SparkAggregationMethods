@@ -2,12 +2,12 @@
 # pip install -r requirements.txt
 # pip freeze > frozen_requirements.txt
 autopep8
-build
 flake8
 numpy
 pandas
 prettyprinter
 psutil 
+pyarrow
 pydantic
 pytest
 pytz

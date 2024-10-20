@@ -208,18 +208,17 @@ class SummarizedPerformanceOfMethodAtDataSize:
 class PersistedRunResultLog(Generic[TPersistedRunResult], ABC):
     engine: CalcEngine
     language: SolutionLanguage
+    log_file_path: str
 
     def __init__(
             self,
             engine: CalcEngine,
             language: SolutionLanguage,
+            log_file_path: str,
     ):
         self.engine = engine
         self.language = language
-
-    @abstractmethod
-    def derive_run_log_file_path(self) -> str | None:
-        pass
+        self.log_file_path = log_file_path
 
     @abstractmethod
     def read_line_from_log_file(
@@ -241,12 +240,11 @@ class PersistedRunResultLog(Generic[TPersistedRunResult], ABC):
     def read_run_result_file(
             self,
     ) -> list[TPersistedRunResult]:
-        log_file_path = self.derive_run_log_file_path()
-        if log_file_path is None or not os.path.exists(log_file_path):
+        if self.log_file_path is None or not os.path.exists(self.log_file_path):
             return []
         test_runs: list[TPersistedRunResult] = []
         last_header_line: list[str] | None = None
-        with open(log_file_path, 'r') as f:
+        with open(self.log_file_path, 'r') as f:
             for i_line, line in enumerate(f):
                 line = line.rstrip()
                 if line.startswith('#'):
@@ -295,7 +293,6 @@ class PersistedRunResultLog(Generic[TPersistedRunResult], ABC):
             self,
             *,
             challenge: Challenge,
-            engine: CalcEngine,
             challenge_method_list: Sequence[ChallengeMethodRegistrationBase],
             test_results_by_strategy_name_by_data_size: dict[str, dict[int, list[TPersistedRunResult]]],
     ) -> list[SummarizedPerformanceOfMethodAtDataSize]:
@@ -327,11 +324,12 @@ class PersistedRunResultLog(Generic[TPersistedRunResult], ABC):
                     if numRuns > 1 else
                     (math.nan, math.nan)
                 )
+                assert self.engine == method.engine
                 rows.append(SummarizedPerformanceOfMethodAtDataSize(
                     challenge=challenge,
                     strategy_name=strategy_name,
                     language=method.language,
-                    engine=engine,
+                    engine=method.engine,
                     interface=method.interface,
                     regressor=regressor_value,
                     number_of_runs=numRuns,
@@ -362,12 +360,12 @@ class RunResultFileWriterBase(Generic[TSolutionInterface], ABC):
     def __init__(
             self,
             *,
-            file_name: str,
+            log_file_path: str,
             language: SolutionLanguage,
             engine: CalcEngine,
             persisted_row_type: type
     ):
-        self.file = open(file_name, mode='at+')
+        self.file = open(log_file_path, mode='at+')
         self.language = language
         self.engine = engine
         self.persisted_row_type = persisted_row_type

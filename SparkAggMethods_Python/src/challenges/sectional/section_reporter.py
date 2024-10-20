@@ -10,17 +10,16 @@ from spark_agg_methods_common_python.perf_test_common import (
     CalcEngine, Challenge, SolutionLanguage, SummarizedPerformanceOfMethodAtDataSize, parse_interface_python,
 )
 
-from src.challenges.sectional.section_pyspark_strategy_directory import (
+from src.challenges.sectional.section_record_runs import SectionPersistedRunResult, regressor_from_run_result
+from src.challenges.sectional.section_record_runs_pyspark import SectionPysparkPersistedRunResultLog
+from src.challenges.sectional.section_strategy_directory_pyspark import (
     STRATEGIES_USING_DASK_REGISTRY, STRATEGIES_USING_PYSPARK_REGISTRY, STRATEGIES_USING_PYTHON_ONLY_REGISTRY,
-)
-from src.challenges.sectional.section_record_runs import (
-    FINAL_REPORT_FILE_PATH, SectionPersistedRunResult, SectionPythonPersistedRunResultLog, derive_run_log_file_path,
-    regressor_from_run_result,
 )
 from src.utils.linear_regression import linear_regression
 
 LANGUAGE = SolutionLanguage.PYTHON
 CHALLENGE = Challenge.SECTIONAL
+FINAL_REPORT_FILE_PATH: str = 'results/section_results_intermediate.csv'
 EXPECTED_SIZES = [
     1,
     10,
@@ -151,7 +150,9 @@ def analyze_run_results_old():
 def read_run_results_old() -> list[SectionPersistedRunResult]:
     test_runs: list[SectionPersistedRunResult] = []
     for engine in CalcEngine:
-        run_log_file_path_for_engine = derive_run_log_file_path(engine)
+        if engine != CalcEngine.PYSPARK:
+            continue
+        run_log_file_path_for_engine = SectionPysparkPersistedRunResultLog().log_file_path
         if run_log_file_path_for_engine is None or not os.path.exists(run_log_file_path_for_engine):
             continue
         with open(run_log_file_path_for_engine, 'rt') as f:
@@ -195,9 +196,8 @@ def read_run_results_old() -> list[SectionPersistedRunResult]:
 
 def analyze_run_results_new():
     summary_status: list[SummarizedPerformanceOfMethodAtDataSize] = []
-    engine = CalcEngine.PYSPARK
     challenge_method_list = STRATEGIES_USING_PYSPARK_REGISTRY
-    reader = SectionPythonPersistedRunResultLog(engine)
+    reader = SectionPysparkPersistedRunResultLog()
     raw_test_runs = reader.read_run_result_file()
     structured_test_results = reader.structure_test_results(
         challenge_method_list=challenge_method_list,
@@ -208,7 +208,6 @@ def analyze_run_results_new():
     summary_status.extend(
         reader.do_regression(
             challenge=CHALLENGE,
-            engine=engine,
             challenge_method_list=challenge_method_list,
             test_results_by_strategy_name_by_data_size=structured_test_results,
         )

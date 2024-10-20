@@ -8,14 +8,14 @@ import numpy
 import scipy
 from spark_agg_methods_common_python.perf_test_common import CalcEngine, print_test_runs_summary
 
-from src.challenges.bi_level.bi_level_pyspark_strategy_directory import BI_LEVEL_STRATEGIES_USING_PYSPARK_REGISTRY
-from src.challenges.bi_level.bi_level_record_runs import (
-    EXPECTED_SIZES, FINAL_REPORT_FILE_PATH, BiLevelPersistedRunResult, BiLevelPersistedRunResultLog,
-    regressor_from_run_result,
-)
+from challenges.bi_level.bi_level_record_runs_pyspark import BiLevelPysparkPersistedRunResultLog
+from challenges.bi_level.bi_level_strategy_directory_pyspark import BI_LEVEL_STRATEGIES_USING_PYSPARK_REGISTRY
+from src.challenges.bi_level.bi_level_record_runs import BiLevelPersistedRunResult, regressor_from_run_result
 from src.utils.linear_regression import linear_regression
 
 TEMP_RESULT_FILE_PATH = "d:/temp/SparkPerfTesting/temp.csv"
+FINAL_REPORT_FILE_PATH = 'results/bilevel_results_old.csv'
+EXPECTED_SIZES = [1, 10, 100, 1000]
 
 
 class PerformanceModelParameters(NamedTuple):
@@ -34,7 +34,7 @@ class PerformanceModelParameters(NamedTuple):
 
 
 def parse_results(calc_engine: CalcEngine) -> list[BiLevelPersistedRunResult]:
-    reader = BiLevelPersistedRunResultLog(calc_engine)
+    reader = BiLevelPysparkPersistedRunResultLog()
     raw_test_runs = cast(
         list[BiLevelPersistedRunResult],
         reader.read_run_result_file())

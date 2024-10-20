@@ -5,15 +5,16 @@ from spark_agg_methods_common_python.perf_test_common import (
     CalcEngine, Challenge, SummarizedPerformanceOfMethodAtDataSize,
 )
 
-from src.challenges.vanilla.vanilla_record_runs import (
-    EXPECTED_SIZES, FINAL_REPORT_FILE_PATH, VanillaPersistedRunResultLog, regressor_from_run_result,
-)
+from src.challenges.vanilla.vanilla_record_runs import VanillaPersistedRunResultLog, regressor_from_run_result
+from src.challenges.vanilla.vanilla_record_runs_pyspark import VanillaPysparkPersistedRunResultLog
 from src.challenges.vanilla.vanilla_strategy_directory import (
     STRATEGIES_USING_DASK_REGISTRY, STRATEGIES_USING_PYSPARK_REGISTRY, STRATEGIES_USING_PYTHON_ONLY_REGISTRY,
     STRATEGIES_USING_SCALA_REGISTRY,
 )
 
 CHALLENGE = Challenge.VANILLA
+FINAL_REPORT_FILE_PATH = 'results/vanilla_results_intermediate.csv'
+EXPECTED_SIZES = [3 * 3 * 10**x for x in range(0, 6 + 1)]
 
 
 def analyze_run_results():
@@ -30,7 +31,7 @@ def analyze_run_results():
             if engine == CalcEngine.SCALA_SPARK else
             []
         )
-        reader = VanillaPersistedRunResultLog(engine)
+        reader = VanillaPysparkPersistedRunResultLog()
         raw_test_runs = reader.read_run_result_file()
         structured_test_results = reader.structure_test_results(
             challenge_method_list=challenge_method_list,
@@ -41,7 +42,6 @@ def analyze_run_results():
         summary_status.extend(
             reader.do_regression(
                 challenge=CHALLENGE,
-                engine=engine,
                 challenge_method_list=challenge_method_list,
                 test_results_by_strategy_name_by_data_size=structured_test_results
             )

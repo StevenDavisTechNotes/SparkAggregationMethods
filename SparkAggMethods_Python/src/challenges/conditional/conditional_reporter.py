@@ -2,18 +2,15 @@
 # usage: .\venv\Scripts\activate.ps1; python -m src.challenges.conditional.conditional_reporter
 from typing import NamedTuple
 
-from spark_agg_methods_common_python.perf_test_common import (
-    CalcEngine, Challenge, SummarizedPerformanceOfMethodAtDataSize,
-)
+from spark_agg_methods_common_python.perf_test_common import Challenge, SummarizedPerformanceOfMethodAtDataSize
 
-from src.challenges.conditional.conditional_pyspark_strategy_directory import (
-    CONDITIONAL_STRATEGIES_USING_PYSPARK_REGISTRY,
-)
-from src.challenges.conditional.conditional_record_runs import (
-    EXPECTED_SIZES, FINAL_REPORT_FILE_PATH, ConditionalPersistedRunResultLog, regressor_from_run_result,
-)
+from challenges.conditional.conditional_record_runs_pyspark import ConditionalPysparkPersistedRunResultLog
+from challenges.conditional.conditional_strategy_directory_pyspark import CONDITIONAL_STRATEGIES_USING_PYSPARK_REGISTRY
+from src.challenges.conditional.conditional_record_runs import regressor_from_run_result
 
 CHALLENGE = Challenge.CONDITIONAL
+EXPECTED_SIZES = [3 * 3 * 10**x for x in range(1, 5 + 2)]
+FINAL_REPORT_FILE_PATH = 'results/cond_results_intermediate.csv'
 
 
 class CondResult(NamedTuple):
@@ -32,9 +29,8 @@ class CondResult(NamedTuple):
 
 def analyze_run_results():
     summary_status: list[SummarizedPerformanceOfMethodAtDataSize] = []
-    engine = CalcEngine.PYSPARK
     challenge_method_list = CONDITIONAL_STRATEGIES_USING_PYSPARK_REGISTRY
-    reader = ConditionalPersistedRunResultLog(engine)
+    reader = ConditionalPysparkPersistedRunResultLog()
     raw_test_runs = reader.read_run_result_file()
     structured_test_results = reader.structure_test_results(
         challenge_method_list=challenge_method_list,
@@ -45,7 +41,6 @@ def analyze_run_results():
     summary_status.extend(
         reader.do_regression(
             challenge=CHALLENGE,
-            engine=engine,
             challenge_method_list=challenge_method_list,
             test_results_by_strategy_name_by_data_size=structured_test_results
         )

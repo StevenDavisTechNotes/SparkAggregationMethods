@@ -5,12 +5,6 @@ from spark_agg_methods_common_python.perf_test_common import (
     CalcEngine, ChallengeMethodRegistrationBase, PersistedRunResultBase, PersistedRunResultLog, RunResultBase,
     RunResultFileWriterBase, SolutionInterfacePython, SolutionLanguage, parse_interface_python,
 )
-from spark_agg_methods_common_python.utils.utils import always_true
-
-PYTHON_PYSPARK_RUN_LOG_FILE_PATH = 'results/dedupe_pyspark_runs.csv'
-PYTHON_DASK_RUN_LOG_FILE_PATH = 'results/dedupe_dask_runs.csv'
-FINAL_REPORT_FILE_PATH = 'results/dedupe_results.csv'
-LANGUAGE = SolutionLanguage.PYTHON
 
 
 @dataclass(frozen=True)
@@ -52,34 +46,6 @@ class DedupePersistedRunResult(PersistedRunResultBase[SolutionInterfacePython], 
     can_assume_no_duplicates_per_partition: bool
 
 
-EXPECTED_NUM_RECORDS = sorted([
-    num_data_points
-    for data_size_exp in range(0, 5)
-    if always_true(num_people := 10**data_size_exp)
-    for num_sources in [2, 3, 6]
-    if always_true(num_data_points := (
-        (0 if num_sources < 1 else num_people)
-        + (0 if num_sources < 2 else max(1, 2 * num_people // 100))
-        + (0 if num_sources < 3 else num_people)
-        + 3 * (0 if num_sources < 6 else num_people)
-    ))
-    if num_data_points < 50200
-])
-
-
-def derive_run_log_file_path(
-        engine: CalcEngine,
-) -> str:
-    match engine:
-        case  CalcEngine.PYSPARK:
-            run_log = PYTHON_PYSPARK_RUN_LOG_FILE_PATH
-        case CalcEngine.DASK:
-            run_log = PYTHON_DASK_RUN_LOG_FILE_PATH
-        case _:
-            raise ValueError(f"Unknown engine: {engine}")
-    return os.path.abspath(run_log)
-
-
 def regressor_from_run_result(
         result: DedupePersistedRunResult,
 ) -> int:
@@ -87,27 +53,18 @@ def regressor_from_run_result(
 
 
 class DedupePersistedRunResultLog(PersistedRunResultLog[DedupePersistedRunResult]):
+
     def __init__(
             self,
             engine: CalcEngine,
+            language: SolutionLanguage,
+            rel_log_file_path: str,
     ):
-        self.engine = engine
-        match engine:
-            case CalcEngine.DASK | CalcEngine.PYSPARK | CalcEngine.PYTHON_ONLY:
-                language = SolutionLanguage.PYTHON
-            case CalcEngine.SCALA_SPARK:
-                language = SolutionLanguage.SCALA
-            case _:
-                raise ValueError(f"Unknown engine: {engine}")
         super().__init__(
             engine=engine,
             language=language,
+            log_file_path=os.path.abspath(rel_log_file_path),
         )
-
-    def derive_run_log_file_path(
-            self,
-    ) -> str | None:
-        return derive_run_log_file_path(self.engine)
 
     def result_looks_valid(
             self,
@@ -167,9 +124,10 @@ class DedupePythonRunResultFileWriter(RunResultFileWriterBase):
     def __init__(
             self,
             engine: CalcEngine,
+            rel_log_file_path: str,
     ):
         super().__init__(
-            file_name=derive_run_log_file_path(engine),
+            log_file_path=os.path.abspath(rel_log_file_path),
             language=SolutionLanguage.PYTHON,
             engine=engine,
             persisted_row_type=DedupePersistedRunResult,

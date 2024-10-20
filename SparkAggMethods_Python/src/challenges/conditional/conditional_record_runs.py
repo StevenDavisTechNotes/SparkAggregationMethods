@@ -7,11 +7,6 @@ from spark_agg_methods_common_python.perf_test_common import (
     RunResultFileWriterBase, SolutionLanguage, TSolutionInterface, parse_interface_python,
 )
 
-PYTHON_PYSPARK_RUN_LOG_FILE_PATH = 'results/conditional_pyspark_runs.csv'
-PYTHON_DASK_RUN_LOG_FILE_PATH = 'results/conditional_dask_runs.csv'
-FINAL_REPORT_FILE_PATH = 'results/cond_results.csv'
-EXPECTED_SIZES = [3 * 3 * 10**x for x in range(1, 5 + 2)]
-
 
 @dataclass(frozen=True)
 class ConditionalRunResult(RunResultBase):
@@ -36,19 +31,6 @@ class ConditionalPersistedRunResult(PersistedRunResultBase[TSolutionInterface], 
     strategy_name: str
 
 
-def derive_run_log_file_path(
-        engine: CalcEngine,
-) -> str:
-    match engine:
-        case  CalcEngine.PYSPARK:
-            run_log = PYTHON_PYSPARK_RUN_LOG_FILE_PATH
-        case CalcEngine.DASK:
-            run_log = PYTHON_DASK_RUN_LOG_FILE_PATH
-        case _:
-            raise ValueError(f"Unknown engine: {engine}")
-    return os.path.abspath(run_log)
-
-
 def regressor_from_run_result(
         result: PersistedRunResultBase,
 ) -> int:
@@ -57,27 +39,18 @@ def regressor_from_run_result(
 
 
 class ConditionalPersistedRunResultLog(PersistedRunResultLog[ConditionalPersistedRunResult]):
+
     def __init__(
             self,
             engine: CalcEngine,
+            language: SolutionLanguage,
+            rel_log_file_path: str,
     ):
-        self.engine = engine
-        match engine:
-            case CalcEngine.DASK | CalcEngine.PYSPARK | CalcEngine.PYTHON_ONLY:
-                language = SolutionLanguage.PYTHON
-            case CalcEngine.SCALA_SPARK:
-                language = SolutionLanguage.SCALA
-            case _:
-                raise ValueError(f"Unknown engine: {engine}")
         super().__init__(
             engine=engine,
             language=language,
+            log_file_path=os.path.abspath(rel_log_file_path),
         )
-
-    def derive_run_log_file_path(
-            self,
-    ) -> str | None:
-        return derive_run_log_file_path(self.engine)
 
     def result_looks_valid(
             self,
@@ -86,9 +59,25 @@ class ConditionalPersistedRunResultLog(PersistedRunResultLog[ConditionalPersiste
         assert isinstance(result, ConditionalPersistedRunResult)
         return result.num_output_rows == 9
 
-    def read_regular_line_from_log_file(
+
+class ConditionalPythonPersistedRunResultLog(ConditionalPersistedRunResultLog):
+
+    def __init__(
             self,
+            engine: CalcEngine,
+            rel_log_file_path: str,
+    ):
+        super().__init__(
+            engine=engine,
+            language=SolutionLanguage.PYTHON,
+            rel_log_file_path=rel_log_file_path,
+        )
+
+    def read_line_from_log_file(
+            self,
+            i_line: int,
             line: str,
+            last_header_line: list[str],
             fields: list[str],
     ) -> ConditionalPersistedRunResult | None:
         strategy_name, interface, num_source_rows, \
@@ -108,9 +97,25 @@ class ConditionalPersistedRunResultLog(PersistedRunResultLog[ConditionalPersiste
         )
         return result
 
-    def read_scala_line_from_log_file(
+
+class ConditionalScalaPersistedRunResultLog(ConditionalPersistedRunResultLog):
+
+    def __init__(
             self,
+            engine: CalcEngine,
+            rel_log_file_path: str,
+    ):
+        super().__init__(
+            engine=engine,
+            language=SolutionLanguage.SCALA,
+            rel_log_file_path=rel_log_file_path,
+        )
+
+    def read_line_from_log_file(
+            self,
+            i_line: int,
             line: str,
+            last_header_line: list[str],
             fields: list[str],
     ) -> ConditionalPersistedRunResult | None:
         outcome, strategy_name, interface, expected_size, returnedSize, elapsed_time = tuple(
@@ -133,28 +138,16 @@ class ConditionalPersistedRunResultLog(PersistedRunResultLog[ConditionalPersiste
         )
         return result
 
-    def read_line_from_log_file(
-            self,
-            i_line: int,
-            line: str,
-            last_header_line: list[str],
-            fields: list[str],
-    ) -> ConditionalPersistedRunResult | None:
-        match self.engine:
-            case CalcEngine.DASK | CalcEngine.PYSPARK | CalcEngine.PYTHON_ONLY:
-                return self.read_regular_line_from_log_file(line, fields)
-            case CalcEngine.SCALA_SPARK:
-                return self.read_scala_line_from_log_file(line, fields)
-
 
 class ConditionalPythonRunResultFileWriter(RunResultFileWriterBase):
 
     def __init__(
             self,
             engine: CalcEngine,
+            rel_log_file_path: str,
     ):
         super().__init__(
-            file_name=derive_run_log_file_path(engine),
+            log_file_path=os.path.abspath(rel_log_file_path),
             language=SolutionLanguage.PYTHON,
             engine=engine,
             persisted_row_type=ConditionalPersistedRunResult,

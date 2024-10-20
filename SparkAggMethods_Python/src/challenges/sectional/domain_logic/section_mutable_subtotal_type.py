@@ -1,6 +1,6 @@
 from typing import Any, Iterable
 
-from src.challenges.sectional.section_pyspark_test_data_types import (
+from src.challenges.sectional.section_test_data_types_pyspark import (
     ClassLine, NumDepartments, StudentHeader, StudentSummary, TrimesterFooter, TrimesterHeader, TypedLine,
 )
 

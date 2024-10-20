@@ -1,0 +1,19 @@
+# gc requirements.txt | sort > c:\temp\t.txt
+# pip install -r requirements.txt
+# pip freeze > frozen_requirements.txt
+autopep8
+dask
+dask[dataframe]
+dask-sql
+dask[distributed]
+flake8
+numpy
+pandas
+prettyprinter
+psutil 
+pyarrow
+pydantic
+pytest
+pytz
+scipy
+terminology

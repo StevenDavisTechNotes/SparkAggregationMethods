@@ -8,16 +8,15 @@ import scipy
 from spark_agg_methods_common_python.perf_test_common import (
     CalcEngine, Challenge, SummarizedPerformanceOfMethodAtDataSize,
 )
+from spark_agg_methods_common_python.utils.utils import always_true
 
-from src.challenges.deduplication.dedupe_pyspark_strategy_directory import STRATEGIES_USING_PYSPARK_REGISTRY
-from src.challenges.deduplication.dedupe_record_runs import (
-    EXPECTED_NUM_RECORDS, FINAL_REPORT_FILE_PATH, DedupePersistedRunResult, DedupePersistedRunResultLog,
-    regressor_from_run_result,
-)
+from src.challenges.deduplication.dedupe_record_runs import DedupePersistedRunResult, regressor_from_run_result
+from src.challenges.deduplication.dedupe_record_runs_pyspark import DedupePysparkPersistedRunResultLog
+from src.challenges.deduplication.dedupe_strategy_directory_pyspark import STRATEGIES_USING_PYSPARK_REGISTRY
 from src.utils.linear_regression import linear_regression
 
-CHALLENGE = Challenge.BI_LEVEL
-
+CHALLENGE = Challenge.DEDUPLICATION
+FINAL_REPORT_FILE_PATH = 'results/dedupe_results_intermediate.csv'
 EXPECTED_SIZES = [
     11,
     21,
@@ -35,6 +34,21 @@ EXPECTED_SIZES = [
     202000,
     502000
 ]
+
+
+EXPECTED_NUM_RECORDS = sorted([
+    num_data_points
+    for data_size_exp in range(0, 5)
+    if always_true(num_people := 10**data_size_exp)
+    for num_sources in [2, 3, 6]
+    if always_true(num_data_points := (
+        (0 if num_sources < 1 else num_people)
+        + (0 if num_sources < 2 else max(1, 2 * num_people // 100))
+        + (0 if num_sources < 3 else num_people)
+        + 3 * (0 if num_sources < 6 else num_people)
+    ))
+    if num_data_points < 50200
+])
 
 
 class TestRegression(NamedTuple):
@@ -85,7 +99,7 @@ def analyze_run_results_old(
         engine: CalcEngine,
 ):
     # raw_test_runs = list(read_run_result_file(engine))
-    reader = DedupePersistedRunResultLog(engine)
+    reader = DedupePysparkPersistedRunResultLog()
     raw_test_runs = reader.read_run_result_file()
     if len(raw_test_runs) < 1:
         print("no tests")
@@ -165,9 +179,8 @@ def analyze_run_results_old(
 
 def analyze_run_results_new():
     summary_status: list[SummarizedPerformanceOfMethodAtDataSize] = []
-    engine = CalcEngine.PYSPARK
     challenge_method_list = STRATEGIES_USING_PYSPARK_REGISTRY
-    reader = DedupePersistedRunResultLog(engine)
+    reader = DedupePysparkPersistedRunResultLog()
     raw_test_runs = reader.read_run_result_file()
     structured_test_results = reader.structure_test_results(
         challenge_method_list=challenge_method_list,
@@ -178,7 +191,6 @@ def analyze_run_results_new():
     summary_status.extend(
         reader.do_regression(
             challenge=CHALLENGE,
-            engine=engine,
             challenge_method_list=challenge_method_list,
             test_results_by_strategy_name_by_data_size=structured_test_results
         )

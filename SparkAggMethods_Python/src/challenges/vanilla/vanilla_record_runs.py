@@ -11,8 +11,6 @@ PYTHON_DASK_RUN_LOG_FILE_PATH = 'results/vanilla_dask_runs.csv'
 PYTHON_PYSPARK_RUN_LOG_FILE_PATH = 'results/vanilla_pyspark_runs.csv'
 PYTHON_ONLY_RUN_LOG_FILE_PATH = 'results/vanilla_python_only_runs.csv'
 SCALA_RUN_LOG_FILE_PATH = '../results/Scala/vanilla_runs_scala.csv'
-FINAL_REPORT_FILE_PATH = 'results/vanilla_results.csv'
-EXPECTED_SIZES = [3 * 3 * 10**x for x in range(0, 6 + 1)]
 
 
 @dataclass(frozen=True)
@@ -38,51 +36,26 @@ class VanillaPersistedRunResult(PersistedRunResultBase[SolutionInterface], Vanil
     strategy_name: str
 
 
-def derive_run_log_file_path_for_recording(
-    engine: CalcEngine,
-) -> str:
-    match engine:
-        case CalcEngine.DASK:
-            run_log = PYTHON_DASK_RUN_LOG_FILE_PATH
-        case CalcEngine.PYSPARK:
-            run_log = PYTHON_PYSPARK_RUN_LOG_FILE_PATH
-        case CalcEngine.PYTHON_ONLY:
-            run_log = PYTHON_ONLY_RUN_LOG_FILE_PATH
-        case CalcEngine.SCALA_SPARK:
-            run_log = SCALA_RUN_LOG_FILE_PATH
-        case _:
-            raise ValueError(f"Unknown engine: {engine}")
-    return os.path.abspath(run_log)
+def regressor_from_run_result(
+        result: PersistedRunResultBase,
+) -> int:
+    assert isinstance(result, VanillaPersistedRunResult)
+    return result.num_source_rows
 
 
 class VanillaPersistedRunResultLog(PersistedRunResultLog[VanillaPersistedRunResult]):
+
     def __init__(
             self,
             engine: CalcEngine,
+            language: SolutionLanguage,
+            rel_log_file_path: str,
     ):
-        self.engine = engine
-        match engine:
-            case CalcEngine.DASK | CalcEngine.PYSPARK | CalcEngine.PYTHON_ONLY:
-                language = SolutionLanguage.PYTHON
-            case CalcEngine.SCALA_SPARK:
-                language = SolutionLanguage.SCALA
-            case _:
-                raise ValueError(f"Unknown engine: {engine}")
         super().__init__(
             engine=engine,
             language=language,
+            log_file_path=os.path.abspath(rel_log_file_path),
         )
-
-    def derive_run_log_file_path(
-            self,
-    ) -> str | None:
-        match self.engine:
-            case CalcEngine.DASK | CalcEngine.PYSPARK | CalcEngine.PYTHON_ONLY:
-                return derive_run_log_file_path_for_recording(self.engine)
-            case CalcEngine.SCALA_SPARK:
-                return None
-            case _:
-                raise ValueError(f"Unknown engine: {self.engine}")
 
     def result_looks_valid(
             self,
@@ -91,9 +64,25 @@ class VanillaPersistedRunResultLog(PersistedRunResultLog[VanillaPersistedRunResu
         assert isinstance(result, VanillaPersistedRunResult)
         return result.num_output_rows == 9
 
-    def read_regular_line_from_log_file(
+
+class VanillaPythonPersistedRunResultLog(VanillaPersistedRunResultLog):
+
+    def __init__(
             self,
+            engine: CalcEngine,
+            rel_log_file_path: str,
+    ):
+        super().__init__(
+            engine=engine,
+            language=SolutionLanguage.PYTHON,
+            rel_log_file_path=rel_log_file_path,
+        )
+
+    def read_line_from_log_file(
+            self,
+            i_line: int,
             line: str,
+            last_header_line: list[str],
             fields: list[str],
     ) -> VanillaPersistedRunResult | None:
         strategy_name, interface, num_source_rows, \
@@ -112,9 +101,25 @@ class VanillaPersistedRunResultLog(PersistedRunResultLog[VanillaPersistedRunResu
         )
         return result
 
-    def read_scala_line_from_log_file(
+
+class VanillaScalaPersistedRunResultLog(VanillaPersistedRunResultLog):
+
+    def __init__(
             self,
+            engine: CalcEngine,
+            rel_log_file_path: str,
+    ):
+        super().__init__(
+            engine=engine,
+            language=SolutionLanguage.SCALA,
+            rel_log_file_path=rel_log_file_path,
+        )
+
+    def read_line_from_log_file(
+            self,
+            i_line: int,
             line: str,
+            last_header_line: list[str],
             fields: list[str],
     ) -> VanillaPersistedRunResult | None:
         outcome, strategy_name, interface, expected_size, returnedSize, elapsed_time = tuple(
@@ -137,35 +142,16 @@ class VanillaPersistedRunResultLog(PersistedRunResultLog[VanillaPersistedRunResu
         )
         return result
 
-    def read_line_from_log_file(
-            self,
-            i_line: int,
-            line: str,
-            last_header_line: list[str],
-            fields: list[str],
-    ) -> VanillaPersistedRunResult | None:
-        match self.engine:
-            case CalcEngine.DASK | CalcEngine.PYSPARK | CalcEngine.PYTHON_ONLY:
-                return self.read_regular_line_from_log_file(line, fields)
-            case CalcEngine.SCALA_SPARK:
-                return self.read_scala_line_from_log_file(line, fields)
-
-
-def regressor_from_run_result(
-        result: PersistedRunResultBase,
-) -> int:
-    assert isinstance(result, VanillaPersistedRunResult)
-    return result.num_source_rows
-
 
 class VanillaPythonRunResultFileWriter(RunResultFileWriterBase):
 
     def __init__(
             self,
             engine: CalcEngine,
+            rel_log_file_path: str,
     ):
         super().__init__(
-            file_name=__class__.derive_run_log_file_path_for_recording(engine),
+            log_file_path=os.path.abspath(rel_log_file_path),
             language=SolutionLanguage.PYTHON,
             engine=engine,
             persisted_row_type=VanillaPersistedRunResult,
@@ -176,12 +162,6 @@ class VanillaPythonRunResultFileWriter(RunResultFileWriterBase):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
-
-    @staticmethod
-    def derive_run_log_file_path_for_recording(
-            engine: CalcEngine,
-    ) -> str:
-        return derive_run_log_file_path_for_recording(engine)
 
     def write_run_result(
             self,

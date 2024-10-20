@@ -1,14 +1,14 @@
 #!python
 # usage: .\venv\Scripts\activate.ps1; python -m src.perf_test_runner_for_pyspark
 
-from src.challenges.bi_level import bi_level_pyspark_runner
-from src.challenges.conditional import conditional_pyspark_runner
-from src.challenges.deduplication import dedupe_pyspark_runner
-from src.challenges.sectional import section_pyspark_runner
-from src.challenges.vanilla import vanilla_pyspark_runner
+from challenges.bi_level import bi_level_runner_pyspark
+from challenges.conditional import conditional_runner_pyspark
+from challenges.vanilla import vanilla_runner_pyspark
+from src.challenges.deduplication import dedupe_runner_pyspark
+from src.challenges.sectional import section_runner_pyspark
 
-vanilla_pyspark_runner.main()
-bi_level_pyspark_runner.main()
-conditional_pyspark_runner.main()
-section_pyspark_runner.main()
-dedupe_pyspark_runner.main()
+vanilla_runner_pyspark.main()
+bi_level_runner_pyspark.main()
+conditional_runner_pyspark.main()
+section_runner_pyspark.main()
+dedupe_runner_pyspark.main()

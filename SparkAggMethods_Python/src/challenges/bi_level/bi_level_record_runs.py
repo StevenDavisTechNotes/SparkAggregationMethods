@@ -7,12 +7,6 @@ from spark_agg_methods_common_python.perf_test_common import (
     RunResultFileWriterBase, SolutionInterfacePython, SolutionLanguage, parse_interface_python,
 )
 
-PYTHON_DASK_RUN_LOG_FILE_PATH = 'results/bi_level_dask_runs.csv'
-PYTHON_PYSPARK_RUN_LOG_FILE_PATH = 'results/bi_level_pyspark_runs.csv'
-PYTHON_ONLY_RUN_LOG_FILE_PATH = 'results/bi_level_python_only_runs.csv'
-FINAL_REPORT_FILE_PATH = 'results/bilevel_results.csv'
-EXPECTED_SIZES = [1, 10, 100, 1000]
-
 
 @dataclass(frozen=True)
 class BiLevelRunResult(RunResultBase):
@@ -41,23 +35,6 @@ class BiLevelPersistedRunResult(PersistedRunResultBase[SolutionInterfacePython],
     strategy_name: str
 
 
-def derive_run_log_file_path(
-        engine: CalcEngine,
-) -> str:
-    match engine:
-        case CalcEngine.DASK:
-            run_log = PYTHON_DASK_RUN_LOG_FILE_PATH
-        case CalcEngine.PYSPARK:
-            run_log = PYTHON_PYSPARK_RUN_LOG_FILE_PATH
-        case CalcEngine.PYTHON_ONLY:
-            run_log = PYTHON_ONLY_RUN_LOG_FILE_PATH
-        case CalcEngine.SCALA_SPARK:
-            assert False, "Scala engine not supported in Python"
-        case _:
-            raise ValueError(f"Unknown engine: {engine}")
-    return os.path.abspath(run_log)
-
-
 def regressor_from_run_result(
         result: PersistedRunResultBase,
 ) -> int:
@@ -66,27 +43,18 @@ def regressor_from_run_result(
 
 
 class BiLevelPersistedRunResultLog(PersistedRunResultLog[BiLevelPersistedRunResult]):
+
     def __init__(
             self,
             engine: CalcEngine,
+            language: SolutionLanguage,
+            rel_log_file_path: str,
     ):
-        self.engine = engine
-        match engine:
-            case CalcEngine.DASK | CalcEngine.PYSPARK | CalcEngine.PYTHON_ONLY:
-                language = SolutionLanguage.PYTHON
-            case CalcEngine.SCALA_SPARK:
-                language = SolutionLanguage.SCALA
-            case _:
-                raise ValueError(f"Unknown engine: {engine}")
         super().__init__(
             engine=engine,
             language=language,
+            log_file_path=os.path.abspath(rel_log_file_path),
         )
-
-    def derive_run_log_file_path(
-            self,
-    ) -> str | None:
-        derive_run_log_file_path(self.engine)
 
     def result_looks_valid(
             self,
@@ -130,9 +98,10 @@ class BiLevelPythonRunResultFileWriter(RunResultFileWriterBase):
     def __init__(
             self,
             engine: CalcEngine,
+            rel_log_file_path: str,
     ):
         super().__init__(
-            file_name=derive_run_log_file_path(engine),
+            log_file_path=os.path.abspath(rel_log_file_path),
             language=SolutionLanguage.PYTHON,
             engine=engine,
             persisted_row_type=BiLevelPersistedRunResult,

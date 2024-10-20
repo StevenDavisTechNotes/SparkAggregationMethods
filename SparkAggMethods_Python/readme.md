@@ -14,7 +14,7 @@ Use Microsoft Store or [download link](https://www.python.org/downloads/release/
 - Disable MAX_PATH
 
 Go into Windows Terminal
-```sh
+```ps1
 py -0  # to see what version is default
 python --version # to double confirm
 

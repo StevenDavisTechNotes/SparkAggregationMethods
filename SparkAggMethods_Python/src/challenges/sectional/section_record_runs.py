@@ -6,12 +6,6 @@ from spark_agg_methods_common_python.perf_test_common import (
     RunResultFileWriterBase, SolutionInterface, SolutionLanguage, parse_interface_python,
 )
 
-PYTHON_PYSPARK_RUN_LOG_FILE_PATH: str = 'results/section_pyspark_runs.csv'
-PYTHON_DASK_RUN_LOG_FILE_PATH: str = 'results/section_dask_runs.csv'
-FINAL_REPORT_FILE_PATH: str = 'results/section_results.csv'
-MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT: int = 5
-MAXIMUM_PROCESSABLE_SEGMENT: int = 10**MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT
-
 
 @dataclass(frozen=True)
 class SectionRunResult(RunResultBase):
@@ -44,19 +38,6 @@ class SectionPersistedRunResult(PersistedRunResultBase[SolutionInterface], Secti
     num_students: int
 
 
-def derive_run_log_file_path(
-        engine: CalcEngine,
-) -> str:
-    match engine:
-        case  CalcEngine.PYSPARK:
-            run_log = PYTHON_PYSPARK_RUN_LOG_FILE_PATH
-        case CalcEngine.DASK:
-            run_log = PYTHON_DASK_RUN_LOG_FILE_PATH
-        case _:
-            raise ValueError(f"Unknown engine: {engine}")
-    return os.path.abspath(run_log)
-
-
 def regressor_from_run_result(
         result: SectionPersistedRunResult,
 ) -> int:
@@ -64,27 +45,17 @@ def regressor_from_run_result(
 
 
 class SectionPythonPersistedRunResultLog(PersistedRunResultLog[SectionPersistedRunResult]):
+
     def __init__(
             self,
             engine: CalcEngine,
+            rel_log_file_path: str,
     ):
-        self.engine = engine
-        match engine:
-            case CalcEngine.DASK | CalcEngine.PYSPARK | CalcEngine.PYTHON_ONLY:
-                language = SolutionLanguage.PYTHON
-            case CalcEngine.SCALA_SPARK:
-                language = SolutionLanguage.SCALA
-            case _:
-                raise ValueError(f"Unknown engine: {engine}")
         super().__init__(
             engine=engine,
-            language=language,
+            language=SolutionLanguage.PYTHON,
+            log_file_path=os.path.abspath(rel_log_file_path),
         )
-
-    def derive_run_log_file_path(
-            self,
-    ) -> str | None:
-        derive_run_log_file_path(self.engine)
 
     def result_looks_valid(
             self,
@@ -137,9 +108,10 @@ class SectionPythonRunResultFileWriter(RunResultFileWriterBase):
     def __init__(
             self,
             engine: CalcEngine,
+            rel_log_file_path: str,
     ):
         super().__init__(
-            file_name=derive_run_log_file_path(engine),
+            log_file_path=os.path.abspath(rel_log_file_path),
             language=SolutionLanguage.PYTHON,
             engine=engine,
             persisted_row_type=SectionPersistedRunResult,

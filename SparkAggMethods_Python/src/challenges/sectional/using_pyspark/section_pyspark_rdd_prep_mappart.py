@@ -2,7 +2,7 @@ from pyspark import RDD
 
 from src.challenges.sectional.domain_logic.section_data_parsers import identify_section_using_intermediate_file
 from src.challenges.sectional.domain_logic.section_mutable_subtotal_type import aggregate_typed_rows_to_grades
-from src.challenges.sectional.section_test_data_types import (
+from src.challenges.sectional.section_pyspark_test_data_types import (
     ClassLine, SectionDataSet, StudentHeader, StudentSummary, TChallengePythonPysparkAnswer, TrimesterFooter,
     TrimesterHeader, TypedLine,
 )

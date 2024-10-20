@@ -9,11 +9,11 @@ from spark_agg_methods_common_python.perf_test_common import (
     CalcEngine, Challenge, SummarizedPerformanceOfMethodAtDataSize,
 )
 
+from src.challenges.deduplication.dedupe_pyspark_strategy_directory import STRATEGIES_USING_PYSPARK_REGISTRY
 from src.challenges.deduplication.dedupe_record_runs import (
     EXPECTED_NUM_RECORDS, FINAL_REPORT_FILE_PATH, DedupePersistedRunResult, DedupePersistedRunResultLog,
     regressor_from_run_result,
 )
-from src.challenges.deduplication.dedupe_strategy_directory import STRATEGIES_USING_PYSPARK_REGISTRY
 from src.utils.linear_regression import linear_regression
 
 CHALLENGE = Challenge.BI_LEVEL

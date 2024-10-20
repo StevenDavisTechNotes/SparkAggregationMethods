@@ -18,16 +18,11 @@ from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_rdd_reduce
 from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_sql_join import cond_pyspark_sql_join
 from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_sql_nested import cond_pyspark_sql_nested
 from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_sql_null import cond_pyspark_sql_null
-from src.challenges.six_field_test_data.six_test_data_for_dask import ChallengeMethodPythonDaskRegistration
 from src.challenges.six_field_test_data.six_test_data_for_pyspark import (
     SixFieldChallengeMethodPythonPysparkRegistration,
 )
-from src.challenges.six_field_test_data.six_test_data_for_python_only import ChallengeMethodPythonOnlyRegistration
 
-STRATEGIES_USING_DASK_REGISTRY: list[ChallengeMethodPythonDaskRegistration] = [
-]
-
-STRATEGIES_USING_PYSPARK_REGISTRY: list[SixFieldChallengeMethodPythonPysparkRegistration] = [
+CONDITIONAL_STRATEGIES_USING_PYSPARK_REGISTRY: list[SixFieldChallengeMethodPythonPysparkRegistration] = [
     SixFieldChallengeMethodPythonPysparkRegistration(
         strategy_name_2018='cond_sql_join',
         strategy_name=name_of_function(cond_pyspark_sql_join),
@@ -158,8 +153,4 @@ STRATEGIES_USING_PYSPARK_REGISTRY: list[SixFieldChallengeMethodPythonPysparkRegi
         numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=cond_pyspark_rdd_map_part
     ),
-]
-
-
-STRATEGIES_USING_PYTHON_ONLY_REGISTRY: list[ChallengeMethodPythonOnlyRegistration] = [
 ]

@@ -12,22 +12,22 @@ from typing import Iterable, Literal
 
 from pyspark import RDD
 from pyspark.sql import DataFrame as PySparkDataFrame
+from spark_agg_methods_common_python.challenge_strategy_registry import (
+    ChallengeResultLogFileRegistration, ChallengeStrategyRegistration, update_challenge_strategy_registration,
+)
 from spark_agg_methods_common_python.perf_test_common import (
     ELAPSED_TIME_COLUMN_NAME, CalcEngine, Challenge, NumericalToleranceExpectations, SolutionLanguage,
 )
 from spark_agg_methods_common_python.utils.utils import always_true, count_iter, set_random_seed
 
-from src.challenge_strategy_registry import (
-    ChallengeResultLogFileRegistration, ChallengeStrategyRegistration, update_challenge_strategy_registration,
-)
-from src.challenges.sectional.section_generate_test_data import DATA_SIZE_LIST_SECTIONAL, populate_data_sets
-from src.challenges.sectional.section_record_runs import (
-    MAXIMUM_PROCESSABLE_SEGMENT, PYTHON_PYSPARK_RUN_LOG_FILE_PATH, SectionPythonRunResultFileWriter, SectionRunResult,
-)
-from src.challenges.sectional.section_strategy_directory import STRATEGIES_USING_PYSPARK_REGISTRY
-from src.challenges.sectional.section_test_data_types import (
+from src.challenges.sectional.section_pyspark_generate_test_data import DATA_SIZE_LIST_SECTIONAL, populate_data_sets
+from src.challenges.sectional.section_pyspark_strategy_directory import STRATEGIES_USING_PYSPARK_REGISTRY
+from src.challenges.sectional.section_pyspark_test_data_types import (
     ExecutionParameters, SectionChallengeMethodPysparkRegistration, SectionDataSetDescription, SectionDataSetWithAnswer,
     StudentSummary,
+)
+from src.challenges.sectional.section_record_runs import (
+    MAXIMUM_PROCESSABLE_SEGMENT, PYTHON_PYSPARK_RUN_LOG_FILE_PATH, SectionPythonRunResultFileWriter, SectionRunResult,
 )
 from src.challenges.sectional.using_python_only.section_py_only_single_threaded import section_py_only_single_threaded
 from src.utils.tidy_spark_session import LOCAL_NUM_EXECUTORS, TidySparkSession

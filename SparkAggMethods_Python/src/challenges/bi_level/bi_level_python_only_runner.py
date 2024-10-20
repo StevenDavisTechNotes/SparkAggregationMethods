@@ -8,6 +8,9 @@ import random
 import time
 from dataclasses import dataclass
 
+from spark_agg_methods_common_python.challenge_strategy_registry import (
+    ChallengeResultLogFileRegistration, ChallengeStrategyRegistration, update_challenge_strategy_registration,
+)
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
     SHARED_LOCAL_TEST_DATA_FILE_LOCATION, SixTestExecutionParameters,
 )
@@ -16,13 +19,12 @@ from spark_agg_methods_common_python.perf_test_common import (
 )
 from spark_agg_methods_common_python.utils.utils import always_true, set_random_seed
 
-from src.challenge_strategy_registry import (
-    ChallengeResultLogFileRegistration, ChallengeStrategyRegistration, update_challenge_strategy_registration,
+from src.challenges.bi_level.bi_level_python_only_strategy_directory import (
+    BI_LEVEL_STRATEGIES_USING_PYTHON_ONLY_REGISTRY,
 )
 from src.challenges.bi_level.bi_level_record_runs import (
     PYTHON_ONLY_RUN_LOG_FILE_PATH, BiLevelPythonRunResultFileWriter, BiLevelRunResult,
 )
-from src.challenges.bi_level.bi_level_strategy_directory import STRATEGIES_USING_PYTHON_ONLY_REGISTRY
 from src.challenges.bi_level.bi_level_test_data_types import DATA_SIZES_LIST_BI_LEVEL, BiLevelDataSetDescription
 from src.challenges.six_field_test_data.six_runner_python_only_base import test_one_step_in_python_only_itinerary
 from src.challenges.six_field_test_data.six_test_data_for_python_only import (
@@ -58,7 +60,7 @@ class Arguments:
 
 def parse_args() -> Arguments:
     sizes = [x.size_code for x in DATA_SIZES_LIST_BI_LEVEL]
-    strategy_names = [x.strategy_name for x in STRATEGIES_USING_PYTHON_ONLY_REGISTRY]
+    strategy_names = [x.strategy_name for x in BI_LEVEL_STRATEGIES_USING_PYTHON_ONLY_REGISTRY]
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--random-seed', type=int)
@@ -88,7 +90,7 @@ def do_test_runs(
 ) -> None:
     data_sets = populate_data_sets(args)
     keyed_implementation_list = {
-        x.strategy_name: x for x in STRATEGIES_USING_PYTHON_ONLY_REGISTRY}
+        x.strategy_name: x for x in BI_LEVEL_STRATEGIES_USING_PYTHON_ONLY_REGISTRY}
     itinerary: list[tuple[ChallengeMethodPythonOnlyRegistration, DataSetPythonOnlyWithAnswer]] = [
         (challenge_method_registration, data_set)
         for strategy_name in args.strategy_names
@@ -173,7 +175,7 @@ def update_challenge_registration():
                     numerical_tolerance=x.numerical_tolerance.value,
                     requires_gpu=x.requires_gpu,
                 )
-                for x in STRATEGIES_USING_PYTHON_ONLY_REGISTRY
+                for x in BI_LEVEL_STRATEGIES_USING_PYTHON_ONLY_REGISTRY
             ]
         ),
     )

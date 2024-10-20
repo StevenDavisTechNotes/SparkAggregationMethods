@@ -4,7 +4,7 @@ from pyspark import RDD
 
 from src.challenges.sectional.domain_logic.section_data_parsers import rdd_typed_with_index_factory
 from src.challenges.sectional.domain_logic.section_mutable_subtotal_type import MutableStudent, MutableTrimester
-from src.challenges.sectional.section_test_data_types import (
+from src.challenges.sectional.section_pyspark_test_data_types import (
     ClassLine, LabeledTypedRow, SectionDataSet, StudentHeader, StudentSummary, TChallengePythonPysparkAnswer,
     TrimesterFooter, TrimesterHeader, TypedLine,
 )

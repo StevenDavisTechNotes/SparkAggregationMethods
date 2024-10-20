@@ -3,7 +3,7 @@ from spark_agg_methods_common_python.perf_test_common import (
 )
 from spark_agg_methods_common_python.utils.inspection import name_of_function
 
-from src.challenges.sectional.section_test_data_types import (
+from src.challenges.sectional.section_pyspark_test_data_types import (
     ChallengeMethodDaskRegistration, SectionChallengeMethodPysparkRegistration,
     SectionChallengeMethodPythonOnlyRegistration, SolutionScale,
 )

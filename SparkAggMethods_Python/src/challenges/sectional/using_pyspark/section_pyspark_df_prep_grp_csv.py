@@ -4,8 +4,8 @@ import pyspark.sql.types as DataTypes
 from pyspark import RDD
 
 from src.challenges.sectional.domain_logic.section_data_parsers import parse_line_to_row, row_to_student_summary
-from src.challenges.sectional.section_generate_test_data import TEST_DATA_FILE_LOCATION
-from src.challenges.sectional.section_test_data_types import (
+from src.challenges.sectional.section_pyspark_generate_test_data import TEST_DATA_FILE_LOCATION
+from src.challenges.sectional.section_pyspark_test_data_types import (
     SectionDataSet, SparseLineSchema, StudentSummary, TChallengePythonPysparkAnswer,
 )
 from src.challenges.sectional.using_pyspark.section_pyspark_rdd_prep_shared import section_pyspark_rdd_prep_shared

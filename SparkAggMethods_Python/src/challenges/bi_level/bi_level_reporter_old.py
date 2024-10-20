@@ -8,11 +8,11 @@ import numpy
 import scipy
 from spark_agg_methods_common_python.perf_test_common import CalcEngine, print_test_runs_summary
 
+from src.challenges.bi_level.bi_level_pyspark_strategy_directory import BI_LEVEL_STRATEGIES_USING_PYSPARK_REGISTRY
 from src.challenges.bi_level.bi_level_record_runs import (
     EXPECTED_SIZES, FINAL_REPORT_FILE_PATH, BiLevelPersistedRunResult, BiLevelPersistedRunResultLog,
     regressor_from_run_result,
 )
-from src.challenges.bi_level.bi_level_strategy_directory import STRATEGIES_USING_PYSPARK_REGISTRY
 from src.utils.linear_regression import linear_regression
 
 TEMP_RESULT_FILE_PATH = "d:/temp/SparkPerfTesting/temp.csv"
@@ -56,7 +56,7 @@ def parse_results(calc_engine: CalcEngine) -> list[BiLevelPersistedRunResult]:
 def structure_test_results(
         test_runs: list[BiLevelPersistedRunResult]
 ) -> dict[str, dict[int, list[BiLevelPersistedRunResult]]]:
-    challenge_method_registrations = {x.strategy_name for x in STRATEGIES_USING_PYSPARK_REGISTRY}.union(
+    challenge_method_registrations = {x.strategy_name for x in BI_LEVEL_STRATEGIES_USING_PYSPARK_REGISTRY}.union(
         [x.strategy_name for x in test_runs])
     test_x_values = set(EXPECTED_SIZES).union([regressor_from_run_result(x) for x in test_runs])
     test_results = {method: {x: [] for x in test_x_values} for method in challenge_method_registrations}
@@ -97,7 +97,7 @@ def analyze_run_results():
     for strategy_name in test_runs_by_strategy_by_size:
         print("Looking to analyze %s" % strategy_name)
         cond_method = [
-            x for x in STRATEGIES_USING_PYSPARK_REGISTRY if x.strategy_name == strategy_name][0]
+            x for x in BI_LEVEL_STRATEGIES_USING_PYSPARK_REGISTRY if x.strategy_name == strategy_name][0]
         test_runs_by_size = test_runs_by_strategy_by_size[strategy_name]
         for regressor_value, runs in test_runs_by_size.items():
             ar: numpy.ndarray[float, numpy.dtype[numpy.float64]] \

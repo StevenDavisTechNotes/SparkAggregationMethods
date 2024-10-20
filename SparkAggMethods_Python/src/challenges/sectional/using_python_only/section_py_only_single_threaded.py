@@ -2,7 +2,7 @@ from typing import Iterable
 
 from src.challenges.sectional.domain_logic.section_data_parsers import parse_line_to_types
 from src.challenges.sectional.domain_logic.section_mutable_subtotal_type import aggregate_typed_rows_to_grades
-from src.challenges.sectional.section_test_data_types import SectionDataSet, StudentSummary
+from src.challenges.sectional.section_pyspark_test_data_types import SectionDataSet, StudentSummary
 
 
 def section_nospark_logic(

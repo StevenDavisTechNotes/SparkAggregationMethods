@@ -7,6 +7,9 @@ import random
 import time
 from dataclasses import dataclass
 
+from spark_agg_methods_common_python.challenge_strategy_registry import (
+    ChallengeResultLogFileRegistration, ChallengeStrategyRegistration, update_challenge_strategy_registration,
+)
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
     SHARED_LOCAL_TEST_DATA_FILE_LOCATION, SixTestExecutionParameters,
 )
@@ -15,13 +18,10 @@ from spark_agg_methods_common_python.perf_test_common import (
 )
 from spark_agg_methods_common_python.utils.utils import always_true, set_random_seed
 
-from src.challenge_strategy_registry import (
-    ChallengeResultLogFileRegistration, ChallengeStrategyRegistration, update_challenge_strategy_registration,
-)
+from src.challenges.bi_level.bi_level_pyspark_strategy_directory import BI_LEVEL_STRATEGIES_USING_PYSPARK_REGISTRY
 from src.challenges.bi_level.bi_level_record_runs import (
     PYTHON_PYSPARK_RUN_LOG_FILE_PATH, BiLevelPythonRunResultFileWriter, BiLevelRunResult,
 )
-from src.challenges.bi_level.bi_level_strategy_directory import STRATEGIES_USING_PYSPARK_REGISTRY
 from src.challenges.bi_level.bi_level_test_data_types import (
     BI_LEVEL_RESULT_COLUMNS, DATA_SIZES_LIST_BI_LEVEL, BiLevelDataSetDescription,
 )
@@ -62,7 +62,7 @@ class Arguments:
 
 def parse_args() -> Arguments:
     sizes = [x.size_code for x in DATA_SIZES_LIST_BI_LEVEL]
-    strategy_names = [x.strategy_name for x in STRATEGIES_USING_PYSPARK_REGISTRY]
+    strategy_names = [x.strategy_name for x in BI_LEVEL_STRATEGIES_USING_PYSPARK_REGISTRY]
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--random-seed', type=int)
@@ -108,7 +108,7 @@ def do_test_runs(
 ) -> None:
     data_sets = populate_data_sets(args, spark_session)
     keyed_implementation_list = {
-        x.strategy_name: x for x in STRATEGIES_USING_PYSPARK_REGISTRY}
+        x.strategy_name: x for x in BI_LEVEL_STRATEGIES_USING_PYSPARK_REGISTRY}
     itinerary: list[tuple[SixFieldChallengeMethodPythonPysparkRegistration, SixFieldDataSetPysparkWithAnswer]] = [
         (challenge_method_registration, data_set)
         for strategy_name in args.strategy_names
@@ -179,7 +179,7 @@ def update_challenge_registration():
                     numerical_tolerance=x.numerical_tolerance.value,
                     requires_gpu=x.requires_gpu,
                 )
-                for x in STRATEGIES_USING_PYSPARK_REGISTRY
+                for x in BI_LEVEL_STRATEGIES_USING_PYSPARK_REGISTRY
             ]
         ),
     )

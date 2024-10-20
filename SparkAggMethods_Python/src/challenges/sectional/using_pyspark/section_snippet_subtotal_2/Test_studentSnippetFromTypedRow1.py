@@ -1,11 +1,10 @@
 
 from src.challenges.sectional.domain_logic.section_snippet_subtotal_type import (
-    StudentSnippet1, student_snippet_from_typed_row_1)
-from src.challenges.sectional.section_test_data_types import (ClassLine,
-                                                              NumDepartments,
-                                                              StudentHeader,
-                                                              TrimesterFooter,
-                                                              TrimesterHeader)
+    StudentSnippet1, student_snippet_from_typed_row_1,
+)
+from src.challenges.sectional.section_pyspark_test_data_types import (
+    ClassLine, NumDepartments, StudentHeader, TrimesterFooter, TrimesterHeader,
+)
 
 
 class Test_StudentHeader:

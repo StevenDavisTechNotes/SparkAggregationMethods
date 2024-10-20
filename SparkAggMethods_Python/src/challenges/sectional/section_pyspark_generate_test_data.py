@@ -5,7 +5,7 @@ from pathlib import Path
 
 from spark_agg_methods_common_python.utils.utils import int_divide_round_up
 
-from src.challenges.sectional.section_test_data_types import (
+from src.challenges.sectional.section_pyspark_test_data_types import (
     ExecutionParameters, NumDepartments, SectionDataSet, SectionDataSetDescription, SectionPySparkExecutionParameters,
 )
 

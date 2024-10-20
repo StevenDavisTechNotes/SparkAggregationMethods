@@ -8,7 +8,7 @@ from src.challenges.sectional.domain_logic.section_snippet_subtotal_type import 
     CompletedStudent, StudentSnippet1, completed_from_snippet_1, grade_summary, merge_snippet_lists_1,
     student_snippet_from_typed_row_1,
 )
-from src.challenges.sectional.section_test_data_types import (
+from src.challenges.sectional.section_pyspark_test_data_types import (
     LabeledTypedRow, SectionDataSet, StudentSummary, TChallengePythonPysparkAnswer,
 )
 from src.utils.non_commutative_pyspark_tree_aggregate import non_commutative_tree_aggregate

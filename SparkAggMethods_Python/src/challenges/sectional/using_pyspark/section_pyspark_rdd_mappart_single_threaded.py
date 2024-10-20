@@ -1,7 +1,7 @@
 from src.challenges.sectional.domain_logic.section_data_parsers import parse_line_to_types
 from src.challenges.sectional.domain_logic.section_mutable_subtotal_type import aggregate_typed_rows_to_grades
+from src.challenges.sectional.section_pyspark_test_data_types import SectionDataSet, TChallengePythonPysparkAnswer
 from src.challenges.sectional.section_record_runs import MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT
-from src.challenges.sectional.section_test_data_types import SectionDataSet, TChallengePythonPysparkAnswer
 from src.utils.tidy_spark_session import TidySparkSession
 
 

@@ -1,12 +1,8 @@
 from typing import NamedTuple
 
-from src.challenges.sectional.section_test_data_types import (ClassLine,
-                                                              NumDepartments,
-                                                              StudentHeader,
-                                                              StudentSummary,
-                                                              TrimesterFooter,
-                                                              TrimesterHeader,
-                                                              TypedLine)
+from src.challenges.sectional.section_pyspark_test_data_types import (
+    ClassLine, NumDepartments, StudentHeader, StudentSummary, TrimesterFooter, TrimesterHeader, TypedLine,
+)
 
 FIRST_LAST_FIRST = 1
 FIRST_LAST_LAST = -1

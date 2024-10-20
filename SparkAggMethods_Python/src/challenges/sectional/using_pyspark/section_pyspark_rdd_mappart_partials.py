@@ -8,7 +8,7 @@ from src.challenges.sectional.domain_logic.section_snippet_subtotal_type import 
     FIRST_LAST_FIRST, FIRST_LAST_LAST, FIRST_LAST_NEITHER, CompletedStudent, StudentSnippet2, complete_snippets_2,
     grade_summary, marge_snippets_2, student_snippet_from_typed_row_2,
 )
-from src.challenges.sectional.section_test_data_types import (
+from src.challenges.sectional.section_pyspark_test_data_types import (
     LabeledTypedRow, SectionDataSet, StudentSummary, TChallengePythonPysparkAnswer,
 )
 from src.utils.tidy_spark_session import TidySparkSession

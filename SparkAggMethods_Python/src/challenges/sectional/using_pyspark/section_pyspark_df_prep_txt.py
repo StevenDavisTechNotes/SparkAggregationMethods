@@ -4,7 +4,7 @@ from pyspark.sql import Row
 from src.challenges.sectional.domain_logic.section_data_parsers import (
     identify_section_using_intermediate_file, row_to_student_summary,
 )
-from src.challenges.sectional.section_test_data_types import (
+from src.challenges.sectional.section_pyspark_test_data_types import (
     SectionDataSet, SparseLineSchema, TChallengePythonPysparkAnswer,
 )
 from src.challenges.sectional.using_pyspark.section_pyspark_rdd_prep_shared import section_pyspark_rdd_prep_shared

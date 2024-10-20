@@ -4,12 +4,14 @@ from spark_agg_methods_common_python.perf_test_common import (
     CalcEngine, Challenge, PersistedRunResultBase, SummarizedPerformanceOfMethodAtDataSize,
 )
 
+from src.challenges.bi_level.bi_level_dask_strategy_directory import BI_LEVEL_STRATEGIES_USING_DASK_REGISTRY
+from src.challenges.bi_level.bi_level_pyspark_strategy_directory import BI_LEVEL_STRATEGIES_USING_PYSPARK_REGISTRY
+from src.challenges.bi_level.bi_level_python_only_strategy_directory import (
+    BI_LEVEL_STRATEGIES_USING_PYTHON_ONLY_REGISTRY,
+)
 from src.challenges.bi_level.bi_level_record_runs import (
     EXPECTED_SIZES, FINAL_REPORT_FILE_PATH, BiLevelPersistedRunResult, BiLevelPersistedRunResultLog,
     regressor_from_run_result,
-)
-from src.challenges.bi_level.bi_level_strategy_directory import (
-    STRATEGIES_USING_DASK_REGISTRY, STRATEGIES_USING_PYSPARK_REGISTRY, STRATEGIES_USING_PYTHON_ONLY_REGISTRY,
 )
 
 CHALLENGE = Challenge.BI_LEVEL
@@ -26,11 +28,11 @@ def analyze_run_results():
     summary_status: list[SummarizedPerformanceOfMethodAtDataSize] = []
     for engine in CalcEngine:
         challenge_method_list = (
-            STRATEGIES_USING_DASK_REGISTRY
+            BI_LEVEL_STRATEGIES_USING_DASK_REGISTRY
             if engine == CalcEngine.DASK else
-            STRATEGIES_USING_PYSPARK_REGISTRY
+            BI_LEVEL_STRATEGIES_USING_PYSPARK_REGISTRY
             if engine == CalcEngine.PYSPARK else
-            STRATEGIES_USING_PYTHON_ONLY_REGISTRY
+            BI_LEVEL_STRATEGIES_USING_PYTHON_ONLY_REGISTRY
             if engine == CalcEngine.PYTHON_ONLY else
             []
         )

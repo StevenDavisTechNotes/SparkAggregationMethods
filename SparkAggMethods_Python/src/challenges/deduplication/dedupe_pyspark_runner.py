@@ -13,19 +13,19 @@ from typing import Literal
 from pyspark import RDD
 from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import Row
+from spark_agg_methods_common_python.challenge_strategy_registry import (
+    ChallengeResultLogFileRegistration, ChallengeStrategyRegistration, update_challenge_strategy_registration,
+)
 from spark_agg_methods_common_python.perf_test_common import (
     ELAPSED_TIME_COLUMN_NAME, CalcEngine, Challenge, NumericalToleranceExpectations, SolutionLanguage,
 )
 from spark_agg_methods_common_python.utils.utils import always_true, set_random_seed
 
-from src.challenge_strategy_registry import (
-    ChallengeResultLogFileRegistration, ChallengeStrategyRegistration, update_challenge_strategy_registration,
-)
 from src.challenges.deduplication.dedupe_generate_test_data import DATA_SIZE_LIST_DEDUPE, generate_test_data
+from src.challenges.deduplication.dedupe_pyspark_strategy_directory import STRATEGIES_USING_PYSPARK_REGISTRY
 from src.challenges.deduplication.dedupe_record_runs import (
     PYTHON_PYSPARK_RUN_LOG_FILE_PATH, DedupePythonRunResultFileWriter, DedupeRunResult,
 )
-from src.challenges.deduplication.dedupe_strategy_directory import STRATEGIES_USING_PYSPARK_REGISTRY
 from src.challenges.deduplication.dedupe_test_data_types import (
     DedupeDataSetDescription, DedupePySparkDataSet, ExecutionParameters,
 )

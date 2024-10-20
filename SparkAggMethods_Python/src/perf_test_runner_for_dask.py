@@ -4,8 +4,6 @@
 from src.challenges.bi_level import bi_level_dask_runner
 from src.challenges.vanilla import vanilla_dask_runner
 
-# from src.utils.tidy_spark_session import LOCAL_NUM_EXECUTORS
-
 
 def main():
     # with DaskClient(

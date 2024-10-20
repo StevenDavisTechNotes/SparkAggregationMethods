@@ -10,6 +10,7 @@ dependencies = [
     "pandas",
     "prettyprinter",
     "psutil",
+    "pydantic",
     "pytest",
     "pytz",
     "scipy",

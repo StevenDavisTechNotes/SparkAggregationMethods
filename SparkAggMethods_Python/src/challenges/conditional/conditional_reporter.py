@@ -6,10 +6,12 @@ from spark_agg_methods_common_python.perf_test_common import (
     CalcEngine, Challenge, SummarizedPerformanceOfMethodAtDataSize,
 )
 
+from src.challenges.conditional.conditional_pyspark_strategy_directory import (
+    CONDITIONAL_STRATEGIES_USING_PYSPARK_REGISTRY,
+)
 from src.challenges.conditional.conditional_record_runs import (
     EXPECTED_SIZES, FINAL_REPORT_FILE_PATH, ConditionalPersistedRunResultLog, regressor_from_run_result,
 )
-from src.challenges.conditional.conditional_strategy_directory import STRATEGIES_USING_PYSPARK_REGISTRY
 
 CHALLENGE = Challenge.CONDITIONAL
 
@@ -31,7 +33,7 @@ class CondResult(NamedTuple):
 def analyze_run_results():
     summary_status: list[SummarizedPerformanceOfMethodAtDataSize] = []
     engine = CalcEngine.PYSPARK
-    challenge_method_list = STRATEGIES_USING_PYSPARK_REGISTRY
+    challenge_method_list = CONDITIONAL_STRATEGIES_USING_PYSPARK_REGISTRY
     reader = ConditionalPersistedRunResultLog(engine)
     raw_test_runs = reader.read_run_result_file()
     structured_test_results = reader.structure_test_results(

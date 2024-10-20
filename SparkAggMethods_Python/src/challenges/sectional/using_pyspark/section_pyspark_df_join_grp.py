@@ -4,10 +4,10 @@ from pyspark.sql import Row
 from pyspark.sql.window import Window
 
 from src.challenges.sectional.domain_logic.section_data_parsers import parse_line_to_row, row_to_student_summary
-from src.challenges.sectional.section_record_runs import MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT
-from src.challenges.sectional.section_test_data_types import (
+from src.challenges.sectional.section_pyspark_test_data_types import (
     SectionDataSet, SparseLineSchema, TChallengePythonPysparkAnswer,
 )
+from src.challenges.sectional.section_record_runs import MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT
 from src.utils.tidy_spark_session import TidySparkSession
 
 

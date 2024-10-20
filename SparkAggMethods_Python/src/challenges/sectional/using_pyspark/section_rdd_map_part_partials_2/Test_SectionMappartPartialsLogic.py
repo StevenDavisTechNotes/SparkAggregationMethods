@@ -6,7 +6,7 @@ from spark_agg_methods_common_python.utils.printer import print_object_as_python
 
 from src.challenges.sectional.domain_logic.section_snippet_subtotal_type import CompletedStudent
 from src.challenges.sectional.section_pyspark_runner import spark_configs
-from src.challenges.sectional.section_test_data_types import (
+from src.challenges.sectional.section_pyspark_test_data_types import (
     ClassLine, LabeledTypedRow, StudentHeader, StudentSummary, TrimesterFooter, TrimesterHeader, TypedLine,
 )
 from src.challenges.sectional.using_pyspark.section_pyspark_rdd_mappart_partials import section_mappart_partials_logic

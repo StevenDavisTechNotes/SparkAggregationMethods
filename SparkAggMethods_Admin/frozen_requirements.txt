@@ -19,6 +19,5 @@ python-dateutil==2.9.0.post0
 pytz==2024.2
 scipy==1.14.1
 six==1.16.0
--e git+https://github.com/StevenDavisTechNotes/SparkAggregationMethods.git@65b30183474445770ff1913434f34e7e602df2c7#egg=spark_agg_methods_common_python&subdirectory=sparkaggmethods_commonpython
 statsmodels==0.14.4
 tzdata==2024.2

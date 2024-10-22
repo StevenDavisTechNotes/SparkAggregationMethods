@@ -5,8 +5,10 @@ from typing import NamedTuple
 from spark_agg_methods_common_python.challenges.conditional.conditional_record_runs import regressor_from_run_result
 from spark_agg_methods_common_python.perf_test_common import Challenge, SummarizedPerformanceOfMethodAtDataSize
 
-from challenges.conditional.conditional_record_runs_pyspark import ConditionalPysparkPersistedRunResultLog
-from challenges.conditional.conditional_strategy_directory_pyspark import CONDITIONAL_STRATEGIES_USING_PYSPARK_REGISTRY
+from src.challenges.conditional.conditional_record_runs_pyspark import ConditionalPysparkPersistedRunResultLog
+from src.challenges.conditional.conditional_strategy_directory_pyspark import (
+    CONDITIONAL_STRATEGIES_USING_PYSPARK_REGISTRY,
+)
 
 CHALLENGE = Challenge.CONDITIONAL
 EXPECTED_SIZES = [3 * 3 * 10**x for x in range(1, 5 + 2)]

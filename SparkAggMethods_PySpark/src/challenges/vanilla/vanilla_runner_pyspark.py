@@ -36,7 +36,7 @@ ENGINE = CalcEngine.PYSPARK
 CHALLENGE = Challenge.VANILLA
 
 
-DEBUG_ARGS = None if False else (
+DEBUG_ARGS = None if True else (
     []
     # + '--size 3_3_1'.split()
     + '--runs 0'.split()

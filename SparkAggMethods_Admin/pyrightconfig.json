@@ -1,4 +1,5 @@
 {
+  "autoSearchPaths": false,
   "include": [
     "src"
   ],

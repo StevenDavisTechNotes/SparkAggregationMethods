@@ -1,0 +1,133 @@
+{
+    "python": {
+        "dask": {
+            "bilevel": {
+                "result_file_path": "C:\\Src\\GitHub_Hosted\\SparkAggMethods2\\SparkAggMethods_PythonDask\\results\\bi_level_dask_runs.csv",
+                "regressor_column_name": "relative_cardinality_between_groupings",
+                "elapsed_time_column_name": "elapsed_time",
+                "strategies": [
+                    {
+                        "language": "python",
+                        "engine": "dask",
+                        "challenge": "bilevel",
+                        "interface": "ddf",
+                        "strategy_name": "bi_level_dask_sql_nested_no_gpu",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "dask",
+                        "challenge": "bilevel",
+                        "interface": "ddf",
+                        "strategy_name": "bi_level_dask_sql_single_join_no_gpu",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "dask",
+                        "challenge": "bilevel",
+                        "interface": "ddf",
+                        "strategy_name": "bi_level_dask_sql_temp_join_no_gpu",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    }
+                ],
+                "expected_regressor_values": [
+                    1,
+                    10,
+                    100,
+                    1000
+                ]
+            },
+            "vanilla": {
+                "result_file_path": "C:\\Src\\GitHub_Hosted\\SparkAggMethods2\\SparkAggMethods_PythonDask\\results\\vanilla_dask_runs.csv",
+                "regressor_column_name": "num_source_rows",
+                "elapsed_time_column_name": "elapsed_time",
+                "strategies": [
+                    {
+                        "language": "python",
+                        "engine": "dask",
+                        "challenge": "vanilla",
+                        "interface": "bag",
+                        "strategy_name": "vanilla_dask_bag_accumulate",
+                        "numerical_tolerance": 1e-11,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "dask",
+                        "challenge": "vanilla",
+                        "interface": "bag",
+                        "strategy_name": "vanilla_dask_bag_fold",
+                        "numerical_tolerance": 1e-11,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "dask",
+                        "challenge": "vanilla",
+                        "interface": "bag",
+                        "strategy_name": "vanilla_dask_bag_foldby",
+                        "numerical_tolerance": 1e-11,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "dask",
+                        "challenge": "vanilla",
+                        "interface": "bag",
+                        "strategy_name": "vanilla_dask_bag_map_partitions",
+                        "numerical_tolerance": 1e-11,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "dask",
+                        "challenge": "vanilla",
+                        "interface": "bag",
+                        "strategy_name": "vanilla_dask_bag_reduction",
+                        "numerical_tolerance": 1e-11,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "dask",
+                        "challenge": "vanilla",
+                        "interface": "ddf",
+                        "strategy_name": "vanilla_dask_ddf_grp_apply",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "dask",
+                        "challenge": "vanilla",
+                        "interface": "ddf",
+                        "strategy_name": "vanilla_dask_ddf_grp_udaf",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "dask",
+                        "challenge": "vanilla",
+                        "interface": "ddf",
+                        "strategy_name": "vanilla_dask_sql_no_gpu",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    }
+                ],
+                "expected_regressor_values": [
+                    9,
+                    90,
+                    900,
+                    9000,
+                    90000,
+                    900000
+                ]
+            }
+        }
+    }
+}

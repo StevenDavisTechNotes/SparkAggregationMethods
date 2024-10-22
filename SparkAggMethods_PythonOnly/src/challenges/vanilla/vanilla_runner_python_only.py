@@ -10,9 +10,12 @@ from dataclasses import dataclass
 from spark_agg_methods_common_python.challenge_strategy_registry import (
     ChallengeResultLogFileRegistration, ChallengeStrategyRegistration, update_challenge_strategy_registration,
 )
-from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types import VanillaDataSetDescription
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
     SHARED_LOCAL_TEST_DATA_FILE_LOCATION, SixTestExecutionParameters,
+)
+from spark_agg_methods_common_python.challenges.vanilla.vanilla_record_runs import VanillaRunResult
+from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types import (
+    DATA_SIZES_LIST_VANILLA, VanillaDataSetDescription,
 )
 from spark_agg_methods_common_python.perf_test_common import (
     ELAPSED_TIME_COLUMN_NAME, CalcEngine, Challenge, SolutionLanguage,
@@ -23,12 +26,9 @@ from src.challenges.six_field_test_data.six_runner_base_python_only import test_
 from src.challenges.six_field_test_data.six_test_data_for_python_only import (
     ChallengeMethodPythonOnlyRegistration, DataSetPythonOnlyWithAnswer, populate_data_set_python_only,
 )
-from spark_agg_methods_common_python.challenges.vanilla.vanilla_record_runs import VanillaRunResult
 from src.challenges.vanilla.vanilla_record_runs_python_only import (
     VanillaPythonOnlyPersistedRunResultLog, VanillaPythonOnlyRunResultFileWriter,
 )
-from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types import DATA_SIZES_LIST_VANILLA
-
 from src.challenges.vanilla.vanilla_strategy_directory_python_only import STRATEGIES_USING_PYTHON_ONLY_REGISTRY
 
 LANGUAGE = SolutionLanguage.PYTHON
@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 DEBUG_ARGS = None if True else (
     []
     # + '--size 3_3_10'.split()
-    + '--runs 10'.split()
+    + '--runs 0'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
     + ['--strategy',

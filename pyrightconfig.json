@@ -1,0 +1,15 @@
+{
+  "executionEnvironments": [
+      {
+        "root": ".",
+        "extraPaths": [
+          "SparkAggMethods_CommonPython/spark_agg_methods_common_python", 
+          "SparkAggMethods_Admin/src", 
+          "SparkAggMethods_Python/src" ,
+          "SparkAggMethods_PythonDask/src"
+        ]
+      }
+  ],
+  "autoSearchPaths": false,
+  "typeCheckingMode": "standard",
+}

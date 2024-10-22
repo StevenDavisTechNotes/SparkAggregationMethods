@@ -7,8 +7,8 @@ from spark_agg_methods_common_python.perf_test_common import (
     CalcEngine, Challenge, PersistedRunResultBase, SummarizedPerformanceOfMethodAtDataSize,
 )
 
-from challenges.bi_level.bi_level_record_runs_pyspark import BiLevelPysparkPersistedRunResultLog
-from challenges.bi_level.bi_level_strategy_directory_pyspark import BI_LEVEL_STRATEGIES_USING_PYSPARK_REGISTRY
+from src.challenges.bi_level.bi_level_record_runs_pyspark import BiLevelPysparkPersistedRunResultLog
+from src.challenges.bi_level.bi_level_strategy_directory_pyspark import BI_LEVEL_STRATEGIES_USING_PYSPARK_REGISTRY
 
 CHALLENGE = Challenge.BI_LEVEL
 EXPECTED_SIZES = [1, 10, 100, 1000]

@@ -11,6 +11,9 @@
 		},
 		{
 			"path": "SparkAggMethods_PythonOnly"
+		},
+		{
+			"path": "SparkAggMethods_Admin"
 		}
 	]
 }

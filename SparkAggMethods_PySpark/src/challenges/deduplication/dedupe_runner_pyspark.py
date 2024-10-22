@@ -43,7 +43,7 @@ CHALLENGE = Challenge.DEDUPLICATION
 DEBUG_ARGS = None if True else (
     []
     + '--size 2'.split()
-    + '--runs 10'.split()
+    + '--runs 0'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
     # + ['--strategy',

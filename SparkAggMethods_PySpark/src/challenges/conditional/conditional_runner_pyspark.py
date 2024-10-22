@@ -21,10 +21,12 @@ from spark_agg_methods_common_python.perf_test_common import (
 )
 from spark_agg_methods_common_python.utils.utils import always_true, set_random_seed
 
-from challenges.conditional.conditional_record_runs_pyspark import (
+from src.challenges.conditional.conditional_record_runs_pyspark import (
     ConditionalPysparkPersistedRunResultLog, ConditionalPysparkRunResultFileWriter,
 )
-from challenges.conditional.conditional_strategy_directory_pyspark import CONDITIONAL_STRATEGIES_USING_PYSPARK_REGISTRY
+from src.challenges.conditional.conditional_strategy_directory_pyspark import (
+    CONDITIONAL_STRATEGIES_USING_PYSPARK_REGISTRY,
+)
 from src.challenges.six_field_test_data.six_runner_base_pyspark import test_one_step_in_pyspark_itinerary
 from src.challenges.six_field_test_data.six_test_data_for_pyspark import (
     SixFieldChallengeMethodPythonPysparkRegistration, SixFieldDataSetPysparkWithAnswer, populate_data_set_pyspark,

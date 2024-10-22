@@ -39,7 +39,7 @@ CHALLENGE = Challenge.VANILLA
 DEBUG_ARGS = None if False else (
     []
     + '--size 3_3_10'.split()
-    + '--runs 1'.split()
+    + '--runs 0'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
     + ['--strategy',

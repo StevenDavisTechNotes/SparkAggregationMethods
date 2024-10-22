@@ -39,7 +39,7 @@ DEBUG_ARGS = None if True else (
     []
     + '--size 1'.split()
     # + ['--no-check']
-    + '--runs 10'.split()
+    + '--runs 0'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
     # + ['--strategy',

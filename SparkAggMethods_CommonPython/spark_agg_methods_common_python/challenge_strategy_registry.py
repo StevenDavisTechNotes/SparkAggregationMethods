@@ -2,7 +2,10 @@ import json
 from pathlib import Path
 
 from pydantic import BaseModel, TypeAdapter
-from spark_agg_methods_common_python.perf_test_common import CalcEngine, Challenge, SolutionLanguage
+
+from spark_agg_methods_common_python.perf_test_common import (CalcEngine,
+                                                              Challenge,
+                                                              SolutionLanguage)
 
 REGISTRY_FILE_PATH = "./results/challenge_strategy_registration.json"
 
@@ -38,10 +41,13 @@ def update_challenge_strategy_registration(
         registration: ChallengeResultLogFileRegistration,
 ) -> None:
     def read_file() -> ChallengeRegistryFileType:
+        if not Path(REGISTRY_FILE_PATH).exists():
+            return dict()
         text = Path(REGISTRY_FILE_PATH).read_text()
         return CHALLENGE_REGISTRY_TYPE_ADAPTER.validate_json(text)
 
     def write_file(data: ChallengeRegistryFileType):
+        Path(REGISTRY_FILE_PATH).parent.mkdir(parents=True, exist_ok=True)
         with open(REGISTRY_FILE_PATH, "w") as file:
             json.dump({
                 lang: {

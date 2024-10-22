@@ -21,10 +21,10 @@ from spark_agg_methods_common_python.perf_test_common import (
 )
 from spark_agg_methods_common_python.utils.utils import always_true, set_random_seed
 
-from challenges.bi_level.bi_level_record_runs_pyspark import (
+from src.challenges.bi_level.bi_level_record_runs_pyspark import (
     BiLevelPysparkPersistedRunResultLog, BiLevelPysparkRunResultFileWriter,
 )
-from challenges.bi_level.bi_level_strategy_directory_pyspark import BI_LEVEL_STRATEGIES_USING_PYSPARK_REGISTRY
+from src.challenges.bi_level.bi_level_strategy_directory_pyspark import BI_LEVEL_STRATEGIES_USING_PYSPARK_REGISTRY
 from src.challenges.six_field_test_data.six_runner_base_pyspark import test_one_step_in_pyspark_itinerary
 from src.challenges.six_field_test_data.six_test_data_for_pyspark import (
     SixFieldChallengeMethodPythonPysparkRegistration, SixFieldDataSetPysparkWithAnswer, populate_data_set_pyspark,
@@ -34,7 +34,7 @@ from src.utils.tidy_session_pyspark import LOCAL_NUM_EXECUTORS, TidySparkSession
 DEBUG_ARGS = None if True else (
     []
     + '--size 3_3k_100'.split()
-    + '--runs 1'.split()
+    + '--runs 0'.split()
     # + '--random-seed 1234'.split()
     # + ['--no-shuffle']
     # + ['--strategy',

@@ -194,15 +194,15 @@ TPersistedRunResult = TypeVar('TPersistedRunResult', bound=PersistedRunResultBas
 class SummarizedPerformanceOfMethodAtDataSize:
     challenge: Challenge
     strategy_name: str
-    language: str
-    engine: str
+    language: SolutionLanguage
+    engine: CalcEngine
     interface: str
     regressor: int
     number_of_runs: int
     elapsed_time_avg: float
-    elapsed_time_std: float
-    elapsed_time_rl: float
-    elapsed_time_rh: float
+    elapsed_time_std: float | None
+    elapsed_time_rl: float | None
+    elapsed_time_rh: float | None
 
 
 class PersistedRunResultLog(Generic[TPersistedRunResult], ABC):

@@ -1,4 +1,4 @@
- strategy_name,interface,num_source_rows,relative_cardinality,elapsed_time,num_output_rows,engine,finished_at,
+ strategy_name,interface,num_source_rows,relative_cardinality_between_groupings,elapsed_time,num_output_rows,engine,finished_at,
 bi_level_py_only_pd_grp_numpy,pandas,90,1,0.003999,3,python_only,2024-10-09T15:35:52.792920,
 bi_level_py_only_pd_grp_numpy,pandas,90,1,0.011664,3,python_only,2024-10-09T15:35:52.970791,
 bi_level_py_only_pd_grp_numpy,pandas,900000,10,0.082173,3,python_only,2024-10-09T15:35:53.200017,

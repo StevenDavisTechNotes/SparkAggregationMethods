@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from typing import Iterable
 
 from pydantic import BaseModel, TypeAdapter
 
@@ -7,15 +8,32 @@ from spark_agg_methods_common_python.perf_test_common import (CalcEngine,
                                                               Challenge,
                                                               SolutionLanguage)
 
-REGISTRY_FILE_PATH = "./results/challenge_strategy_registration.json"
+REGISTRY_FILE_PATH = "results/challenge_strategy_registration.json"
+
+CHALLENGE_STRATEGY_REGISTRATION_MAP = {
+    CalcEngine.PYTHON_ONLY: "../SparkAggMethods_PythonOnly/results/challenge_strategy_registration.json",
+    CalcEngine.DASK: "../SparkAggMethods_PythonDask/results/challenge_strategy_registration.json",
+    CalcEngine.PYSPARK: "../SparkAggMethods_PySpark/results/challenge_strategy_registration.json",
+    CalcEngine.SCALA_SPARK: "../SparkAggMethods_Scala_Spark/results/challenge_strategy_registration.json",
+}
 
 
-class ChallengeStrategyRegistration(BaseModel):
+class ChallengeStrategyRegistrationKeyColumns(BaseModel):
     language: str
     engine: str
     challenge: str
     interface: str
     strategy_name: str
+
+
+class ChallengeStrategyRegistration(ChallengeStrategyRegistrationKeyColumns):
+    # ChallengeStrategyRegistrationKeyColumns
+    language: str
+    engine: str
+    challenge: str
+    interface: str
+    strategy_name: str
+    # Additional fields
     numerical_tolerance: float
     requires_gpu: bool
 
@@ -28,9 +46,47 @@ class ChallengeResultLogFileRegistration(BaseModel):
     expected_regressor_values: list[int]
 
 
-ChallengeRegistryFileType = dict[str, dict[str, dict[str, ChallengeResultLogFileRegistration]]]
+ChallengeRegistryFileType = \
+    dict[SolutionLanguage,
+         dict[CalcEngine,
+              dict[Challenge,
+                   ChallengeResultLogFileRegistration]]]
 
 CHALLENGE_REGISTRY_TYPE_ADAPTER = TypeAdapter(ChallengeRegistryFileType)
+
+
+def read_single_repo_challenge_strategy_registration(
+        file_path: str
+) -> ChallengeRegistryFileType:
+    if not Path(file_path).exists():
+        return dict()
+    text = Path(file_path).read_text()
+    return CHALLENGE_REGISTRY_TYPE_ADAPTER.validate_json(text)
+
+
+def merge_registries(registries: Iterable[ChallengeRegistryFileType]) -> ChallengeRegistryFileType:
+    result: ChallengeRegistryFileType = dict()
+    for registry in registries:
+        for language, engines in registry.items():
+            if language not in result:
+                result[language] = dict()
+            for engine, challenges in engines.items():
+                if engine not in result[language]:
+                    result[language][engine] = dict()
+                for challenge, registration in challenges.items():
+                    msg = f"Duplicate challenge {challenge} for {language} and {engine}"
+                    assert challenge not in result[language][engine], msg
+                    result[language][engine][challenge] = registration
+    return result
+
+
+def read_consolidated_challenge_strategy_registration(
+) -> ChallengeRegistryFileType:
+    consolidated_data = merge_registries(
+        read_single_repo_challenge_strategy_registration(file_path)
+        for file_path in CHALLENGE_STRATEGY_REGISTRATION_MAP.values()
+    )
+    return consolidated_data
 
 
 def update_challenge_strategy_registration(
@@ -41,10 +97,7 @@ def update_challenge_strategy_registration(
         registration: ChallengeResultLogFileRegistration,
 ) -> None:
     def read_file() -> ChallengeRegistryFileType:
-        if not Path(REGISTRY_FILE_PATH).exists():
-            return dict()
-        text = Path(REGISTRY_FILE_PATH).read_text()
-        return CHALLENGE_REGISTRY_TYPE_ADAPTER.validate_json(text)
+        return read_single_repo_challenge_strategy_registration(REGISTRY_FILE_PATH)
 
     def write_file(data: ChallengeRegistryFileType):
         Path(REGISTRY_FILE_PATH).parent.mkdir(parents=True, exist_ok=True)
@@ -66,6 +119,7 @@ def update_challenge_strategy_registration(
         challenges = engines[engine] = engines.get(engine) or dict()
         challenges[challenge] = registration
         return data
+
     data = read_file()
     data = update(data)
     write_file(data)

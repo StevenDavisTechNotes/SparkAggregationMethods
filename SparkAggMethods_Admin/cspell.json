@@ -4,6 +4,7 @@
     "dictionaryDefinitions": [],
     "dictionaries": [],
     "words": [
+        "astype",
         "asymm",
         "asymreduce",
         "bilevel",
@@ -13,6 +14,7 @@
         "dataframe",
         "ddof",
         "dedupe",
+        "dropna",
         "dtype",
         "dtypes",
         "endregion",

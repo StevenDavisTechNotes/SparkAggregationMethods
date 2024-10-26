@@ -6,7 +6,8 @@
           "SparkAggMethods_CommonPython/spark_agg_methods_common_python", 
           "SparkAggMethods_Admin/src", 
           "SparkAggMethods_Python/src" ,
-          "SparkAggMethods_PythonDask/src"
+          "SparkAggMethods_PythonDask/src",
+          "SparkAggMethods_PySpark/src",
         ]
       }
   ],

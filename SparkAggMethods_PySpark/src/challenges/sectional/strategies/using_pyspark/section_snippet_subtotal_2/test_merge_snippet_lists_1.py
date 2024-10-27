@@ -1,14 +1,11 @@
 from functools import reduce
 
-from src.challenges.sectional.domain_logic.section_snippet_subtotal_type import (
-    FIRST_LAST_NEITHER, StudentSnippet2, marge_snippets_2,
-)
+from src.challenges.sectional.domain_logic.section_snippet_subtotal_type import StudentSnippet1, merge_snippet_lists_1
 
 
-class Test_full_set:
+class test_full_set:
     students = [
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=0,
             LastLineIndex=0,
             StudentId=1,
@@ -18,8 +15,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[0, 0, 0, 0],
             WeightedGradeTotal=[0, 0, 0, 0]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=1,
             LastLineIndex=1,
             StudentId=None,
@@ -29,8 +25,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[0, 0, 0, 0],
             WeightedGradeTotal=[0, 0, 0, 0]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=2,
             LastLineIndex=2,
             StudentId=None,
@@ -40,8 +35,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[0, 0, 0, 1],
             WeightedGradeTotal=[0, 0, 0, 1]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=3,
             LastLineIndex=3,
             StudentId=None,
@@ -51,8 +45,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[4, 0, 0, 0],
             WeightedGradeTotal=[4, 0, 0, 0]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=4,
             LastLineIndex=4,
             StudentId=None,
@@ -62,8 +55,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[0, 0, 3, 0],
             WeightedGradeTotal=[0, 0, 15, 0]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=5,
             LastLineIndex=5,
             StudentId=None,
@@ -73,8 +65,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[0, 0, 0, 2],
             WeightedGradeTotal=[0, 0, 0, 8]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=6,
             LastLineIndex=6,
             StudentId=None,
@@ -84,8 +75,7 @@ class Test_full_set:
             LastMajor=3,
             Credits=[0, 0, 0, 0],
             WeightedGradeTotal=[0, 0, 0, 0]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=7,
             LastLineIndex=7,
             StudentId=None,
@@ -95,8 +85,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[0, 0, 0, 0],
             WeightedGradeTotal=[0, 0, 0, 0]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=8,
             LastLineIndex=8,
             StudentId=None,
@@ -106,8 +95,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[0, 1, 0, 0],
             WeightedGradeTotal=[0, 5, 0, 0]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=9,
             LastLineIndex=9,
             StudentId=None,
@@ -117,8 +105,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[0, 0, 1, 0],
             WeightedGradeTotal=[0, 0, 2, 0]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=10,
             LastLineIndex=10,
             StudentId=None,
@@ -128,8 +115,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[0, 0, 3, 0],
             WeightedGradeTotal=[0, 0, 6, 0]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=11,
             LastLineIndex=11,
             StudentId=None,
@@ -139,8 +125,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[4, 0, 0, 0],
             WeightedGradeTotal=[16, 0, 0, 0]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=12,
             LastLineIndex=12,
             StudentId=None,
@@ -150,8 +135,7 @@ class Test_full_set:
             LastMajor=1,
             Credits=[0, 0, 0, 0],
             WeightedGradeTotal=[0, 0, 0, 0]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=13,
             LastLineIndex=13,
             StudentId=None,
@@ -161,8 +145,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[0, 0, 0, 0],
             WeightedGradeTotal=[0, 0, 0, 0]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=14,
             LastLineIndex=14,
             StudentId=None,
@@ -172,8 +155,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[0, 0, 3, 0],
             WeightedGradeTotal=[0, 0, 15, 0]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=15,
             LastLineIndex=15,
             StudentId=None,
@@ -183,8 +165,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[1, 0, 0, 0],
             WeightedGradeTotal=[2, 0, 0, 0]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=16,
             LastLineIndex=16,
             StudentId=None,
@@ -194,8 +175,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[2, 0, 0, 0],
             WeightedGradeTotal=[10, 0, 0, 0]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=17,
             LastLineIndex=17,
             StudentId=None,
@@ -205,8 +185,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[3, 0, 0, 0],
             WeightedGradeTotal=[15, 0, 0, 0]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=18,
             LastLineIndex=18,
             StudentId=None,
@@ -216,8 +195,7 @@ class Test_full_set:
             LastMajor=1,
             Credits=[0, 0, 0, 0],
             WeightedGradeTotal=[0, 0, 0, 0]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=19,
             LastLineIndex=19,
             StudentId=None,
@@ -227,8 +205,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[0, 0, 0, 0],
             WeightedGradeTotal=[0, 0, 0, 0]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=20,
             LastLineIndex=20,
             StudentId=None,
@@ -238,8 +215,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[0, 0, 0, 1],
             WeightedGradeTotal=[0, 0, 0, 4]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=21,
             LastLineIndex=21,
             StudentId=None,
@@ -249,8 +225,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[0, 1, 0, 0],
             WeightedGradeTotal=[0, 5, 0, 0]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=22,
             LastLineIndex=22,
             StudentId=None,
@@ -260,8 +235,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[0, 0, 0, 3],
             WeightedGradeTotal=[0, 0, 0, 15]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=23,
             LastLineIndex=23,
             StudentId=None,
@@ -271,8 +245,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[0, 0, 2, 0],
             WeightedGradeTotal=[0, 0, 4, 0]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=24,
             LastLineIndex=24,
             StudentId=None,
@@ -282,8 +255,7 @@ class Test_full_set:
             LastMajor=1,
             Credits=[0, 0, 0, 0],
             WeightedGradeTotal=[0, 0, 0, 0]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=25,
             LastLineIndex=25,
             StudentId=None,
@@ -293,8 +265,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[0, 0, 0, 0],
             WeightedGradeTotal=[0, 0, 0, 0]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=26,
             LastLineIndex=26,
             StudentId=None,
@@ -304,8 +275,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[0, 0, 2, 0],
             WeightedGradeTotal=[0, 0, 4, 0]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=27,
             LastLineIndex=27,
             StudentId=None,
@@ -315,8 +285,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[0, 0, 0, 2],
             WeightedGradeTotal=[0, 0, 0, 6]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=28,
             LastLineIndex=28,
             StudentId=None,
@@ -326,8 +295,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[0, 0, 0, 4],
             WeightedGradeTotal=[0, 0, 0, 12]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=29,
             LastLineIndex=29,
             StudentId=None,
@@ -337,8 +305,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[0, 0, 0, 1],
             WeightedGradeTotal=[0, 0, 0, 3]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=30,
             LastLineIndex=30,
             StudentId=None,
@@ -348,8 +315,7 @@ class Test_full_set:
             LastMajor=1,
             Credits=[0, 0, 0, 0],
             WeightedGradeTotal=[0, 0, 0, 0]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=31,
             LastLineIndex=31,
             StudentId=None,
@@ -359,8 +325,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[0, 0, 0, 0],
             WeightedGradeTotal=[0, 0, 0, 0]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=32,
             LastLineIndex=32,
             StudentId=None,
@@ -370,8 +335,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[0, 0, 0, 1],
             WeightedGradeTotal=[0, 0, 0, 3]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=33,
             LastLineIndex=33,
             StudentId=None,
@@ -381,8 +345,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[0, 0, 0, 2],
             WeightedGradeTotal=[0, 0, 0, 10]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=34,
             LastLineIndex=34,
             StudentId=None,
@@ -392,8 +355,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[2, 0, 0, 0],
             WeightedGradeTotal=[2, 0, 0, 0]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=35,
             LastLineIndex=35,
             StudentId=None,
@@ -403,8 +365,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[0, 2, 0, 0],
             WeightedGradeTotal=[0, 8, 0, 0]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=36,
             LastLineIndex=36,
             StudentId=None,
@@ -414,8 +375,7 @@ class Test_full_set:
             LastMajor=1,
             Credits=[0, 0, 0, 0],
             WeightedGradeTotal=[0, 0, 0, 0]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=37,
             LastLineIndex=37,
             StudentId=None,
@@ -425,8 +385,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[0, 0, 0, 0],
             WeightedGradeTotal=[0, 0, 0, 0]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=38,
             LastLineIndex=38,
             StudentId=None,
@@ -436,8 +395,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[0, 0, 0, 3],
             WeightedGradeTotal=[0, 0, 0, 6]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=39,
             LastLineIndex=39,
             StudentId=None,
@@ -447,8 +405,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[4, 0, 0, 0],
             WeightedGradeTotal=[16, 0, 0, 0]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=40,
             LastLineIndex=40,
             StudentId=None,
@@ -458,8 +415,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[0, 3, 0, 0],
             WeightedGradeTotal=[0, 15, 0, 0]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=41,
             LastLineIndex=41,
             StudentId=None,
@@ -469,8 +425,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[0, 0, 3, 0],
             WeightedGradeTotal=[0, 0, 6, 0]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=42,
             LastLineIndex=42,
             StudentId=None,
@@ -480,8 +435,7 @@ class Test_full_set:
             LastMajor=1,
             Credits=[0, 0, 0, 0],
             WeightedGradeTotal=[0, 0, 0, 0]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=43,
             LastLineIndex=43,
             StudentId=None,
@@ -491,8 +445,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[0, 0, 0, 0],
             WeightedGradeTotal=[0, 0, 0, 0]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=44,
             LastLineIndex=44,
             StudentId=None,
@@ -502,8 +455,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[0, 0, 3, 0],
             WeightedGradeTotal=[0, 0, 6, 0]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=45,
             LastLineIndex=45,
             StudentId=None,
@@ -513,8 +465,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[0, 0, 0, 4],
             WeightedGradeTotal=[0, 0, 0, 12]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=46,
             LastLineIndex=46,
             StudentId=None,
@@ -524,8 +475,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[0, 0, 2, 0],
             WeightedGradeTotal=[0, 0, 2, 0]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=47,
             LastLineIndex=47,
             StudentId=None,
@@ -535,8 +485,7 @@ class Test_full_set:
             LastMajor=None,
             Credits=[0, 4, 0, 0],
             WeightedGradeTotal=[0, 20, 0, 0]),
-        StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        StudentSnippet1(
             FirstLineIndex=48,
             LastLineIndex=48,
             StudentId=None,
@@ -549,9 +498,8 @@ class Test_full_set:
     ]
 
     def test_start(self):
-        r = marge_snippets_2(self.students[0], self.students[1])
-        assert r == StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        r = merge_snippet_lists_1([self.students[0]], [self.students[1]])
+        assert r == [StudentSnippet1(
             FirstLineIndex=0,
             LastLineIndex=1,
             StudentId=1,
@@ -560,12 +508,11 @@ class Test_full_set:
             LastTrimesterDate='2017-02-01',
             LastMajor=None,
             Credits=[0, 0, 0, 0],
-            WeightedGradeTotal=[0, 0, 0, 0])
+            WeightedGradeTotal=[0, 0, 0, 0])]
 
     def test_end(self):
-        r = marge_snippets_2(self.students[-2], self.students[-1])
-        assert r == StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        r = merge_snippet_lists_1([self.students[-2]], [self.students[-1]])
+        assert r == [StudentSnippet1(
             FirstLineIndex=47,
             LastLineIndex=48,
             StudentId=None,
@@ -574,12 +521,11 @@ class Test_full_set:
             LastTrimesterDate=None,
             LastMajor=1,
             Credits=[0, 4, 0, 0],
-            WeightedGradeTotal=[0, 20, 0, 0])
+            WeightedGradeTotal=[0, 20, 0, 0])]
 
     def test_full(self):
-        r = reduce(marge_snippets_2, self.students)
-        assert r == StudentSnippet2(
-            FirstLastFlag=FIRST_LAST_NEITHER,
+        r = reduce(merge_snippet_lists_1, map(lambda x: [x], self.students))
+        assert r == [StudentSnippet1(
             FirstLineIndex=0,
             LastLineIndex=48,
             StudentId=1,
@@ -588,4 +534,4 @@ class Test_full_set:
             LastTrimesterDate='2017-09-01',
             LastMajor=1,
             Credits=[20, 11, 22, 24],
-            WeightedGradeTotal=[65, 53, 60, 80])
+            WeightedGradeTotal=[65, 53, 60, 80])]

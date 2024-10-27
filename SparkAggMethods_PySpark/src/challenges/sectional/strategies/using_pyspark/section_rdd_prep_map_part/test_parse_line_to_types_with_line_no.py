@@ -1,8 +1,8 @@
-from spark_agg_methods_common_python.utils.printer import print_object_as_python_literal
-
-from src.challenges.sectional.section_test_data_types_pyspark import (
+from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import (
     ClassLine, StudentHeader, TrimesterFooter, TrimesterHeader, TypedLine,
 )
+from spark_agg_methods_common_python.utils.printer import print_object_as_python_literal
+
 from src.challenges.sectional.strategies.using_pyspark.section_pyspark_rdd_prep_mappart import (
     parse_line_to_types_with_line_no,
 )

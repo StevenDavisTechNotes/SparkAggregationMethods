@@ -1,13 +1,13 @@
+from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import (
+    NUM_DEPARTMENTS, ClassLine, StudentHeader, TrimesterFooter, TrimesterHeader,
+)
 
 from src.challenges.sectional.domain_logic.section_snippet_subtotal_type import (
-    StudentSnippet1, student_snippet_from_typed_row_1,
-)
-from src.challenges.sectional.section_test_data_types_pyspark import (
-    ClassLine, NumDepartments, StudentHeader, TrimesterFooter, TrimesterHeader,
+    FIRST_LAST_NEITHER, StudentSnippet2, student_snippet_from_typed_row_2,
 )
 
 
-class Test_StudentHeader:
+class test_StudentHeader:
     def test_nominal(
             self,
     ) -> None:
@@ -18,24 +18,25 @@ class Test_StudentHeader:
             StudentId=studentId,
             StudentName=studentName,
         )
-        expected = StudentSnippet1(
+        expected = StudentSnippet2(
             StudentId=studentId,
             StudentName=studentName,
             FirstTrimesterDate=None,
             LastTrimesterDate=None,
             LastMajor=None,
-            Credits=[0 for _ in range(0, NumDepartments)],
-            WeightedGradeTotal=[0 for _ in range(0, NumDepartments)],
+            Credits=[0 for _ in range(0, NUM_DEPARTMENTS)],
+            WeightedGradeTotal=[0 for _ in range(0, NUM_DEPARTMENTS)],
+            FirstLastFlag=FIRST_LAST_NEITHER,
             FirstLineIndex=lineIndex,
             LastLineIndex=lineIndex)
-        actual = student_snippet_from_typed_row_1(
+        actual = student_snippet_from_typed_row_2(
             lineIndex=lineIndex,
             rec=src,
         )
         assert expected == actual
 
 
-class Test_TrimesterHeader:
+class test_TrimesterHeader:
     def test_nominal(
             self,
     ) -> None:
@@ -46,24 +47,25 @@ class Test_TrimesterHeader:
             Date=date,
             WasAbroad=wasAbroad,
         )
-        expected = StudentSnippet1(
+        expected = StudentSnippet2(
             StudentId=None,
             StudentName=None,
             FirstTrimesterDate=date,
             LastTrimesterDate=date,
             LastMajor=None,
-            Credits=[0 for _ in range(0, NumDepartments)],
-            WeightedGradeTotal=[0 for _ in range(0, NumDepartments)],
+            Credits=[0 for _ in range(0, NUM_DEPARTMENTS)],
+            WeightedGradeTotal=[0 for _ in range(0, NUM_DEPARTMENTS)],
+            FirstLastFlag=FIRST_LAST_NEITHER,
             FirstLineIndex=lineIndex,
             LastLineIndex=lineIndex)
-        actual = student_snippet_from_typed_row_1(
+        actual = student_snippet_from_typed_row_2(
             lineIndex=lineIndex,
             rec=src,
         )
         assert expected == actual
 
 
-class Test_ClassLine:
+class test_ClassLine:
     def test_nominal(
             self,
     ) -> None:
@@ -76,24 +78,25 @@ class Test_ClassLine:
             Credits=credits,
             Grade=grade,
         )
-        expected = StudentSnippet1(
+        expected = StudentSnippet2(
             StudentId=None,
             StudentName=None,
             FirstTrimesterDate=None,
             LastTrimesterDate=None,
             LastMajor=None,
-            Credits=[(credits if x == dept else 0) for x in range(0, NumDepartments)],
-            WeightedGradeTotal=[(credits * grade if x == dept else 0) for x in range(0, NumDepartments)],
+            Credits=[(credits if x == dept else 0) for x in range(0, NUM_DEPARTMENTS)],
+            WeightedGradeTotal=[(credits * grade if x == dept else 0) for x in range(0, NUM_DEPARTMENTS)],
+            FirstLastFlag=FIRST_LAST_NEITHER,
             FirstLineIndex=lineIndex,
             LastLineIndex=lineIndex)
-        actual = student_snippet_from_typed_row_1(
+        actual = student_snippet_from_typed_row_2(
             lineIndex=lineIndex,
             rec=src,
         )
         assert expected == actual
 
 
-class Test_TrimesterFooter:
+class test_TrimesterFooter:
     def test_nominal(
             self,
     ) -> None:
@@ -106,17 +109,18 @@ class Test_TrimesterFooter:
             GPA=gps,
             Credits=credits,
         )
-        expected = StudentSnippet1(
+        expected = StudentSnippet2(
             StudentId=None,
             StudentName=None,
             FirstTrimesterDate=None,
             LastTrimesterDate=None,
             LastMajor=2,
-            Credits=[0 for _ in range(0, NumDepartments)],
-            WeightedGradeTotal=[0 for _ in range(0, NumDepartments)],
+            Credits=[0 for _ in range(0, NUM_DEPARTMENTS)],
+            WeightedGradeTotal=[0 for _ in range(0, NUM_DEPARTMENTS)],
+            FirstLastFlag=FIRST_LAST_NEITHER,
             FirstLineIndex=lineIndex,
             LastLineIndex=lineIndex)
-        actual = student_snippet_from_typed_row_1(
+        actual = student_snippet_from_typed_row_2(
             lineIndex=lineIndex,
             rec=src,
         )

@@ -1,5 +1,9 @@
+#!python
+# usage: python -m src.summarize_test_results
+
 import io
 import os
+from typing import Any, cast
 
 import pandas as pd
 import scipy
@@ -117,9 +121,12 @@ def analyze_elapsed_time_samples(
 ) -> SummarizedPerformanceOfMethodAtDataSize:
     confidence = 0.95
     num_runs = len(elapsed_time_samples)
-    elapsed_time_avg = elapsed_time_samples.mean()
+    elapsed_time_avg = cast(float, elapsed_time_samples.mean())
+    elapsed_time_std: float | None
+    confident_low: float | None
+    confident_high: float | None
     if num_runs > 1:
-        elapsed_time_std = elapsed_time_samples.std(ddof=1)
+        elapsed_time_std = cast(float, elapsed_time_samples.std(ddof=1))
         confident_low, confident_high = scipy.stats.norm.interval(
             confidence,
             loc=elapsed_time_avg,
@@ -184,14 +191,15 @@ def analyze_run_results():
                     challenge_result_log_registration=challenge_result_log_registration,
                 )
                 print(df)
-                for (strategy_name, regressor_value), group in df.groupby(by=['strategy_name', regressor_column_name]):
+                group_iterator = cast(Any, df.groupby(by=['strategy_name', regressor_column_name]))
+                for (strategy_name, regressor_value), group in group_iterator:
                     strategy = next(
                         x for x in challenge_result_log_registration.strategies if x.strategy_name == strategy_name)
                     if strategy is None:
                         print(f"Warning: strategy {strategy_name} in results but not in challenge registration for "
                               f"language {language}, engine {engine}, challenge {challenge}")
                         continue
-                    elapsed_time_samples: pd.Series[float] = group[elapsed_time_column_name]
+                    elapsed_time_samples = cast(pd.Series, group[elapsed_time_column_name])
                     summary_status.append(analyze_elapsed_time_samples(
                         challenge=Challenge(strategy.challenge),
                         strategy_name=strategy_name,

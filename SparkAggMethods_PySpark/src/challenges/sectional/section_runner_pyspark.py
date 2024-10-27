@@ -15,20 +15,22 @@ from pyspark.sql import DataFrame as PySparkDataFrame
 from spark_agg_methods_common_python.challenge_strategy_registry import (
     ChallengeResultLogFileRegistration, ChallengeStrategyRegistration, update_challenge_strategy_registration,
 )
+from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import (
+    DATA_SIZE_LIST_SECTIONAL, SectionDataSetDescription, StudentSummary,
+)
 from spark_agg_methods_common_python.perf_test_common import (
     ELAPSED_TIME_COLUMN_NAME, CalcEngine, Challenge, NumericalToleranceExpectations, SolutionLanguage,
 )
 from spark_agg_methods_common_python.utils.utils import always_true, count_iter, set_random_seed
 
-from src.challenges.sectional.section_generate_test_data_pyspark import DATA_SIZE_LIST_SECTIONAL, populate_data_sets
+from src.challenges.sectional.section_generate_test_data_pyspark import populate_data_sets_pyspark
 from src.challenges.sectional.section_record_runs import SectionRunResult
 from src.challenges.sectional.section_record_runs_pyspark import (
     MAXIMUM_PROCESSABLE_SEGMENT, SectionPysparkPersistedRunResultLog, SectionPysparkRunResultFileWriter,
 )
 from src.challenges.sectional.section_strategy_directory_pyspark import STRATEGIES_USING_PYSPARK_REGISTRY
 from src.challenges.sectional.section_test_data_types_pyspark import (
-    ExecutionParameters, SectionChallengeMethodPysparkRegistration, SectionDataSetDescription, SectionDataSetWithAnswer,
-    StudentSummary,
+    ExecutionParameters, SectionChallengeMethodPysparkRegistration, SectionDataSetWithAnswerPyspark,
 )
 from src.challenges.sectional.strategies.using_python_only.section_py_only_single_threaded import (
     section_py_only_single_threaded,
@@ -57,7 +59,6 @@ REMOTE_TEST_DATA_LOCATION = "wasb:///sparkperftesting"
 @dataclass(frozen=True)
 class Arguments:
     check_answers: bool
-    make_new_data_files: bool
     num_runs: int
     random_seed: int | None
     shuffle: bool
@@ -75,7 +76,6 @@ def parse_args() -> Arguments:
                         help="When debugging skipping this will speed up the startup")
     parser.add_argument('--random-seed', type=int)
     parser.add_argument('--runs', type=int, default=1)
-    parser.add_argument('--new-files', default=False, action=argparse.BooleanOptionalAction)
     parser.add_argument('--size', choices=sizes, default=sizes, nargs="*")
     parser.add_argument('--shuffle', default=True, action=argparse.BooleanOptionalAction)
     parser.add_argument('--strategy', choices=strategy_names, default=strategy_names, nargs="*")
@@ -85,7 +85,6 @@ def parse_args() -> Arguments:
         args = parser.parse_args(DEBUG_ARGS)
     return Arguments(
         check_answers=args.check,
-        make_new_data_files=args.new_files,
         num_runs=args.runs,
         random_seed=args.random_seed,
         shuffle=args.shuffle,
@@ -103,13 +102,11 @@ def do_test_runs(
         args: Arguments,
         spark_session: TidySparkSession,
 ) -> None:
-    data_sets_wo_answers = populate_data_sets(
-        args.exec_params,
-        args.make_new_data_files)
+    data_sets_wo_answers = populate_data_sets_pyspark(args.exec_params)
     data_sets_wo_answers = [x for x in data_sets_wo_answers if x.data_description.size_code in args.sizes]
     if args.check_answers is True:
         data_sets_w_answers = [
-            SectionDataSetWithAnswer(
+            SectionDataSetWithAnswerPyspark(
                 data_description=data_set.data_description,
                 exec_params=data_set.exec_params,
                 answer_generator=lambda: section_py_only_single_threaded(data_set),
@@ -117,7 +114,7 @@ def do_test_runs(
         ]
     else:
         data_sets_w_answers = [
-            SectionDataSetWithAnswer(
+            SectionDataSetWithAnswerPyspark(
                 data_description=data_set.data_description,
                 exec_params=data_set.exec_params,
                 answer_generator=None,
@@ -128,7 +125,7 @@ def do_test_runs(
         for x in data_sets_w_answers}
     keyed_implementation_list = {
         x.strategy_name: x for x in STRATEGIES_USING_PYSPARK_REGISTRY}
-    itinerary: list[tuple[SectionChallengeMethodPysparkRegistration, SectionDataSetWithAnswer]] = [
+    itinerary: list[tuple[SectionChallengeMethodPysparkRegistration, SectionDataSetWithAnswerPyspark]] = [
         (challenge_method_registration, data_set)
         for strategy_name in args.strategy_names
         if always_true(challenge_method_registration := keyed_implementation_list[strategy_name])
@@ -165,7 +162,7 @@ def run_one_itinerary_step(
         args: Arguments,
         spark_session: TidySparkSession,
         challenge_method_registration: SectionChallengeMethodPysparkRegistration,
-        data_set: SectionDataSetWithAnswer,
+        data_set: SectionDataSetWithAnswerPyspark,
 ) -> SectionRunResult | Literal["infeasible"]:
     startedTime = time.time()
     num_students_found: int
@@ -222,7 +219,7 @@ def run_one_itinerary_step(
 
 
 def verify_correctness(
-    data_set: SectionDataSetWithAnswer,
+    data_set: SectionDataSetWithAnswerPyspark,
     found_students: list[StudentSummary] | None,
     num_students_found: int,
     check_answers: bool,

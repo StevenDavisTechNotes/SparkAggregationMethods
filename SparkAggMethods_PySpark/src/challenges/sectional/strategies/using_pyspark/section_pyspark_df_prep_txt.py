@@ -1,11 +1,12 @@
 import pyspark.sql.types as DataTypes
 from pyspark.sql import Row
-
-from src.challenges.sectional.domain_logic.section_data_parsers import (
-    identify_section_using_intermediate_file, row_to_student_summary,
+from spark_agg_methods_common_python.challenges.sectional.domain_logic.section_data_parsers import (
+    identify_section_using_intermediate_file,
 )
+
+from src.challenges.sectional.domain_logic.section_data_parsers_pyspark import row_to_student_summary
 from src.challenges.sectional.section_test_data_types_pyspark import (
-    SectionDataSet, SparseLineSchema, TChallengePythonPysparkAnswer,
+    SectionDataSetPyspark, SparseLineSchema, TChallengePythonPysparkAnswer,
 )
 from src.challenges.sectional.strategies.using_pyspark.section_pyspark_rdd_prep_shared import (
     section_pyspark_rdd_prep_shared,
@@ -15,7 +16,7 @@ from src.utils.tidy_session_pyspark import TidySparkSession
 
 def section_pyspark_df_prep_txt(
         spark_session: TidySparkSession,
-        data_set: SectionDataSet,
+        data_set: SectionDataSetPyspark,
 ) -> TChallengePythonPysparkAnswer:
     if data_set.data_description.num_students > pow(10, 8-1):
         # times out

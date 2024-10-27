@@ -3,17 +3,17 @@ import pyspark.sql.types as DataTypes
 from pyspark.sql import Row
 from pyspark.sql.window import Window
 
-from src.challenges.sectional.domain_logic.section_data_parsers import parse_line_to_row, row_to_student_summary
+from src.challenges.sectional.domain_logic.section_data_parsers_pyspark import parse_line_to_row, row_to_student_summary
 from src.challenges.sectional.section_record_runs_pyspark import MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT
 from src.challenges.sectional.section_test_data_types_pyspark import (
-    SectionDataSet, SparseLineSchema, TChallengePythonPysparkAnswer,
+    SectionDataSetPyspark, SparseLineSchema, TChallengePythonPysparkAnswer,
 )
 from src.utils.tidy_session_pyspark import TidySparkSession
 
 
 def section_join_groupby(
         spark_session: TidySparkSession,
-        data_set: SectionDataSet,
+        data_set: SectionDataSetPyspark,
 ) -> TChallengePythonPysparkAnswer:
     if data_set.data_description.num_students > pow(10, MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT - 1):
         return "infeasible"

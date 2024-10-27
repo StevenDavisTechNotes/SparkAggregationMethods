@@ -1,15 +1,16 @@
 from typing import Callable, Iterable, NamedTuple, cast
 
 from pyspark import RDD, SparkContext, StorageLevel
+from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import LabeledTypedRow, StudentSummary
 from spark_agg_methods_common_python.utils.utils import int_divide_round_up
 
-from src.challenges.sectional.domain_logic.section_data_parsers import rdd_typed_with_index_factory
+from src.challenges.sectional.domain_logic.section_data_parsers_pyspark import rdd_typed_with_index_factory
 from src.challenges.sectional.domain_logic.section_snippet_subtotal_type import (
     FIRST_LAST_FIRST, FIRST_LAST_LAST, FIRST_LAST_NEITHER, CompletedStudent, StudentSnippet2, complete_snippets_2,
     grade_summary, marge_snippets_2, student_snippet_from_typed_row_2,
 )
 from src.challenges.sectional.section_test_data_types_pyspark import (
-    LabeledTypedRow, SectionDataSet, StudentSummary, TChallengePythonPysparkAnswer,
+    SectionDataSetPyspark, TChallengePythonPysparkAnswer,
 )
 from src.utils.tidy_session_pyspark import TidySparkSession
 
@@ -21,7 +22,7 @@ class StudentSnippetWIndex(NamedTuple):
 
 def section_pyspark_rdd_mappart_partials(
         spark_session: TidySparkSession,
-        data_set: SectionDataSet,
+        data_set: SectionDataSetPyspark,
 ) -> TChallengePythonPysparkAnswer:
     if data_set.data_description.num_students > pow(10, 5-1):
         # unreliable in local mode

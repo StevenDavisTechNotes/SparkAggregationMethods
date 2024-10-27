@@ -1,17 +1,23 @@
 from pyspark import RDD
+from spark_agg_methods_common_python.challenges.sectional.domain_logic.section_data_parsers import (
+    identify_section_using_intermediate_file,
+)
+from spark_agg_methods_common_python.challenges.sectional.domain_logic.section_mutable_subtotal_type import (
+    aggregate_typed_rows_to_grades,
+)
+from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import (
+    ClassLine, StudentHeader, StudentSummary, TrimesterFooter, TrimesterHeader, TypedLine,
+)
 
-from src.challenges.sectional.domain_logic.section_data_parsers import identify_section_using_intermediate_file
-from src.challenges.sectional.domain_logic.section_mutable_subtotal_type import aggregate_typed_rows_to_grades
 from src.challenges.sectional.section_test_data_types_pyspark import (
-    ClassLine, SectionDataSet, StudentHeader, StudentSummary, TChallengePythonPysparkAnswer, TrimesterFooter,
-    TrimesterHeader, TypedLine,
+    SectionDataSetPyspark, TChallengePythonPysparkAnswer,
 )
 from src.utils.tidy_session_pyspark import TidySparkSession
 
 
 def section_pyspark_rdd_prep_mappart(
         spark_session: TidySparkSession,
-        data_set: SectionDataSet,
+        data_set: SectionDataSetPyspark,
 ) -> TChallengePythonPysparkAnswer:
     if data_set.data_description.num_students > pow(10, 8 - 1):
         # takes too long

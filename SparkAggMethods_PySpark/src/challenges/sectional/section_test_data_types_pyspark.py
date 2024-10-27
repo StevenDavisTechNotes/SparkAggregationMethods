@@ -1,16 +1,17 @@
-import inspect
 from dataclasses import dataclass
 from enum import StrEnum
-from typing import Callable, Iterable, Literal, NamedTuple, Protocol
+from typing import Callable, Iterable, Literal, Protocol
 
 import pandas as pd
 import pyspark.sql.types as DataTypes
 from pyspark import RDD
 from pyspark.sql import DataFrame as PySparkDataFrame
+from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import (
+    SectionDataSetDescription, StudentSummary,
+)
 from spark_agg_methods_common_python.perf_test_common import (
-    CalcEngine, ChallengeMethodRegistrationBase, DataSetDescriptionBase, SolutionInterfaceDask,
-    SolutionInterfacePySpark, SolutionInterfacePythonOnly, SolutionLanguage, TChallengeMethodDelegate,
-    TSolutionInterface,
+    CalcEngine, ChallengeMethodRegistrationBase, SolutionInterfaceDask, SolutionInterfacePySpark,
+    SolutionInterfacePythonOnly, SolutionLanguage, TChallengeMethodDelegate, TSolutionInterface,
 )
 
 from src.utils.tidy_session_pyspark import TidySparkSession
@@ -21,40 +22,6 @@ class ExecutionParameters:
     default_parallelism: int
     maximum_processable_segment: int
     test_data_folder_location: str
-
-
-class StudentHeader(NamedTuple):
-    StudentId: int
-    StudentName: str
-
-
-class TrimesterHeader(NamedTuple):
-    Date: str
-    WasAbroad: bool
-
-
-class ClassLine(NamedTuple):
-    Dept: int
-    Credits: int
-    Grade: int
-
-
-class TrimesterFooter(NamedTuple):
-    Major: int
-    GPA: float
-    Credits: int
-
-
-TypedLine = StudentHeader | TrimesterHeader | ClassLine | TrimesterFooter
-
-
-class StudentSummary(NamedTuple):
-    StudentId: int
-    StudentName: str
-    SourceLines: int
-    GPA: float
-    Major: int
-    MajorGPA: float
 
 
 StudentSummaryStruct = DataTypes.StructType([
@@ -80,50 +47,6 @@ SparseLineSchema = DataTypes.StructType([
 ])
 
 
-class LabeledTypedRow(NamedTuple):
-    Index: int
-    Value: TypedLine
-
-
-NumDepartments = 4
-
-
-class SectionDataSetDescription(DataSetDescriptionBase):
-    # for DataSetDescriptionBase
-    debugging_only: bool
-    num_source_rows: int
-    size_code: str
-    # for SectionDataSetDescription
-    i_scale: int
-    num_students: int
-    section_size_max: int
-
-    def __init__(
-            self,
-            *,
-            i_scale: int,
-            num_students: int,
-            section_size_max: int,
-    ) -> None:
-        debugging_only = False
-        num_source_rows = num_students * section_size_max
-        size_code = str(num_students)
-        super().__init__(
-            debugging_only=debugging_only,
-            num_source_rows=num_source_rows,
-            size_code=size_code,
-        )
-        self.i_scale = i_scale
-        self.num_students = num_students
-        self.section_size_max = section_size_max
-
-    @classmethod
-    def regressor_field_name(cls) -> str:
-        regressor_field_name = "num_students"
-        assert regressor_field_name in inspect.get_annotations(cls)
-        return regressor_field_name
-
-
 @dataclass(frozen=True)
 class SectionPySparkExecutionParameters(ExecutionParameters):
     target_num_partitions: int
@@ -132,13 +55,15 @@ class SectionPySparkExecutionParameters(ExecutionParameters):
 
 
 @dataclass(frozen=True)
-class SectionDataSet():
+class SectionDataSetPyspark():
+    # for SectionDataSetBase
     data_description: SectionDataSetDescription
+    # for SectionDataSetPyspark
     exec_params: SectionPySparkExecutionParameters
 
 
 @dataclass(frozen=True)
-class SectionDataSetWithAnswer(SectionDataSet):
+class SectionDataSetWithAnswerPyspark(SectionDataSetPyspark):
     answer_generator: Callable[[], Iterable[StudentSummary]] | None
 
 
@@ -180,7 +105,7 @@ class ISectionChallengeMethodPythonDask(Protocol):
         self,
         *,
         spark_session: TidySparkSession,
-        data_set: SectionDataSet
+        data_set: SectionDataSetPyspark
     ) -> TChallengePythonAnswer: ...
 
 
@@ -199,7 +124,7 @@ class ISectionChallengeMethodPythonPyspark(Protocol):
         self,
         *,
         spark_session: TidySparkSession,
-        data_set: SectionDataSet
+        data_set: SectionDataSetPyspark
     ) -> TChallengePythonPysparkAnswer: ...
 
 
@@ -216,7 +141,7 @@ class ISectionChallengeMethodPythonOnly(Protocol):
     def __call__(
         self,
         *,
-        data_set: SectionDataSet
+        data_set: SectionDataSetPyspark
     ) -> TChallengePythonAnswer: ...
 
 

@@ -2,11 +2,12 @@ import os
 
 import pyspark.sql.types as DataTypes
 from pyspark import RDD
+from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import StudentSummary
+from spark_agg_methods_common_python.perf_test_common import TEST_DATA_FILE_LOCATION
 
-from src.challenges.sectional.domain_logic.section_data_parsers import parse_line_to_row, row_to_student_summary
-from src.challenges.sectional.section_generate_test_data_pyspark import TEST_DATA_FILE_LOCATION
+from src.challenges.sectional.domain_logic.section_data_parsers_pyspark import parse_line_to_row, row_to_student_summary
 from src.challenges.sectional.section_test_data_types_pyspark import (
-    SectionDataSet, SparseLineSchema, StudentSummary, TChallengePythonPysparkAnswer,
+    SectionDataSetPyspark, SparseLineSchema, TChallengePythonPysparkAnswer,
 )
 from src.challenges.sectional.strategies.using_pyspark.section_pyspark_rdd_prep_shared import (
     section_pyspark_rdd_prep_shared,
@@ -16,7 +17,7 @@ from src.utils.tidy_session_pyspark import TidySparkSession
 
 def section_pyspark_df_prep_grp_csv(
         spark_session: TidySparkSession,
-        data_set: SectionDataSet,
+        data_set: SectionDataSetPyspark,
 ) -> TChallengePythonPysparkAnswer:
     if data_set.data_description.num_students > pow(10, 8-1):
         # times out

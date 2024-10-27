@@ -2,14 +2,17 @@ import math
 from typing import cast
 
 from pyspark import RDD, StorageLevel
+from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import LabeledTypedRow, StudentSummary
 
-from src.challenges.sectional.domain_logic.section_data_parsers import parse_line_to_types, rdd_typed_with_index_factory
+from src.challenges.sectional.domain_logic.section_data_parsers_pyspark import (
+    parse_line_to_types, rdd_typed_with_index_factory,
+)
 from src.challenges.sectional.domain_logic.section_snippet_subtotal_type import (
     CompletedStudent, StudentSnippet1, completed_from_snippet_1, grade_summary, merge_snippet_lists_1,
     student_snippet_from_typed_row_1,
 )
 from src.challenges.sectional.section_test_data_types_pyspark import (
-    LabeledTypedRow, SectionDataSet, StudentSummary, TChallengePythonPysparkAnswer,
+    SectionDataSetPyspark, TChallengePythonPysparkAnswer,
 )
 from src.utils.non_commutative_pyspark_tree_aggregate import non_commutative_tree_aggregate
 from src.utils.tidy_session_pyspark import TidySparkSession
@@ -17,7 +20,7 @@ from src.utils.tidy_session_pyspark import TidySparkSession
 
 def section_reduce_partials_broken(
         spark_session: TidySparkSession,
-        data_set: SectionDataSet,
+        data_set: SectionDataSetPyspark,
 ) -> TChallengePythonPysparkAnswer:
     num_rows = data_set.data_description.num_source_rows
     filename = data_set.exec_params.source_data_file_path
@@ -44,7 +47,7 @@ def section_reduce_partials_broken(
 
 def section_pyspark_rdd_reduce_asymm_part(
         spark_session: TidySparkSession,
-        data_set: SectionDataSet,
+        data_set: SectionDataSetPyspark,
 ) -> TChallengePythonPysparkAnswer:
     if data_set.data_description.num_students > pow(10, 7 - 1):
         # unreliable

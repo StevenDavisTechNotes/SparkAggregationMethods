@@ -11,6 +11,7 @@ import pandas as pd
 import scipy
 
 ELAPSED_TIME_COLUMN_NAME: str = 'elapsed_time'
+TEST_DATA_FILE_LOCATION = 'd:/temp/SparkPerfTesting'
 
 
 class SolutionLanguage(StrEnum):

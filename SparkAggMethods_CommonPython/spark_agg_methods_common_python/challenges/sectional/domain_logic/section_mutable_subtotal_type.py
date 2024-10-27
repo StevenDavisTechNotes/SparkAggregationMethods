@@ -1,15 +1,15 @@
 from typing import Any, Iterable
 
-from src.challenges.sectional.section_test_data_types_pyspark import (
-    ClassLine, NumDepartments, StudentHeader, StudentSummary, TrimesterFooter, TrimesterHeader, TypedLine,
+from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import (
+    NUM_DEPARTMENTS, ClassLine, StudentHeader, StudentSummary, TrimesterFooter, TrimesterHeader, TypedLine,
 )
 
 
 class MutableTrimester:
     def __init__(self, date: str, wasAbroad: bool):
         self.SourceLines = 1
-        self.Credits = [0 for x in range(0, NumDepartments)]
-        self.WeightedGradeTotal = [0 for x in range(0, NumDepartments)]
+        self.Credits = [0 for x in range(0, NUM_DEPARTMENTS)]
+        self.WeightedGradeTotal = [0 for x in range(0, NUM_DEPARTMENTS)]
         self.Major = None
 
     def add_class(self, dept: int, credits: int, grade: int):
@@ -39,13 +39,13 @@ class MutableStudent:
         self.StudentId = studentId
         self.StudentName = studentName
         self.LastMajor = None
-        self.Credits = [0 for x in range(0, NumDepartments)]
-        self.WeightedGradeTotal = [0 for x in range(0, NumDepartments)]
+        self.Credits = [0 for x in range(0, NUM_DEPARTMENTS)]
+        self.WeightedGradeTotal = [0 for x in range(0, NUM_DEPARTMENTS)]
 
     def add_trimester(self, trimester: MutableTrimester) -> None:
         self.SourceLines += trimester.SourceLines
         self.LastMajor = trimester.Major
-        for dept in range(0, NumDepartments):
+        for dept in range(0, NUM_DEPARTMENTS):
             self.Credits[dept] += trimester.Credits[dept]
             self.WeightedGradeTotal[dept] += trimester.WeightedGradeTotal[dept]
 

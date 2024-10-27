@@ -1,7 +1,7 @@
 from typing import NamedTuple
 
-from src.challenges.sectional.section_test_data_types_pyspark import (
-    ClassLine, NumDepartments, StudentHeader, StudentSummary, TrimesterFooter, TrimesterHeader, TypedLine,
+from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import (
+    NUM_DEPARTMENTS, ClassLine, StudentHeader, StudentSummary, TrimesterFooter, TrimesterHeader, TypedLine,
 )
 
 FIRST_LAST_FIRST = 1
@@ -48,8 +48,8 @@ def student_snippet_from_typed_row_1(
     lineIndex: int,
     rec: TypedLine,
 ) -> StudentSnippet1:
-    credits = [0 for x in range(0, NumDepartments)]
-    weightedGradeTotal = [0 for x in range(0, NumDepartments)]
+    credits = [0 for x in range(0, NUM_DEPARTMENTS)]
+    weightedGradeTotal = [0 for x in range(0, NUM_DEPARTMENTS)]
     match rec:
         case StudentHeader():
             return StudentSnippet1(
@@ -105,8 +105,8 @@ def student_snippet_from_typed_row_2(
     lineIndex: int,
     rec: TypedLine,
 ) -> StudentSnippet2:
-    credits = [0 for x in range(0, NumDepartments)]
-    weightedGradeTotal = [0 for x in range(0, NumDepartments)]
+    credits = [0 for x in range(0, NUM_DEPARTMENTS)]
+    weightedGradeTotal = [0 for x in range(0, NUM_DEPARTMENTS)]
     match rec:
         case StudentHeader():
             return StudentSnippet2(
@@ -207,12 +207,12 @@ def marge_snippets_2(
     credits = [
         (0 if lhs.Credits is None else lhs.Credits[dept])
         + (0 if rhs.Credits is None else rhs.Credits[dept])
-        for dept in range(0, NumDepartments)
+        for dept in range(0, NUM_DEPARTMENTS)
     ]
     weightedGradeTotal = [
         (0 if lhs.WeightedGradeTotal is None else lhs.WeightedGradeTotal[dept])
         + (0 if rhs.WeightedGradeTotal is None else rhs.WeightedGradeTotal[dept])
-        for dept in range(0, NumDepartments)
+        for dept in range(0, NUM_DEPARTMENTS)
     ]
     return StudentSnippet2(
         StudentId=lhs.StudentId,
@@ -271,10 +271,10 @@ def merge_snippet_lists_1(
             LastMajor=rhs.LastMajor,
             Credits=[
                 lhs.Credits[dept] + rhs.Credits[dept]
-                for dept in range(0, NumDepartments)],
+                for dept in range(0, NUM_DEPARTMENTS)],
             WeightedGradeTotal=[
                 lhs.WeightedGradeTotal[dept] + rhs.WeightedGradeTotal[dept]
-                for dept in range(0, NumDepartments)],
+                for dept in range(0, NUM_DEPARTMENTS)],
             FirstLineIndex=lhs.FirstLineIndex,
             LastLineIndex=rhs.LastLineIndex)
     return lh_group

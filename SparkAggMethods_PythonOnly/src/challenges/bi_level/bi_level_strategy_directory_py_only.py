@@ -6,7 +6,7 @@ from spark_agg_methods_common_python.utils.inspection import name_of_function
 from src.challenges.bi_level.strategies.using_python_only.bi_level_py_only_pd_grp_numpy import (
     bi_level_py_only_pd_grp_numpy,
 )
-from src.challenges.six_field_test_data.six_test_data_for_python_only import ChallengeMethodPythonOnlyRegistration
+from src.challenges.six_field_test_data.six_test_data_for_py_only import ChallengeMethodPythonOnlyRegistration
 
 BI_LEVEL_STRATEGIES_USING_PYTHON_ONLY_REGISTRY: list[ChallengeMethodPythonOnlyRegistration] = [
     ChallengeMethodPythonOnlyRegistration(

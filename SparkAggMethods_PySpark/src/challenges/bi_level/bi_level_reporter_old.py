@@ -102,8 +102,7 @@ def analyze_run_results():
             x for x in BI_LEVEL_STRATEGIES_USING_PYSPARK_REGISTRY if x.strategy_name == strategy_name][0]
         test_runs_by_size = test_runs_by_strategy_by_size[strategy_name]
         for regressor_value, runs in test_runs_by_size.items():
-            ar: numpy.ndarray[float, numpy.dtype[numpy.float64]] \
-                = numpy.asarray([x.elapsed_time for x in runs], dtype=float)
+            ar = numpy.asarray([x.elapsed_time for x in runs], dtype=float)
             numRuns = len(runs)
             mean = numpy.mean(ar)
             stdev = cast(float, numpy.std(ar, ddof=1))

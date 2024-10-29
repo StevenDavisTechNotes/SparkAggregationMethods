@@ -9,8 +9,8 @@ from spark_agg_methods_common_python.perf_test_common import (
 )
 
 from src.challenges.vanilla.vanilla_record_runs_pyspark import VanillaPysparkPersistedRunResultLog
-from src.challenges.vanilla.vanilla_strategy_directory_pyspark import STRATEGIES_USING_PYSPARK_REGISTRY
-from src.challenges.vanilla.vanilla_strategy_directory_scala_spark import STRATEGIES_USING_SCALA_REGISTRY
+from src.challenges.vanilla.vanilla_strategy_directory_pyspark import VANILLA_STRATEGIES_USING_PYSPARK_REGISTRY
+from src.challenges.vanilla.vanilla_strategy_directory_scala_spark import VANILLA_STRATEGIES_USING_SCALA_REGISTRY
 
 CHALLENGE = Challenge.VANILLA
 FINAL_REPORT_FILE_PATH = 'results/vanilla_results_intermediate.csv'
@@ -21,10 +21,10 @@ def analyze_run_results():
     summary_status: list[SummarizedPerformanceOfMethodAtDataSize] = []
     for engine in CalcEngine:
         challenge_method_list = (
-            # STRATEGIES_USING_DASK_REGISTRY if engine == CalcEngine.DASK else
-            STRATEGIES_USING_PYSPARK_REGISTRY if engine == CalcEngine.PYSPARK else
-            # STRATEGIES_USING_PYTHON_ONLY_REGISTRY if engine == CalcEngine.PYTHON_ONLY else
-            STRATEGIES_USING_SCALA_REGISTRY if engine == CalcEngine.SCALA_SPARK else
+            # VANILLA_STRATEGIES_USING_DASK_REGISTRY if engine == CalcEngine.DASK else
+            VANILLA_STRATEGIES_USING_PYSPARK_REGISTRY if engine == CalcEngine.PYSPARK else
+            # VANILLA_STRATEGIES_USING_PYTHON_ONLY_REGISTRY if engine == CalcEngine.PYTHON_ONLY else
+            VANILLA_STRATEGIES_USING_SCALA_REGISTRY if engine == CalcEngine.SCALA_SPARK else
             []
         )
         reader = VanillaPysparkPersistedRunResultLog()

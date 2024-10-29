@@ -9,15 +9,7 @@ BI_LEVEL_RESULT_COLUMNS = GROUP_BY_COLUMNS + AGGREGATION_COLUMNS
 
 
 class BiLevelDataSetDescription(SixTestDataSetDescription):
-    # for DataSetDescriptionBase
-    debugging_only: bool
-    num_source_rows: int
-    size_code: str
-    # for SixTestDataSetDescription
-    num_grp_1: int
-    num_grp_2: int
-    points_per_index: int
-    relative_cardinality_between_groupings: int
+    pass
 
     def __init__(
             self,

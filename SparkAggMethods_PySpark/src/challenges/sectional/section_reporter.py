@@ -6,15 +6,15 @@ from typing import NamedTuple, cast
 
 import numpy
 import scipy.stats
+from spark_agg_methods_common_python.challenges.sectional.section_record_runs import (
+    SectionPersistedRunResult, regressor_from_run_result,
+)
 from spark_agg_methods_common_python.perf_test_common import (
     CalcEngine, Challenge, SolutionLanguage, SummarizedPerformanceOfMethodAtDataSize, parse_interface_python,
 )
 
-from src.challenges.sectional.section_record_runs import SectionPersistedRunResult, regressor_from_run_result
 from src.challenges.sectional.section_record_runs_pyspark import SectionPysparkPersistedRunResultLog
-from src.challenges.sectional.section_strategy_directory_pyspark import (
-    STRATEGIES_USING_DASK_REGISTRY, STRATEGIES_USING_PYSPARK_REGISTRY, STRATEGIES_USING_PYTHON_ONLY_REGISTRY,
-)
+from src.challenges.sectional.section_strategy_directory_pyspark import SECTIONAL_STRATEGIES_USING_PYSPARK_REGISTRY
 from src.utils.linear_regression import linear_regression
 
 LANGUAGE = SolutionLanguage.PYTHON
@@ -87,9 +87,10 @@ def analyze_run_results_old():
             if len(times) == 0:
                 continue
             challenge_method_registration = (
-                [x for x in STRATEGIES_USING_DASK_REGISTRY if x.strategy_name == strategy_name]
-                + [x for x in STRATEGIES_USING_PYSPARK_REGISTRY if x.strategy_name == strategy_name]
-                + [x for x in STRATEGIES_USING_PYTHON_ONLY_REGISTRY if x.strategy_name == strategy_name])[0]
+                # [x for x in SECTIONAL_STRATEGIES_USING_DASK_REGISTRY if x.strategy_name == strategy_name]
+                [x for x in SECTIONAL_STRATEGIES_USING_PYSPARK_REGISTRY if x.strategy_name == strategy_name]
+                # + [x for x in SECTIONAL_STRATEGIES_USING_PYTHON_ONLY_REGISTRY if x.strategy_name == strategy_name]
+            )[0]
 
             size_values = set(x.num_source_rows for x in times)
             for num_rows in size_values:
@@ -196,7 +197,7 @@ def read_run_results_old() -> list[SectionPersistedRunResult]:
 
 def analyze_run_results_new():
     summary_status: list[SummarizedPerformanceOfMethodAtDataSize] = []
-    challenge_method_list = STRATEGIES_USING_PYSPARK_REGISTRY
+    challenge_method_list = SECTIONAL_STRATEGIES_USING_PYSPARK_REGISTRY
     reader = SectionPysparkPersistedRunResultLog()
     raw_test_runs = reader.read_run_result_file()
     structured_test_results = reader.structure_test_results(

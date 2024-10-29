@@ -1,12 +1,8 @@
-from spark_agg_methods_common_python.perf_test_common import (
-    CalcEngine, SolutionInterfacePySpark, SolutionInterfacePythonOnly, SolutionLanguage,
-)
+from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import SolutionScale
+from spark_agg_methods_common_python.perf_test_common import CalcEngine, SolutionInterfacePySpark, SolutionLanguage
 from spark_agg_methods_common_python.utils.inspection import name_of_function
 
-from src.challenges.sectional.section_test_data_types_pyspark import (
-    ChallengeMethodDaskRegistration, SectionChallengeMethodPysparkRegistration,
-    SectionChallengeMethodPythonOnlyRegistration, SolutionScale,
-)
+from src.challenges.sectional.section_test_data_types_pyspark import SectionChallengeMethodPysparkRegistration
 from src.challenges.sectional.strategies.using_pyspark.section_pyspark_df_join_grp import section_join_groupby
 from src.challenges.sectional.strategies.using_pyspark.section_pyspark_df_prep_grp_csv import (
     section_pyspark_df_prep_grp_csv,
@@ -30,14 +26,8 @@ from src.challenges.sectional.strategies.using_pyspark.section_pyspark_rdd_prep_
 from src.challenges.sectional.strategies.using_pyspark.section_pyspark_rdd_reduce_asymm_part import (
     section_pyspark_rdd_reduce_asymm_part,
 )
-from src.challenges.sectional.strategies.using_python_only.section_py_only_single_threaded import (
-    section_py_only_single_threaded,
-)
 
-STRATEGIES_USING_DASK_REGISTRY: list[ChallengeMethodDaskRegistration] = [
-]
-
-STRATEGIES_USING_PYSPARK_REGISTRY: list[SectionChallengeMethodPysparkRegistration] = [
+SECTIONAL_STRATEGIES_USING_PYSPARK_REGISTRY: list[SectionChallengeMethodPysparkRegistration] = [
     SectionChallengeMethodPysparkRegistration(
         strategy_name_2018='section_mappart_single_threaded',
         strategy_name=name_of_function(section_pyspark_rdd_mappart_single_threaded),
@@ -127,18 +117,5 @@ STRATEGIES_USING_PYSPARK_REGISTRY: list[SectionChallengeMethodPysparkRegistratio
         scale=SolutionScale.WHOLE_SECTION,
         requires_gpu=False,
         delegate=section_pyspark_rdd_join_mappart
-    ),
-]
-
-STRATEGIES_USING_PYTHON_ONLY_REGISTRY: list[SectionChallengeMethodPythonOnlyRegistration] = [
-    SectionChallengeMethodPythonOnlyRegistration(
-        strategy_name_2018='section_nospark_single_threaded',
-        strategy_name=name_of_function(section_py_only_single_threaded),
-        language=SolutionLanguage.PYTHON,
-        engine=CalcEngine.PYTHON_ONLY,
-        interface=SolutionInterfacePythonOnly.PYTHON,
-        scale=SolutionScale.SINGLE_LINE,
-        requires_gpu=False,
-        delegate=section_py_only_single_threaded
     ),
 ]

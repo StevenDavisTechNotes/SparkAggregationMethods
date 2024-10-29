@@ -3,7 +3,7 @@ import pyspark.sql.types as DataTypes
 from pyspark.sql import Window
 
 from src.challenges.deduplication.dedupe_test_data_types_pyspark import (
-    DedupePySparkDataSet, ExecutionParameters, TChallengePendingAnswerPythonPyspark,
+    DedupeExecutionParametersPyspark, DedupePySparkDataSet, TChallengePendingAnswerPythonPyspark,
 )
 from src.challenges.deduplication.domain_logic.dedupe_domain_methods_pyspark import udfMatchSingleName
 from src.utils.spark_helpers import zip_dataframe_with_index
@@ -12,7 +12,7 @@ from src.utils.tidy_session_pyspark import TidySparkSession
 
 def dedupe_pyspark_df_window(
         spark_session: TidySparkSession,
-        exec_params: ExecutionParameters,
+        exec_params: DedupeExecutionParametersPyspark,
         data_set: DedupePySparkDataSet,
 ) -> TChallengePendingAnswerPythonPyspark:
     if data_set.data_description.num_source_rows > 50200:

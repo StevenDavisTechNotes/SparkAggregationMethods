@@ -4,7 +4,7 @@ import re
 from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import (
     ClassLine, StudentHeader, TrimesterFooter, TrimesterHeader)
 from spark_agg_methods_common_python.perf_test_common import \
-    TEST_DATA_FILE_LOCATION
+    LOCAL_TEST_DATA_FILE_LOCATION
 
 
 def parse_line_to_types(
@@ -27,7 +27,7 @@ def parse_line_to_types(
 def identify_section_using_intermediate_file(
         src_file_path: str,
 ) -> str:
-    dest_file_path = f"{TEST_DATA_FILE_LOCATION}/temp.csv"
+    dest_file_path = f"{LOCAL_TEST_DATA_FILE_LOCATION}/temp.csv"
     if os.path.exists(dest_file_path):
         os.unlink(dest_file_path)
     extra_type_pattern = re.compile("^S,")

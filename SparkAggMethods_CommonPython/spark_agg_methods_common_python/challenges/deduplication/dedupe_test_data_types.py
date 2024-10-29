@@ -2,16 +2,11 @@ import inspect
 import math
 from dataclasses import dataclass
 
-from spark_agg_methods_common_python.perf_test_common import \
-    DataSetDescriptionBase
+from spark_agg_methods_common_python.perf_test_common import (
+    DataSetDescriptionBase, ExecutionParametersBase)
 
 
 class DedupeDataSetDescription(DataSetDescriptionBase):
-    # for DataSetDescriptionBase
-    debugging_only: bool
-    num_source_rows: int
-    size_code: str
-    # for DedupeDataSetDescription
     num_people: int
     num_b_recs: int
     num_sources: int
@@ -55,9 +50,6 @@ class DedupeDataSetBase:
 
 
 @dataclass(frozen=True)
-class ExecutionParameters:
+class DedupeExecutionParametersBase(ExecutionParametersBase):
     in_cloud_mode: bool
-    num_executors: int
     can_assume_no_dupes_per_partition: bool
-    default_parallelism: int
-    test_data_folder_location: str

@@ -11,7 +11,9 @@ import pandas as pd
 import scipy
 
 ELAPSED_TIME_COLUMN_NAME: str = 'elapsed_time'
-TEST_DATA_FILE_LOCATION = 'd:/temp/SparkPerfTesting'
+LOCAL_TEST_DATA_FILE_LOCATION = 'd:/temp/SparkPerfTesting'
+REMOTE_TEST_DATA_LOCATION = "wasb:///sparkperftesting"  # cSpell: ignore wasb, sparkperftesting
+LOCAL_NUM_EXECUTORS = 7
 
 
 class SolutionLanguage(StrEnum):
@@ -129,7 +131,6 @@ def parse_interface_python(
 
 @dataclass(frozen=True)
 class ChallengeMethodRegistrationBase(Generic[TSolutionInterface, TChallengeMethodDelegate]):
-    # for ChallengeMethodRegistrationBase
     strategy_name_2018: str | None
     strategy_name: str
     language: SolutionLanguage
@@ -167,6 +168,13 @@ class DataSetDescriptionBase(ABC):
 
 
 @dataclass(frozen=True)
+class ExecutionParametersBase:
+    default_parallelism: int
+    num_executors: int
+    test_data_folder_location: str
+
+
+@dataclass(frozen=True)
 class RunResultBase:
     num_source_rows: int
     elapsed_time: float
@@ -176,12 +184,6 @@ class RunResultBase:
 
 @dataclass(frozen=True)
 class PersistedRunResultBase(Generic[TSolutionInterface], RunResultBase):
-    # for RunResultBase
-    num_source_rows: int
-    elapsed_time: float
-    num_output_rows: int
-    finished_at: str | None
-    # for PersistedRunResultBase
     language: SolutionLanguage
     engine: CalcEngine
     interface: TSolutionInterface

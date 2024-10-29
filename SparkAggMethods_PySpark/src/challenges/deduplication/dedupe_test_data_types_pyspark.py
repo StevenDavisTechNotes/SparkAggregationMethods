@@ -6,11 +6,9 @@ from pyspark import RDD
 from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import Row
 from spark_agg_methods_common_python.challenges.deduplication.dedupe_test_data_types import (
-    DedupeDataSetBase, DedupeDataSetDescription, ExecutionParameters,
+    DedupeDataSetBase, DedupeDataSetDescription, DedupeExecutionParametersBase,
 )
-from spark_agg_methods_common_python.perf_test_common import (
-    CalcEngine, ChallengeMethodRegistrationBase, SolutionInterfacePySpark, SolutionLanguage,
-)
+from spark_agg_methods_common_python.perf_test_common import ChallengeMethodRegistrationBase, SolutionInterfacePySpark
 
 from src.utils.tidy_session_pyspark import TidySparkSession
 
@@ -40,12 +38,17 @@ class DedupePySparkDataSet(DedupeDataSetBase):
 TChallengePendingAnswerPythonPyspark = Literal["infeasible"] | RDD[Row] | PySparkDataFrame
 
 
+@dataclass(frozen=True)
+class DedupeExecutionParametersPyspark(DedupeExecutionParametersBase):
+    pass
+
+
 class IChallengeMethodPythonPyspark(Protocol):
     def __call__(
         self,
         *,
         spark_session: TidySparkSession,
-        exec_params: ExecutionParameters,
+        exec_params: DedupeExecutionParametersPyspark,
         data_set: DedupePySparkDataSet
     ) -> TChallengePendingAnswerPythonPyspark: ...
 
@@ -54,14 +57,7 @@ class IChallengeMethodPythonPyspark(Protocol):
 class DedupeChallengeMethodPythonPysparkRegistration(
     ChallengeMethodRegistrationBase[SolutionInterfacePySpark, IChallengeMethodPythonPyspark]
 ):
-    # for ChallengeMethodRegistrationBase
-    strategy_name_2018: str | None
-    strategy_name: str
-    language: SolutionLanguage
-    engine: CalcEngine
-    interface: SolutionInterfacePySpark
-    requires_gpu: bool
-    delegate: IChallengeMethodPythonPyspark
+    pass
 
 
 @dataclass(frozen=True)

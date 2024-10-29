@@ -9,21 +9,22 @@ from spark_agg_methods_common_python.challenges.sectional.section_test_data_type
 
 from src.challenges.sectional.domain_logic.section_data_parsers_pyspark import rdd_typed_with_index_factory
 from src.challenges.sectional.section_test_data_types_pyspark import (
-    SectionDataSetPyspark, TChallengePythonPysparkAnswer,
+    SectionDataSetPyspark, SectionExecutionParametersPyspark, TChallengePythonPysparkAnswer,
 )
 from src.utils.tidy_session_pyspark import TidySparkSession
 
 
 def section_pyspark_rdd_mappart_odd_even(
         spark_session: TidySparkSession,
+        exec_params: SectionExecutionParametersPyspark,
         data_set: SectionDataSetPyspark,
 ) -> TChallengePythonPysparkAnswer:
     if data_set.data_description.num_students > pow(10, 7-1):
         # unreliable
         return "infeasible"
-    section_maximum_size = data_set.exec_params.section_maximum
-    filename = data_set.exec_params.source_data_file_path
-    target_num_partitions = data_set.exec_params.target_num_partitions
+    section_maximum_size = data_set.section_maximum
+    filename = data_set.source_data_file_path
+    target_num_partitions = data_set.target_num_partitions
 
     SegmentOffset = section_maximum_size - 1
     SegmentExtra = 2 * section_maximum_size

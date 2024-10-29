@@ -13,7 +13,7 @@ from src.challenges.vanilla.strategies.using_dask.vanilla_dask_ddf_grp_apply imp
 from src.challenges.vanilla.strategies.using_dask.vanilla_dask_ddf_grp_udaf import vanilla_dask_ddf_grp_udaf
 from src.challenges.vanilla.strategies.using_dask.vanilla_dask_sql import vanilla_dask_sql_no_gpu
 
-STRATEGIES_USING_DASK_REGISTRY: list[ChallengeMethodPythonDaskRegistration] = [
+VANILLA_STRATEGIES_USING_DASK_REGISTRY: list[ChallengeMethodPythonDaskRegistration] = [
     ChallengeMethodPythonDaskRegistration(
         strategy_name_2018=None,
         strategy_name=name_of_function(vanilla_dask_bag_accumulate),

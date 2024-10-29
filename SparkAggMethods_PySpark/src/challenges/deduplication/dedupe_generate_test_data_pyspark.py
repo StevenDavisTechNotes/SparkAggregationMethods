@@ -12,7 +12,7 @@ from spark_agg_methods_common_python.utils.utils import int_divide_round_up
 from terminology import in_red
 
 from src.challenges.deduplication.dedupe_test_data_types_pyspark import (
-    DedupePySparkDataSet, ExecutionParameters, RecordSparseStruct,
+    DedupeExecutionParametersPyspark, DedupePySparkDataSet, RecordSparseStruct,
 )
 
 MAX_DATA_POINTS_PER_PARTITION: int = 10000
@@ -21,7 +21,7 @@ MAX_DATA_POINTS_PER_PARTITION: int = 10000
 def generate_test_data(
     data_size_code_list: list[str],
     spark: SparkSession,
-    exec_params: ExecutionParameters
+    exec_params: DedupeExecutionParametersPyspark
 ) -> list[DedupePySparkDataSet]:
     root_path = os.path.join(
         exec_params.test_data_folder_location, "Dedupe_Test_Data")

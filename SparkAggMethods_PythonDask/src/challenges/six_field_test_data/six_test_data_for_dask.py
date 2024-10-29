@@ -1,4 +1,3 @@
-from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import SixTestDataSetAnswers
 from dataclasses import dataclass
 from typing import Literal, Protocol
 
@@ -7,8 +6,8 @@ from dask.bag.core import Bag as DaskBag
 from dask.dataframe.core import DataFrame as DaskDataFrame
 from dask.dataframe.io.io import from_pandas
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
-    DataPointNT, SixTestDataChallengeMethodRegistrationBase, SixTestDataSetDescription, SixTestExecutionParameters,
-    populate_six_data_set_generic,
+    DataPointNT, SixTestDataChallengeMethodRegistrationBase, SixTestDataSetAnswers, SixTestDataSetDescription,
+    SixTestExecutionParameters, populate_six_data_set_generic,
 )
 from spark_agg_methods_common_python.perf_test_common import (
     CalcEngine, Challenge, NumericalToleranceExpectations, SolutionInterfaceDask, SolutionLanguage,

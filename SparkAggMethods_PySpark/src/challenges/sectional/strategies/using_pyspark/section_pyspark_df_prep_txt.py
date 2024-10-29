@@ -6,7 +6,7 @@ from spark_agg_methods_common_python.challenges.sectional.domain_logic.section_d
 
 from src.challenges.sectional.domain_logic.section_data_parsers_pyspark import row_to_student_summary
 from src.challenges.sectional.section_test_data_types_pyspark import (
-    SectionDataSetPyspark, SparseLineSchema, TChallengePythonPysparkAnswer,
+    SectionDataSetPyspark, SectionExecutionParametersPyspark, SparseLineSchema, TChallengePythonPysparkAnswer,
 )
 from src.challenges.sectional.strategies.using_pyspark.section_pyspark_rdd_prep_shared import (
     section_pyspark_rdd_prep_shared,
@@ -16,6 +16,7 @@ from src.utils.tidy_session_pyspark import TidySparkSession
 
 def section_pyspark_df_prep_txt(
         spark_session: TidySparkSession,
+        exec_params: SectionExecutionParametersPyspark,
         data_set: SectionDataSetPyspark,
 ) -> TChallengePythonPysparkAnswer:
     if data_set.data_description.num_students > pow(10, 8-1):
@@ -23,8 +24,8 @@ def section_pyspark_df_prep_txt(
         return "infeasible"
     sc = spark_session.spark_context
     spark = spark_session.spark
-    sectionMaximum = data_set.exec_params.section_maximum
-    filename = data_set.exec_params.source_data_file_path
+    section_maximum = data_set.section_maximum
+    filename = data_set.source_data_file_path
 
     SparseLineWithSectionIdLineNoSchema = DataTypes.StructType([
         DataTypes.StructField("SectionId", DataTypes.IntegerType(), True),
@@ -32,11 +33,11 @@ def section_pyspark_df_prep_txt(
         SparseLineSchema.fields)
 
     interFileName = identify_section_using_intermediate_file(filename)
-    rdd = sc.textFile(interFileName, data_set.exec_params.target_num_partitions) \
+    rdd = sc.textFile(interFileName, data_set.target_num_partitions) \
         .zipWithIndex() \
         .map(parse_line_to_row_with_line_no)
     df = spark.createDataFrame(rdd, SparseLineWithSectionIdLineNoSchema)
-    df = section_pyspark_rdd_prep_shared(df, sectionMaximum)
+    df = section_pyspark_rdd_prep_shared(df, exec_params, section_maximum)
     rdd = (
         df.rdd
         .map(row_to_student_summary)

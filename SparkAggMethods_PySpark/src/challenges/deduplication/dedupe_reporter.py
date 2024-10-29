@@ -14,7 +14,7 @@ from spark_agg_methods_common_python.perf_test_common import (
 from spark_agg_methods_common_python.utils.utils import always_true
 
 from src.challenges.deduplication.dedupe_record_runs_pyspark import DedupePysparkPersistedRunResultLog
-from src.challenges.deduplication.dedupe_strategy_directory_pyspark import STRATEGIES_USING_PYSPARK_REGISTRY
+from src.challenges.deduplication.dedupe_strategy_directory_pyspark import DEDUPE_STRATEGIES_USING_PYSPARK_REGISTRY
 from src.utils.linear_regression import linear_regression
 
 CHALLENGE = Challenge.DEDUPLICATION
@@ -72,7 +72,7 @@ def structure_test_results(
         test_runs: list[DedupePersistedRunResult]
 ) -> dict[str, dict[int, list[DedupePersistedRunResult]]]:
     challenge_method_registrations = (
-        {x.strategy_name for x in STRATEGIES_USING_PYSPARK_REGISTRY}
+        {x.strategy_name for x in DEDUPE_STRATEGIES_USING_PYSPARK_REGISTRY}
         .union([x.strategy_name for x in test_runs]))
     test_x_values = set(EXPECTED_NUM_RECORDS).union([regressor_from_run_result(x) for x in test_runs])
     test_results: dict[str, dict[int, list[DedupePersistedRunResult]]] \
@@ -128,7 +128,7 @@ def analyze_run_results_old(
     for strategy_name in test_runs_by_strategy_by_size:
         print("Looking to analyze %s" % strategy_name)
         challenge_method_registrations = [
-            x for x in STRATEGIES_USING_PYSPARK_REGISTRY if x.strategy_name == strategy_name][0]
+            x for x in DEDUPE_STRATEGIES_USING_PYSPARK_REGISTRY if x.strategy_name == strategy_name][0]
         test_runs_by_size = test_runs_by_strategy_by_size[strategy_name]
         for regressor_value, runs in test_runs_by_size.items():
             ar: numpy.ndarray[float, numpy.dtype[numpy.float64]] \
@@ -181,7 +181,7 @@ def analyze_run_results_old(
 
 def analyze_run_results_new():
     summary_status: list[SummarizedPerformanceOfMethodAtDataSize] = []
-    challenge_method_list = STRATEGIES_USING_PYSPARK_REGISTRY
+    challenge_method_list = DEDUPE_STRATEGIES_USING_PYSPARK_REGISTRY
     reader = DedupePysparkPersistedRunResultLog()
     raw_test_runs = reader.read_run_result_file()
     structured_test_results = reader.structure_test_results(

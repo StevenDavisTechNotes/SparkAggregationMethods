@@ -3,16 +3,27 @@ import datetime as dt
 import inspect
 import os
 from dataclasses import dataclass
-from typing import NamedTuple
+from enum import StrEnum
+from typing import Literal, NamedTuple
 
 from spark_agg_methods_common_python.perf_test_common import (
-    TEST_DATA_FILE_LOCATION, DataSetDescriptionBase)
+    LOCAL_TEST_DATA_FILE_LOCATION, ChallengeMethodRegistrationBase,
+    DataSetDescriptionBase, ExecutionParametersBase, TChallengeMethodDelegate,
+    TSolutionInterface)
 
 NUM_TRIMESTERS = 8
 NUM_CLASSES_PER_TRIMESTER = 4
 NUM_DEPARTMENTS = 4
 SECTION_SIZE_MAXIMUM = (1 + NUM_TRIMESTERS * (1 + NUM_CLASSES_PER_TRIMESTER + 1))
 LARGEST_EXPONENT_SECTIONAL = 7  # some can operate at 8 or above
+
+
+class SolutionScale(StrEnum):
+    WHOLE_FILE = 'whole_file'
+    WHOLE_SECTION = 'whole_section'
+    THREE_ROWS = 'three_rows'
+    FINAL_SUMMARIES = 'final_summaries'
+    SINGLE_LINE = 'singleline'
 
 
 class StudentHeader(NamedTuple):
@@ -55,11 +66,6 @@ class LabeledTypedRow(NamedTuple):
 
 
 class SectionDataSetDescription(DataSetDescriptionBase):
-    # for DataSetDescriptionBase
-    debugging_only: bool
-    num_source_rows: int
-    size_code: str
-    # for SectionDataSetDescription
     i_scale: int
     num_students: int
     section_size_max: int
@@ -93,6 +99,8 @@ class SectionDataSetDescription(DataSetDescriptionBase):
 @dataclass(frozen=True)
 class SectionDataSetBase():
     data_description: SectionDataSetDescription
+    correct_answer: list[StudentSummary]
+    section_maximum: int
 
 
 DATA_SIZE_LIST_SECTIONAL = [
@@ -103,6 +111,24 @@ DATA_SIZE_LIST_SECTIONAL = [
     )
     for i_scale in range(0, LARGEST_EXPONENT_SECTIONAL + 1)
 ]
+
+
+@dataclass(frozen=True)
+class SectionExecutionParametersBase(ExecutionParametersBase):
+    pass
+
+
+@dataclass(frozen=True)
+class SectionChallengeMethodRegistrationBase(
+    ChallengeMethodRegistrationBase[
+        TSolutionInterface, TChallengeMethodDelegate
+    ]
+):
+    scale: SolutionScale
+
+
+TChallengePythonAnswer = (
+    Literal["infeasible"] | list[StudentSummary])
 
 
 def add_months_to_date_retracting(
@@ -124,7 +150,7 @@ def derive_source_test_data_file_path(
     num_students = data_description.num_students
     temp_postfix = "_temp" if temp_file else ""
     return os.path.join(
-        TEST_DATA_FILE_LOCATION,
+        LOCAL_TEST_DATA_FILE_LOCATION,
         "Section_Test_Data",
         f"section_source_data_{num_students}{temp_postfix}.csv"
     )
@@ -138,7 +164,7 @@ def derive_expected_answer_data_file_path(
     num_students = data_description.num_students
     temp_postfix = "_temp" if temp_file else ""
     return os.path.join(
-        TEST_DATA_FILE_LOCATION,
+        LOCAL_TEST_DATA_FILE_LOCATION,
         "Section_Test_Data",
         f"section_answer_data_{num_students}{temp_postfix}.json"
     )

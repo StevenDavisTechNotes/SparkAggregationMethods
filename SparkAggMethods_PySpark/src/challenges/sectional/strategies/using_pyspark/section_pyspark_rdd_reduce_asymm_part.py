@@ -12,7 +12,7 @@ from src.challenges.sectional.domain_logic.section_snippet_subtotal_type import 
     student_snippet_from_typed_row_1,
 )
 from src.challenges.sectional.section_test_data_types_pyspark import (
-    SectionDataSetPyspark, TChallengePythonPysparkAnswer,
+    SectionDataSetPyspark, SectionExecutionParametersPyspark, TChallengePythonPysparkAnswer,
 )
 from src.utils.non_commutative_pyspark_tree_aggregate import non_commutative_tree_aggregate
 from src.utils.tidy_session_pyspark import TidySparkSession
@@ -20,12 +20,13 @@ from src.utils.tidy_session_pyspark import TidySparkSession
 
 def section_reduce_partials_broken(
         spark_session: TidySparkSession,
+        exec_params: SectionExecutionParametersPyspark,
         data_set: SectionDataSetPyspark,
 ) -> TChallengePythonPysparkAnswer:
     num_rows = data_set.data_description.num_source_rows
-    filename = data_set.exec_params.source_data_file_path
-    TargetNumPartitions = data_set.exec_params.target_num_partitions
-    MaximumProcessableSegment = data_set.exec_params.maximum_processable_segment
+    filename = data_set.source_data_file_path
+    TargetNumPartitions = data_set.target_num_partitions
+    MaximumProcessableSegment = exec_params.maximum_processable_segment
 
     rdd1: RDD[LabeledTypedRow] \
         = rdd_typed_with_index_factory(
@@ -47,6 +48,7 @@ def section_reduce_partials_broken(
 
 def section_pyspark_rdd_reduce_asymm_part(
         spark_session: TidySparkSession,
+        exec_params: SectionExecutionParametersPyspark,
         data_set: SectionDataSetPyspark,
 ) -> TChallengePythonPysparkAnswer:
     if data_set.data_description.num_students > pow(10, 7 - 1):
@@ -54,9 +56,9 @@ def section_pyspark_rdd_reduce_asymm_part(
         return "infeasible"
     sc = spark_session.spark_context
     data_size = data_set.data_description.num_source_rows
-    file_path = data_set.exec_params.source_data_file_path
-    target_num_partitions = data_set.exec_params.target_num_partitions
-    maximum_processable_segment = data_set.exec_params.maximum_processable_segment
+    file_path = data_set.source_data_file_path
+    target_num_partitions = data_set.target_num_partitions
+    maximum_processable_segment = exec_params.maximum_processable_segment
     rdd1: RDD[str] = sc.textFile(file_path, minPartitions=target_num_partitions)
     rdd2: RDD[tuple[str, int]] = rdd1.zipWithIndex()
     rdd13: RDD[LabeledTypedRow] = rdd2 \

@@ -11,14 +11,14 @@ import pandas as pd
 
 from spark_agg_methods_common_python.perf_test_common import (
     CalcEngine, Challenge, ChallengeMethodRegistrationBase,
-    DataSetDescriptionBase, NumericalToleranceExpectations, SolutionLanguage,
-    TChallengeMethodDelegate, TSolutionInterface)
+    DataSetDescriptionBase, ExecutionParametersBase,
+    NumericalToleranceExpectations, TChallengeMethodDelegate,
+    TSolutionInterface)
 from spark_agg_methods_common_python.utils.utils import (always_true,
                                                          int_divide_round_up)
 
 # cSpell: ignore arange
 
-SHARED_LOCAL_TEST_DATA_FILE_LOCATION = "d:/temp/SparkPerfTesting"
 MAX_DATA_POINTS_PER_SPARK_PARTITION = 5 * 10**3
 MAX_DATA_POINTS_PER_DASK_PARTITION = 1 * 10**5
 
@@ -74,11 +74,6 @@ class TotalDC():
 
 
 class SixTestDataSetDescription(DataSetDescriptionBase):
-    # for DataSetDescriptionBase
-    debugging_only: bool
-    num_source_rows: int
-    size_code: str
-    # for SixTestDataSetDescription
     num_grp_1: int
     num_grp_2: int
     points_per_index: int
@@ -128,9 +123,8 @@ class SixTestDataSetAnswers():
 
 
 @dataclass(frozen=True)
-class SixTestExecutionParameters:
-    default_parallelism: int
-    test_data_folder_location: str
+class SixTestExecutionParameters(ExecutionParametersBase):
+    pass
 
 
 @dataclass(frozen=True)
@@ -149,15 +143,6 @@ class SixTestDataSetWAnswers():
 class SixTestDataChallengeMethodRegistrationBase(
     ChallengeMethodRegistrationBase[TSolutionInterface, TChallengeMethodDelegate]
 ):
-    # for ChallengeMethodRegistrationBase
-    strategy_name_2018: str | None
-    strategy_name: str
-    language: SolutionLanguage
-    engine: CalcEngine
-    interface: TSolutionInterface
-    requires_gpu: bool
-    delegate: TChallengeMethodDelegate
-    # for SixTestDataChallengeMethodRegistrationBase
     numerical_tolerance: NumericalToleranceExpectations
 
 

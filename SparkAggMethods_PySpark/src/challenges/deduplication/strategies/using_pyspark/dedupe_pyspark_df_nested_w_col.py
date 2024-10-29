@@ -1,7 +1,7 @@
 import pyspark.sql.functions as func
 
 from src.challenges.deduplication.dedupe_test_data_types_pyspark import (
-    DedupePySparkDataSet, ExecutionParameters, TChallengePendingAnswerPythonPyspark,
+    DedupeExecutionParametersPyspark, DedupePySparkDataSet, TChallengePendingAnswerPythonPyspark,
 )
 from src.challenges.deduplication.domain_logic.dedupe_domain_methods_pyspark import (
     FindConnectedComponents_RecList_Returns, FindRecordMatches_RecList_Returns, MergeItems_RecList_Returns,
@@ -13,7 +13,7 @@ from src.utils.tidy_session_pyspark import TidySparkSession
 
 def dedupe_pyspark_df_nested_w_col(
         spark_session: TidySparkSession,
-        exec_params: ExecutionParameters,
+        exec_params: DedupeExecutionParametersPyspark,
         data_set: DedupePySparkDataSet,
 ) -> TChallengePendingAnswerPythonPyspark:
     if data_set.data_description.num_source_rows > 20200:

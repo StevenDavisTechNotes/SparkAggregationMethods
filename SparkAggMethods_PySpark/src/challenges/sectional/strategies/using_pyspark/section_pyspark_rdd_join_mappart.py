@@ -10,25 +10,26 @@ from spark_agg_methods_common_python.challenges.sectional.section_test_data_type
 
 from src.challenges.sectional.domain_logic.section_data_parsers_pyspark import rdd_typed_with_index_factory
 from src.challenges.sectional.section_test_data_types_pyspark import (
-    SectionDataSetPyspark, TChallengePythonPysparkAnswer,
+    SectionDataSetPyspark, SectionExecutionParametersPyspark, TChallengePythonPysparkAnswer,
 )
 from src.utils.tidy_session_pyspark import TidySparkSession
 
 
 def section_pyspark_rdd_join_mappart(
         spark_session: TidySparkSession,
+        exec_params: SectionExecutionParametersPyspark,
         data_set: SectionDataSetPyspark,
 ) -> TChallengePythonPysparkAnswer:
     if data_set.data_description.num_students > pow(10, 7-1):
         # times out
         return "infeasible"
-    target_num_partitions = data_set.exec_params.target_num_partitions
+    target_num_partitions = data_set.target_num_partitions
     sc = spark_session.spark_context
     rdd1: RDD[LabeledTypedRow] \
         = rdd_typed_with_index_factory(
             spark_session,
-            data_set.exec_params.source_data_file_path,
-            data_set.exec_params.target_num_partitions)
+            data_set.source_data_file_path,
+            data_set.target_num_partitions)
     NumRows = rdd1.count()
     rdd2: RDD[tuple[int, str, TypedLine]] = (
         rdd1

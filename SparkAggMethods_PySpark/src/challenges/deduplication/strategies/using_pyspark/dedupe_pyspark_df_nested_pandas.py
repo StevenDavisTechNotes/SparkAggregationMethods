@@ -2,18 +2,20 @@ import pandas as pd
 import pyspark.sql.functions as func
 import pyspark.sql.types as DataTypes
 from pyspark.sql import DataFrame as PySparkDataFrame
+from spark_agg_methods_common_python.challenges.deduplication.domain_logic.dedupe_domain_methods import (
+    match_single_name,
+)
 
 from src.challenges.deduplication.dedupe_test_data_types_pyspark import (
-    DedupePySparkDataSet, ExecutionParameters, RecordSparseStruct, TChallengePendingAnswerPythonPyspark,
+    DedupeExecutionParametersPyspark, DedupePySparkDataSet, RecordSparseStruct, TChallengePendingAnswerPythonPyspark,
 )
-from src.challenges.deduplication.domain_logic.dedupe_domain_methods_pyspark import match_single_name
 from src.utils.spark_helpers import zip_dataframe_with_index
 from src.utils.tidy_session_pyspark import TidySparkSession
 
 
 def dedupe_pyspark_df_nested_pandas(
         spark_session: TidySparkSession,
-        exec_params: ExecutionParameters,
+        exec_params: DedupeExecutionParametersPyspark,
         data_set: DedupePySparkDataSet,
 ) -> TChallengePendingAnswerPythonPyspark:
     dfSrc = data_set.df

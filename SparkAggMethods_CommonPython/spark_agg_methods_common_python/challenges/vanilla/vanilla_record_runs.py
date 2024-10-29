@@ -3,9 +3,10 @@ import os
 from dataclasses import dataclass
 
 from spark_agg_methods_common_python.perf_test_common import (
-    CalcEngine, ChallengeMethodRegistrationBase, PersistedRunResultBase, PersistedRunResultLog, RunResultBase,
-    RunResultFileWriterBase, SolutionInterface, SolutionInterfaceScalaSpark, SolutionLanguage, parse_interface_python,
-)
+    CalcEngine, ChallengeMethodRegistrationBase, PersistedRunResultBase,
+    PersistedRunResultLog, RunResultBase, RunResultFileWriterBase,
+    SolutionInterface, SolutionInterfaceScalaSpark, SolutionLanguage,
+    parse_interface_python)
 
 PYTHON_DASK_RUN_LOG_FILE_PATH = 'results/vanilla_dask_runs.csv'
 PYTHON_PYSPARK_RUN_LOG_FILE_PATH = 'results/vanilla_pyspark_runs.csv'
@@ -15,25 +16,12 @@ SCALA_RUN_LOG_FILE_PATH = '../results/Scala/vanilla_runs_scala.csv'
 
 @dataclass(frozen=True)
 class VanillaRunResult(RunResultBase):
-    # for RunResultBase
-    num_source_rows: int
-    elapsed_time: float
-    num_output_rows: int
-    finished_at: str | None
+    pass
 
 
 @dataclass(frozen=True)
 class VanillaPersistedRunResult(PersistedRunResultBase[SolutionInterface], VanillaRunResult):
-    # for RunResultBase
-    num_source_rows: int
-    elapsed_time: float
-    num_output_rows: int
-    finished_at: str | None
-    # for PersistedRunResultBase
-    language: SolutionLanguage
-    engine: CalcEngine
-    interface: SolutionInterface
-    strategy_name: str
+    pass
 
 
 def regressor_from_run_result(

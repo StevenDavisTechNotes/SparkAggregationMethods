@@ -11,7 +11,7 @@ def ScalaSparkMethodPlaceholder() -> TSixFieldChallengePendingAnswerPythonPyspar
     raise NotImplementedError("ScalaSparkMethodPlaceholder")
 
 
-STRATEGIES_USING_SCALA_REGISTRY = [
+VANILLA_STRATEGIES_USING_SCALA_REGISTRY = [
     SixFieldChallengeMethodScalaSparkRegistration(
         strategy_name_2018='vanilla_pyspark_sql',
         strategy_name='vanilla_sc_spark_sql',

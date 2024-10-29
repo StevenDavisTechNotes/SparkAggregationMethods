@@ -10,21 +10,22 @@ from spark_agg_methods_common_python.challenges.sectional.section_test_data_type
 )
 
 from src.challenges.sectional.section_test_data_types_pyspark import (
-    SectionDataSetPyspark, TChallengePythonPysparkAnswer,
+    SectionDataSetPyspark, SectionExecutionParametersPyspark, TChallengePythonPysparkAnswer,
 )
 from src.utils.tidy_session_pyspark import TidySparkSession
 
 
 def section_pyspark_rdd_prep_mappart(
         spark_session: TidySparkSession,
+        exec_params: SectionExecutionParametersPyspark,
         data_set: SectionDataSetPyspark,
 ) -> TChallengePythonPysparkAnswer:
     if data_set.data_description.num_students > pow(10, 8 - 1):
         # takes too long
         return "infeasible"
     sc = spark_session.spark_context
-    filename = data_set.exec_params.source_data_file_path
-    target_num_partitions = data_set.exec_params.target_num_partitions
+    filename = data_set.source_data_file_path
+    target_num_partitions = data_set.target_num_partitions
 
     interFileName = identify_section_using_intermediate_file(filename)
     rdd1: RDD[tuple[tuple[int, int], TypedLine]] = (

@@ -20,7 +20,7 @@ python --version # to double confirm
 
 rm venv -r # to remove the venv folder
 get-childitem src -include __pycache__ -recurse | remove-item -Force -Recurse
-py -3.12 -m venv venv
+py -3.13 -m venv venv
 .\venv\Scripts\Activate.ps1
 python -c "import sys; print(sys.executable)"
 .\venv\Scripts\python.exe -m pip install --upgrade pip
@@ -49,7 +49,7 @@ Look to see what version of Spark and Dask you are going to use, and then work b
   - (Download)(https://spark.apache.org/downloads.html)
     - Pre-built for Apache Hadoop 3.3 and later
     - Unzip to `D:\Programs\spark-3.4.3-bin-hadoop3`
-- Python 3.12
+- Python 3.13
   - https://www.python.org/downloads/
 - Java JDK 17
   - https://www.oracle.com/java/technologies/downloads/#java17

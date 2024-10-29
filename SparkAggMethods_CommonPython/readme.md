@@ -26,6 +26,7 @@ python -c "import sys; print(sys.executable)"
 .\venv\Scripts\python.exe -m pip install --upgrade pip
 pip install -r .\requirements.txt
 pip freeze > frozen_requirements.txt
+py -m build
 ```
 Then Close and reopen VSCode
 

@@ -17,7 +17,7 @@ from src.challenges.vanilla.strategies.using_pyspark.vanilla_pyspark_rdd_mappart
 from src.challenges.vanilla.strategies.using_pyspark.vanilla_pyspark_rdd_reduce import vanilla_pyspark_rdd_reduce
 from src.challenges.vanilla.strategies.using_pyspark.vanilla_pyspark_sql import vanilla_pyspark_sql
 
-STRATEGIES_USING_PYSPARK_REGISTRY: list[SixFieldChallengeMethodPythonPysparkRegistration] = [
+VANILLA_STRATEGIES_USING_PYSPARK_REGISTRY: list[SixFieldChallengeMethodPythonPysparkRegistration] = [
     SixFieldChallengeMethodPythonPysparkRegistration(
         strategy_name_2018='vanilla_sql',
         strategy_name=name_of_function(vanilla_pyspark_sql),

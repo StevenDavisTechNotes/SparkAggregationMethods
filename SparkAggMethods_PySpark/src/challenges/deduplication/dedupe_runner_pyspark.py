@@ -16,11 +16,10 @@ from spark_agg_methods_common_python.challenge_strategy_registry import (
     ChallengeResultLogFileRegistration, ChallengeStrategyRegistration, update_challenge_strategy_registration,
 )
 from spark_agg_methods_common_python.challenges.deduplication.dedupe_record_runs import DedupeRunResult
-from spark_agg_methods_common_python.challenges.deduplication.dedupe_test_data_types import (
-    DedupeDataSetDescription, ExecutionParameters,
-)
+from spark_agg_methods_common_python.challenges.deduplication.dedupe_test_data_types import DedupeDataSetDescription
 from spark_agg_methods_common_python.perf_test_common import (
-    ELAPSED_TIME_COLUMN_NAME, CalcEngine, Challenge, NumericalToleranceExpectations, SolutionLanguage,
+    ELAPSED_TIME_COLUMN_NAME, LOCAL_TEST_DATA_FILE_LOCATION, REMOTE_TEST_DATA_LOCATION, CalcEngine, Challenge,
+    NumericalToleranceExpectations, SolutionLanguage,
 )
 from spark_agg_methods_common_python.utils.utils import always_true, set_random_seed
 
@@ -28,8 +27,10 @@ from src.challenges.deduplication.dedupe_generate_test_data_pyspark import DATA_
 from src.challenges.deduplication.dedupe_record_runs_pyspark import (
     DedupePysparkPersistedRunResultLog, DedupePysparkRunResultFileWriter,
 )
-from src.challenges.deduplication.dedupe_strategy_directory_pyspark import STRATEGIES_USING_PYSPARK_REGISTRY
-from src.challenges.deduplication.dedupe_test_data_types_pyspark import DedupePySparkDataSet
+from src.challenges.deduplication.dedupe_strategy_directory_pyspark import DEDUPE_STRATEGIES_USING_PYSPARK_REGISTRY
+from src.challenges.deduplication.dedupe_test_data_types_pyspark import (
+    DedupeExecutionParametersPyspark, DedupePySparkDataSet,
+)
 from src.challenges.deduplication.domain_logic.dedupe_expected_results_pyspark import (
     DedupeItineraryItem, verify_correctness,
 )
@@ -50,8 +51,6 @@ DEBUG_ARGS = None if True else (
     #    'dedupe_pyspark_df_grp_pandas',
     #    ]
 )
-LOCAL_TEST_DATA_FILE_LOCATION = "d:/temp/SparkPerfTesting"
-REMOTE_TEST_DATA_LOCATION = "wasb:///sparkperftesting"
 MaximumProcessableSegment = pow(10, 5)
 
 
@@ -62,11 +61,11 @@ class Arguments:
     shuffle: bool
     sizes: list[str]
     strategy_names: list[str]
-    exec_params: ExecutionParameters
+    exec_params: DedupeExecutionParametersPyspark
 
 
 def parse_args() -> Arguments:
-    strategy_names = [x.strategy_name for x in STRATEGIES_USING_PYSPARK_REGISTRY]
+    strategy_names = [x.strategy_name for x in DEDUPE_STRATEGIES_USING_PYSPARK_REGISTRY]
     sizes = [x.size_code for x in DATA_SIZE_LIST_DEDUPE]
     default_sizes = [x.size_code for x in DATA_SIZE_LIST_DEDUPE if not x.debugging_only]
 
@@ -101,7 +100,7 @@ def parse_args() -> Arguments:
         shuffle=args.shuffle,
         sizes=args.size,
         strategy_names=args.strategy,
-        exec_params=ExecutionParameters(
+        exec_params=DedupeExecutionParametersPyspark(
             in_cloud_mode=in_cloud_mode,
             num_executors=num_executors,
             can_assume_no_dupes_per_partition=can_assume_no_dupes_per_partition,
@@ -111,8 +110,11 @@ def parse_args() -> Arguments:
 
 
 def run_one_itinerary_step(
-        index: int, num_itinerary_stops: int, itinerary_item: DedupeItineraryItem,
-        args: Arguments, spark_session: TidySparkSession
+        index: int,
+        num_itinerary_stops: int,
+        itinerary_item: DedupeItineraryItem,
+        args: Arguments,
+        spark_session: TidySparkSession
 ) -> DedupeRunResult | Literal["infeasible"]:
     exec_params = args.exec_params
     log = spark_session.log
@@ -185,7 +187,7 @@ def run_tests(
         spark_session: TidySparkSession,
 ):
     keyed_implementation_list = {
-        x.strategy_name: x for x in STRATEGIES_USING_PYSPARK_REGISTRY}
+        x.strategy_name: x for x in DEDUPE_STRATEGIES_USING_PYSPARK_REGISTRY}
     itinerary = [
         DedupeItineraryItem(
             challenge_method_registration=challenge_method_registration,
@@ -254,7 +256,7 @@ def update_challenge_registration():
                     numerical_tolerance=NumericalToleranceExpectations.NOT_APPLICABLE.value,
                     requires_gpu=x.requires_gpu,
                 )
-                for x in STRATEGIES_USING_PYSPARK_REGISTRY
+                for x in DEDUPE_STRATEGIES_USING_PYSPARK_REGISTRY
             ]
         ),
     )

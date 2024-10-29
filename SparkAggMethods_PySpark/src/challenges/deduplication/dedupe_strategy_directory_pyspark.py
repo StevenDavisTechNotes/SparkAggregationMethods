@@ -18,7 +18,7 @@ from src.challenges.deduplication.strategies.using_pyspark.dedupe_pyspark_rdd_ma
 )
 from src.challenges.deduplication.strategies.using_pyspark.dedupe_pyspark_rdd_reduce import dedupe_pyspark_rdd_reduce
 
-STRATEGIES_USING_PYSPARK_REGISTRY: list[DedupeChallengeMethodPythonPysparkRegistration] = [
+DEDUPE_STRATEGIES_USING_PYSPARK_REGISTRY: list[DedupeChallengeMethodPythonPysparkRegistration] = [
     DedupeChallengeMethodPythonPysparkRegistration(
         strategy_name_2018='dedupe_pandas',
         strategy_name=name_of_function(dedupe_pyspark_df_nested_pandas),

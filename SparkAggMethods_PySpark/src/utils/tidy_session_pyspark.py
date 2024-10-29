@@ -7,9 +7,10 @@ from typing import Any, cast
 import findspark
 from pyspark import SparkContext
 from pyspark.sql import SparkSession
-
+from spark_agg_methods_common_python.perf_test_common import (
+    LOCAL_NUM_EXECUTORS,
+)
 SPARK_SCRATCH_FOLDER = "D:\\temp\\spark_scratch"
-LOCAL_NUM_EXECUTORS = 7
 
 
 def get_python_code_root_path() -> str:

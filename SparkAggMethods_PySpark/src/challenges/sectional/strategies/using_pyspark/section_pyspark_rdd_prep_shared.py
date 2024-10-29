@@ -2,9 +2,12 @@ import pyspark.sql.functions as func
 from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql.window import Window
 
+from src.challenges.sectional.section_test_data_types_pyspark import SectionExecutionParametersPyspark
+
 
 def section_pyspark_rdd_prep_shared(
         dfSrc: PySparkDataFrame,
+        exec_params: SectionExecutionParametersPyspark,
         sectionMaximum: int,
 ) -> PySparkDataFrame:
     df = dfSrc

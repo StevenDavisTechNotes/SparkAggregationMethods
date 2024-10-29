@@ -1,19 +1,18 @@
 from typing import Iterable
 
 from pyspark.sql import Row
+from spark_agg_methods_common_python.challenges.deduplication.domain_logic.dedupe_domain_methods import is_match
 
 from src.challenges.deduplication.dedupe_test_data_types_pyspark import (
-    DedupePySparkDataSet, ExecutionParameters, TChallengePendingAnswerPythonPyspark,
+    DedupeExecutionParametersPyspark, DedupePySparkDataSet, TChallengePendingAnswerPythonPyspark,
 )
-from src.challenges.deduplication.domain_logic.dedupe_domain_methods_pyspark import (
-    blocking_function, combine_row_list, is_match,
-)
+from src.challenges.deduplication.domain_logic.dedupe_domain_methods_pyspark import blocking_function, combine_row_list
 from src.utils.tidy_session_pyspark import TidySparkSession
 
 
 def dedupe_pyspark_rdd_map_part(
         spark_session: TidySparkSession,
-        exec_params: ExecutionParameters,
+        exec_params: DedupeExecutionParametersPyspark,
         data_set: DedupePySparkDataSet,
 ) -> TChallengePendingAnswerPythonPyspark:
     if data_set.data_description.num_source_rows > 502000:

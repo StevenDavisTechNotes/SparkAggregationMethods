@@ -3,32 +3,19 @@ import os
 from dataclasses import dataclass
 
 from spark_agg_methods_common_python.perf_test_common import (
-    CalcEngine, ChallengeMethodRegistrationBase, PersistedRunResultBase, PersistedRunResultLog, RunResultBase,
-    RunResultFileWriterBase, SolutionLanguage, TSolutionInterface, parse_interface_python,
-)
+    CalcEngine, ChallengeMethodRegistrationBase, PersistedRunResultBase,
+    PersistedRunResultLog, RunResultBase, RunResultFileWriterBase,
+    SolutionLanguage, TSolutionInterface, parse_interface_python)
 
 
 @dataclass(frozen=True)
 class ConditionalRunResult(RunResultBase):
-    # for RunResultBase
-    num_source_rows: int
-    elapsed_time: float
-    num_output_rows: int
-    finished_at: str | None
+    pass
 
 
 @dataclass(frozen=True)
 class ConditionalPersistedRunResult(PersistedRunResultBase[TSolutionInterface], ConditionalRunResult):
-    # for RunResultBase
-    num_source_rows: int
-    elapsed_time: float
-    num_output_rows: int
-    finished_at: str | None
-    # for PersistedRunResultBase
-    language: SolutionLanguage
-    engine: CalcEngine
-    interface: TSolutionInterface
-    strategy_name: str
+    pass
 
 
 def regressor_from_run_result(

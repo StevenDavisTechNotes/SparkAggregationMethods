@@ -10,7 +10,7 @@ from src.challenges.sectional.domain_logic.section_snippet_subtotal_type import 
     grade_summary, marge_snippets_2, student_snippet_from_typed_row_2,
 )
 from src.challenges.sectional.section_test_data_types_pyspark import (
-    SectionDataSetPyspark, TChallengePythonPysparkAnswer,
+    SectionDataSetPyspark, SectionExecutionParametersPyspark, TChallengePythonPysparkAnswer,
 )
 from src.utils.tidy_session_pyspark import TidySparkSession
 
@@ -22,6 +22,7 @@ class StudentSnippetWIndex(NamedTuple):
 
 def section_pyspark_rdd_mappart_partials(
         spark_session: TidySparkSession,
+        exec_params: SectionExecutionParametersPyspark,
         data_set: SectionDataSetPyspark,
 ) -> TChallengePythonPysparkAnswer:
     if data_set.data_description.num_students > pow(10, 5-1):
@@ -29,9 +30,9 @@ def section_pyspark_rdd_mappart_partials(
         return "infeasible"
     sc = spark_session.spark_context
     expected_row_count = data_set.data_description.num_source_rows
-    filename = data_set.exec_params.source_data_file_path
-    default_parallelism = data_set.exec_params.default_parallelism
-    maximum_processable_segment = data_set.exec_params.maximum_processable_segment
+    filename = data_set.source_data_file_path
+    default_parallelism = exec_params.default_parallelism
+    maximum_processable_segment = exec_params.maximum_processable_segment
     targetNumPartitions = int_divide_round_up(expected_row_count + 2, maximum_processable_segment)
     rdd_orig: RDD[LabeledTypedRow] = rdd_typed_with_index_factory(spark_session, filename, targetNumPartitions)
 

@@ -1,8 +1,7 @@
-from spark_agg_methods_common_python.perf_test_common import CalcEngine, SolutionLanguage
-
-from src.challenges.sectional.section_record_runs import (
+from spark_agg_methods_common_python.challenges.sectional.section_record_runs import (
     SectionPythonPersistedRunResultLog, SectionPythonRunResultFileWriter,
 )
+from spark_agg_methods_common_python.perf_test_common import CalcEngine, SolutionLanguage
 
 SECTION_PYTHON_PYSPARK_RUN_LOG_FILE_PATH = 'results/section_pyspark_runs.csv'
 LANGUAGE = SolutionLanguage.PYTHON

@@ -3,7 +3,7 @@ from spark_agg_methods_common_python.perf_test_common import (
 )
 from spark_agg_methods_common_python.utils.inspection import name_of_function
 
-from src.challenges.six_field_test_data.six_test_data_for_python_only import ChallengeMethodPythonOnlyRegistration
+from src.challenges.six_field_test_data.six_test_data_for_py_only import ChallengeMethodPythonOnlyRegistration
 from src.challenges.vanilla.strategies.using_python_only.vanilla_py_only_pd_grp_numba import (
     vanilla_py_only_pd_grp_numba,
 )
@@ -11,7 +11,7 @@ from src.challenges.vanilla.strategies.using_python_only.vanilla_py_only_pd_grp_
     vanilla_py_only_pd_grp_numpy,
 )
 
-STRATEGIES_USING_PYTHON_ONLY_REGISTRY: list[ChallengeMethodPythonOnlyRegistration] = [
+VANILLA_STRATEGIES_USING_PYTHON_ONLY_REGISTRY: list[ChallengeMethodPythonOnlyRegistration] = [
     ChallengeMethodPythonOnlyRegistration(
         strategy_name_2018=None,
         strategy_name=name_of_function(vanilla_py_only_pd_grp_numba),

@@ -14,10 +14,11 @@ from spark_agg_methods_common_python.challenges.bi_level.bi_level_test_data_type
     BI_LEVEL_RESULT_COLUMNS, DATA_SIZES_LIST_BI_LEVEL, BiLevelDataSetDescription,
 )
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
-    SHARED_LOCAL_TEST_DATA_FILE_LOCATION, SixTestExecutionParameters,
+    SixTestExecutionParameters,
 )
 from spark_agg_methods_common_python.perf_test_common import (
-    ELAPSED_TIME_COLUMN_NAME, CalcEngine, Challenge, SolutionLanguage,
+    ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, LOCAL_TEST_DATA_FILE_LOCATION, CalcEngine, Challenge,
+    SolutionLanguage,
 )
 from spark_agg_methods_common_python.utils.utils import always_true, set_random_seed
 
@@ -29,7 +30,7 @@ from src.challenges.six_field_test_data.six_runner_base_pyspark import test_one_
 from src.challenges.six_field_test_data.six_test_data_for_pyspark import (
     SixFieldChallengeMethodPythonPysparkRegistration, SixFieldDataSetPysparkWithAnswer, populate_data_set_pyspark,
 )
-from src.utils.tidy_session_pyspark import LOCAL_NUM_EXECUTORS, TidySparkSession
+from src.utils.tidy_session_pyspark import TidySparkSession
 
 DEBUG_ARGS = None if True else (
     []
@@ -82,7 +83,8 @@ def parse_args() -> Arguments:
         strategy_names=args.strategy,
         exec_params=SixTestExecutionParameters(
             default_parallelism=2 * LOCAL_NUM_EXECUTORS,
-            test_data_folder_location=SHARED_LOCAL_TEST_DATA_FILE_LOCATION,
+            num_executors=LOCAL_NUM_EXECUTORS,
+            test_data_folder_location=LOCAL_TEST_DATA_FILE_LOCATION,
         ),
     )
 

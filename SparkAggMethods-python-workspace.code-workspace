@@ -4,6 +4,9 @@
 			"path": "SparkAggMethods_CommonPython"
 		},
 		{
+			"path": "SparkAggMethods_Admin"
+		},
+		{
 			"path": "SparkAggMethods_PySpark"
 		},
 		{
@@ -12,9 +15,6 @@
 		{
 			"path": "SparkAggMethods_PythonOnly"
 		},
-		{
-			"path": "SparkAggMethods_Admin"
-		}
 	],
 	"settings": {
 		"[python]": {

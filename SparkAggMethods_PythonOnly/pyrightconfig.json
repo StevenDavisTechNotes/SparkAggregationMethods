@@ -1,6 +1,7 @@
 {
   "include": ["src"],
   "autoSearchPaths": false,
+  "pythonVersion": "3.13",
   "stubPath": "src/typings",
   "typeCheckingMode": "standard",
 }

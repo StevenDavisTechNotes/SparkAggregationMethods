@@ -2,7 +2,10 @@
     "version": "0.2",
     "ignorePaths": [],
     "dictionaryDefinitions": [],
-    "dictionaries": [],
+    "dictionaries": [
+        "python",
+        "powershell"
+    ],
     "words": [
         "asymm",
         "asymreduce",

@@ -1,6 +1,7 @@
 {
   "include": ["spark_agg_methods_common_python"],
   "autoSearchPaths": false,
+  "pythonVersion": "3.13",
   "stubPath": "src/typings",
   "typeCheckingMode": "standard",
 }

@@ -4,14 +4,13 @@
 import argparse
 import datetime as dt
 import gc
+import logging
 import os
 import random
 import time
 from dataclasses import dataclass
-from typing import Iterable, Literal
+from typing import Literal
 
-from pyspark import RDD
-from pyspark.sql import DataFrame as PySparkDataFrame
 from spark_agg_methods_common_python.challenge_strategy_registry import (
     ChallengeResultLogFileRegistration, ChallengeStrategyRegistration, update_challenge_strategy_registration,
 )
@@ -25,16 +24,17 @@ from spark_agg_methods_common_python.perf_test_common import (
     ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, LOCAL_TEST_DATA_FILE_LOCATION, CalcEngine, Challenge,
     NumericalToleranceExpectations, SolutionLanguage,
 )
-from spark_agg_methods_common_python.utils.utils import always_true, count_iter, int_divide_round_up, set_random_seed
+from spark_agg_methods_common_python.utils.utils import always_true, count_iter, set_random_seed
 
-from src.challenges.sectional.section_record_runs_pyspark import (
-    MAXIMUM_PROCESSABLE_SEGMENT, SectionPysparkPersistedRunResultLog, SectionPysparkRunResultFileWriter,
+from src.challenges.sectional.section_record_runs_py_only import (
+    SectionPythonOnlyPersistedRunResultLog, SectionPythonOnlyRunResultFileWriter,
 )
-from src.challenges.sectional.section_strategy_directory_pyspark import SECTIONAL_STRATEGIES_USING_PYSPARK_REGISTRY
-from src.challenges.sectional.section_test_data_types_pyspark import (
-    SectionChallengeMethodPysparkRegistration, SectionDataSetPyspark, SectionExecutionParametersPyspark,
+from src.challenges.sectional.section_strategy_directory_py_only import SECTIONAL_STRATEGIES_USING_PYTHON_ONLY_REGISTRY
+from src.challenges.sectional.section_test_data_types_py_only import (
+    SectionChallengeMethodPythonOnlyRegistration, SectionDataSetPyOnly, SectionExecutionParametersPyOnly,
 )
-from src.utils.tidy_session_pyspark import TidySparkSession
+
+logger = logging.getLogger(__name__)
 
 DEBUG_ARGS = None if True else (
     []
@@ -60,12 +60,12 @@ class Arguments:
     shuffle: bool
     sizes: list[str]
     strategy_names: list[str]
-    exec_params: SectionExecutionParametersPyspark
+    exec_params: SectionExecutionParametersPyOnly
 
 
 def parse_args() -> Arguments:
     sizes = [x.size_code for x in DATA_SIZE_LIST_SECTIONAL]
-    strategy_names = [x.strategy_name for x in SECTIONAL_STRATEGIES_USING_PYSPARK_REGISTRY]
+    strategy_names = [x.strategy_name for x in SECTIONAL_STRATEGIES_USING_PYTHON_ONLY_REGISTRY]
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--check', default=True, action=argparse.BooleanOptionalAction,
@@ -86,59 +86,49 @@ def parse_args() -> Arguments:
         shuffle=args.shuffle,
         sizes=args.size,
         strategy_names=args.strategy,
-        exec_params=SectionExecutionParametersPyspark(
+        exec_params=SectionExecutionParametersPyOnly(
             # for ExecutionParametersBase
             default_parallelism=2 * LOCAL_NUM_EXECUTORS,
             num_executors=LOCAL_NUM_EXECUTORS,
             test_data_folder_location=LOCAL_TEST_DATA_FILE_LOCATION,
-            # for SectionExecutionParametersBase
-            # section_maximum=SECTION_SIZE_MAXIMUM,
-            # for SectionExecutionArgumentsPySpark
-            maximum_processable_segment=MAXIMUM_PROCESSABLE_SEGMENT,
-        )
+        ),
     )
 
 
-def sectional_populate_data_sets_pyspark(
-        exec_params: SectionExecutionParametersPyspark,
-) -> list[SectionDataSetPyspark]:
+def sectional_populate_data_sets_py_only(
+        exec_params: SectionExecutionParametersPyOnly,
+) -> list[SectionDataSetPyOnly]:
 
-    datasets: list[SectionDataSetPyspark] = []
+    datasets: list[SectionDataSetPyOnly] = []
     num_students = 1
     for i_scale in range(0, LARGEST_EXPONENT_SECTIONAL + 1):
         num_students = 10**i_scale
         file_path = derive_source_test_data_file_path(num_students)
-        data_size = num_students * SECTION_SIZE_MAXIMUM
+        # data_size = num_students * SECTION_SIZE_MAXIMUM
         assert os.path.exists(file_path)
-        src_num_partitions = max(
-            exec_params.default_parallelism,
-            int_divide_round_up(
-                data_size,
-                exec_params.maximum_processable_segment,
-            ),
-        )
         data_description = DATA_SIZE_LIST_SECTIONAL[i_scale]
         correct_answer = AnswerFileSectional.read_answer_file_sectional(data_description)
         datasets.append(
-            SectionDataSetPyspark(
-                # for SectionDataSetBase
+            SectionDataSetPyOnly(
                 data_description=data_description,
+                # exec_params=SectionExecutionParametersPyOnly(
+                #     default_parallelism=exec_params.default_parallelism,
+                #     maximum_processable_segment=exec_params.maximum_processable_segment,
+                #     section_maximum=SECTION_SIZE_MAXIMUM,
+                #     source_data_file_path=file_path,
+                #     target_num_partitions=src_num_partitions,
+                # ),
                 correct_answer=correct_answer,
                 section_maximum=SECTION_SIZE_MAXIMUM,
-                # for SectionDataSetPyspark
-                maximum_processable_segment=exec_params.maximum_processable_segment,
-                source_data_file_path=file_path,
-                target_num_partitions=src_num_partitions,
             ))
     return datasets
 
 
 def do_test_runs(
         args: Arguments,
-        spark_session: TidySparkSession,
 ) -> None:
     data_sets_w_answers = [
-        x for x in sectional_populate_data_sets_pyspark(
+        x for x in sectional_populate_data_sets_py_only(
             args.exec_params,
         )
         if x.data_description.size_code in args.sizes
@@ -147,8 +137,8 @@ def do_test_runs(
         str(x.data_description.num_students): x
         for x in data_sets_w_answers}
     keyed_implementation_list = {
-        x.strategy_name: x for x in SECTIONAL_STRATEGIES_USING_PYSPARK_REGISTRY}
-    itinerary: list[tuple[SectionChallengeMethodPysparkRegistration, SectionDataSetPyspark]] = [
+        x.strategy_name: x for x in SECTIONAL_STRATEGIES_USING_PYTHON_ONLY_REGISTRY}
+    itinerary: list[tuple[SectionChallengeMethodPythonOnlyRegistration, SectionDataSetPyOnly]] = [
         (challenge_method_registration, data_set)
         for strategy_name in args.strategy_names
         if always_true(challenge_method_registration := keyed_implementation_list[strategy_name])
@@ -163,14 +153,14 @@ def do_test_runs(
     if args.shuffle:
         random.shuffle(itinerary)
 
-    with SectionPysparkRunResultFileWriter() as file:
+    with SectionPythonOnlyRunResultFileWriter() as file:
         for index, (challenge_method_registration, data_set) in enumerate(itinerary):
-            spark_session.log.info(
+            logger.info(
                 "Working on %d of %d" %
                 (index, len(itinerary)))
             print(f"Working on {challenge_method_registration.strategy_name} "
                   f"for {data_set.data_description.num_source_rows}")
-            run_result = run_one_itinerary_step(args, spark_session, challenge_method_registration, data_set)
+            run_result = run_one_itinerary_step(args, challenge_method_registration, data_set)
             match run_result:
                 case "infeasible":
                     pass
@@ -183,50 +173,30 @@ def do_test_runs(
 
 def run_one_itinerary_step(
         args: Arguments,
-        spark_session: TidySparkSession,
-        challenge_method_registration: SectionChallengeMethodPysparkRegistration,
-        data_set: SectionDataSetPyspark,
+        challenge_method_registration: SectionChallengeMethodPythonOnlyRegistration,
+        data_set: SectionDataSetPyOnly,
 ) -> SectionRunResult | Literal["infeasible"]:
     startedTime = time.time()
     num_students_found: int
-    rdd: RDD | None = None
-    found_students_iterable: Iterable[StudentSummary]
+    found_students: list[StudentSummary]
     match challenge_method_registration.delegate(
-        spark_session=spark_session,
-        exec_params=args.exec_params,
         data_set=data_set,
+        exec_params=args.exec_params,
     ):
-        case PySparkDataFrame() as df:
-            print(f"output rdd has {df.rdd.getNumPartitions()} partitions")
-            rdd = df.rdd
-            found_students_iterable = [StudentSummary(*x) for x in rdd.toLocalIterator()]
-        case RDD() as rdd:
-            print(f"output rdd has {rdd.getNumPartitions()} partitions")
-            count = rdd.count()
-            print("Got a count", count)
-            found_students_iterable = rdd.toLocalIterator()
         case "infeasible":
             return "infeasible"
         case list() as iter_tuple:
-            found_students_iterable = iter_tuple
+            found_students = iter_tuple
         case _:
             raise ValueError("Unexpected return type")
     concrete_students: list[StudentSummary]
     if args.check_answers:
-        concrete_students = list(found_students_iterable)
+        concrete_students = found_students
         num_students_found = len(concrete_students)
     else:
         concrete_students = []
-        num_students_found = count_iter(found_students_iterable)
+        num_students_found = count_iter(found_students)
     finishedTime = time.time()
-    if rdd is not None and rdd.getNumPartitions() > max(
-        args.exec_params.default_parallelism,
-        data_set.target_num_partitions,
-    ):
-        print(f"{challenge_method_registration.strategy_name} output rdd has {rdd.getNumPartitions()} partitions")
-        findings = rdd.collect()
-        print(f"size={len(findings)}!", findings)
-        exit(1)
     success = verify_correctness(data_set, concrete_students, num_students_found, args.check_answers)
     status = "success" if success else "failure"
     data_description = data_set.data_description
@@ -243,7 +213,7 @@ def run_one_itinerary_step(
 
 
 def verify_correctness(
-    data_set: SectionDataSetPyspark,
+    data_set: SectionDataSetPyOnly,
     found_students: list[StudentSummary] | None,
     num_students_found: int,
     check_answers: bool,
@@ -252,7 +222,7 @@ def verify_correctness(
     if check_answers is False:
         return num_students_found == data_set.data_description.num_students
     assert found_students is not None
-    correct_answer = data_set.correct_answer
+    correct_answer = AnswerFileSectional.read_answer_file_sectional(data_set.data_description)
     actual_num_students = data_set.data_description.num_source_rows // data_set.section_maximum
     assert actual_num_students == len(correct_answer)
     if num_students_found != data_set.data_description.num_students:
@@ -277,7 +247,7 @@ def update_challenge_registration():
         engine=ENGINE,
         challenge=CHALLENGE,
         registration=ChallengeResultLogFileRegistration(
-            result_file_path=SectionPysparkPersistedRunResultLog().log_file_path,
+            result_file_path=SectionPythonOnlyPersistedRunResultLog().log_file_path,
             regressor_column_name=SectionDataSetDescription.regressor_field_name(),
             elapsed_time_column_name=ELAPSED_TIME_COLUMN_NAME,
             expected_regressor_values=[
@@ -295,7 +265,7 @@ def update_challenge_registration():
                     numerical_tolerance=NumericalToleranceExpectations.NOT_APPLICABLE.value,
                     requires_gpu=x.requires_gpu,
                 )
-                for x in SECTIONAL_STRATEGIES_USING_PYSPARK_REGISTRY
+                for x in SECTIONAL_STRATEGIES_USING_PYTHON_ONLY_REGISTRY
             ]
         ),
     )
@@ -324,12 +294,7 @@ def spark_configs(
 def main():
     args = parse_args()
     update_challenge_registration()
-    with TidySparkSession(
-        spark_configs(args.exec_params.default_parallelism),
-        enable_hive_support=False,
-    ) as spark_session:
-        os.chdir(spark_session.python_src_code_path)
-        do_test_runs(args, spark_session)
+    do_test_runs(args)
 
 
 if __name__ == "__main__":

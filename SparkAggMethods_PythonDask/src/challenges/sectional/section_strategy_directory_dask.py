@@ -1,0 +1,4 @@
+from src.challenges.sectional.section_test_data_types_dask import SectionChallengeMethodDaskRegistration
+
+SECTIONAL_STRATEGIES_USING_DASK_REGISTRY: list[SectionChallengeMethodDaskRegistration] = [
+]

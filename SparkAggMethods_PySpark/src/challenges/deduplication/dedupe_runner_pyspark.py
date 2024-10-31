@@ -7,29 +7,32 @@ import gc
 import random
 import time
 from dataclasses import dataclass
+from functools import reduce
 from typing import Literal
 
+import pyspark.sql.functions as func
 from pyspark import RDD
 from pyspark.sql import DataFrame as PySparkDataFrame
-from pyspark.sql import Row
+from pyspark.sql import Row, SparkSession
 from spark_agg_methods_common_python.challenge_strategy_registry import (
     ChallengeResultLogFileRegistration, ChallengeStrategyRegistration, update_challenge_strategy_registration,
 )
 from spark_agg_methods_common_python.challenges.deduplication.dedupe_record_runs import DedupeRunResult
-from spark_agg_methods_common_python.challenges.deduplication.dedupe_test_data_types import DedupeDataSetDescription
-from spark_agg_methods_common_python.perf_test_common import (
-    ELAPSED_TIME_COLUMN_NAME, LOCAL_TEST_DATA_FILE_LOCATION, REMOTE_TEST_DATA_LOCATION, CalcEngine, Challenge,
-    NumericalToleranceExpectations, SolutionLanguage,
+from spark_agg_methods_common_python.challenges.deduplication.dedupe_test_data_types import (
+    DATA_SIZE_LIST_DEDUPE, DEDUPE_SOURCE_CODES, DedupeDataSetDescription, dedupe_derive_source_test_data_file_paths,
 )
-from spark_agg_methods_common_python.utils.utils import always_true, set_random_seed
+from spark_agg_methods_common_python.perf_test_common import (
+    ELAPSED_TIME_COLUMN_NAME, CalcEngine, Challenge, NumericalToleranceExpectations, SolutionLanguage,
+)
+from spark_agg_methods_common_python.utils.utils import always_true, int_divide_round_up, set_random_seed
+from terminology import in_red
 
-from src.challenges.deduplication.dedupe_generate_test_data_pyspark import DATA_SIZE_LIST_DEDUPE, generate_test_data
 from src.challenges.deduplication.dedupe_record_runs_pyspark import (
     DedupePysparkPersistedRunResultLog, DedupePysparkRunResultFileWriter,
 )
 from src.challenges.deduplication.dedupe_strategy_directory_pyspark import DEDUPE_STRATEGIES_USING_PYSPARK_REGISTRY
 from src.challenges.deduplication.dedupe_test_data_types_pyspark import (
-    DedupeExecutionParametersPyspark, DedupePySparkDataSet,
+    DedupeDataSetPySpark, DedupeExecutionParametersPyspark, RecordSparseStruct,
 )
 from src.challenges.deduplication.domain_logic.dedupe_expected_results_pyspark import (
     DedupeItineraryItem, verify_correctness,
@@ -39,6 +42,7 @@ from src.utils.tidy_session_pyspark import TidySparkSession
 LANGUAGE = SolutionLanguage.PYTHON
 ENGINE = CalcEngine.PYSPARK
 CHALLENGE = Challenge.DEDUPLICATION
+MAX_DATA_POINTS_PER_PARTITION: int = 10000
 
 
 DEBUG_ARGS = None if True else (
@@ -87,12 +91,10 @@ def parse_args() -> Arguments:
         num_executors = 40
         can_assume_no_dupes_per_partition = False
         default_parallelism = 2 * num_executors
-        test_data_folder_location = REMOTE_TEST_DATA_LOCATION
     else:
         num_executors = 7
         can_assume_no_dupes_per_partition = args.assume_no_dupes_per_partition
         default_parallelism = 16
-        test_data_folder_location = LOCAL_TEST_DATA_FILE_LOCATION
 
     return Arguments(
         num_runs=args.runs,
@@ -105,8 +107,78 @@ def parse_args() -> Arguments:
             num_executors=num_executors,
             can_assume_no_dupes_per_partition=can_assume_no_dupes_per_partition,
             default_parallelism=default_parallelism,
-            test_data_folder_location=test_data_folder_location,
         ))
+
+
+def dedupe_prepare_test_data_sets(
+    data_size_code_list: list[str],
+    spark: SparkSession,
+    exec_params: DedupeExecutionParametersPyspark
+) -> list[DedupeDataSetPySpark]:
+    # source_codes = ['A', 'B', 'C', 'D', 'E', 'F']
+
+    all_data_sets: list[DedupeDataSetPySpark] = []
+    target_data_size_list = [x for x in DATA_SIZE_LIST_DEDUPE if x.size_code in data_size_code_list]
+    for target_data_size in sorted(target_data_size_list, key=lambda x: x.num_people):
+        source_data_file_names = dedupe_derive_source_test_data_file_paths(target_data_size)
+        single_source_data_frames: list[PySparkDataFrame]
+        if exec_params.can_assume_no_dupes_per_partition:
+            single_source_data_frames = [
+                (spark.read
+                 .csv(
+                     source_data_file_names[source_code],
+                     schema=RecordSparseStruct)
+                 .coalesce(1)
+                 .withColumn("SourceId", func.lit(i_source)))
+                for i_source, source_code in enumerate(DEDUPE_SOURCE_CODES)
+            ]
+        else:
+            single_source_data_frames = [
+                (spark.read
+                 .csv(
+                     source_data_file_names[source_code],
+                     schema=RecordSparseStruct)
+                 .withColumn("SourceId", func.lit(i_source)))
+                for i_source, source_code in enumerate(DEDUPE_SOURCE_CODES)
+            ]
+
+        def combine_sources(num: int) -> PySparkDataFrame:
+            return reduce(
+                lambda dfA, dfB: dfA.unionAll(dfB),
+                [single_source_data_frames[i] for i in range(num)]
+            )
+        quantized_data_sets = {
+            2: combine_sources(2),
+            3: combine_sources(3),
+            6: combine_sources(6),
+        }
+        if exec_params.can_assume_no_dupes_per_partition is False:
+            # then scramble
+            quantized_data_sets = {
+                k: df.repartition(exec_params.num_executors)
+                for k, df in quantized_data_sets.items()
+            }
+        for df in quantized_data_sets.values():
+            df.persist()
+        df = quantized_data_sets[target_data_size.num_sources]
+        actual_data_size = df.count()
+        if actual_data_size != target_data_size.num_source_rows:
+            print(in_red(
+                f"Bad result for {target_data_size.num_people}, "
+                f"{target_data_size.num_sources} sources, expected "
+                f"{target_data_size.num_source_rows}, got {actual_data_size}!"))
+            exit(11)
+        num_partitions = max(
+            exec_params.default_parallelism,
+            int_divide_round_up(
+                actual_data_size,
+                MAX_DATA_POINTS_PER_PARTITION))
+        all_data_sets.append(DedupeDataSetPySpark(
+            data_description=target_data_size,
+            grouped_num_partitions=num_partitions,
+            df_source=df,
+        ))
+    return all_data_sets
 
 
 def run_one_itinerary_step(
@@ -143,7 +215,7 @@ def run_one_itinerary_step(
                 raise Exception(
                     f"{itinerary_item.challenge_method_registration.strategy_name} dit not returning anything")
         print("NumPartitions: in vs out ",
-              itinerary_item.data_set.df.rdd.getNumPartitions(),
+              itinerary_item.data_set.df_source.rdd.getNumPartitions(),
               rdd_out.getNumPartitions())
         if rdd_out.getNumPartitions() \
                 > max(args.exec_params.default_parallelism,
@@ -182,7 +254,7 @@ def run_one_itinerary_step(
 
 
 def run_tests(
-        data_sets: list[DedupePySparkDataSet],
+        data_sets: list[DedupeDataSetPySpark],
         args: Arguments,
         spark_session: TidySparkSession,
 ):
@@ -227,7 +299,7 @@ def do_test_runs(
         args: Arguments,
         spark_session: TidySparkSession,
 ):
-    data_sets = generate_test_data(
+    data_sets = dedupe_prepare_test_data_sets(
         args.sizes, spark_session.spark, args.exec_params)
     run_tests(data_sets, args, spark_session)
 

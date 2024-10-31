@@ -11,8 +11,7 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_dat
 from spark_agg_methods_common_python.perf_test_common import RunResultBase
 
 from src.challenges.six_field_test_data.six_test_data_for_pyspark import (
-    SixFieldChallengeMethodPythonPysparkRegistration, SixFieldDataSetPysparkWithAnswer,
-    pick_agg_tgt_num_partitions_pyspark,
+    SixFieldChallengeMethodPythonPysparkRegistration, SixFieldDataSetPyspark, pick_agg_tgt_num_partitions_pyspark,
 )
 from src.utils.tidy_session_pyspark import TidySparkSession
 
@@ -23,7 +22,8 @@ def test_one_step_in_pyspark_itinerary(
         exec_params: SixTestExecutionParameters,
         challenge_method_registration: SixFieldChallengeMethodPythonPysparkRegistration,
         result_columns: list[str],
-        data_set: SixFieldDataSetPysparkWithAnswer,
+        data_set: SixFieldDataSetPyspark,
+        correct_answer: pd.DataFrame,
 ) -> RunResultBase | None:
     def check_partitions(rdd: RDD):
         agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(data_set.data, challenge)
@@ -65,7 +65,7 @@ def test_one_step_in_pyspark_itinerary(
     result = process_answer(
         challenge=challenge,
         data_size=data_set.data_description,
-        correct_answer=data_set.answer.answer_for_challenge(challenge),
+        correct_answer=correct_answer,
         numerical_tolerance=challenge_method_registration.numerical_tolerance,
         started_time=started_time,
         df_answer=df_answer,

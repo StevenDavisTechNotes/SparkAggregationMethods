@@ -16,6 +16,11 @@ dependencies = [
     "scipy",
 ]
 
-
 [tool.setuptools.packages]
 find = {}  # Scan the project directory with the default parameters
+
+[tool.isort]
+multi_line_output = 5
+include_trailing_comma = true
+force_grid_wrap = 0
+line_length = 120

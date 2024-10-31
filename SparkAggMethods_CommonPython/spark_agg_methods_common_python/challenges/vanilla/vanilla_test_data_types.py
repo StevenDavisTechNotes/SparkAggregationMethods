@@ -1,7 +1,6 @@
-import inspect
+import typing
 
-from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import \
-    SixTestDataSetDescription
+from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import SixTestDataSetDescription
 
 GROUP_BY_COLUMNS: list[str] = ['grp', 'subgrp']
 AGGREGATION_COLUMNS_NON_NULL: list[str] = ['mean_of_C', 'max_of_D']
@@ -34,7 +33,7 @@ class VanillaDataSetDescription(SixTestDataSetDescription):
     @classmethod
     def regressor_field_name(cls) -> str:
         regressor_field_name = "num_source_rows"
-        assert regressor_field_name in inspect.get_annotations(cls)
+        assert regressor_field_name in typing.get_type_hints(cls)
         return regressor_field_name
 
 

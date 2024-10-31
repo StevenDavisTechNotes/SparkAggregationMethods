@@ -1,9 +1,16 @@
+import hashlib
 import inspect
 import math
+import os
 from dataclasses import dataclass
 
 from spark_agg_methods_common_python.perf_test_common import (
-    DataSetDescriptionBase, ExecutionParametersBase)
+    LOCAL_TEST_DATA_FILE_LOCATION, DataSetDescriptionBase, ExecutionParametersBase,
+)
+from spark_agg_methods_common_python.utils.utils import always_true
+
+MAX_EXPONENT = 5
+DEDUPE_SOURCE_CODES: list[str] = ['A', 'B', 'C', 'D', 'E', 'F']
 
 
 class DedupeDataSetDescription(DataSetDescriptionBase):
@@ -53,3 +60,40 @@ class DedupeDataSetBase:
 class DedupeExecutionParametersBase(ExecutionParametersBase):
     in_cloud_mode: bool
     can_assume_no_dupes_per_partition: bool
+
+
+DATA_SIZE_LIST_DEDUPE = [
+    DedupeDataSetDescription(
+        num_people=num_people,
+        num_b_recs=num_b_recs,
+        num_sources=num_sources,
+    )
+    for num_people in [10**x for x in range(0, MAX_EXPONENT + 1)]
+    for num_sources in [2, 3, 6]
+    if always_true(num_b_recs := max(1, 2 * num_people // 100))
+]
+
+
+def dedupe_derive_source_test_data_file_paths(
+        data_description: DedupeDataSetDescription,
+        *,
+        temp_file: bool = False,
+) -> dict[str, str]:
+    root_path = os.path.join(
+        LOCAL_TEST_DATA_FILE_LOCATION,
+        "Dedupe_Test_Data",
+    )
+    num_people = data_description.num_people
+    temp_postfix = "_temp" if temp_file else ""
+    return {
+        source_code: root_path
+        + "/dedupe_field_%d" % (num_people)
+        + "/dedupe_field_%s_%d%s.csv" % (source_code, num_people, temp_postfix)
+        for source_code in DEDUPE_SOURCE_CODES
+    }
+
+
+def name_hash(
+        i: int,
+) -> str:
+    return hashlib.sha512(str(i).encode('utf8')).hexdigest()

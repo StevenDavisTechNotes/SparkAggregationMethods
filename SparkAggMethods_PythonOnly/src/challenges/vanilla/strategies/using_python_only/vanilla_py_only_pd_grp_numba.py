@@ -7,7 +7,9 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_dat
     SixTestExecutionParameters,
 )
 
-from src.challenges.six_field_test_data.six_test_data_for_py_only import DataSetPythonOnly, TChallengePythonOnlyAnswer
+from src.challenges.six_field_test_data.six_test_data_for_py_only import (
+    SixDataSetPythonOnly, TChallengePythonOnlyAnswer,
+)
 
 try:
     import numba  # pyright: ignore[reportMissingImports]
@@ -42,7 +44,7 @@ except ImportError:
 
 def vanilla_py_only_pd_grp_numba(
         exec_params: SixTestExecutionParameters,
-        data_set: DataSetPythonOnly,
+        data_set: SixDataSetPythonOnly,
 ) -> TChallengePythonOnlyAnswer:
     if numba is None:
         return "infeasible"

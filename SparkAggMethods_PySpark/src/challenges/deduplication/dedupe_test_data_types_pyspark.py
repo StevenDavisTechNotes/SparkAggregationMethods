@@ -6,7 +6,7 @@ from pyspark import RDD
 from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import Row
 from spark_agg_methods_common_python.challenges.deduplication.dedupe_test_data_types import (
-    DedupeDataSetBase, DedupeDataSetDescription, DedupeExecutionParametersBase,
+    DedupeDataSetBase, DedupeExecutionParametersBase,
 )
 from spark_agg_methods_common_python.perf_test_common import ChallengeMethodRegistrationBase, SolutionInterfacePySpark
 
@@ -29,10 +29,9 @@ RecordSparseStruct = DataTypes.StructType([
 
 
 @dataclass(frozen=True)
-class DedupePySparkDataSet(DedupeDataSetBase):
-    data_description: DedupeDataSetDescription
+class DedupeDataSetPySpark(DedupeDataSetBase):
     grouped_num_partitions: int
-    df: PySparkDataFrame
+    df_source: PySparkDataFrame
 
 
 TChallengePendingAnswerPythonPyspark = Literal["infeasible"] | RDD[Row] | PySparkDataFrame
@@ -49,7 +48,7 @@ class IChallengeMethodPythonPyspark(Protocol):
         *,
         spark_session: TidySparkSession,
         exec_params: DedupeExecutionParametersPyspark,
-        data_set: DedupePySparkDataSet
+        data_set: DedupeDataSetPySpark
     ) -> TChallengePendingAnswerPythonPyspark: ...
 
 
@@ -63,4 +62,4 @@ class DedupeChallengeMethodPythonPysparkRegistration(
 @dataclass(frozen=True)
 class DedupeItineraryItem:
     challenge_method_registration: DedupeChallengeMethodPythonPysparkRegistration
-    data_set: DedupePySparkDataSet
+    data_set: DedupeDataSetPySpark

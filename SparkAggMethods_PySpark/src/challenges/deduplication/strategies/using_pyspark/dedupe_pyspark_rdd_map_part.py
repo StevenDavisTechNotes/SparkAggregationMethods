@@ -4,7 +4,7 @@ from pyspark.sql import Row
 from spark_agg_methods_common_python.challenges.deduplication.domain_logic.dedupe_domain_methods import is_match
 
 from src.challenges.deduplication.dedupe_test_data_types_pyspark import (
-    DedupeExecutionParametersPyspark, DedupePySparkDataSet, TChallengePendingAnswerPythonPyspark,
+    DedupeDataSetPySpark, DedupeExecutionParametersPyspark, TChallengePendingAnswerPythonPyspark,
 )
 from src.challenges.deduplication.domain_logic.dedupe_domain_methods_pyspark import blocking_function, combine_row_list
 from src.utils.tidy_session_pyspark import TidySparkSession
@@ -13,11 +13,11 @@ from src.utils.tidy_session_pyspark import TidySparkSession
 def dedupe_pyspark_rdd_map_part(
         spark_session: TidySparkSession,
         exec_params: DedupeExecutionParametersPyspark,
-        data_set: DedupePySparkDataSet,
+        data_set: DedupeDataSetPySpark,
 ) -> TChallengePendingAnswerPythonPyspark:
     if data_set.data_description.num_source_rows > 502000:
         return "infeasible"
-    dfSrc = data_set.df
+    dfSrc = data_set.df_source
 
     rdd = (
         dfSrc.rdd

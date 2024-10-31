@@ -9,7 +9,7 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_dat
 from spark_agg_methods_common_python.perf_test_common import RunResultBase
 
 from src.challenges.six_field_test_data.six_test_data_for_dask import (
-    ChallengeMethodPythonDaskRegistration, DataSetDaskWithAnswer, pick_agg_tgt_num_partitions_dask,
+    ChallengeMethodPythonDaskRegistration, SixTestDataSetDask, pick_agg_tgt_num_partitions_dask,
 )
 
 
@@ -17,7 +17,8 @@ def test_one_step_in_dask_itinerary(
         challenge: Challenge,
         exec_params: SixTestExecutionParameters,
         challenge_method_registration: ChallengeMethodPythonDaskRegistration,
-        data_set: DataSetDaskWithAnswer,
+        data_set: SixTestDataSetDask,
+        correct_answer: pd.DataFrame,
 ) -> RunResultBase | None:
     started_time = time.time()
     agg_tgt_num_partitions = pick_agg_tgt_num_partitions_dask(data_set.data, challenge)
@@ -44,7 +45,7 @@ def test_one_step_in_dask_itinerary(
     result = process_answer(
         challenge=challenge,
         data_size=data_set.data_description,
-        correct_answer=data_set.answer.answer_for_challenge(challenge),
+        correct_answer=correct_answer,
         numerical_tolerance=challenge_method_registration.numerical_tolerance,
         started_time=started_time,
         df_answer=df_answer,

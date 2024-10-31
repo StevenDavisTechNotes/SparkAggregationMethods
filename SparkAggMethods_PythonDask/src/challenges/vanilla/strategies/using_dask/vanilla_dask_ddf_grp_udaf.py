@@ -10,7 +10,7 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_dat
 )
 from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types import GROUP_BY_COLUMNS
 
-from src.challenges.six_field_test_data.six_test_data_for_dask import DataSetDask, TChallengeAnswerPythonDask
+from src.challenges.six_field_test_data.six_test_data_for_dask import SixTestDataSetDask, TChallengeAnswerPythonDask
 
 
 def ddof_0_do_chunk(s: SeriesGroupBy) -> tuple[pd.Series, pd.Series, pd.Series]:
@@ -37,7 +37,7 @@ def ddof_0_do_finalize(count: pd.Series, sum: pd.Series, sum2: pd.Series):
 
 def vanilla_dask_ddf_grp_udaf(
         exec_params: SixTestExecutionParameters,
-        data_set: DataSetDask
+        data_set: SixTestDataSetDask
 ) -> TChallengeAnswerPythonDask:
     if (data_set.data_description.points_per_index > 10**4):
         return "infeasible"

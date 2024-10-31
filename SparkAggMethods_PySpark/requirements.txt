@@ -16,6 +16,7 @@ pandas>=1.0.5,<2.0
 prettyprinter
 psutil 
 pyarrow>=4.0.0
+pyclean
 pydantic
 Py4J>=0.10.9.7
 pyspark==3.5.1

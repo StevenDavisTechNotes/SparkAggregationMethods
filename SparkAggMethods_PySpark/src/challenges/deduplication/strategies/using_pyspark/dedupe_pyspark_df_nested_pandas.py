@@ -7,7 +7,7 @@ from spark_agg_methods_common_python.challenges.deduplication.domain_logic.dedup
 )
 
 from src.challenges.deduplication.dedupe_test_data_types_pyspark import (
-    DedupeExecutionParametersPyspark, DedupePySparkDataSet, RecordSparseStruct, TChallengePendingAnswerPythonPyspark,
+    DedupeDataSetPySpark, DedupeExecutionParametersPyspark, RecordSparseStruct, TChallengePendingAnswerPythonPyspark,
 )
 from src.utils.spark_helpers import zip_dataframe_with_index
 from src.utils.tidy_session_pyspark import TidySparkSession
@@ -16,9 +16,9 @@ from src.utils.tidy_session_pyspark import TidySparkSession
 def dedupe_pyspark_df_nested_pandas(
         spark_session: TidySparkSession,
         exec_params: DedupeExecutionParametersPyspark,
-        data_set: DedupePySparkDataSet,
+        data_set: DedupeDataSetPySpark,
 ) -> TChallengePendingAnswerPythonPyspark:
-    dfSrc = data_set.df
+    dfSrc = data_set.df_source
     if data_set.data_description.num_source_rows > 50200:
         return "infeasible"
 

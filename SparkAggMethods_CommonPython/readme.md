@@ -1,6 +1,6 @@
 # Helpful Notes
 
-<!-- cSpell: ignore venv, childitem, autopep8, pyright, findstr, pycache, pytest -->
+<!-- cSpell: ignore venv, childitem, autopep8, pyclean, pyright, findstr, pycache, pytest -->
 
 ## Installing Python on Windows
 Use Microsoft Store or [download link](https://www.python.org/downloads/release/python-397/)
@@ -35,7 +35,7 @@ Then Close and reopen VSCode
 ```
 . .\venv\Scripts\Activate.ps1
 flake8 spark_agg_methods_common_python
-clear && flake8 spark_agg_methods_common_python && pyright spark_agg_methods_common_python && python -m pytest spark_agg_methods_common_python
+clear && pyclean spark_agg_methods_common_python && flake8 spark_agg_methods_common_python && pyright spark_agg_methods_common_python && python -m pytest spark_agg_methods_common_python
 autopep8 --recursive --diff spark_agg_methods_common_python | findstr /i /c:'--- original/'
 autopep8 --recursive  --in-place spark_agg_methods_common_python
 & "cspell-cli" "spark_agg_methods_common_python/**/*.py" "--no-summary" "--no-progress" "--exclude" "__pycache__" "--exclude" ".git" "--exclude" "venv" "--fail-fast"

@@ -8,6 +8,7 @@ pandas
 prettyprinter
 psutil 
 pyarrow
+pyclean
 pydantic
 pytest
 pytz

@@ -9,13 +9,13 @@ from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types 
     GROUP_BY_COLUMNS, VANILLA_RESULT_COLUMNS,
 )
 
-from src.challenges.six_field_test_data.six_test_data_for_dask import DataSetDask, TChallengeAnswerPythonDask
+from src.challenges.six_field_test_data.six_test_data_for_dask import SixTestDataSetDask, TChallengeAnswerPythonDask
 from src.challenges.vanilla.vanilla_test_data_types_dask import dask_post_agg_schema
 
 
 def vanilla_dask_ddf_grp_apply(
         exec_params: SixTestExecutionParameters,
-        data_set: DataSetDask
+        data_set: SixTestDataSetDask
 ) -> TChallengeAnswerPythonDask:
     if (data_set.data_description.points_per_index > 10**4):
         return "infeasible"

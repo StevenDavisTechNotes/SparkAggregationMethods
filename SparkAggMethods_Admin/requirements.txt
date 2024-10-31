@@ -8,8 +8,10 @@ numpy
 pandas
 prettyprinter
 psutil 
+pyarrow
+pyclean
+pydantic
 pytest
 pytz
-psutil
 scipy
 statsmodels 

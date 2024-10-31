@@ -6,7 +6,7 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_dat
     SixTestExecutionParameters,
 )
 
-from src.challenges.six_field_test_data.six_test_data_for_dask import DataSetDask, TChallengeAnswerPythonDask
+from src.challenges.six_field_test_data.six_test_data_for_dask import SixTestDataSetDask, TChallengeAnswerPythonDask
 
 # pyright: reportArgumentType=false
 # pyright: reportCallIssue=false
@@ -14,7 +14,7 @@ from src.challenges.six_field_test_data.six_test_data_for_dask import DataSetDas
 
 def bi_level_dask_sql_nested_no_gpu(
         exec_params: SixTestExecutionParameters,
-        data_set: DataSetDask,
+        data_set: SixTestDataSetDask,
 ) -> TChallengeAnswerPythonDask:
     df = data_set.data.df_src
     return inner(df, gpu=False)

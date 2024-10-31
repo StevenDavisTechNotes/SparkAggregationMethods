@@ -7,7 +7,9 @@ flake8
 numpy
 pandas
 prettyprinter
-psutil 
+psutil
+pyarrow
+pyclean
 pydantic
 pytest
 pytz

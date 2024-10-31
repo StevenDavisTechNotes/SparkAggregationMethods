@@ -3,18 +3,16 @@ import os
 import random
 from pathlib import Path
 
-from spark_agg_methods_common_python.challenges.sectional.section_nospark_logic import \
-    section_nospark_logic
-from spark_agg_methods_common_python.challenges.sectional.section_persist_test_data import \
-    AnswerFileSectional
+from spark_agg_methods_common_python.challenges.sectional.section_nospark_logic import section_nospark_logic
+from spark_agg_methods_common_python.challenges.sectional.section_persist_test_data import AnswerFileSectional
 from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import (
-    DATA_SIZE_LIST_SECTIONAL, LARGEST_EXPONENT_SECTIONAL,
-    NUM_CLASSES_PER_TRIMESTER, NUM_DEPARTMENTS, NUM_TRIMESTERS,
-    SectionDataSetDescription, add_months_to_date_retracting,
-    derive_expected_answer_data_file_path, derive_source_test_data_file_path)
+    DATA_SIZE_LIST_SECTIONAL, LARGEST_EXPONENT_SECTIONAL, NUM_CLASSES_PER_TRIMESTER, NUM_DEPARTMENTS, NUM_TRIMESTERS,
+    SectionDataSetDescription, add_months_to_date_retracting, derive_expected_answer_data_file_path,
+    derive_source_test_data_file_path,
+)
 
 
-def populate_data_file_sectional(
+def section_generate_data_file(
         *,
         data_description: SectionDataSetDescription,
 ) -> None:
@@ -54,7 +52,7 @@ def populate_data_file_sectional(
     os.rename(temp_file_name, final_file_name)
 
 
-def generate_data_sectional(
+def sectional_generate_data(
         *,
         make_new_files: bool,
 ):
@@ -64,7 +62,7 @@ def generate_data_sectional(
             data_description=data_description,
         )
         if make_new_files is True or os.path.exists(source_data_file_path) is False:
-            populate_data_file_sectional(
+            section_generate_data_file(
                 data_description=data_description,
             )
         answer_file_path = derive_expected_answer_data_file_path(
@@ -81,5 +79,5 @@ def generate_data_sectional(
 
 if __name__ == "__main__":
     print(f"Running {__file__}")
-    generate_data_sectional(make_new_files=False)
+    sectional_generate_data(make_new_files=False)
     print("Done!")

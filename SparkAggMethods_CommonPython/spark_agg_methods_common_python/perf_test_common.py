@@ -12,7 +12,6 @@ import scipy
 
 ELAPSED_TIME_COLUMN_NAME: str = 'elapsed_time'
 LOCAL_TEST_DATA_FILE_LOCATION = 'd:/temp/SparkPerfTesting'
-REMOTE_TEST_DATA_LOCATION = "wasb:///sparkperftesting"  # cSpell: ignore wasb, sparkperftesting
 LOCAL_NUM_EXECUTORS = 7
 
 
@@ -34,6 +33,9 @@ class Challenge(StrEnum):
     CONDITIONAL = 'conditional'
     SECTIONAL = 'sectional'
     DEDUPLICATION = 'deduplication'
+
+
+SIX_TEST_CHALLENGES = [Challenge.BI_LEVEL, Challenge.CONDITIONAL, Challenge.VANILLA]
 
 
 class SolutionInterfaceInvalid(StrEnum):
@@ -171,7 +173,6 @@ class DataSetDescriptionBase(ABC):
 class ExecutionParametersBase:
     default_parallelism: int
     num_executors: int
-    test_data_folder_location: str
 
 
 @dataclass(frozen=True)

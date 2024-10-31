@@ -6,6 +6,7 @@ import random
 import time
 from dataclasses import dataclass
 
+import pandas as pd
 from spark_agg_methods_common_python.challenge_strategy_registry import (
     ChallengeResultLogFileRegistration, ChallengeStrategyRegistration, update_challenge_strategy_registration,
 )
@@ -14,11 +15,10 @@ from spark_agg_methods_common_python.challenges.bi_level.bi_level_test_data_type
     BI_LEVEL_RESULT_COLUMNS, DATA_SIZES_LIST_BI_LEVEL, BiLevelDataSetDescription,
 )
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
-    SixTestExecutionParameters,
+    SixTestExecutionParameters, fetch_six_data_set_answer,
 )
 from spark_agg_methods_common_python.perf_test_common import (
-    ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, LOCAL_TEST_DATA_FILE_LOCATION, CalcEngine, Challenge,
-    SolutionLanguage,
+    ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge, SolutionLanguage,
 )
 from spark_agg_methods_common_python.utils.utils import always_true, set_random_seed
 
@@ -28,7 +28,7 @@ from src.challenges.bi_level.bi_level_record_runs_pyspark import (
 from src.challenges.bi_level.bi_level_strategy_directory_pyspark import BI_LEVEL_STRATEGIES_USING_PYSPARK_REGISTRY
 from src.challenges.six_field_test_data.six_runner_base_pyspark import test_one_step_in_pyspark_itinerary
 from src.challenges.six_field_test_data.six_test_data_for_pyspark import (
-    SixFieldChallengeMethodPythonPysparkRegistration, SixFieldDataSetPysparkWithAnswer, populate_data_set_pyspark,
+    SixFieldChallengeMethodPythonPysparkRegistration, SixFieldDataSetPyspark, six_populate_data_set_pyspark,
 )
 from src.utils.tidy_session_pyspark import TidySparkSession
 
@@ -49,6 +49,11 @@ DEBUG_ARGS = None if True else (
 LANGUAGE = SolutionLanguage.PYTHON
 ENGINE = CalcEngine.PYSPARK
 CHALLENGE = Challenge.BI_LEVEL
+
+
+@dataclass(frozen=True)
+class BiLevelDataSetWAnswerPyspark(SixFieldDataSetPyspark):
+    answer: pd.DataFrame
 
 
 @dataclass(frozen=True)
@@ -84,24 +89,8 @@ def parse_args() -> Arguments:
         exec_params=SixTestExecutionParameters(
             default_parallelism=2 * LOCAL_NUM_EXECUTORS,
             num_executors=LOCAL_NUM_EXECUTORS,
-            test_data_folder_location=LOCAL_TEST_DATA_FILE_LOCATION,
         ),
     )
-
-
-def populate_data_sets(
-        args: Arguments,
-        spark_session: TidySparkSession,
-) -> list[SixFieldDataSetPysparkWithAnswer]:
-    data_sets = [
-        populate_data_set_pyspark(
-            spark_session, args.exec_params,
-            data_size=data_size,
-        )
-        for data_size in DATA_SIZES_LIST_BI_LEVEL
-        if data_size.size_code in args.sizes
-    ]
-    return data_sets
 
 
 def do_test_runs(
@@ -111,7 +100,7 @@ def do_test_runs(
     data_sets = populate_data_sets(args, spark_session)
     keyed_implementation_list = {
         x.strategy_name: x for x in BI_LEVEL_STRATEGIES_USING_PYSPARK_REGISTRY}
-    itinerary: list[tuple[SixFieldChallengeMethodPythonPysparkRegistration, SixFieldDataSetPysparkWithAnswer]] = [
+    itinerary: list[tuple[SixFieldChallengeMethodPythonPysparkRegistration, BiLevelDataSetWAnswerPyspark]] = [
         (challenge_method_registration, data_set)
         for strategy_name in args.strategy_names
         if always_true(challenge_method_registration := keyed_implementation_list[strategy_name])
@@ -137,6 +126,7 @@ def do_test_runs(
                 challenge_method_registration=challenge_method_registration,
                 result_columns=BI_LEVEL_RESULT_COLUMNS,
                 data_set=data_set,
+                correct_answer=data_set.answer,
             )
             if base_run_result is None:
                 continue
@@ -155,6 +145,26 @@ def do_test_runs(
                 ))
             gc.collect()
             time.sleep(0.1)
+
+
+def populate_data_sets(
+        args: Arguments,
+        spark_session: TidySparkSession,
+) -> list[BiLevelDataSetWAnswerPyspark]:
+    data_sets = [
+        BiLevelDataSetWAnswerPyspark(
+            data_description=size,
+            data=six_populate_data_set_pyspark(
+                spark_session,
+                args.exec_params,
+                data_description=size,
+            ),
+            answer=fetch_six_data_set_answer(CHALLENGE, size),
+        )
+        for size in DATA_SIZES_LIST_BI_LEVEL
+        if size.size_code in args.sizes
+    ]
+    return data_sets
 
 
 def update_challenge_registration():

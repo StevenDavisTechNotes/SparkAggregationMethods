@@ -9,12 +9,12 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_dat
 from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types import VANILLA_RESULT_COLUMNS
 from spark_agg_methods_common_python.utils.ensure_has_memory import check_memory
 
-from src.challenges.six_field_test_data.six_test_data_for_dask import DataSetDask, TChallengeAnswerPythonDask
+from src.challenges.six_field_test_data.six_test_data_for_dask import SixTestDataSetDask, TChallengeAnswerPythonDask
 
 
 def vanilla_dask_bag_foldby(
         exec_params: SixTestExecutionParameters,
-        data_set: DataSetDask
+        data_set: SixTestDataSetDask
 ) -> TChallengeAnswerPythonDask:
     check_memory(throw=True)
     stage0: DaskBag = data_set.data.bag_src

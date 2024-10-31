@@ -7,9 +7,9 @@ from enum import StrEnum
 from typing import Literal, NamedTuple
 
 from spark_agg_methods_common_python.perf_test_common import (
-    LOCAL_TEST_DATA_FILE_LOCATION, ChallengeMethodRegistrationBase,
-    DataSetDescriptionBase, ExecutionParametersBase, TChallengeMethodDelegate,
-    TSolutionInterface)
+    LOCAL_TEST_DATA_FILE_LOCATION, ChallengeMethodRegistrationBase, DataSetDescriptionBase, ExecutionParametersBase,
+    TChallengeMethodDelegate, TSolutionInterface,
+)
 
 NUM_TRIMESTERS = 8
 NUM_CLASSES_PER_TRIMESTER = 4
@@ -99,8 +99,8 @@ class SectionDataSetDescription(DataSetDescriptionBase):
 @dataclass(frozen=True)
 class SectionDataSetBase():
     data_description: SectionDataSetDescription
-    correct_answer: list[StudentSummary]
     section_maximum: int
+    correct_answer: list[StudentSummary]
 
 
 DATA_SIZE_LIST_SECTIONAL = [

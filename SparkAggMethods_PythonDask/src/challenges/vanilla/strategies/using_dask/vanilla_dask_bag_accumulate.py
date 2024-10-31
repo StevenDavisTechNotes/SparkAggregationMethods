@@ -8,12 +8,12 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_dat
 )
 from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types import VANILLA_RESULT_COLUMNS
 
-from src.challenges.six_field_test_data.six_test_data_for_dask import DataSetDask, TChallengeAnswerPythonDask
+from src.challenges.six_field_test_data.six_test_data_for_dask import SixTestDataSetDask, TChallengeAnswerPythonDask
 
 
 def vanilla_dask_bag_accumulate(
         exec_params: SixTestExecutionParameters,
-        data_set: DataSetDask
+        data_set: SixTestDataSetDask
 ) -> TChallengeAnswerPythonDask:
     if (data_set.data_description.points_per_index > 10**6):  # just takes too long
         return "infeasible"

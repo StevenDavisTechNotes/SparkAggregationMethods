@@ -21,8 +21,8 @@ from spark_agg_methods_common_python.challenges.sectional.section_test_data_type
     StudentSummary, derive_source_test_data_file_path,
 )
 from spark_agg_methods_common_python.perf_test_common import (
-    ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, LOCAL_TEST_DATA_FILE_LOCATION, CalcEngine, Challenge,
-    NumericalToleranceExpectations, SolutionLanguage,
+    ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge, NumericalToleranceExpectations,
+    SolutionLanguage,
 )
 from spark_agg_methods_common_python.utils.utils import always_true, count_iter, set_random_seed
 
@@ -90,7 +90,6 @@ def parse_args() -> Arguments:
             # for ExecutionParametersBase
             default_parallelism=2 * LOCAL_NUM_EXECUTORS,
             num_executors=LOCAL_NUM_EXECUTORS,
-            test_data_folder_location=LOCAL_TEST_DATA_FILE_LOCATION,
         ),
     )
 

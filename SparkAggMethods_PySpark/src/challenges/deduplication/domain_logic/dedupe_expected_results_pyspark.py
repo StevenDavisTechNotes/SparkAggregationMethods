@@ -1,10 +1,10 @@
 # cSpell: ignore Plaineville, FFFFFFA, LLLLLLA
-from pyspark.sql import DataFrame as PySparkDataFrame
 from typing import Iterable
 
 from pyspark import RDD
+from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import Row
-from spark_agg_methods_common_python.challenges.deduplication.dedupe_generate_test_data import name_hash
+from spark_agg_methods_common_python.challenges.deduplication.dedupe_test_data_types import name_hash
 
 from src.challenges.deduplication.dedupe_test_data_types_pyspark import DedupeItineraryItem, RecordSparseStruct
 

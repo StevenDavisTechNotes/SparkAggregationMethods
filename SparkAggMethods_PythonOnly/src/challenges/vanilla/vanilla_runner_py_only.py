@@ -7,24 +7,25 @@ import random
 import time
 from dataclasses import dataclass
 
+import pandas as pd
 from spark_agg_methods_common_python.challenge_strategy_registry import (
     ChallengeResultLogFileRegistration, ChallengeStrategyRegistration, update_challenge_strategy_registration,
 )
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
-    SixTestExecutionParameters,
+    SixTestExecutionParameters, fetch_six_data_set_answer,
 )
 from spark_agg_methods_common_python.challenges.vanilla.vanilla_record_runs import VanillaRunResult
 from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types import (
     DATA_SIZES_LIST_VANILLA, VanillaDataSetDescription,
 )
 from spark_agg_methods_common_python.perf_test_common import (
-    ELAPSED_TIME_COLUMN_NAME, LOCAL_TEST_DATA_FILE_LOCATION, CalcEngine, Challenge, SolutionLanguage,
+    ELAPSED_TIME_COLUMN_NAME, CalcEngine, Challenge, SolutionLanguage,
 )
 from spark_agg_methods_common_python.utils.utils import always_true, set_random_seed
 
 from src.challenges.six_field_test_data.six_runner_base_py_only import test_one_step_in_python_only_itinerary
 from src.challenges.six_field_test_data.six_test_data_for_py_only import (
-    ChallengeMethodPythonOnlyRegistration, DataSetPythonOnlyWithAnswer, populate_data_set_python_only,
+    ChallengeMethodPythonOnlyRegistration, SixDataSetPythonOnly, six_populate_data_set_python_only,
 )
 from src.challenges.vanilla.vanilla_record_runs_py_only import (
     VanillaPythonOnlyPersistedRunResultLog, VanillaPythonOnlyRunResultFileWriter,
@@ -49,6 +50,11 @@ DEBUG_ARGS = None if True else (
        'vanilla_py_only_pd_grp_numba',
        ]
 )
+
+
+@dataclass(frozen=True)
+class VanillaDataSetWAnswerPythonOnly(SixDataSetPythonOnly):
+    answer: pd.DataFrame
 
 
 @dataclass(frozen=True)
@@ -84,7 +90,6 @@ def parse_args() -> Arguments:
         exec_params=SixTestExecutionParameters(
             default_parallelism=1,
             num_executors=1,
-            test_data_folder_location=LOCAL_TEST_DATA_FILE_LOCATION,
         ),
     )
 
@@ -95,7 +100,7 @@ def do_test_runs(
     data_sets = populate_data_sets(args)
     keyed_implementation_list = {
         x.strategy_name: x for x in VANILLA_STRATEGIES_USING_PYTHON_ONLY_REGISTRY}
-    itinerary: list[tuple[ChallengeMethodPythonOnlyRegistration, DataSetPythonOnlyWithAnswer]] = [
+    itinerary: list[tuple[ChallengeMethodPythonOnlyRegistration, VanillaDataSetWAnswerPythonOnly]] = [
         (challenge_method_registration, data_set)
         for strategy_name in args.strategy_names
         if always_true(challenge_method_registration := keyed_implementation_list[strategy_name])
@@ -137,11 +142,15 @@ def do_test_runs(
 
 def populate_data_sets(
         args: Arguments,
-) -> list[DataSetPythonOnlyWithAnswer]:
+) -> list[VanillaDataSetWAnswerPythonOnly]:
     data_sets = [
-        populate_data_set_python_only(
-            exec_params=args.exec_params,
-            data_size=size,
+        VanillaDataSetWAnswerPythonOnly(
+            data_description=size,
+            data=six_populate_data_set_python_only(
+                exec_params=args.exec_params,
+                data_description=size,
+            ),
+            answer=fetch_six_data_set_answer(CHALLENGE, size),
         )
         for size in DATA_SIZES_LIST_VANILLA
         if size.size_code in args.sizes

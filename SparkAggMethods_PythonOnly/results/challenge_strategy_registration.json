@@ -56,6 +56,34 @@
                     900000
                 ]
             }
+        },
+        "pyspark": {
+            "sectional": {
+                "result_file_path": "C:\\Src\\GitHub_Hosted\\SparkAggMethods2\\SparkAggMethods_PythonOnly\\results\\section_python_only_runs.csv",
+                "regressor_column_name": "num_students",
+                "elapsed_time_column_name": "elapsed_time",
+                "strategies": [
+                    {
+                        "language": "python",
+                        "engine": "pyspark",
+                        "challenge": "sectional",
+                        "interface": "python",
+                        "strategy_name": "section_py_only_single_threaded",
+                        "numerical_tolerance": -1.0,
+                        "requires_gpu": false
+                    }
+                ],
+                "expected_regressor_values": [
+                    1,
+                    10,
+                    100,
+                    1000,
+                    10000,
+                    100000,
+                    1000000,
+                    10000000
+                ]
+            }
         }
     }
 }

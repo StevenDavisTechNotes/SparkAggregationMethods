@@ -21,12 +21,10 @@ from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types 
 from spark_agg_methods_common_python.perf_test_common import (
     ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge, SolutionLanguage,
 )
-from spark_agg_methods_common_python.utils.utils import always_true, set_random_seed
+from spark_agg_methods_common_python.utils.utils import set_random_seed
 
 from src.challenges.six_field_test_data.six_runner_dask_base import test_one_step_in_dask_itinerary
-from src.challenges.six_field_test_data.six_test_data_for_dask import (
-    ChallengeMethodPythonDaskRegistration, SixTestDataSetDask, six_populate_data_set_dask,
-)
+from src.challenges.six_field_test_data.six_test_data_for_dask import SixTestDataSetDask, six_populate_data_set_dask
 from src.challenges.vanilla.vanilla_record_runs_dask import (
     VanillaDaskPersistedRunResultLog, VanillaDaskRunResultFileWriter,
 )
@@ -100,18 +98,31 @@ def parse_args() -> Arguments:
     )
 
 
+def prepare_data_sets(
+        args: Arguments,
+) -> list[VanillaDataSetWAnswerDask]:
+    data_sets = [
+        VanillaDataSetWAnswerDask(
+            data_description=size,
+            data=six_populate_data_set_dask(
+                exec_params=args.exec_params,
+                data_description=size,
+            ),
+            answer=fetch_six_data_set_answer(CHALLENGE, size),
+        )
+        for size in DATA_SIZES_LIST_VANILLA
+        if size.size_code in args.sizes
+    ]
+    return data_sets
+
+
 def do_test_runs(
         args: Arguments,
 ) -> None:
-    data_sets = populate_data_sets(args)
-    keyed_implementation_list = {
-        x.strategy_name: x for x in VANILLA_STRATEGIES_USING_DASK_REGISTRY}
-    itinerary: list[tuple[ChallengeMethodPythonDaskRegistration, VanillaDataSetWAnswerDask]] = [
-        (challenge_method_registration, data_set)
+    itinerary: list[tuple[str, str]] = [
+        (strategy_name, size_code)
         for strategy_name in args.strategy_names
-        if always_true(challenge_method_registration := keyed_implementation_list[strategy_name])
-        if (args.have_gpu or not challenge_method_registration.requires_gpu)
-        for data_set in data_sets
+        for size_code in args.sizes
         for _ in range(0, args.num_runs)
     ]
     if len(itinerary) == 0:
@@ -121,8 +132,13 @@ def do_test_runs(
         set_random_seed(args.random_seed)
     if args.shuffle:
         random.shuffle(itinerary)
+    keyed_implementation_list = {
+        x.strategy_name: x for x in VANILLA_STRATEGIES_USING_DASK_REGISTRY}
+    keyed_data_sets = {x.data_description.size_code: x for x in prepare_data_sets(args)}
     with VanillaDaskRunResultFileWriter() as file:
-        for index, (challenge_method_registration, data_set) in enumerate(itinerary):
+        for index, (strategy_name, size_code) in enumerate(itinerary):
+            challenge_method_registration = keyed_implementation_list[strategy_name]
+            data_set = keyed_data_sets[size_code]
             print("Working on %d of %d" % (index, len(itinerary)))
             print(f"Working on {challenge_method_registration.strategy_name} for {data_set.data_description.size_code}")
             base_run_result = test_one_step_in_dask_itinerary(
@@ -147,24 +163,6 @@ def do_test_runs(
             )
             gc.collect()
             time.sleep(0.1)
-
-
-def populate_data_sets(
-        args: Arguments,
-) -> list[VanillaDataSetWAnswerDask]:
-    data_sets = [
-        VanillaDataSetWAnswerDask(
-            data_description=size,
-            data=six_populate_data_set_dask(
-                exec_params=args.exec_params,
-                data_description=size,
-            ),
-            answer=fetch_six_data_set_answer(CHALLENGE, size),
-        )
-        for size in DATA_SIZES_LIST_VANILLA
-        if size.size_code in args.sizes
-    ]
-    return data_sets
 
 
 def update_challenge_registration():

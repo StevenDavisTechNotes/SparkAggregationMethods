@@ -4,9 +4,11 @@ from typing import Iterable
 from pyspark import RDD
 from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import Row
-from spark_agg_methods_common_python.challenges.deduplication.dedupe_test_data_types import name_hash
+from spark_agg_methods_common_python.challenges.deduplication.dedupe_test_data_types import (
+    DedupeDataSetDescription, name_hash,
+)
 
-from src.challenges.deduplication.dedupe_test_data_types_pyspark import DedupeItineraryItem, RecordSparseStruct
+from src.challenges.deduplication.dedupe_test_data_types_pyspark import RecordSparseStruct
 
 
 def arrange_field_order(
@@ -30,12 +32,11 @@ def arrange_field_order(
 
 
 def verify_correctness(
-        itinerary_items: DedupeItineraryItem,
+        data_description: DedupeDataSetDescription,
         lst: list[Row],
 ) -> bool:
     try:
         lst.sort(key=lambda x: int(x.FieldA))
-        data_description = itinerary_items.data_set.data_description
         actual_num_people = data_description.num_people
         num_sources = data_description.num_sources
         secret_keys = {x.SecretKey for x in lst}

@@ -18,14 +18,14 @@ from spark_agg_methods_common_python.challenge_strategy_registry import (
 from spark_agg_methods_common_python.challenges.sectional.section_persist_test_data import AnswerFileSectional
 from spark_agg_methods_common_python.challenges.sectional.section_record_runs import SectionRunResult
 from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import (
-    DATA_SIZE_LIST_SECTIONAL, LARGEST_EXPONENT_SECTIONAL, SECTION_SIZE_MAXIMUM, SectionDataSetDescription,
-    StudentSummary, derive_source_test_data_file_path,
+    DATA_SIZE_LIST_SECTIONAL, SECTION_SIZE_MAXIMUM, SectionDataSetDescription, StudentSummary,
+    derive_source_test_data_file_path,
 )
 from spark_agg_methods_common_python.perf_test_common import (
     ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge, NumericalToleranceExpectations,
     SolutionLanguage,
 )
-from spark_agg_methods_common_python.utils.utils import always_true, count_iter, int_divide_round_up, set_random_seed
+from spark_agg_methods_common_python.utils.utils import count_iter, int_divide_round_up, set_random_seed
 
 from src.challenges.sectional.section_record_runs_pyspark import (
     MAXIMUM_PROCESSABLE_SEGMENT, SectionPysparkPersistedRunResultLog, SectionPysparkRunResultFileWriter,
@@ -36,7 +36,7 @@ from src.challenges.sectional.section_test_data_types_pyspark import (
 )
 from src.utils.tidy_session_pyspark import TidySparkSession
 
-DEBUG_ARGS = None if True else (
+DEBUG_ARGS = None if False else (
     []
     + '--size 1'.split()
     # + ['--no-check']
@@ -98,15 +98,17 @@ def parse_args() -> Arguments:
     )
 
 
-def sectional_prepare_data_sets_pyspark(
-        exec_params: SectionExecutionParametersPyspark,
+def prepare_data_sets(
+        args: Arguments,
 ) -> list[SectionDataSetPyspark]:
-
+    exec_params = args.exec_params
     datasets: list[SectionDataSetPyspark] = []
     num_students = 1
-    for i_scale in range(0, LARGEST_EXPONENT_SECTIONAL + 1):
-        num_students = 10**i_scale
-        file_path = derive_source_test_data_file_path(num_students)
+    for data_description in DATA_SIZE_LIST_SECTIONAL:
+        if data_description.size_code not in args.sizes:
+            continue
+        num_students = data_description.num_students
+        file_path = derive_source_test_data_file_path(data_description)
         data_size = num_students * SECTION_SIZE_MAXIMUM
         assert os.path.exists(file_path)
         src_num_partitions = max(
@@ -116,7 +118,6 @@ def sectional_prepare_data_sets_pyspark(
                 exec_params.maximum_processable_segment,
             ),
         )
-        data_description = DATA_SIZE_LIST_SECTIONAL[i_scale]
         correct_answer = AnswerFileSectional.read_answer_file_sectional(data_description)
         datasets.append(
             SectionDataSetPyspark(
@@ -136,22 +137,10 @@ def do_test_runs(
         args: Arguments,
         spark_session: TidySparkSession,
 ) -> None:
-    data_sets_w_answers = [
-        x for x in sectional_prepare_data_sets_pyspark(
-            args.exec_params,
-        )
-        if x.data_description.size_code in args.sizes
-    ]
-    keyed_data_sets = {
-        str(x.data_description.num_students): x
-        for x in data_sets_w_answers}
-    keyed_implementation_list = {
-        x.strategy_name: x for x in SECTIONAL_STRATEGIES_USING_PYSPARK_REGISTRY}
-    itinerary: list[tuple[SectionChallengeMethodPysparkRegistration, SectionDataSetPyspark]] = [
-        (challenge_method_registration, data_set)
+    itinerary: list[tuple[str, str]] = [
+        (strategy_name, size_code)
         for strategy_name in args.strategy_names
-        if always_true(challenge_method_registration := keyed_implementation_list[strategy_name])
-        for data_set in keyed_data_sets.values()
+        for size_code in args.sizes
         for _ in range(0, args.num_runs)
     ]
     if len(itinerary) == 0:
@@ -161,12 +150,14 @@ def do_test_runs(
         set_random_seed(args.random_seed)
     if args.shuffle:
         random.shuffle(itinerary)
-
+    keyed_implementation_list = {
+        x.strategy_name: x for x in SECTIONAL_STRATEGIES_USING_PYSPARK_REGISTRY}
+    keyed_data_sets = {x.data_description.size_code: x for x in prepare_data_sets(args)}
     with SectionPysparkRunResultFileWriter() as file:
-        for index, (challenge_method_registration, data_set) in enumerate(itinerary):
-            spark_session.log.info(
-                "Working on %d of %d" %
-                (index, len(itinerary)))
+        for index, (strategy_name, size_code) in enumerate(itinerary):
+            challenge_method_registration = keyed_implementation_list[strategy_name]
+            data_set = keyed_data_sets[size_code]
+            spark_session.log.info("Working on %d of %d" % (index, len(itinerary)))
             print(f"Working on {challenge_method_registration.strategy_name} "
                   f"for {data_set.data_description.num_source_rows}")
             run_result = run_one_itinerary_step(args, spark_session, challenge_method_registration, data_set)

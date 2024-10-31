@@ -57,9 +57,3 @@ class DedupeChallengeMethodPythonPysparkRegistration(
     ChallengeMethodRegistrationBase[SolutionInterfacePySpark, IChallengeMethodPythonPyspark]
 ):
     pass
-
-
-@dataclass(frozen=True)
-class DedupeItineraryItem:
-    challenge_method_registration: DedupeChallengeMethodPythonPysparkRegistration
-    data_set: DedupeDataSetPySpark

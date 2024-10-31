@@ -1,7 +1,7 @@
 import calendar
 import datetime as dt
-import inspect
 import os
+import typing
 from dataclasses import dataclass
 from enum import StrEnum
 from typing import Literal, NamedTuple
@@ -92,7 +92,7 @@ class SectionDataSetDescription(DataSetDescriptionBase):
     @classmethod
     def regressor_field_name(cls) -> str:
         regressor_field_name = "num_students"
-        assert regressor_field_name in inspect.get_annotations(cls)
+        assert regressor_field_name in typing.get_type_hints(cls)
         return regressor_field_name
 
 

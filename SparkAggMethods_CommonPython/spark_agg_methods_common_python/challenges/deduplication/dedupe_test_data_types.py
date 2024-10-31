@@ -1,7 +1,7 @@
 import hashlib
-import inspect
 import math
 import os
+import typing
 from dataclasses import dataclass
 
 from spark_agg_methods_common_python.perf_test_common import (
@@ -47,7 +47,7 @@ class DedupeDataSetDescription(DataSetDescriptionBase):
     @classmethod
     def regressor_field_name(cls) -> str:
         regressor_field_name = "num_source_rows"
-        assert regressor_field_name in inspect.get_annotations(cls)
+        assert regressor_field_name in typing.get_type_hints(cls)
         return regressor_field_name
 
 

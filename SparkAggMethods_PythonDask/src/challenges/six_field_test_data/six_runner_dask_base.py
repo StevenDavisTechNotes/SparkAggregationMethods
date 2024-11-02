@@ -1,3 +1,4 @@
+import logging
 import time
 
 import pandas as pd
@@ -11,6 +12,8 @@ from spark_agg_methods_common_python.perf_test_common import RunResultBase
 from src.challenges.six_field_test_data.six_test_data_for_dask import (
     ChallengeMethodPythonDaskRegistration, SixTestDataSetDask, pick_agg_tgt_num_partitions_dask,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def test_one_step_in_dask_itinerary(
@@ -29,10 +32,10 @@ def test_one_step_in_dask_itinerary(
     ):
         case DaskDataFrame() as ddf:
             if ddf.npartitions > max(agg_tgt_num_partitions, exec_params.default_parallelism):
-                print(
-                    f"{challenge_method_registration.strategy_name} output rdd has {ddf.npartitions} partitions")
+                logger.info(f"{challenge_method_registration.strategy_name} "
+                            f"output rdd has {ddf.npartitions} partitions")
                 findings = ddf.compute()
-                print(f"size={len(findings)}, ", findings)
+                logger.info(f"size={len(findings)}, ", findings)
                 exit(1)
             df_answer = ddf.compute()
             finished_time = time.time()

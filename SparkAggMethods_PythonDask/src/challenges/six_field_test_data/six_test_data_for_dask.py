@@ -1,3 +1,4 @@
+import logging
 from dataclasses import dataclass
 from typing import Literal, Protocol
 
@@ -15,6 +16,7 @@ from spark_agg_methods_common_python.perf_test_common import (
 from spark_agg_methods_common_python.utils.utils import int_divide_round_up
 
 MAX_DATA_POINTS_PER_DASK_PARTITION = 1 * 10**5
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -96,7 +98,7 @@ def six_populate_data_set_dask(
         source_file_name_parquet, engine='pyarrow',
     ).set_index('Id')
     cnt, parts = len(df_src), len(df_src.divisions)
-    print("Found %i rows in %i parts ratio %.1f" % (cnt, parts, cnt / parts))
+    logger.info("Found %i rows in %i parts ratio %.1f" % (cnt, parts, cnt / parts))
     assert cnt == num_source_rows
     bag_src: DaskBag = df_src.to_bag().map(lambda x: DataPointNT(*x))
     return SixTestDataSetDataDask(

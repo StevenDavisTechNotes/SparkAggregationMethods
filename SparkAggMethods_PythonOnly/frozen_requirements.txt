@@ -11,7 +11,8 @@ pandas==2.2.3
 pluggy==1.5.0
 prettyprinter==0.18.0
 psutil==6.1.0
-pyarrow==17.0.0
+pyarrow==18.0.0
+pyclean==3.0.0
 pycodestyle==2.12.1
 pydantic==2.9.2
 pydantic_core==2.23.4
@@ -22,6 +23,6 @@ python-dateutil==2.9.0.post0
 pytz==2024.2
 scipy==1.14.1
 six==1.16.0
-terminology==1.0.16
+-e git+https://github.com/StevenDavisTechNotes/SparkAggregationMethods.git@dd8e93e7003eba2e7bc7ebbd37e0653f1bd8833c#egg=spark_agg_methods_common_python&subdirectory=sparkaggmethods_commonpython
 typing_extensions==4.12.2
 tzdata==2024.2

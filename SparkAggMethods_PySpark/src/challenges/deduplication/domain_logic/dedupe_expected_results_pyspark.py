@@ -9,6 +9,7 @@ from spark_agg_methods_common_python.challenges.deduplication.dedupe_test_data_t
 )
 
 from src.challenges.deduplication.dedupe_test_data_types_pyspark import RecordSparseStruct
+from src.utils.tidy_session_pyspark import TidySparkSession
 
 
 def arrange_field_order(
@@ -34,7 +35,9 @@ def arrange_field_order(
 def verify_correctness(
         data_description: DedupeDataSetDescription,
         lst: list[Row],
+        spark_session: TidySparkSession,
 ) -> bool:
+    logger = spark_session.log
     try:
         lst.sort(key=lambda x: int(x.FieldA))
         actual_num_people = data_description.num_people
@@ -54,7 +57,7 @@ def verify_correctness(
         for index, row in enumerate(lst):
             verify_single_line(num_sources, NumBRecords, index, row)
     except Exception as exception:
-        print("data error", exception)
+        logger.info("data error", exception)
         return False
     return True
 

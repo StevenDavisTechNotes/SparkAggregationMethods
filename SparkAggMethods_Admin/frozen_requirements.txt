@@ -1,3 +1,4 @@
+annotated-types==0.7.0
 autopep8==2.3.1
 colorama==0.4.6
 colorful==0.5.6
@@ -10,8 +11,12 @@ pandas==2.2.3
 patsy==0.5.6
 pluggy==1.5.0
 prettyprinter==0.18.0
-psutil==6.0.0
+psutil==6.1.0
+pyarrow==18.0.0
+pyclean==3.0.0
 pycodestyle==2.12.1
+pydantic==2.9.2
+pydantic_core==2.23.4
 pyflakes==3.2.0
 Pygments==2.18.0
 pytest==8.3.3
@@ -19,5 +24,7 @@ python-dateutil==2.9.0.post0
 pytz==2024.2
 scipy==1.14.1
 six==1.16.0
+-e git+https://github.com/StevenDavisTechNotes/SparkAggregationMethods.git@dd8e93e7003eba2e7bc7ebbd37e0653f1bd8833c#egg=spark_agg_methods_common_python&subdirectory=sparkaggmethods_commonpython
 statsmodels==0.14.4
+typing_extensions==4.12.2
 tzdata==2024.2

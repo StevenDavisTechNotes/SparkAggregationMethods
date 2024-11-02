@@ -25,6 +25,7 @@ def section_pyspark_rdd_mappart_partials(
         exec_params: SectionExecutionParametersPyspark,
         data_set: SectionDataSetPyspark,
 ) -> TChallengePythonPysparkAnswer:
+    logger = spark_session.log
     if data_set.data_description.num_students > pow(10, 5-1):
         # unreliable in local mode
         return "infeasible"
@@ -37,7 +38,7 @@ def section_pyspark_rdd_mappart_partials(
     rdd_orig: RDD[LabeledTypedRow] = rdd_typed_with_index_factory(spark_session, filename, targetNumPartitions)
 
     def report_num_completed(complete_count: int) -> None:
-        print(f"Completed {complete_count} of {data_set.data_description.num_students}")
+        logger.info(f"Completed {complete_count} of {data_set.data_description.num_students}")
 
     rdd_answer = section_mappart_partials_logic(
         sc=sc,
@@ -123,7 +124,6 @@ def inner_iteration(
         report_num_completed: Callable[[int], None] | None = None,
 ) -> tuple[RDD[StudentSnippet2] | None, int, RDD[CompletedStudent]]:
     rdd0, num_lines_in_rdd0, rdd_accumulative_completed = data_to_process
-    print("passNumber", passNumber)
 
     rdd2: RDD[StudentSnippetWIndex] = (
         rdd0
@@ -169,7 +169,6 @@ def inner_iteration(
         rdd_accumulative_completed = rdd_accumulative_completed.union(rdd_completed)
         rdd_accumulative_completed.persist(StorageLevel.DISK_ONLY)
 
-        print("Doing count rdd_completed")
         complete_count = rdd_completed.count()
         if report_num_completed is not None:
             report_num_completed(complete_count)
@@ -177,20 +176,16 @@ def inner_iteration(
         rdd7: RDD[StudentSnippet2] \
             = rdd6.filter(lambda x: not x[0]).map(lambda x: cast(StudentSnippet2, x[1]))
 
-        print("Doing remaining_num_rows7")
         remaining_num_rows7 = rdd7.filter(lambda x: x.FirstLastFlag == FIRST_LAST_NEITHER).count()
         if remaining_num_rows7 == 0:
-            print("No more incomplete records")
             return None, 0, rdd_accumulative_completed
 
-        print("Doing rdd8")
         target_num_partitions = int_divide_round_up(remaining_num_rows7, maximum_processable_segment)
         rdd8: RDD[StudentSnippet2] = rdd7.sortBy(
             lambda x: x.FirstLineIndex,  # type: ignore
             numPartitions=target_num_partitions)
         rdd8.persist(StorageLevel.DISK_ONLY)
         remaining_num_rows8 = rdd8.count()
-        print("End of inner loop")
         return rdd8, remaining_num_rows8, rdd_accumulative_completed
 
     finally:

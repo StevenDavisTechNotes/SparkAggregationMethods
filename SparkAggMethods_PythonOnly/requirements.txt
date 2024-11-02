@@ -13,4 +13,3 @@ pydantic
 pytest
 pytz
 scipy
-terminology

@@ -78,13 +78,5 @@ Look to see what version of Spark and Dask you are going to use, and then work b
   - pyspark
 
 
-```py
-words = "Hi there".split()
-print(words)
-rdd = sc.parallelize(words)
-print(rdd.count())
-print(" ".join(rdd.map(lambda x: x + "!").collect()))
-```
-
 ## Debugging Dask
 - `.compute(scheduler='single-threaded')`

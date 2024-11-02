@@ -12,6 +12,8 @@ pandas==2.2.3
 pluggy==1.5.0
 prettyprinter==0.18.0
 psutil==6.1.0
+pyarrow==18.0.0
+pyclean==3.0.0
 pycodestyle==2.12.1
 pydantic==2.9.2
 pydantic_core==2.23.4

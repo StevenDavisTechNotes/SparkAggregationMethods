@@ -25,13 +25,15 @@ def test_one_step_in_pyspark_itinerary(
         data_set: SixFieldDataSetPyspark,
         correct_answer: pd.DataFrame,
 ) -> RunResultBase | None:
+
     def check_partitions(rdd: RDD):
+        logger = spark_session.log
         agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(data_set.data, challenge)
         if rdd.getNumPartitions() > max(agg_tgt_num_partitions, exec_params.default_parallelism):
-            print(
-                f"{challenge_method_registration.strategy_name} output rdd has {rdd.getNumPartitions()} partitions")
+            logger.info(f"{challenge_method_registration.strategy_name} output rdd "
+                        f"has {rdd.getNumPartitions()} partitions")
             findings = rdd.collect()
-            print(f"size={len(findings)}, ", findings)
+            logger.info(f"size={len(findings)}, ", findings)
             exit(1)
 
     started_time = time.time()

@@ -200,9 +200,6 @@ def marge_snippets_2(
         lhs: StudentSnippet2,
         rhs: StudentSnippet2
 ) -> StudentSnippet2:
-    if lhs.LastLineIndex + 1 != rhs.FirstLineIndex:
-        print('about to assert ',
-              lhs.LastLineIndex, rhs.FirstLineIndex)
     assert lhs.LastLineIndex + 1 == rhs.FirstLineIndex
     credits = [
         (0 if lhs.Credits is None else lhs.Credits[dept])
@@ -256,9 +253,6 @@ def merge_snippet_lists_1(
             lh_group.append(rhs)
             continue
         # else combine rhs to the previous snippet
-        if lhs.LastLineIndex + 1 != rhs.FirstLineIndex:
-            print('about to assert ',
-                  lhs.LastLineIndex, rhs.FirstLineIndex)
         assert lhs.LastLineIndex + 1 == rhs.FirstLineIndex
         lh_group[-1] = StudentSnippet1(
             StudentId=lhs.StudentId,

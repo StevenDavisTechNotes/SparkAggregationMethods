@@ -38,10 +38,10 @@ logger = logging.getLogger(__name__)
 
 DEBUG_ARGS = None if True else (
     []
-    # + '--size 1'.split()
-    + '--runs 1'.split()
+    + '--size 1 10 100 1000 10000'.split()
+    + '--runs 10'.split()
     # + '--random-seed 1234'.split()
-    + ['--no-shuffle']
+    # + ['--no-shuffle']
     # + ['--strategy',
     #    ]
 )

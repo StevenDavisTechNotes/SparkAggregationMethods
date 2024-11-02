@@ -3,9 +3,9 @@ import os
 from dataclasses import dataclass
 
 from spark_agg_methods_common_python.perf_test_common import (
-    CalcEngine, ChallengeMethodRegistrationBase, PersistedRunResultBase,
-    PersistedRunResultLog, RunResultBase, RunResultFileWriterBase,
-    SolutionLanguage, TSolutionInterface, parse_interface_python)
+    CalcEngine, ChallengeMethodRegistrationBase, PersistedRunResultBase, PersistedRunResultLog, RunResultBase,
+    RunResultFileWriterBase, SolutionLanguage, TSolutionInterface, parse_interface_python,
+)
 
 
 @dataclass(frozen=True)
@@ -164,4 +164,3 @@ class ConditionalPythonRunResultFileWriter(RunResultFileWriterBase):
             interface=challenge_method_registration.interface,
             strategy_name=challenge_method_registration.strategy_name,
         ))
-        self.file.flush()

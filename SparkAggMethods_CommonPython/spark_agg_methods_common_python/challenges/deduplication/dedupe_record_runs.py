@@ -2,9 +2,9 @@ import os
 from dataclasses import dataclass
 
 from spark_agg_methods_common_python.perf_test_common import (
-    CalcEngine, ChallengeMethodRegistrationBase, PersistedRunResultBase,
-    PersistedRunResultLog, RunResultBase, RunResultFileWriterBase,
-    SolutionInterfacePython, SolutionLanguage, parse_interface_python)
+    CalcEngine, ChallengeMethodRegistrationBase, PersistedRunResultBase, PersistedRunResultLog, RunResultBase,
+    RunResultFileWriterBase, SolutionInterfacePython, SolutionLanguage, parse_interface_python,
+)
 
 
 @dataclass(frozen=True)
@@ -123,7 +123,7 @@ class DedupePythonRunResultFileWriter(RunResultFileWriterBase):
     ) -> None:
         assert isinstance(run_result, DedupeRunResult)
         assert self.engine == challenge_method_registration.engine
-        run_result = DedupePersistedRunResult(
+        self._persist_run_result(DedupePersistedRunResult(
             num_source_rows=run_result.num_source_rows,
             elapsed_time=run_result.elapsed_time,
             num_output_rows=run_result.num_output_rows,
@@ -141,5 +141,4 @@ class DedupePythonRunResultFileWriter(RunResultFileWriterBase):
             num_people_found=run_result.num_people_found,
             in_cloud_mode=run_result.in_cloud_mode,
             can_assume_no_duplicates_per_partition=run_result.can_assume_no_duplicates_per_partition,
-        )
-        self.file.flush()
+        ))

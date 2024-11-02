@@ -3,10 +3,9 @@ import os
 from dataclasses import dataclass
 
 from spark_agg_methods_common_python.perf_test_common import (
-    CalcEngine, ChallengeMethodRegistrationBase, PersistedRunResultBase,
-    PersistedRunResultLog, RunResultBase, RunResultFileWriterBase,
-    SolutionInterface, SolutionInterfaceScalaSpark, SolutionLanguage,
-    parse_interface_python)
+    CalcEngine, ChallengeMethodRegistrationBase, PersistedRunResultBase, PersistedRunResultLog, RunResultBase,
+    RunResultFileWriterBase, SolutionInterface, SolutionInterfaceScalaSpark, SolutionLanguage, parse_interface_python,
+)
 
 PYTHON_DASK_RUN_LOG_FILE_PATH = 'results/vanilla_dask_runs.csv'
 PYTHON_PYSPARK_RUN_LOG_FILE_PATH = 'results/vanilla_pyspark_runs.csv'
@@ -158,14 +157,6 @@ class VanillaPythonRunResultFileWriter(RunResultFileWriterBase):
     ) -> None:
         assert isinstance(run_result, VanillaRunResult)
         assert self.engine == challenge_method_registration.engine
-        # print("%s,%s,%d,%f,%d,%s,%s," % (
-        #     challenge_method_registration.strategy_name,
-        #     challenge_method_registration.interface,
-        #     result.num_source_rows, result.elapsed_time, result.num_output_rows,
-        #     challenge_method_registration.engine.value,
-        #     dt.datetime.now().isoformat(),
-        # ), file=self.file)
-        # self.file.flush()
         self._persist_run_result(VanillaPersistedRunResult(
             num_source_rows=run_result.num_source_rows,
             elapsed_time=run_result.elapsed_time,
@@ -177,4 +168,3 @@ class VanillaPythonRunResultFileWriter(RunResultFileWriterBase):
             interface=challenge_method_registration.interface,
             strategy_name=challenge_method_registration.strategy_name,
         ))
-        self.file.flush()

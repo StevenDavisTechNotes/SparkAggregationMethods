@@ -2,9 +2,9 @@ import os
 from dataclasses import dataclass
 
 from spark_agg_methods_common_python.perf_test_common import (
-    CalcEngine, ChallengeMethodRegistrationBase, PersistedRunResultBase,
-    PersistedRunResultLog, RunResultBase, RunResultFileWriterBase,
-    SolutionInterface, SolutionLanguage, parse_interface_python)
+    CalcEngine, ChallengeMethodRegistrationBase, PersistedRunResultBase, PersistedRunResultLog, RunResultBase,
+    RunResultFileWriterBase, SolutionInterface, SolutionLanguage, parse_interface_python,
+)
 
 
 @dataclass(frozen=True)
@@ -110,7 +110,7 @@ class SectionPythonRunResultFileWriter(RunResultFileWriterBase):
     ) -> None:
         assert isinstance(run_result, SectionRunResult)
         assert self.engine == challenge_method_registration.engine
-        run_result = SectionPersistedRunResult(
+        self._persist_run_result(SectionPersistedRunResult(
             num_source_rows=run_result.num_source_rows,
             elapsed_time=run_result.elapsed_time,
             num_output_rows=run_result.num_output_rows,
@@ -126,5 +126,4 @@ class SectionPythonRunResultFileWriter(RunResultFileWriterBase):
 
             num_students=run_result.num_output_rows,
 
-        )
-        self.file.flush()
+        ))

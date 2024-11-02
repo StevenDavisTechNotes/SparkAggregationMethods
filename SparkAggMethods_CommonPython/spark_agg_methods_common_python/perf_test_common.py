@@ -385,7 +385,6 @@ class RunResultFileWriterBase(Generic[TSolutionInterface], ABC):
             [x.name for x in dataclass_fields(self.persisted_row_type)]
         ))+','
         print(header, file=self.file)
-        self.file.flush()
 
     @abstractmethod
     def write_run_result(
@@ -408,7 +407,6 @@ class RunResultFileWriterBase(Generic[TSolutionInterface], ABC):
         self.file.flush()
 
     def close(self):
-        self.file.flush()
         self.file.close()
         del self.file
 

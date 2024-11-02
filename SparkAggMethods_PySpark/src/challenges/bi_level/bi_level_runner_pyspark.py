@@ -2,6 +2,7 @@
 # usage: python -m src.challenges.bi_level.bi_level_pyspark_runner
 import argparse
 import gc
+import os
 import time
 from dataclasses import dataclass
 
@@ -9,7 +10,9 @@ import pandas as pd
 from spark_agg_methods_common_python.challenge_strategy_registry import (
     ChallengeResultLogFileRegistration, ChallengeStrategyRegistration, update_challenge_strategy_registration,
 )
-from spark_agg_methods_common_python.challenges.bi_level.bi_level_record_runs import BiLevelRunResult
+from spark_agg_methods_common_python.challenges.bi_level.bi_level_record_runs import (
+    BiLevelPythonRunResultFileWriter, BiLevelRunResult,
+)
 from spark_agg_methods_common_python.challenges.bi_level.bi_level_test_data_types import (
     BI_LEVEL_RESULT_COLUMNS, DATA_SIZES_LIST_BI_LEVEL, BiLevelDataSetDescription,
 )
@@ -21,7 +24,6 @@ from spark_agg_methods_common_python.perf_test_common import (
     assemble_itinerary,
 )
 
-from src.challenges.bi_level.bi_level_record_runs_pyspark import BiLevelPysparkRunResultFileWriter
 from src.challenges.bi_level.bi_level_strategy_directory_pyspark import BI_LEVEL_STRATEGIES_USING_PYSPARK_REGISTRY
 from src.challenges.six_field_test_data.six_runner_base_pyspark import test_one_step_in_pyspark_itinerary
 from src.challenges.six_field_test_data.six_test_data_for_pyspark import (
@@ -103,6 +105,16 @@ def prepare_data_sets(
         if size.size_code in args.sizes
     ]
     return data_sets
+
+
+class BiLevelPysparkRunResultFileWriter(BiLevelPythonRunResultFileWriter):
+    RUN_LOG_FILE_PATH: str = os.path.abspath('results/bi_level_pyspark_runs.csv')
+
+    def __init__(self):
+        super().__init__(
+            engine=ENGINE,
+            rel_log_file_path=__class__.RUN_LOG_FILE_PATH,
+        )
 
 
 def do_test_runs(

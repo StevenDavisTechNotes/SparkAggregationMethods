@@ -1,3 +1,5 @@
+# TODO
+
 import os
 
 from spark_agg_methods_common_python.challenges.conditional.conditional_record_runs import (
@@ -5,11 +7,11 @@ from spark_agg_methods_common_python.challenges.conditional.conditional_record_r
 )
 from spark_agg_methods_common_python.perf_test_common import CalcEngine
 
-ENGINE = CalcEngine.DASK
+ENGINE = CalcEngine.PYTHON_ONLY
 
 
-class ConditionalLevelDaskRunResultFileWriter(ConditionalPythonRunResultFileWriter):
-    RUN_LOG_FILE_PATH: str = os.path.abspath('results/conditional_dask_runs.csv')
+class ConditionalPythonOnlyRunResultFileWriter(ConditionalPythonRunResultFileWriter):
+    RUN_LOG_FILE_PATH: str = os.path.abspath('results/conditional_python_only_runs.csv')
 
     def __init__(self):
         super().__init__(

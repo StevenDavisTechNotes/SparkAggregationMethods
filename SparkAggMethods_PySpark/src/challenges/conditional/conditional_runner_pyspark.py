@@ -2,6 +2,7 @@
 # usage: python -m src.challenges.conditional.conditional_pyspark_runner
 import argparse
 import gc
+import os
 import time
 from dataclasses import dataclass
 
@@ -9,7 +10,9 @@ import pandas as pd
 from spark_agg_methods_common_python.challenge_strategy_registry import (
     ChallengeResultLogFileRegistration, ChallengeStrategyRegistration, update_challenge_strategy_registration,
 )
-from spark_agg_methods_common_python.challenges.conditional.conditional_record_runs import ConditionalRunResult
+from spark_agg_methods_common_python.challenges.conditional.conditional_record_runs import (
+    ConditionalPythonRunResultFileWriter, ConditionalRunResult,
+)
 from spark_agg_methods_common_python.challenges.conditional.conditional_test_data_types import (
     AGGREGATION_COLUMNS_3, DATA_SIZES_LIST_CONDITIONAL, GROUP_BY_COLUMNS, ConditionalDataSetDescription,
 )
@@ -21,7 +24,6 @@ from spark_agg_methods_common_python.perf_test_common import (
     assemble_itinerary,
 )
 
-from src.challenges.conditional.conditional_record_runs_pyspark import ConditionalPysparkRunResultFileWriter
 from src.challenges.conditional.conditional_strategy_directory_pyspark import (
     CONDITIONAL_STRATEGIES_USING_PYSPARK_REGISTRY,
 )
@@ -104,6 +106,16 @@ def prepare_data_sets(
         if size.size_code in args.sizes
     ]
     return data_sets
+
+
+class ConditionalPysparkRunResultFileWriter(ConditionalPythonRunResultFileWriter):
+    RUN_LOG_FILE_PATH: str = os.path.abspath('results/conditional_pyspark_runs.csv')
+
+    def __init__(self):
+        super().__init__(
+            engine=ENGINE,
+            rel_log_file_path=__class__.RUN_LOG_FILE_PATH,
+        )
 
 
 def do_test_runs(

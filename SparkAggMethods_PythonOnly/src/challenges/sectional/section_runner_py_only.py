@@ -15,7 +15,9 @@ from spark_agg_methods_common_python.challenge_strategy_registry import (
     ChallengeResultLogFileRegistration, ChallengeStrategyRegistration, update_challenge_strategy_registration,
 )
 from spark_agg_methods_common_python.challenges.sectional.section_persist_test_data import AnswerFileSectional
-from spark_agg_methods_common_python.challenges.sectional.section_record_runs import SectionRunResult
+from spark_agg_methods_common_python.challenges.sectional.section_record_runs import (
+    SectionPythonRunResultFileWriter, SectionRunResult,
+)
 from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import (
     DATA_SIZE_LIST_SECTIONAL, SECTION_SIZE_MAXIMUM, SectionDataSetDescription, StudentSummary,
     derive_source_test_data_file_path, section_verify_correctness,
@@ -26,7 +28,6 @@ from spark_agg_methods_common_python.perf_test_common import (
 )
 from spark_agg_methods_common_python.utils.pandas_helpers import make_pd_dataframe_from_list_of_named_tuples
 
-from src.challenges.sectional.section_record_runs_py_only import SectionPythonOnlyRunResultFileWriter
 from src.challenges.sectional.section_strategy_directory_py_only import SECTIONAL_STRATEGIES_USING_PYTHON_ONLY_REGISTRY
 from src.challenges.sectional.section_test_data_types_py_only import (
     SectionChallengeMethodPythonOnlyRegistration, SectionDataSetPyOnly, SectionExecutionParametersPyOnly,
@@ -103,6 +104,16 @@ def prepare_data_sets(
                 section_maximum=SECTION_SIZE_MAXIMUM,
             ))
     return datasets
+
+
+class SectionPythonOnlyRunResultFileWriter(SectionPythonRunResultFileWriter):
+    RUN_LOG_FILE_PATH: str = os.path.abspath('results/section_python_only_runs.csv')
+
+    def __init__(self):
+        super().__init__(
+            engine=ENGINE,
+            rel_log_file_path=__class__.RUN_LOG_FILE_PATH,
+        )
 
 
 def do_test_runs(

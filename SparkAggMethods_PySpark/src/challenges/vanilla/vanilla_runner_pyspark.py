@@ -2,6 +2,7 @@
 # usage: python -m src.challenges.vanilla.vanilla_pyspark_runner
 import argparse
 import gc
+import os
 import time
 from dataclasses import dataclass
 
@@ -12,7 +13,9 @@ from spark_agg_methods_common_python.challenge_strategy_registry import (
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
     SixTestExecutionParameters, fetch_six_data_set_answer,
 )
-from spark_agg_methods_common_python.challenges.vanilla.vanilla_record_runs import VanillaRunResult
+from spark_agg_methods_common_python.challenges.vanilla.vanilla_record_runs import (
+    VanillaPythonRunResultFileWriter, VanillaRunResult,
+)
 from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types import (
     DATA_SIZES_LIST_VANILLA, VANILLA_RESULT_COLUMNS, VanillaDataSetDescription,
 )
@@ -25,7 +28,6 @@ from src.challenges.six_field_test_data.six_runner_base_pyspark import test_one_
 from src.challenges.six_field_test_data.six_test_data_for_pyspark import (
     SixFieldDataSetPyspark, six_populate_data_set_pyspark,
 )
-from src.challenges.vanilla.vanilla_record_runs_pyspark import VanillaPysparkRunResultFileWriter
 from src.challenges.vanilla.vanilla_strategy_directory_pyspark import VANILLA_STRATEGIES_USING_PYSPARK_REGISTRY
 from src.utils.tidy_session_pyspark import TidySparkSession
 
@@ -103,6 +105,16 @@ def prepare_data_sets(
         if size.size_code in args.sizes
     ]
     return data_sets
+
+
+class VanillaPysparkRunResultFileWriter(VanillaPythonRunResultFileWriter):
+    RUN_LOG_FILE_PATH: str = os.path.abspath('results/vanilla_pyspark_runs.csv')
+
+    def __init__(self):
+        super().__init__(
+            engine=ENGINE,
+            rel_log_file_path=__class__.RUN_LOG_FILE_PATH,
+        )
 
 
 def do_test_runs(

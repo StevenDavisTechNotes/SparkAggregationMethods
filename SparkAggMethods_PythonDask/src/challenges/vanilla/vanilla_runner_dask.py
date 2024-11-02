@@ -3,6 +3,7 @@
 import argparse
 import gc
 import logging
+import os
 import time
 from dataclasses import dataclass
 
@@ -13,7 +14,9 @@ from spark_agg_methods_common_python.challenge_strategy_registry import (
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
     SixTestExecutionParameters, fetch_six_data_set_answer,
 )
-from spark_agg_methods_common_python.challenges.vanilla.vanilla_record_runs import VanillaRunResult
+from spark_agg_methods_common_python.challenges.vanilla.vanilla_record_runs import (
+    VanillaPythonRunResultFileWriter, VanillaRunResult,
+)
 from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types import (
     DATA_SIZES_LIST_VANILLA, VanillaDataSetDescription,
 )
@@ -24,7 +27,6 @@ from spark_agg_methods_common_python.perf_test_common import (
 
 from src.challenges.six_field_test_data.six_runner_dask_base import test_one_step_in_dask_itinerary
 from src.challenges.six_field_test_data.six_test_data_for_dask import SixTestDataSetDask, six_populate_data_set_dask
-from src.challenges.vanilla.vanilla_record_runs_dask import VanillaDaskRunResultFileWriter
 from src.challenges.vanilla.vanilla_strategy_directory_dask import VANILLA_STRATEGIES_USING_DASK_REGISTRY
 
 LANGUAGE = SolutionLanguage.PYTHON
@@ -108,6 +110,16 @@ def prepare_data_sets(
         if size.size_code in args.sizes
     ]
     return data_sets
+
+
+class VanillaDaskRunResultFileWriter(VanillaPythonRunResultFileWriter):
+    RUN_LOG_FILE_PATH: str = os.path.abspath('results/vanilla_dask_runs.csv')
+
+    def __init__(self):
+        super().__init__(
+            engine=ENGINE,
+            rel_log_file_path=__class__.RUN_LOG_FILE_PATH,
+        )
 
 
 def do_test_runs(

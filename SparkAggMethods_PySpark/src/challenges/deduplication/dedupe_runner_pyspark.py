@@ -4,6 +4,7 @@
 import argparse
 import datetime as dt
 import gc
+import os
 import time
 from dataclasses import dataclass
 from functools import reduce
@@ -16,7 +17,9 @@ from pyspark.sql import Row
 from spark_agg_methods_common_python.challenge_strategy_registry import (
     ChallengeResultLogFileRegistration, ChallengeStrategyRegistration, update_challenge_strategy_registration,
 )
-from spark_agg_methods_common_python.challenges.deduplication.dedupe_record_runs import DedupeRunResult
+from spark_agg_methods_common_python.challenges.deduplication.dedupe_record_runs import (
+    DedupePythonRunResultFileWriter, DedupeRunResult,
+)
 from spark_agg_methods_common_python.challenges.deduplication.dedupe_test_data_types import (
     DATA_SIZE_LIST_DEDUPE, DEDUPE_SOURCE_CODES, DedupeDataSetDescription, dedupe_derive_source_test_data_file_paths,
 )
@@ -26,7 +29,6 @@ from spark_agg_methods_common_python.perf_test_common import (
 )
 from spark_agg_methods_common_python.utils.utils import int_divide_round_up
 
-from src.challenges.deduplication.dedupe_record_runs_pyspark import DedupePysparkRunResultFileWriter
 from src.challenges.deduplication.dedupe_strategy_directory_pyspark import DEDUPE_STRATEGIES_USING_PYSPARK_REGISTRY
 from src.challenges.deduplication.dedupe_test_data_types_pyspark import (
     DedupeChallengeMethodPythonPysparkRegistration, DedupeDataSetPySpark, DedupeExecutionParametersPyspark,
@@ -171,6 +173,16 @@ def prepare_data_sets(
             df_source=df,
         ))
     return all_data_sets
+
+
+class DedupePysparkRunResultFileWriter(DedupePythonRunResultFileWriter):
+    RUN_LOG_FILE_PATH: str = os.path.abspath('results/dedupe_pyspark_runs.csv')
+
+    def __init__(self):
+        super().__init__(
+            engine=ENGINE,
+            rel_log_file_path=__class__.RUN_LOG_FILE_PATH,
+        )
 
 
 def do_test_runs(

@@ -3,6 +3,5 @@
   "include": [
     "src"
   ],
-  "stubPath": "src/typings",
   "typeCheckingMode": "standard",
 }

@@ -13,7 +13,6 @@ dependencies = [
     "pydantic",
     "pytest",
     "pytz",
-    "scipy",
 ]
 
 [tool.setuptools.packages]

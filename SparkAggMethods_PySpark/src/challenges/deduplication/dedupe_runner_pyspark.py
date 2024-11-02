@@ -26,9 +26,7 @@ from spark_agg_methods_common_python.perf_test_common import (
 )
 from spark_agg_methods_common_python.utils.utils import int_divide_round_up
 
-from src.challenges.deduplication.dedupe_record_runs_pyspark import (
-    DedupePysparkPersistedRunResultLog, DedupePysparkRunResultFileWriter,
-)
+from src.challenges.deduplication.dedupe_record_runs_pyspark import DedupePysparkRunResultFileWriter
 from src.challenges.deduplication.dedupe_strategy_directory_pyspark import DEDUPE_STRATEGIES_USING_PYSPARK_REGISTRY
 from src.challenges.deduplication.dedupe_test_data_types_pyspark import (
     DedupeChallengeMethodPythonPysparkRegistration, DedupeDataSetPySpark, DedupeExecutionParametersPyspark,
@@ -287,7 +285,7 @@ def update_challenge_registration():
         engine=ENGINE,
         challenge=CHALLENGE,
         registration=ChallengeResultLogFileRegistration(
-            result_file_path=DedupePysparkPersistedRunResultLog().log_file_path,
+            result_file_path=DedupePysparkRunResultFileWriter.RUN_LOG_FILE_PATH,
             regressor_column_name=DedupeDataSetDescription.regressor_field_name(),
             elapsed_time_column_name=ELAPSED_TIME_COLUMN_NAME,
             expected_regressor_values=[

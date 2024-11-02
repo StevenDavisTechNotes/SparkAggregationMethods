@@ -1,26 +1,16 @@
-from spark_agg_methods_common_python.challenges.bi_level.bi_level_record_runs import (
-    BiLevelPersistedRunResultLog, BiLevelPythonRunResultFileWriter,
-)
-from spark_agg_methods_common_python.perf_test_common import CalcEngine, SolutionLanguage
+import os
 
-BI_LEVEL_PYTHON_DASK_RUN_LOG_FILE_PATH = 'results/bi_level_dask_runs.csv'
+from spark_agg_methods_common_python.challenges.bi_level.bi_level_record_runs import BiLevelPythonRunResultFileWriter
+from spark_agg_methods_common_python.perf_test_common import CalcEngine
 
-LANGUAGE = SolutionLanguage.PYTHON
 ENGINE = CalcEngine.DASK
 
 
-class BiLevelDaskPersistedRunResultLog(BiLevelPersistedRunResultLog):
-    def __init__(self):
-        super().__init__(
-            engine=ENGINE,
-            language=LANGUAGE,
-            rel_log_file_path=BI_LEVEL_PYTHON_DASK_RUN_LOG_FILE_PATH,
-        )
-
-
 class BiLevelDaskRunResultFileWriter(BiLevelPythonRunResultFileWriter):
+    RUN_LOG_FILE_PATH: str = os.path.abspath('results/bi_level_dask_runs.csv')
+
     def __init__(self):
         super().__init__(
             engine=ENGINE,
-            rel_log_file_path=BI_LEVEL_PYTHON_DASK_RUN_LOG_FILE_PATH,
+            rel_log_file_path=__class__.RUN_LOG_FILE_PATH,
         )

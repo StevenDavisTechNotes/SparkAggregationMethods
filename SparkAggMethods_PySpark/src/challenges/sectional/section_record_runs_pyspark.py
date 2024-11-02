@@ -1,26 +1,16 @@
-from spark_agg_methods_common_python.challenges.sectional.section_record_runs import (
-    SectionPythonPersistedRunResultLog, SectionPythonRunResultFileWriter,
-)
-from spark_agg_methods_common_python.perf_test_common import CalcEngine, SolutionLanguage
+import os
 
-SECTION_PYTHON_PYSPARK_RUN_LOG_FILE_PATH = 'results/section_pyspark_runs.csv'
-LANGUAGE = SolutionLanguage.PYTHON
+from spark_agg_methods_common_python.challenges.sectional.section_record_runs import SectionPythonRunResultFileWriter
+from spark_agg_methods_common_python.perf_test_common import CalcEngine
+
 ENGINE = CalcEngine.PYSPARK
-MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT: int = 5
-MAXIMUM_PROCESSABLE_SEGMENT: int = 10**MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT
-
-
-class SectionPysparkPersistedRunResultLog(SectionPythonPersistedRunResultLog):
-    def __init__(self):
-        super().__init__(
-            engine=ENGINE,
-            rel_log_file_path=SECTION_PYTHON_PYSPARK_RUN_LOG_FILE_PATH,
-        )
 
 
 class SectionPysparkRunResultFileWriter(SectionPythonRunResultFileWriter):
+    RUN_LOG_FILE_PATH: str = os.path.abspath('results/section_pyspark_runs.csv')
+
     def __init__(self):
         super().__init__(
             engine=ENGINE,
-            rel_log_file_path=SECTION_PYTHON_PYSPARK_RUN_LOG_FILE_PATH,
+            rel_log_file_path=__class__.RUN_LOG_FILE_PATH,
         )

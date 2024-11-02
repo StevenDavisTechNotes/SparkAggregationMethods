@@ -3,21 +3,34 @@
 
 import io
 import os
+from dataclasses import dataclass
 from typing import Any, cast
 
 import pandas as pd
 import scipy
 from spark_agg_methods_common_python.challenge_strategy_registry import (
-    ChallengeResultLogFileRegistration,
-    ChallengeStrategyRegistrationKeyColumns,
-    read_consolidated_challenge_strategy_registration)
-from spark_agg_methods_common_python.perf_test_common import (
-    CalcEngine, Challenge, SolutionLanguage,
-    SummarizedPerformanceOfMethodAtDataSize)
-from spark_agg_methods_common_python.utils.pandas_helpers import \
-    make_empty_pd_dataframe_from_schema
+    ChallengeResultLogFileRegistration, ChallengeStrategyRegistrationKeyColumns,
+    read_consolidated_challenge_strategy_registration,
+)
+from spark_agg_methods_common_python.perf_test_common import CalcEngine, Challenge, SolutionLanguage
+from spark_agg_methods_common_python.utils.pandas_helpers import make_empty_pd_dataframe_from_schema
 
-FINAL_REPORT_FILE_PATH = '../results/{challenge}_results_new.csv'
+FINAL_REPORT_FILE_PATH = '../results/{challenge}_results.csv'
+
+
+@dataclass(frozen=True)
+class SummarizedPerformanceOfMethodAtDataSize:
+    challenge: Challenge
+    strategy_name: str
+    language: SolutionLanguage
+    engine: CalcEngine
+    interface: str
+    regressor: int
+    number_of_runs: int
+    elapsed_time_avg: float
+    elapsed_time_std: float | None
+    elapsed_time_rl: float | None
+    elapsed_time_rh: float | None
 
 
 def read_run_result_file(
@@ -159,6 +172,9 @@ def analyze_run_results():
                 if challenge not in challenge_result_log_registrations[language][engine]:
                     continue
                 challenge_result_log_registration = challenge_result_log_registrations[language][engine][challenge]
+                challenge_result_log_registration_by_strategy_name = {
+                    x.strategy_name: x for x in challenge_result_log_registration.strategies
+                }
                 result_file_path = challenge_result_log_registration.result_file_path
                 regressor_column_name = challenge_result_log_registration.regressor_column_name
                 elapsed_time_column_name = challenge_result_log_registration.elapsed_time_column_name
@@ -193,12 +209,11 @@ def analyze_run_results():
                 print(df)
                 group_iterator = cast(Any, df.groupby(by=['strategy_name', regressor_column_name]))
                 for (strategy_name, regressor_value), group in group_iterator:
-                    strategy = next(
-                        x for x in challenge_result_log_registration.strategies if x.strategy_name == strategy_name)
-                    if strategy is None:
+                    if strategy_name not in challenge_result_log_registration_by_strategy_name:
                         print(f"Warning: strategy {strategy_name} in results but not in challenge registration for "
                               f"language {language}, engine {engine}, challenge {challenge}")
                         continue
+                    strategy = challenge_result_log_registration_by_strategy_name[strategy_name]
                     elapsed_time_samples = cast(pd.Series, group[elapsed_time_column_name])
                     summary_status.append(analyze_elapsed_time_samples(
                         challenge=Challenge(strategy.challenge),

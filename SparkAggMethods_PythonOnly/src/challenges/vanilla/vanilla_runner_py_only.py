@@ -25,9 +25,7 @@ from src.challenges.six_field_test_data.six_runner_base_py_only import test_one_
 from src.challenges.six_field_test_data.six_test_data_for_py_only import (
     SixDataSetPythonOnly, six_populate_data_set_python_only,
 )
-from src.challenges.vanilla.vanilla_record_runs_py_only import (
-    VanillaPythonOnlyPersistedRunResultLog, VanillaPythonOnlyRunResultFileWriter,
-)
+from src.challenges.vanilla.vanilla_record_runs_py_only import VanillaPythonOnlyRunResultFileWriter
 from src.challenges.vanilla.vanilla_strategy_directory_py_only import VANILLA_STRATEGIES_USING_PYTHON_ONLY_REGISTRY
 
 LANGUAGE = SolutionLanguage.PYTHON
@@ -149,7 +147,7 @@ def update_challenge_registration():
         engine=ENGINE,
         challenge=CHALLENGE,
         registration=ChallengeResultLogFileRegistration(
-            result_file_path=VanillaPythonOnlyPersistedRunResultLog().log_file_path,
+            result_file_path=VanillaPythonOnlyRunResultFileWriter.RUN_LOG_FILE_PATH,
             regressor_column_name=VanillaDataSetDescription.regressor_field_name(),
             elapsed_time_column_name=ELAPSED_TIME_COLUMN_NAME,
             expected_regressor_values=[

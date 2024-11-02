@@ -2,8 +2,8 @@ import os
 from dataclasses import dataclass
 
 from spark_agg_methods_common_python.perf_test_common import (
-    CalcEngine, ChallengeMethodRegistrationBase, PersistedRunResultBase, PersistedRunResultLog, RunResultBase,
-    RunResultFileWriterBase, SolutionInterfacePython, SolutionLanguage, parse_interface_python,
+    CalcEngine, ChallengeMethodRegistrationBase, PersistedRunResultBase, RunResultBase, RunResultFileWriterBase,
+    SolutionInterfacePython, SolutionLanguage,
 )
 
 
@@ -27,73 +27,6 @@ def regressor_from_run_result(
         result: DedupePersistedRunResult,
 ) -> int:
     return result.num_source_rows
-
-
-class DedupePersistedRunResultLog(PersistedRunResultLog[DedupePersistedRunResult]):
-
-    def __init__(
-            self,
-            engine: CalcEngine,
-            language: SolutionLanguage,
-            rel_log_file_path: str,
-    ):
-        super().__init__(
-            engine=engine,
-            language=language,
-            log_file_path=os.path.abspath(rel_log_file_path),
-        )
-
-    def result_looks_valid(
-            self,
-            result: DedupePersistedRunResult,
-    ) -> bool:
-        assert isinstance(result, DedupePersistedRunResult)
-        return result.status == "success"
-
-    def read_line_from_log_file(
-            self,
-            i_line: int,
-            line: str,
-            last_header_line: list[str],
-            fields: list[str],
-    ) -> DedupePersistedRunResult | None:
-        if len(fields) < 6:
-            fields.append('3')
-        fields_as_dict = dict(zip(last_header_line, fields))
-        status = fields_as_dict['status']
-        strategy_name = fields_as_dict['strategy_name']
-        interface = fields_as_dict['interface']
-        num_sources = int(fields_as_dict['num_sources'])
-        num_source_rows = int(fields_as_dict['num_source_rows'])
-        data_size_exponent = int(fields_as_dict['data_size_exponent'])
-        num_people_actual = int(fields_as_dict['num_people_actual'])
-        elapsed_time = float(fields_as_dict['elapsed_time'])
-        num_people_found = int(fields_as_dict['num_people_found'])
-        in_cloud_mode = bool(fields_as_dict['in_cloud_mode'])
-        can_assume_no_duplicates_per_partition = bool(fields_as_dict['can_assume_no_duplicates_per_partition'])
-        engine = fields_as_dict['engine']
-        finished_at = fields_as_dict['finished_at']
-
-        assert engine == self.engine.value
-        return DedupePersistedRunResult(
-            num_source_rows=num_source_rows,
-            elapsed_time=elapsed_time,
-            num_output_rows=num_people_actual,
-            finished_at=finished_at,
-
-            language=self.language,
-            engine=self.engine,
-            interface=parse_interface_python(interface, self.engine),
-            strategy_name=strategy_name,
-
-            status=status,
-            num_sources=num_sources,
-            num_people_actual=num_people_actual,
-            data_size_exponent=data_size_exponent,
-            num_people_found=num_people_found,
-            in_cloud_mode=in_cloud_mode,
-            can_assume_no_duplicates_per_partition=can_assume_no_duplicates_per_partition,
-        )
 
 
 class DedupePythonRunResultFileWriter(RunResultFileWriterBase):

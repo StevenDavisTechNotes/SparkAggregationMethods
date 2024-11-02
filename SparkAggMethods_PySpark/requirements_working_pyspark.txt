@@ -17,6 +17,5 @@ pyspark==3.5.1
 pytest
 pytz 
 # rope
-# scipy
 # snappy 
 # statsmodels 

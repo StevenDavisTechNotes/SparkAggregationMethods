@@ -5,12 +5,14 @@ from typing import NamedTuple
 import pandas as pd
 
 from spark_agg_methods_common_python.perf_test_common import (
-    LOCAL_TEST_DATA_FILE_LOCATION, SIX_TEST_CHALLENGES, Challenge, ChallengeMethodRegistrationBase,
-    DataSetDescriptionBase, ExecutionParametersBase, NumericalToleranceExpectations, TChallengeMethodDelegate,
-    TSolutionInterface,
+    LOCAL_TEST_DATA_FILE_LOCATION, Challenge, ChallengeMethodRegistrationBase, DataSetDescriptionBase,
+    ExecutionParametersBase, NumericalToleranceExpectations, TChallengeMethodDelegate, TSolutionInterface,
 )
 
 # cSpell: ignore arange
+
+
+SIX_TEST_CHALLENGES = [Challenge.BI_LEVEL, Challenge.CONDITIONAL, Challenge.VANILLA]
 
 
 class DataPointNT(NamedTuple):

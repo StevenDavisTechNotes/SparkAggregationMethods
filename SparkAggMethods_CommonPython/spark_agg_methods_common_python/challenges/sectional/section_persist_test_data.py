@@ -1,14 +1,11 @@
-import gc
 import os
 from abc import ABC
-from pathlib import Path
-from typing import Iterable
 
 import pandas as pd
 from pydantic import BaseModel, RootModel, TypeAdapter
 
 from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import (
-    SectionDataSetDescription, StudentSummary, derive_expected_answer_data_file_path,
+    SectionDataSetDescription, derive_expected_answer_data_file_path,
 )
 
 

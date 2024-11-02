@@ -21,9 +21,7 @@ from spark_agg_methods_common_python.perf_test_common import (
     ELAPSED_TIME_COLUMN_NAME, CalcEngine, Challenge, RunnerArgumentsBase, SolutionLanguage, assemble_itinerary,
 )
 
-from src.challenges.bi_level.bi_level_record_runs_py_only import (
-    BiLevelPythonOnlyPersistedRunResultLog, BiLevelPythonOnlyRunResultFileWriter,
-)
+from src.challenges.bi_level.bi_level_record_runs_py_only import BiLevelPythonOnlyRunResultFileWriter
 from src.challenges.bi_level.bi_level_strategy_directory_py_only import BI_LEVEL_STRATEGIES_USING_PYTHON_ONLY_REGISTRY
 from src.challenges.six_field_test_data.six_runner_base_py_only import test_one_step_in_python_only_itinerary
 from src.challenges.six_field_test_data.six_test_data_for_py_only import (
@@ -152,7 +150,7 @@ def update_challenge_registration():
         engine=ENGINE,
         challenge=CHALLENGE,
         registration=ChallengeResultLogFileRegistration(
-            result_file_path=BiLevelPythonOnlyPersistedRunResultLog().log_file_path,
+            result_file_path=BiLevelPythonOnlyRunResultFileWriter.RUN_LOG_FILE_PATH,
             regressor_column_name=BiLevelDataSetDescription.regressor_field_name(),
             elapsed_time_column_name=ELAPSED_TIME_COLUMN_NAME,
             expected_regressor_values=[

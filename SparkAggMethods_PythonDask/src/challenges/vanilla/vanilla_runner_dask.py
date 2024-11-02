@@ -24,9 +24,7 @@ from spark_agg_methods_common_python.perf_test_common import (
 
 from src.challenges.six_field_test_data.six_runner_dask_base import test_one_step_in_dask_itinerary
 from src.challenges.six_field_test_data.six_test_data_for_dask import SixTestDataSetDask, six_populate_data_set_dask
-from src.challenges.vanilla.vanilla_record_runs_dask import (
-    VanillaDaskPersistedRunResultLog, VanillaDaskRunResultFileWriter,
-)
+from src.challenges.vanilla.vanilla_record_runs_dask import VanillaDaskRunResultFileWriter
 from src.challenges.vanilla.vanilla_strategy_directory_dask import VANILLA_STRATEGIES_USING_DASK_REGISTRY
 
 LANGUAGE = SolutionLanguage.PYTHON
@@ -159,7 +157,7 @@ def update_challenge_registration():
         engine=ENGINE,
         challenge=CHALLENGE,
         registration=ChallengeResultLogFileRegistration(
-            result_file_path=VanillaDaskPersistedRunResultLog().log_file_path,
+            result_file_path=VanillaDaskRunResultFileWriter.RUN_LOG_FILE_PATH,
             regressor_column_name=VanillaDataSetDescription.regressor_field_name(),
             elapsed_time_column_name=ELAPSED_TIME_COLUMN_NAME,
             expected_regressor_values=[

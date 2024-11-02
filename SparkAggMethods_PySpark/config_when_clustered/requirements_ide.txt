@@ -23,6 +23,5 @@ flake8
 pytest
 pytz 
 rope
-# scipy
 # snappy 
 # statsmodels 

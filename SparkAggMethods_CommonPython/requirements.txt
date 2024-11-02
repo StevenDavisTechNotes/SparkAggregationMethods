@@ -13,4 +13,3 @@ pyclean
 pydantic
 pytest
 pytz
-scipy

@@ -28,12 +28,11 @@ from spark_agg_methods_common_python.perf_test_common import (
 from spark_agg_methods_common_python.utils.pandas_helpers import make_pd_dataframe_from_list_of_named_tuples
 from spark_agg_methods_common_python.utils.utils import int_divide_round_up
 
-from src.challenges.sectional.section_record_runs_pyspark import (
-    MAXIMUM_PROCESSABLE_SEGMENT, SectionPysparkPersistedRunResultLog, SectionPysparkRunResultFileWriter,
-)
+from src.challenges.sectional.section_record_runs_pyspark import SectionPysparkRunResultFileWriter
 from src.challenges.sectional.section_strategy_directory_pyspark import SECTIONAL_STRATEGIES_USING_PYSPARK_REGISTRY
 from src.challenges.sectional.section_test_data_types_pyspark import (
-    SectionChallengeMethodPysparkRegistration, SectionDataSetPyspark, SectionExecutionParametersPyspark,
+    MAXIMUM_PROCESSABLE_SEGMENT, SectionChallengeMethodPysparkRegistration, SectionDataSetPyspark,
+    SectionExecutionParametersPyspark,
 )
 from src.utils.tidy_session_pyspark import TidySparkSession
 
@@ -236,7 +235,7 @@ def update_challenge_registration():
         engine=ENGINE,
         challenge=CHALLENGE,
         registration=ChallengeResultLogFileRegistration(
-            result_file_path=SectionPysparkPersistedRunResultLog().log_file_path,
+            result_file_path=SectionPysparkRunResultFileWriter.RUN_LOG_FILE_PATH,
             regressor_column_name=SectionDataSetDescription.regressor_field_name(),
             elapsed_time_column_name=ELAPSED_TIME_COLUMN_NAME,
             expected_regressor_values=[

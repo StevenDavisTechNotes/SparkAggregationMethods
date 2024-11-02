@@ -429,6 +429,93 @@
                     1000000,
                     10000000
                 ]
+            },
+            "vanilla": {
+                "result_file_path": "C:\\Src\\GitHub_Hosted\\SparkAggMethods2\\SparkAggMethods_PySpark\\results\\vanilla_pyspark_runs.csv",
+                "regressor_column_name": "num_source_rows",
+                "elapsed_time_column_name": "elapsed_time",
+                "strategies": [
+                    {
+                        "language": "python",
+                        "engine": "pyspark",
+                        "challenge": "vanilla",
+                        "interface": "sql",
+                        "strategy_name": "vanilla_pyspark_sql",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "pyspark",
+                        "challenge": "vanilla",
+                        "interface": "sql",
+                        "strategy_name": "vanilla_pyspark_df_grp_builtin",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "pyspark",
+                        "challenge": "vanilla",
+                        "interface": "pandas",
+                        "strategy_name": "vanilla_pyspark_df_grp_pandas",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "pyspark",
+                        "challenge": "vanilla",
+                        "interface": "pandas",
+                        "strategy_name": "vanilla_pyspark_df_grp_numpy",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "pyspark",
+                        "challenge": "vanilla",
+                        "interface": "pandas",
+                        "strategy_name": "vanilla_pyspark_df_grp_numba",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": true
+                    },
+                    {
+                        "language": "python",
+                        "engine": "pyspark",
+                        "challenge": "vanilla",
+                        "interface": "rdd",
+                        "strategy_name": "vanilla_pyspark_rdd_grp_map",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "pyspark",
+                        "challenge": "vanilla",
+                        "interface": "rdd",
+                        "strategy_name": "vanilla_pyspark_rdd_reduce",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "pyspark",
+                        "challenge": "vanilla",
+                        "interface": "rdd",
+                        "strategy_name": "vanilla_pyspark_rdd_mappart",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    }
+                ],
+                "expected_regressor_values": [
+                    9,
+                    90,
+                    900,
+                    9000,
+                    90000,
+                    900000
+                ]
             }
         }
     }

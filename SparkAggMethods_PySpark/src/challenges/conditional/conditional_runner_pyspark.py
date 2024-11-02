@@ -21,9 +21,7 @@ from spark_agg_methods_common_python.perf_test_common import (
     assemble_itinerary,
 )
 
-from src.challenges.conditional.conditional_record_runs_pyspark import (
-    ConditionalPysparkPersistedRunResultLog, ConditionalPysparkRunResultFileWriter,
-)
+from src.challenges.conditional.conditional_record_runs_pyspark import ConditionalPysparkRunResultFileWriter
 from src.challenges.conditional.conditional_strategy_directory_pyspark import (
     CONDITIONAL_STRATEGIES_USING_PYSPARK_REGISTRY,
 )
@@ -160,7 +158,7 @@ def update_challenge_registration():
         engine=ENGINE,
         challenge=CHALLENGE,
         registration=ChallengeResultLogFileRegistration(
-            result_file_path=ConditionalPysparkPersistedRunResultLog().log_file_path,
+            result_file_path=ConditionalPysparkRunResultFileWriter.RUN_LOG_FILE_PATH,
             regressor_column_name=ConditionalDataSetDescription.regressor_field_name(),
             elapsed_time_column_name=ELAPSED_TIME_COLUMN_NAME,
             expected_regressor_values=[

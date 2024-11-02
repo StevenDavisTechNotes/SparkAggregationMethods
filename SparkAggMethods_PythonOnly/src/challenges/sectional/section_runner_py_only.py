@@ -26,9 +26,7 @@ from spark_agg_methods_common_python.perf_test_common import (
 )
 from spark_agg_methods_common_python.utils.pandas_helpers import make_pd_dataframe_from_list_of_named_tuples
 
-from src.challenges.sectional.section_record_runs_py_only import (
-    SectionPythonOnlyPersistedRunResultLog, SectionPythonOnlyRunResultFileWriter,
-)
+from src.challenges.sectional.section_record_runs_py_only import SectionPythonOnlyRunResultFileWriter
 from src.challenges.sectional.section_strategy_directory_py_only import SECTIONAL_STRATEGIES_USING_PYTHON_ONLY_REGISTRY
 from src.challenges.sectional.section_test_data_types_py_only import (
     SectionChallengeMethodPythonOnlyRegistration, SectionDataSetPyOnly, SectionExecutionParametersPyOnly,
@@ -39,7 +37,7 @@ logger = logging.getLogger(__name__)
 DEBUG_ARGS = None if True else (
     []
     + '--size 1 10 100 1000 10000'.split()
-    + '--runs 10'.split()
+    + '--runs 0'.split()
     # + '--random-seed 1234'.split()
     # + ['--no-shuffle']
     # + ['--strategy',
@@ -47,7 +45,7 @@ DEBUG_ARGS = None if True else (
 )
 
 LANGUAGE = SolutionLanguage.PYTHON
-ENGINE = CalcEngine.PYSPARK
+ENGINE = CalcEngine.PYTHON_ONLY
 CHALLENGE = Challenge.SECTIONAL
 
 
@@ -187,7 +185,7 @@ def update_challenge_registration():
         engine=ENGINE,
         challenge=CHALLENGE,
         registration=ChallengeResultLogFileRegistration(
-            result_file_path=SectionPythonOnlyPersistedRunResultLog().log_file_path,
+            result_file_path=SectionPythonOnlyRunResultFileWriter.RUN_LOG_FILE_PATH,
             regressor_column_name=SectionDataSetDescription.regressor_field_name(),
             elapsed_time_column_name=ELAPSED_TIME_COLUMN_NAME,
             expected_regressor_values=[

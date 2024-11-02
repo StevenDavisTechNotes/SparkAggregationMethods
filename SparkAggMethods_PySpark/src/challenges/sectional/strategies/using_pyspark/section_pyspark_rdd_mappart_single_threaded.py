@@ -3,9 +3,9 @@ from spark_agg_methods_common_python.challenges.sectional.domain_logic.section_m
 )
 
 from src.challenges.sectional.domain_logic.section_data_parsers_pyspark import parse_line_to_types
-from src.challenges.sectional.section_record_runs_pyspark import MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT
 from src.challenges.sectional.section_test_data_types_pyspark import (
-    SectionDataSetPyspark, SectionExecutionParametersPyspark, TChallengePythonPysparkAnswer,
+    MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT, SectionDataSetPyspark, SectionExecutionParametersPyspark,
+    TChallengePythonPysparkAnswer,
 )
 from src.utils.tidy_session_pyspark import TidySparkSession
 

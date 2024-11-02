@@ -21,9 +21,7 @@ from spark_agg_methods_common_python.perf_test_common import (
     assemble_itinerary,
 )
 
-from src.challenges.bi_level.bi_level_record_runs_pyspark import (
-    BiLevelPysparkPersistedRunResultLog, BiLevelPysparkRunResultFileWriter,
-)
+from src.challenges.bi_level.bi_level_record_runs_pyspark import BiLevelPysparkRunResultFileWriter
 from src.challenges.bi_level.bi_level_strategy_directory_pyspark import BI_LEVEL_STRATEGIES_USING_PYSPARK_REGISTRY
 from src.challenges.six_field_test_data.six_runner_base_pyspark import test_one_step_in_pyspark_itinerary
 from src.challenges.six_field_test_data.six_test_data_for_pyspark import (
@@ -160,7 +158,7 @@ def update_challenge_registration():
         engine=ENGINE,
         challenge=CHALLENGE,
         registration=ChallengeResultLogFileRegistration(
-            result_file_path=BiLevelPysparkPersistedRunResultLog().log_file_path,
+            result_file_path=BiLevelPysparkRunResultFileWriter.RUN_LOG_FILE_PATH,
             regressor_column_name=BiLevelDataSetDescription.regressor_field_name(),
             elapsed_time_column_name=ELAPSED_TIME_COLUMN_NAME,
             expected_regressor_values=[

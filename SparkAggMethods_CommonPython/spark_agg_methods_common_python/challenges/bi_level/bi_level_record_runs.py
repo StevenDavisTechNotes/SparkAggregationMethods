@@ -3,8 +3,8 @@ import os
 from dataclasses import dataclass
 
 from spark_agg_methods_common_python.perf_test_common import (
-    CalcEngine, ChallengeMethodRegistrationBase, PersistedRunResultBase, PersistedRunResultLog, RunResultBase,
-    RunResultFileWriterBase, SolutionInterfacePython, SolutionLanguage, parse_interface_python,
+    CalcEngine, ChallengeMethodRegistrationBase, PersistedRunResultBase, RunResultBase, RunResultFileWriterBase,
+    SolutionInterfacePython, SolutionLanguage,
 )
 
 
@@ -23,57 +23,6 @@ def regressor_from_run_result(
 ) -> int:
     assert isinstance(result, BiLevelPersistedRunResult)
     return result.relative_cardinality_between_groupings
-
-
-class BiLevelPersistedRunResultLog(PersistedRunResultLog[BiLevelPersistedRunResult]):
-
-    def __init__(
-            self,
-            engine: CalcEngine,
-            language: SolutionLanguage,
-            rel_log_file_path: str,
-    ):
-        super().__init__(
-            engine=engine,
-            language=language,
-            log_file_path=os.path.abspath(rel_log_file_path),
-        )
-
-    def result_looks_valid(
-            self,
-            result: PersistedRunResultBase,
-    ) -> bool:
-        assert isinstance(result, BiLevelPersistedRunResult)
-        return result.num_output_rows == 3
-
-    def read_line_from_log_file(
-            self,
-            i_line: int,
-            line: str,
-            last_header_line: list[str],
-            fields: list[str],
-    ) -> BiLevelPersistedRunResult | None:
-        if len(fields) < 6:
-            fields.append('3')
-        fields_as_dict = dict(zip(last_header_line, fields))
-        strategy_name = fields_as_dict['strategy_name']
-        interface = fields_as_dict['interface']
-        num_source_rows = int(fields_as_dict['num_source_rows'])
-        relative_cardinality = int(fields_as_dict['relative_cardinality'])
-        elapsed_time = float(fields_as_dict['elapsed_time'])
-        num_output_rows = int(fields_as_dict['num_output_rows']) if 'num_output_rows' in fields_as_dict else -1
-        finished_at = fields_as_dict['finished_at']
-        return BiLevelPersistedRunResult(
-            strategy_name=strategy_name,
-            language=self.language,
-            engine=self.engine,
-            interface=parse_interface_python(interface, self.engine),
-            num_source_rows=num_source_rows,
-            relative_cardinality_between_groupings=relative_cardinality,
-            elapsed_time=elapsed_time,
-            num_output_rows=num_output_rows,
-            finished_at=finished_at,
-        )
 
 
 class BiLevelPythonRunResultFileWriter(RunResultFileWriterBase):

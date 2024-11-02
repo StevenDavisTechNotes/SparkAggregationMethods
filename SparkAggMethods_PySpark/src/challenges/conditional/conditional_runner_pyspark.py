@@ -2,7 +2,6 @@
 # usage: python -m src.challenges.conditional.conditional_pyspark_runner
 import argparse
 import gc
-import random
 import time
 from dataclasses import dataclass
 
@@ -18,9 +17,9 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_dat
     SixTestExecutionParameters, fetch_six_data_set_answer,
 )
 from spark_agg_methods_common_python.perf_test_common import (
-    ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge, SolutionLanguage,
+    ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge, RunnerArgumentsBase, SolutionLanguage,
+    assemble_itinerary,
 )
-from spark_agg_methods_common_python.utils.utils import set_random_seed
 
 from src.challenges.conditional.conditional_record_runs_pyspark import (
     ConditionalPysparkPersistedRunResultLog, ConditionalPysparkRunResultFileWriter,
@@ -58,12 +57,7 @@ class ConditionalDataSetWAnswerPyspark(SixFieldDataSetPyspark):
 
 
 @dataclass(frozen=True)
-class Arguments:
-    num_runs: int
-    random_seed: int | None
-    shuffle: bool
-    sizes: list[str]
-    strategy_names: list[str]
+class Arguments(RunnerArgumentsBase):
     exec_params: SixTestExecutionParameters
 
 
@@ -118,19 +112,11 @@ def do_test_runs(
         args: Arguments,
         spark_session: TidySparkSession,
 ) -> None:
-    itinerary: list[tuple[str, str]] = [
-        (strategy_name, size_code)
-        for strategy_name in args.strategy_names
-        for size_code in args.sizes
-        for _ in range(0, args.num_runs)
-    ]
+    logger = spark_session.log
+    itinerary = assemble_itinerary(args)
     if len(itinerary) == 0:
-        print("No runs to execute.")
+        logger.info("No runs to execute.")
         return
-    if args.random_seed is not None:
-        set_random_seed(args.random_seed)
-    if args.shuffle:
-        random.shuffle(itinerary)
     keyed_implementation_list = {
         x.strategy_name: x for x in CONDITIONAL_STRATEGIES_USING_PYSPARK_REGISTRY}
     keyed_data_sets = {x.data_description.size_code: x for x in prepare_data_sets(args, spark_session)}
@@ -138,10 +124,11 @@ def do_test_runs(
         for index, (strategy_name, size_code) in enumerate(itinerary):
             challenge_method_registration = keyed_implementation_list[strategy_name]
             data_set = keyed_data_sets[size_code]
-            spark_session.log.info(
+            logger.info(
                 "Working on %s %d of %d" %
                 (challenge_method_registration.strategy_name, index, len(itinerary)))
-            print(f"Working on {challenge_method_registration.strategy_name} for {data_set.data_description.size_code}")
+            logger.info(f"Working on {challenge_method_registration.strategy_name} "
+                        f"for {data_set.data_description.size_code}")
             base_run_result = test_one_step_in_pyspark_itinerary(
                 challenge=CHALLENGE,
                 spark_session=spark_session,

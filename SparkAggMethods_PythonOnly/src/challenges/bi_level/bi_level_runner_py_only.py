@@ -3,7 +3,6 @@
 import argparse
 import gc
 import logging
-import random
 import time
 from dataclasses import dataclass
 
@@ -19,9 +18,8 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_dat
     SixTestExecutionParameters, fetch_six_data_set_answer,
 )
 from spark_agg_methods_common_python.perf_test_common import (
-    ELAPSED_TIME_COLUMN_NAME, CalcEngine, Challenge, SolutionLanguage,
+    ELAPSED_TIME_COLUMN_NAME, CalcEngine, Challenge, RunnerArgumentsBase, SolutionLanguage, assemble_itinerary,
 )
-from spark_agg_methods_common_python.utils.utils import always_true, set_random_seed
 
 from src.challenges.bi_level.bi_level_record_runs_py_only import (
     BiLevelPythonOnlyPersistedRunResultLog, BiLevelPythonOnlyRunResultFileWriter,
@@ -29,7 +27,7 @@ from src.challenges.bi_level.bi_level_record_runs_py_only import (
 from src.challenges.bi_level.bi_level_strategy_directory_py_only import BI_LEVEL_STRATEGIES_USING_PYTHON_ONLY_REGISTRY
 from src.challenges.six_field_test_data.six_runner_base_py_only import test_one_step_in_python_only_itinerary
 from src.challenges.six_field_test_data.six_test_data_for_py_only import (
-    ChallengeMethodPythonOnlyRegistration, SixDataSetPythonOnly, six_populate_data_set_python_only,
+    SixDataSetPythonOnly, six_populate_data_set_python_only,
 )
 
 logger = logging.getLogger(__name__)
@@ -50,12 +48,7 @@ DEBUG_ARGS = None if False else (
 
 
 @dataclass(frozen=True)
-class Arguments:
-    num_runs: int
-    random_seed: int | None
-    shuffle: bool
-    sizes: list[str]
-    strategy_names: list[str]
+class Arguments(RunnerArgumentsBase):
     exec_params: SixTestExecutionParameters
 
 
@@ -112,28 +105,20 @@ def prepare_data_sets(
 def do_test_runs(
         args: Arguments,
 ) -> None:
+    itinerary = assemble_itinerary(args)
+    if len(itinerary) == 0:
+        logger.info("No runs to execute.")
+        return
     keyed_implementation_list = {
         x.strategy_name: x for x in BI_LEVEL_STRATEGIES_USING_PYTHON_ONLY_REGISTRY}
-    itinerary: list[tuple[ChallengeMethodPythonOnlyRegistration, str]] = [
-        (challenge_method_registration, size_code)
-        for strategy_name in args.strategy_names
-        if always_true(challenge_method_registration := keyed_implementation_list[strategy_name])
-        for size_code in args.sizes
-        for _ in range(0, args.num_runs)
-    ]
-    if len(itinerary) == 0:
-        print("No runs to execute.")
-        return
-    if args.random_seed is not None:
-        set_random_seed(args.random_seed)
-    if args.shuffle:
-        random.shuffle(itinerary)
     keyed_data_sets = {x.data_description.size_code: x for x in prepare_data_sets(args)}
     with BiLevelPythonOnlyRunResultFileWriter() as file:
-        for index, (challenge_method_registration, size_code) in enumerate(itinerary):
+        for index, (strategy_name, size_code) in enumerate(itinerary):
             logger.info("Working on %d of %d" % (index, len(itinerary)))
+            challenge_method_registration = keyed_implementation_list[strategy_name]
             data_set = keyed_data_sets[size_code]
-            print(f"Working on {challenge_method_registration.strategy_name} for {data_set.data_description.size_code}")
+            logger.info(f"Working on {challenge_method_registration.strategy_name} for {
+                        data_set.data_description.size_code}")
             base_run_result = test_one_step_in_python_only_itinerary(
                 challenge=CHALLENGE,
                 exec_params=args.exec_params,

@@ -14,3 +14,4 @@ if __name__ == "__main__":
     # dedupe_python_only_runner.main()
     section_runner_py_only.main()
     vanilla_runner_py_only.main()
+    print("Done!")

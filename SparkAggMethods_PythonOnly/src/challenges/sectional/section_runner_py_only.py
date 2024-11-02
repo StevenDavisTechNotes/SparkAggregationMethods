@@ -6,7 +6,6 @@ import datetime as dt
 import gc
 import logging
 import os
-import random
 import time
 from dataclasses import dataclass
 from typing import Literal
@@ -22,9 +21,9 @@ from spark_agg_methods_common_python.challenges.sectional.section_test_data_type
 )
 from spark_agg_methods_common_python.perf_test_common import (
     ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge, NumericalToleranceExpectations,
-    SolutionLanguage,
+    RunnerArgumentsBase, SolutionLanguage, assemble_itinerary,
 )
-from spark_agg_methods_common_python.utils.utils import count_iter, set_random_seed
+from spark_agg_methods_common_python.utils.utils import count_iter
 
 from src.challenges.sectional.section_record_runs_py_only import (
     SectionPythonOnlyPersistedRunResultLog, SectionPythonOnlyRunResultFileWriter,
@@ -53,13 +52,8 @@ CHALLENGE = Challenge.SECTIONAL
 
 
 @dataclass(frozen=True)
-class Arguments:
+class Arguments(RunnerArgumentsBase):
     check_answers: bool
-    num_runs: int
-    random_seed: int | None
-    shuffle: bool
-    sizes: list[str]
-    strategy_names: list[str]
     exec_params: SectionExecutionParametersPyOnly
 
 
@@ -116,19 +110,10 @@ def prepare_data_sets(
 def do_test_runs(
         args: Arguments,
 ) -> None:
-    itinerary: list[tuple[str, str]] = [
-        (strategy_name, size_code)
-        for strategy_name in args.strategy_names
-        for size_code in args.sizes
-        for _ in range(0, args.num_runs)
-    ]
+    itinerary = assemble_itinerary(args)
     if len(itinerary) == 0:
-        print("No runs to execute.")
+        logger.info("No runs to execute.")
         return
-    if args.random_seed is not None:
-        set_random_seed(args.random_seed)
-    if args.shuffle:
-        random.shuffle(itinerary)
     keyed_implementation_list = {
         x.strategy_name: x for x in SECTIONAL_STRATEGIES_USING_PYTHON_ONLY_REGISTRY}
     keyed_data_sets = {x.data_description.size_code: x for x in prepare_data_sets(args)}
@@ -139,8 +124,8 @@ def do_test_runs(
             logger.info(
                 "Working on %d of %d" %
                 (index, len(itinerary)))
-            print(f"Working on {challenge_method_registration.strategy_name} "
-                  f"for {data_set.data_description.num_source_rows}")
+            logger.info(f"Working on {challenge_method_registration.strategy_name} "
+                        f"for {data_set.data_description.num_source_rows}")
             run_result = run_one_itinerary_step(args, challenge_method_registration, data_set)
             match run_result:
                 case "infeasible":
@@ -189,7 +174,7 @@ def run_one_itinerary_step(
         num_output_rows=num_students_found,
         finished_at=dt.datetime.now().isoformat(),
     )
-    print("%s Took %f secs" % (challenge_method_registration.strategy_name, finishedTime - startedTime))
+    logger.info("%s Took %f secs" % (challenge_method_registration.strategy_name, finishedTime - startedTime))
     return result
 
 

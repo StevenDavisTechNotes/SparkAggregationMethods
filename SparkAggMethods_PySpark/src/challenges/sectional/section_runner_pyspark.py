@@ -5,7 +5,6 @@ import argparse
 import datetime as dt
 import gc
 import os
-import random
 import time
 from dataclasses import dataclass
 from typing import Iterable, Literal
@@ -23,9 +22,9 @@ from spark_agg_methods_common_python.challenges.sectional.section_test_data_type
 )
 from spark_agg_methods_common_python.perf_test_common import (
     ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge, NumericalToleranceExpectations,
-    SolutionLanguage,
+    RunnerArgumentsBase, SolutionLanguage, assemble_itinerary,
 )
-from spark_agg_methods_common_python.utils.utils import count_iter, int_divide_round_up, set_random_seed
+from spark_agg_methods_common_python.utils.utils import count_iter, int_divide_round_up
 
 from src.challenges.sectional.section_record_runs_pyspark import (
     MAXIMUM_PROCESSABLE_SEGMENT, SectionPysparkPersistedRunResultLog, SectionPysparkRunResultFileWriter,
@@ -53,13 +52,8 @@ CHALLENGE = Challenge.SECTIONAL
 
 
 @dataclass(frozen=True)
-class Arguments:
+class Arguments(RunnerArgumentsBase):
     check_answers: bool
-    num_runs: int
-    random_seed: int | None
-    shuffle: bool
-    sizes: list[str]
-    strategy_names: list[str]
     exec_params: SectionExecutionParametersPyspark
 
 
@@ -137,19 +131,11 @@ def do_test_runs(
         args: Arguments,
         spark_session: TidySparkSession,
 ) -> None:
-    itinerary: list[tuple[str, str]] = [
-        (strategy_name, size_code)
-        for strategy_name in args.strategy_names
-        for size_code in args.sizes
-        for _ in range(0, args.num_runs)
-    ]
+    logger = spark_session.log
+    itinerary = assemble_itinerary(args)
     if len(itinerary) == 0:
-        print("No runs to execute.")
+        logger.info("No runs to execute.")
         return
-    if args.random_seed is not None:
-        set_random_seed(args.random_seed)
-    if args.shuffle:
-        random.shuffle(itinerary)
     keyed_implementation_list = {
         x.strategy_name: x for x in SECTIONAL_STRATEGIES_USING_PYSPARK_REGISTRY}
     keyed_data_sets = {x.data_description.size_code: x for x in prepare_data_sets(args)}
@@ -157,9 +143,9 @@ def do_test_runs(
         for index, (strategy_name, size_code) in enumerate(itinerary):
             challenge_method_registration = keyed_implementation_list[strategy_name]
             data_set = keyed_data_sets[size_code]
-            spark_session.log.info("Working on %d of %d" % (index, len(itinerary)))
-            print(f"Working on {challenge_method_registration.strategy_name} "
-                  f"for {data_set.data_description.num_source_rows}")
+            logger.info("Working on %d of %d" % (index, len(itinerary)))
+            logger.info(f"Working on {challenge_method_registration.strategy_name} "
+                        f"for {data_set.data_description.num_source_rows}")
             run_result = run_one_itinerary_step(args, spark_session, challenge_method_registration, data_set)
             match run_result:
                 case "infeasible":
@@ -177,6 +163,7 @@ def run_one_itinerary_step(
         challenge_method_registration: SectionChallengeMethodPysparkRegistration,
         data_set: SectionDataSetPyspark,
 ) -> SectionRunResult | Literal["infeasible"]:
+    logger = spark_session.log
     startedTime = time.time()
     num_students_found: int
     rdd: RDD | None = None
@@ -187,13 +174,13 @@ def run_one_itinerary_step(
         data_set=data_set,
     ):
         case PySparkDataFrame() as df:
-            print(f"output rdd has {df.rdd.getNumPartitions()} partitions")
+            logger.info(f"output rdd has {df.rdd.getNumPartitions()} partitions")
             rdd = df.rdd
             found_students_iterable = [StudentSummary(*x) for x in rdd.toLocalIterator()]
         case RDD() as rdd:
-            print(f"output rdd has {rdd.getNumPartitions()} partitions")
+            logger.info(f"output rdd has {rdd.getNumPartitions()} partitions")
             count = rdd.count()
-            print("Got a count", count)
+            logger.info("Got a count", count)
             found_students_iterable = rdd.toLocalIterator()
         case "infeasible":
             return "infeasible"
@@ -213,9 +200,10 @@ def run_one_itinerary_step(
         args.exec_params.default_parallelism,
         data_set.target_num_partitions,
     ):
-        print(f"{challenge_method_registration.strategy_name} output rdd has {rdd.getNumPartitions()} partitions")
+        logger.info(f"{challenge_method_registration.strategy_name} "
+                    f"output rdd has {rdd.getNumPartitions()} partitions")
         findings = rdd.collect()
-        print(f"size={len(findings)}!", findings)
+        logger.info(f"size={len(findings)}!", findings)
         exit(1)
     success = verify_correctness(data_set, concrete_students, num_students_found, args.check_answers)
     status = "success" if success else "failure"
@@ -228,7 +216,7 @@ def run_one_itinerary_step(
         num_output_rows=num_students_found,
         finished_at=dt.datetime.now().isoformat(),
     )
-    print("%s Took %f secs" % (challenge_method_registration.strategy_name, finishedTime - startedTime))
+    logger.info("%s Took %f secs" % (challenge_method_registration.strategy_name, finishedTime - startedTime))
     return result
 
 

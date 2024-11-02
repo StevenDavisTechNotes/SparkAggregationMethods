@@ -1,5 +1,6 @@
 import math
 import os
+import random
 from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass
 from dataclasses import fields as dataclass_fields
@@ -9,6 +10,8 @@ from typing import Callable, Generic, Sequence, TextIO, TypeVar
 import numpy
 import pandas as pd
 import scipy
+
+from spark_agg_methods_common_python.utils.utils import set_random_seed
 
 ELAPSED_TIME_COLUMN_NAME: str = 'elapsed_time'
 LOCAL_TEST_DATA_FILE_LOCATION = 'd:/temp/SparkPerfTesting'
@@ -408,6 +411,31 @@ class RunResultFileWriterBase(Generic[TSolutionInterface], ABC):
         self.file.flush()
         self.file.close()
         del self.file
+
+
+@dataclass(frozen=True)
+class RunnerArgumentsBase:
+    num_runs: int
+    random_seed: int | None
+    shuffle: bool
+    sizes: list[str]
+    strategy_names: list[str]
+
+
+def assemble_itinerary(
+        args: RunnerArgumentsBase,
+) -> list[tuple[str, str]]:
+    itinerary: list[tuple[str, str]] = [
+        (strategy_name, size_code)
+        for strategy_name in args.strategy_names
+        for size_code in args.sizes
+        for _ in range(0, args.num_runs)
+    ]
+    if args.random_seed is not None:
+        set_random_seed(args.random_seed)
+    if args.shuffle:
+        random.shuffle(itinerary)
+    return itinerary
 
 
 def print_test_runs_summary(

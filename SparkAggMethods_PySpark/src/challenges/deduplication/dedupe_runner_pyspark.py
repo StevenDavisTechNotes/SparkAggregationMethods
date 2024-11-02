@@ -4,7 +4,6 @@
 import argparse
 import datetime as dt
 import gc
-import random
 import time
 from dataclasses import dataclass
 from functools import reduce
@@ -13,7 +12,7 @@ from typing import Literal
 import pyspark.sql.functions as func
 from pyspark import RDD
 from pyspark.sql import DataFrame as PySparkDataFrame
-from pyspark.sql import Row, SparkSession
+from pyspark.sql import Row
 from spark_agg_methods_common_python.challenge_strategy_registry import (
     ChallengeResultLogFileRegistration, ChallengeStrategyRegistration, update_challenge_strategy_registration,
 )
@@ -22,10 +21,10 @@ from spark_agg_methods_common_python.challenges.deduplication.dedupe_test_data_t
     DATA_SIZE_LIST_DEDUPE, DEDUPE_SOURCE_CODES, DedupeDataSetDescription, dedupe_derive_source_test_data_file_paths,
 )
 from spark_agg_methods_common_python.perf_test_common import (
-    ELAPSED_TIME_COLUMN_NAME, CalcEngine, Challenge, NumericalToleranceExpectations, SolutionLanguage,
+    ELAPSED_TIME_COLUMN_NAME, CalcEngine, Challenge, NumericalToleranceExpectations, RunnerArgumentsBase,
+    SolutionLanguage, assemble_itinerary,
 )
-from spark_agg_methods_common_python.utils.utils import int_divide_round_up, set_random_seed
-from terminology import in_red
+from spark_agg_methods_common_python.utils.utils import int_divide_round_up
 
 from src.challenges.deduplication.dedupe_record_runs_pyspark import (
     DedupePysparkPersistedRunResultLog, DedupePysparkRunResultFileWriter,
@@ -58,12 +57,7 @@ MaximumProcessableSegment = pow(10, 5)
 
 
 @dataclass(frozen=True)
-class Arguments:
-    num_runs: int
-    random_seed: int | None
-    shuffle: bool
-    sizes: list[str]
-    strategy_names: list[str]
+class Arguments(RunnerArgumentsBase):
     exec_params: DedupeExecutionParametersPyspark
 
 
@@ -111,10 +105,11 @@ def parse_args() -> Arguments:
 
 def prepare_data_sets(
     data_size_code_list: list[str],
-    spark: SparkSession,
+    spark_session: TidySparkSession,
     exec_params: DedupeExecutionParametersPyspark
 ) -> list[DedupeDataSetPySpark]:
-    # source_codes = ['A', 'B', 'C', 'D', 'E', 'F']
+    logger = spark_session.log
+    spark = spark_session.spark
 
     all_data_sets: list[DedupeDataSetPySpark] = []
     target_data_size_list = [x for x in DATA_SIZE_LIST_DEDUPE if x.size_code in data_size_code_list]
@@ -162,10 +157,10 @@ def prepare_data_sets(
         df = quantized_data_sets[target_data_size.num_sources]
         actual_data_size = df.count()
         if actual_data_size != target_data_size.num_source_rows:
-            print(in_red(
+            logger.error(
                 f"Bad result for {target_data_size.num_people}, "
                 f"{target_data_size.num_sources} sources, expected "
-                f"{target_data_size.num_source_rows}, got {actual_data_size}!"))
+                f"{target_data_size.num_source_rows}, got {actual_data_size}!")
             exit(11)
         num_partitions = max(
             exec_params.default_parallelism,
@@ -180,6 +175,40 @@ def prepare_data_sets(
     return all_data_sets
 
 
+def do_test_runs(
+        args: Arguments,
+        spark_session: TidySparkSession,
+):
+    logger = spark_session.log
+    itinerary = assemble_itinerary(args)
+    if len(itinerary) == 0:
+        logger.info("No runs to execute.")
+        return
+    keyed_data_sets = {x.data_description.size_code: x for x in prepare_data_sets(
+        args.sizes, spark_session, args.exec_params)}
+    keyed_implementation_list = {
+        x.strategy_name: x for x in DEDUPE_STRATEGIES_USING_PYSPARK_REGISTRY}
+    with DedupePysparkRunResultFileWriter() as file:
+        for index, (strategy_name, size_code) in enumerate(itinerary):
+            challenge_method_registration = keyed_implementation_list[strategy_name]
+            data_set = keyed_data_sets[size_code]
+            match run_one_itinerary_step(
+                    index=index,
+                    num_itinerary_stops=len(itinerary),
+                    challenge_method_registration=challenge_method_registration,
+                    data_set=data_set,
+                    args=args,
+                    spark_session=spark_session):
+                case "infeasible":
+                    pass
+                case result:
+                    if not data_set.data_description.debugging_only:
+                        file.write_run_result(challenge_method_registration, result)
+                    gc.collect()
+                    time.sleep(0.1)
+            logger.info("")
+
+
 def run_one_itinerary_step(
         index: int,
         num_itinerary_stops: int,
@@ -189,13 +218,13 @@ def run_one_itinerary_step(
         spark_session: TidySparkSession
 ) -> DedupeRunResult | Literal["infeasible"]:
     exec_params = args.exec_params
-    log = spark_session.log
-    log.info("Working on %d of %d" % (index, num_itinerary_stops))
+    logger = spark_session.log
+    logger.info("Working on %d of %d" % (index, num_itinerary_stops))
     startedTime = time.time()
-    print("Working on %s %d %d" %
-          (challenge_method_registration.strategy_name,
-           data_set.data_description.num_people,
-           data_set.data_description.num_source_rows))
+    logger.info("Working on %s %d %d" %
+                (challenge_method_registration.strategy_name,
+                 data_set.data_description.num_people,
+                 data_set.data_description.num_source_rows))
     success = True
     try:
         rdd_out: RDD[Row]
@@ -212,28 +241,28 @@ def run_one_itinerary_step(
                 return "infeasible"
             case _:
                 raise Exception(
-                    f"{challenge_method_registration.strategy_name} dit not returning anything")
-        print("NumPartitions: in vs out ",
-              data_set.df_source.rdd.getNumPartitions(),
-              rdd_out.getNumPartitions())
+                    f"{challenge_method_registration.strategy_name} did not returning anything")
+        logger.info("NumPartitions: in vs out ",
+                    data_set.df_source.rdd.getNumPartitions(),
+                    rdd_out.getNumPartitions())
         if rdd_out.getNumPartitions() \
                 > max(args.exec_params.default_parallelism,
                       data_set.grouped_num_partitions):
-            print(
-                f"{challenge_method_registration.strategy_name} output rdd has {rdd_out.getNumPartitions()} partitions")
+            logger.info(f"{challenge_method_registration.strategy_name} output rdd "
+                        f"has {rdd_out.getNumPartitions()} partitions")
             findings = rdd_out.collect()
-            print(f"size={len(findings)}!")
+            logger.info(f"size={len(findings)}!")
             exit(1)
         found_people: list[Row] = rdd_out.collect()
     except Exception as exception:
         found_people = []
         exit(1)
-        log.exception(exception)
+        logger.exception(exception)
         success = False
     finished_at = time.time()
     elapsed_time = finished_at - startedTime
     num_people_found = len(found_people)
-    success = verify_correctness(data_set.data_description, found_people)
+    success = verify_correctness(data_set.data_description, found_people, spark_session)
     assert success is True
     data_description = data_set.data_description
     result = DedupeRunResult(
@@ -250,48 +279,6 @@ def run_one_itinerary_step(
         finished_at=dt.datetime.now().isoformat(),
     )
     return result
-
-
-def do_test_runs(
-        args: Arguments,
-        spark_session: TidySparkSession,
-):
-    itinerary: list[tuple[str, str]] = [
-        (strategy_name, size_code)
-        for strategy_name in args.strategy_names
-        for size_code in args.sizes
-        for _ in range(0, args.num_runs)
-    ]
-    if len(itinerary) == 0:
-        print("No runs to execute.")
-        return
-    if args.random_seed is not None:
-        set_random_seed(args.random_seed)
-    if args.shuffle is True:
-        random.shuffle(itinerary)
-    keyed_data_sets = {x.data_description.size_code: x for x in prepare_data_sets(
-        args.sizes, spark_session.spark, args.exec_params)}
-    keyed_implementation_list = {
-        x.strategy_name: x for x in DEDUPE_STRATEGIES_USING_PYSPARK_REGISTRY}
-    with DedupePysparkRunResultFileWriter() as file:
-        for index, (strategy_name, size_code) in enumerate(itinerary):
-            challenge_method_registration = keyed_implementation_list[strategy_name]
-            data_set = keyed_data_sets[size_code]
-            match run_one_itinerary_step(
-                    index=index,
-                    num_itinerary_stops=len(itinerary),
-                    challenge_method_registration=challenge_method_registration,
-                    data_set=data_set,
-                    args=args,
-                    spark_session=spark_session):
-                case (_, result):
-                    if not data_set.data_description.debugging_only:
-                        file.write_run_result(challenge_method_registration, result)
-                    gc.collect()
-                    time.sleep(0.1)
-                case "infeasible":
-                    pass
-            print("")
 
 
 def update_challenge_registration():

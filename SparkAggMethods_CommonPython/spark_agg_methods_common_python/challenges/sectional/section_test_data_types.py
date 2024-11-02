@@ -6,6 +6,8 @@ from dataclasses import dataclass
 from enum import StrEnum
 from typing import Literal, NamedTuple
 
+import pandas as pd
+
 from spark_agg_methods_common_python.perf_test_common import (
     LOCAL_TEST_DATA_FILE_LOCATION, ChallengeMethodRegistrationBase, DataSetDescriptionBase, ExecutionParametersBase,
     TChallengeMethodDelegate, TSolutionInterface,
@@ -100,7 +102,7 @@ class SectionDataSetDescription(DataSetDescriptionBase):
 class SectionDataSetBase():
     data_description: SectionDataSetDescription
     section_maximum: int
-    correct_answer: list[StudentSummary]
+    correct_answer: pd.DataFrame
 
 
 DATA_SIZE_LIST_SECTIONAL = [
@@ -128,7 +130,8 @@ class SectionChallengeMethodRegistrationBase(
 
 
 TChallengePythonAnswer = (
-    Literal["infeasible"] | list[StudentSummary])
+    Literal["infeasible"] | list[StudentSummary] | pd.DataFrame
+)
 
 
 def add_months_to_date_retracting(
@@ -166,5 +169,16 @@ def derive_expected_answer_data_file_path(
     return os.path.join(
         LOCAL_TEST_DATA_FILE_LOCATION,
         "Section_Test_Data",
-        f"section_answer_data_{num_students}{temp_postfix}.json"
+        f"section_answer_data_{num_students}{temp_postfix}.parquet"
     )
+
+
+def section_verify_correctness(
+        data_set: SectionDataSetBase,
+        df_found_students: pd.DataFrame,
+) -> str | None:
+    correct_answer = data_set.correct_answer
+    if correct_answer.equals(df_found_students):
+        return None
+    diff = correct_answer.compare(df_found_students)
+    return str(diff)

@@ -147,8 +147,7 @@ def generate_source_data_file(
     df['F'] = np.random.normal(1, 10, num_data_points)
     Path(source_file_name_parquet).parent.mkdir(parents=True, exist_ok=True)
     if True:
-        with open(temp_source_file_name_parquet, "wb") as fh:
-            df.to_parquet(fh, engine='pyarrow', index=False)
+        df.to_parquet(temp_source_file_name_parquet, engine='pyarrow', index=False)
         os.rename(temp_source_file_name_parquet, source_file_name_parquet)
     if num_data_points < 1000:
         with open(temp_source_file_name_csv, "wb") as fh:

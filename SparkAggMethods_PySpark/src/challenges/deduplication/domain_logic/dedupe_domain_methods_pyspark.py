@@ -1,6 +1,3 @@
-
-from typing import TypeVar
-
 import pyspark.sql.functions as func
 import pyspark.sql.types as DataTypes
 from pyspark.sql import DataFrame as PySparkDataFrame
@@ -12,9 +9,6 @@ from src.challenges.deduplication.dedupe_test_data_types_pyspark import RecordSp
 
 MATCH_THRESHOLD = 0.9
 # must be 0.4316546762589928 < MATCH_THRESHOLD < 0.9927007299270073 @ 10k
-
-
-T = TypeVar('T', bound=float | str)
 
 
 MatchSingleName_Returns = DataTypes.BooleanType()

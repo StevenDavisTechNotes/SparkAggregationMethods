@@ -1,5 +1,5 @@
 #! python
-# usage: python -m src.challenges.sectional.section_pyspark_runner
+# usage: python -m src.challenges.sectional.section_runner_py_only
 # cSpell: ignore wasb, sparkperftesting, Reqs
 import argparse
 import datetime as dt
@@ -10,6 +10,7 @@ import time
 from dataclasses import dataclass
 from typing import Literal
 
+import pandas as pd
 from spark_agg_methods_common_python.challenge_strategy_registry import (
     ChallengeResultLogFileRegistration, ChallengeStrategyRegistration, update_challenge_strategy_registration,
 )
@@ -17,13 +18,13 @@ from spark_agg_methods_common_python.challenges.sectional.section_persist_test_d
 from spark_agg_methods_common_python.challenges.sectional.section_record_runs import SectionRunResult
 from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import (
     DATA_SIZE_LIST_SECTIONAL, SECTION_SIZE_MAXIMUM, SectionDataSetDescription, StudentSummary,
-    derive_source_test_data_file_path,
+    derive_source_test_data_file_path, section_verify_correctness,
 )
 from spark_agg_methods_common_python.perf_test_common import (
     ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge, NumericalToleranceExpectations,
     RunnerArgumentsBase, SolutionLanguage, assemble_itinerary,
 )
-from spark_agg_methods_common_python.utils.utils import count_iter
+from spark_agg_methods_common_python.utils.pandas_helpers import make_pd_dataframe_from_list_of_named_tuples
 
 from src.challenges.sectional.section_record_runs_py_only import (
     SectionPythonOnlyPersistedRunResultLog, SectionPythonOnlyRunResultFileWriter,
@@ -35,11 +36,10 @@ from src.challenges.sectional.section_test_data_types_py_only import (
 
 logger = logging.getLogger(__name__)
 
-DEBUG_ARGS = None if False else (
+DEBUG_ARGS = None if True else (
     []
-    + '--size 1'.split()
-    # + ['--no-check']
-    + '--runs 0'.split()
+    # + '--size 1'.split()
+    + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
     # + ['--strategy',
@@ -143,68 +143,42 @@ def run_one_itinerary_step(
         data_set: SectionDataSetPyOnly,
 ) -> SectionRunResult | Literal["infeasible"]:
     startedTime = time.time()
-    num_students_found: int
-    found_students: list[StudentSummary]
+    df_concrete_students: pd.DataFrame
     match challenge_method_registration.delegate(
         data_set=data_set,
         exec_params=args.exec_params,
     ):
         case "infeasible":
             return "infeasible"
-        case list() as iter_tuple:
-            found_students = iter_tuple
+        case pd.DataFrame() as df:
+            df_concrete_students = df
+            finishedTime = time.time()
+        case list() as concrete_students:
+            finishedTime = time.time()
+            df_concrete_students = make_pd_dataframe_from_list_of_named_tuples(
+                concrete_students,
+                row_type=StudentSummary,
+            )
         case _:
             raise ValueError("Unexpected return type")
-    concrete_students: list[StudentSummary]
-    if args.check_answers:
-        concrete_students = found_students
-        num_students_found = len(concrete_students)
-    else:
-        concrete_students = []
-        num_students_found = count_iter(found_students)
-    finishedTime = time.time()
-    success = verify_correctness(data_set, concrete_students, num_students_found, args.check_answers)
-    status = "success" if success else "failure"
+    error_message = section_verify_correctness(
+        data_set,
+        df_concrete_students,
+    )
+    status = "success" if error_message is None else "failure"
+    if error_message is not None:
+        logger.error("section_verify_correctness returned", error_message)
     data_description = data_set.data_description
     result = SectionRunResult(
         status=status,
         num_source_rows=data_description.num_source_rows,
         section_maximum=data_set.section_maximum,
         elapsed_time=finishedTime - startedTime,
-        num_output_rows=num_students_found,
+        num_output_rows=len(df_concrete_students),
         finished_at=dt.datetime.now().isoformat(),
     )
     logger.info("%s Took %f secs" % (challenge_method_registration.strategy_name, finishedTime - startedTime))
     return result
-
-
-def verify_correctness(
-    data_set: SectionDataSetPyOnly,
-    found_students: list[StudentSummary] | None,
-    num_students_found: int,
-    check_answers: bool,
-) -> bool:
-    success = True
-    if check_answers is False:
-        return num_students_found == data_set.data_description.num_students
-    assert found_students is not None
-    correct_answer = AnswerFileSectional.read_answer_file_sectional(data_set.data_description)
-    actual_num_students = data_set.data_description.num_source_rows // data_set.section_maximum
-    assert actual_num_students == len(correct_answer)
-    if num_students_found != data_set.data_description.num_students:
-        success = False
-        raise ValueError("Found student ids don't match")
-    if {x.StudentId for x in found_students} != {x.StudentId for x in correct_answer}:
-        success = False
-        raise ValueError("Found student ids don't match")
-    else:
-        map_of_found_students = {x.StudentId: x for x in found_students}
-        for correct_student in correct_answer:
-            found_student = map_of_found_students[correct_student.StudentId]
-            if found_student != correct_student:
-                success = False
-                raise ValueError("Found student data doesn't match")
-    return success
 
 
 def update_challenge_registration():

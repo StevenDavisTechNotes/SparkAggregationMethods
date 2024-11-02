@@ -7,9 +7,10 @@ from spark_agg_methods_common_python.challenges.sectional.section_nospark_logic 
 from spark_agg_methods_common_python.challenges.sectional.section_persist_test_data import AnswerFileSectional
 from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import (
     DATA_SIZE_LIST_SECTIONAL, LARGEST_EXPONENT_SECTIONAL, NUM_CLASSES_PER_TRIMESTER, NUM_DEPARTMENTS, NUM_TRIMESTERS,
-    SectionDataSetDescription, add_months_to_date_retracting, derive_expected_answer_data_file_path,
+    SectionDataSetDescription, StudentSummary, add_months_to_date_retracting, derive_expected_answer_data_file_path,
     derive_source_test_data_file_path,
 )
+from spark_agg_methods_common_python.utils.pandas_helpers import make_pd_dataframe_from_list_of_named_tuples
 
 
 def section_generate_data_file(
@@ -69,12 +70,14 @@ def sectional_generate_data(
             data_description=data_description,
         )
         if make_new_files is True or os.path.exists(answer_file_path) is False:
-            AnswerFileSectional.write_answer_file_sectional(
-                data_description,
-                section_nospark_logic(
-                    data_description=data_description,
-                )
+            answer_iterable = section_nospark_logic(
+                data_description=data_description,
             )
+            df = make_pd_dataframe_from_list_of_named_tuples(
+                list(answer_iterable),
+                row_type=StudentSummary
+            )
+            AnswerFileSectional.write_answer_file_sectional(data_description, df)
 
 
 if __name__ == "__main__":

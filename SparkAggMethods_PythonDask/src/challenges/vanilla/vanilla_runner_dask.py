@@ -1,5 +1,5 @@
 #! python
-# usage: python -O -m src.challenges.vanilla.vanilla_dask_runner
+# usage: python -O -m src.challenges.vanilla.vanilla_runner_dask
 import argparse
 import gc
 import logging
@@ -39,18 +39,18 @@ logger = logging.getLogger(__name__)
 DEBUG_ARGS = None if True else (
     []
     + '--size 3_3_10'.split()
-    + '--runs 0'.split()
+    + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
     + ['--strategy',
-       'vanilla_dask_bag_accumulate',
-       'vanilla_dask_bag_fold',
-       'vanilla_dask_bag_foldby',
-       'vanilla_dask_bag_reduction',
-       'vanilla_dask_bag_map_partitions',
-       #    'vanilla_dask_ddf_grp_apply',
+       #    'vanilla_dask_bag_accumulate',
+       #    'vanilla_dask_bag_fold',
+       #    'vanilla_dask_bag_foldby',
+       #    'vanilla_dask_bag_reduction',
+       #    'vanilla_dask_bag_map_partitions',
+       'vanilla_dask_ddf_grp_apply',
        #    'vanilla_dask_ddf_grp_udaf',
-       'vanilla_dask_sql_no_gpu',
+       #    'vanilla_dask_sql_no_gpu',
        ]
 )
 
@@ -216,5 +216,8 @@ def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+    logging.basicConfig(
+        stream=sys.stdout,
+        level=logging.DEBUG if __debug__ else logging.INFO,
+    )
     main()

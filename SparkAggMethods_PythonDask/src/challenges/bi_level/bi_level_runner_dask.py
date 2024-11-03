@@ -1,5 +1,5 @@
 #! python
-# usage: python -O -m src.challenges.bi_level.bi_level_dask_runner
+# usage: python -O -m src.challenges.bi_level.bi_level_runner_dask
 import argparse
 import gc
 import logging
@@ -213,5 +213,8 @@ def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+    logging.basicConfig(
+        stream=sys.stdout,
+        level=logging.DEBUG if __debug__ else logging.INFO,
+    )
     main()

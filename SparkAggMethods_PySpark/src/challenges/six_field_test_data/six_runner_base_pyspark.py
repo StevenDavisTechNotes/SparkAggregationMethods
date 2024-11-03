@@ -27,7 +27,7 @@ def test_one_step_in_pyspark_itinerary(
 ) -> RunResultBase | None:
 
     def check_partitions(rdd: RDD):
-        logger = spark_session.log
+        logger = spark_session.logger
         agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(data_set.data, challenge)
         if rdd.getNumPartitions() > max(agg_tgt_num_partitions, exec_params.default_parallelism):
             logger.info(f"{challenge_method_registration.strategy_name} output rdd "
@@ -66,7 +66,7 @@ def test_one_step_in_pyspark_itinerary(
             raise ValueError("Must return at least 1 type")
     result = process_answer(
         challenge=challenge,
-        data_size=data_set.data_description,
+        data_description=data_set.data_description,
         correct_answer=correct_answer,
         numerical_tolerance=challenge_method_registration.numerical_tolerance,
         started_time=started_time,

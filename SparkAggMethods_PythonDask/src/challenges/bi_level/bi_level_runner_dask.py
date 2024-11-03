@@ -4,6 +4,7 @@ import argparse
 import gc
 import logging
 import os
+import sys
 import time
 from dataclasses import dataclass
 
@@ -29,13 +30,15 @@ from src.challenges.bi_level.bi_level_strategy_directory_dask import BI_LEVEL_ST
 from src.challenges.six_field_test_data.six_runner_dask_base import test_one_step_in_dask_itinerary
 from src.challenges.six_field_test_data.six_test_data_for_dask import SixTestDataSetDask, six_populate_data_set_dask
 
+logger = logging.getLogger(__name__)
+
 LANGUAGE = SolutionLanguage.PYTHON
 ENGINE = CalcEngine.DASK
 CHALLENGE = Challenge.BI_LEVEL
 
 logger = logging.getLogger(__name__)
 
-DEBUG_ARGS = None if False else (
+DEBUG_ARGS = None if True else (
     []
     + '--size 3_3_10'.split()
     + '--runs 0'.split()
@@ -195,15 +198,20 @@ def do_with_client():
 
 
 def main():
-    # with DaskClient(
-    #         processes=True,
-    #         n_workers=LOCAL_NUM_EXECUTORS,
-    #         threads_per_worker=1,
-    # ) as dask_client:
-    do_with_client()
+    logger.info(f"Running {__file__}")
+    try:
+        # with DaskClient(
+        #         processes=True,
+        #         n_workers=LOCAL_NUM_EXECUTORS,
+        #         threads_per_worker=1,
+        # ) as dask_client:
+        do_with_client()
+    except KeyboardInterrupt:
+        logger.warning("Interrupted!")
+        return
+    logger.info("Done!")
 
 
 if __name__ == "__main__":
-    print(f"Running {__file__}")
+    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
     main()
-    print("Done!")

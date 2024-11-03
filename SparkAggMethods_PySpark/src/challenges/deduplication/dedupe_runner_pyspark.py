@@ -4,7 +4,9 @@
 import argparse
 import datetime as dt
 import gc
+import logging
 import os
+import sys
 import time
 from dataclasses import dataclass
 from functools import reduce
@@ -37,13 +39,15 @@ from src.challenges.deduplication.dedupe_test_data_types_pyspark import (
 from src.challenges.deduplication.domain_logic.dedupe_expected_results_pyspark import verify_correctness
 from src.utils.tidy_session_pyspark import TidySparkSession
 
+logger = logging.getLogger(__name__)
+
 LANGUAGE = SolutionLanguage.PYTHON
 ENGINE = CalcEngine.PYSPARK
 CHALLENGE = Challenge.DEDUPLICATION
 MAX_DATA_POINTS_PER_PARTITION: int = 10000
 
 
-DEBUG_ARGS = None if False else (
+DEBUG_ARGS = None if True else (
     []
     + '--size 2'.split()
     + '--runs 0'.split()
@@ -108,7 +112,7 @@ def prepare_data_sets(
     spark_session: TidySparkSession,
     exec_params: DedupeExecutionParametersPyspark
 ) -> list[DedupeDataSetPySpark]:
-    logger = spark_session.log
+    logger = spark_session.logger
     spark = spark_session.spark
 
     all_data_sets: list[DedupeDataSetPySpark] = []
@@ -189,7 +193,7 @@ def do_test_runs(
         args: Arguments,
         spark_session: TidySparkSession,
 ):
-    logger = spark_session.log
+    logger = spark_session.logger
     itinerary = assemble_itinerary(args)
     if len(itinerary) == 0:
         logger.info("No runs to execute.")
@@ -228,7 +232,7 @@ def run_one_itinerary_step(
         spark_session: TidySparkSession
 ) -> DedupeRunResult | Literal["infeasible"]:
     exec_params = args.exec_params
-    logger = spark_session.log
+    logger = spark_session.logger
     logger.info("Working on %d of %d" % (index, num_itinerary_stops))
     startedTime = time.time()
     logger.info("Working on %s %d %d" %
@@ -322,27 +326,32 @@ def update_challenge_registration():
 
 
 def main():
-    args = parse_args()
-    update_challenge_registration()
-    config = {
-        "spark.sql.shuffle.partitions": args.exec_params.default_parallelism,
-        "spark.default.parallelism": args.exec_params.default_parallelism,
-        "spark.python.worker.reuse": "false",
-        "spark.port.maxRetries": "1",
-        "spark.reducer.maxReqsInFlight": "1",
-        "spark.storage.blockManagerHeartbeatTimeoutMs": "7200s",
-        "spark.executor.heartbeatInterval": "3600s",
-        "spark.network.timeout": "36000s",
-        "spark.shuffle.io.maxRetries": "10",
-        "spark.shuffle.io.retryWait": "60s",
-        "spark.sql.execution.arrow.pyspark.enabled": "true",
-    }
-    enable_hive_support = args.exec_params.in_cloud_mode
-    with TidySparkSession(config, enable_hive_support) as spark_session:
-        do_test_runs(args, spark_session)
+    logger.info(f"Running {__file__}")
+    try:
+        args = parse_args()
+        update_challenge_registration()
+        config = {
+            "spark.sql.shuffle.partitions": args.exec_params.default_parallelism,
+            "spark.default.parallelism": args.exec_params.default_parallelism,
+            "spark.python.worker.reuse": "false",
+            "spark.port.maxRetries": "1",
+            "spark.reducer.maxReqsInFlight": "1",
+            "spark.storage.blockManagerHeartbeatTimeoutMs": "7200s",
+            "spark.executor.heartbeatInterval": "3600s",
+            "spark.network.timeout": "36000s",
+            "spark.shuffle.io.maxRetries": "10",
+            "spark.shuffle.io.retryWait": "60s",
+            "spark.sql.execution.arrow.pyspark.enabled": "true",
+        }
+        enable_hive_support = args.exec_params.in_cloud_mode
+        with TidySparkSession(config, enable_hive_support) as spark_session:
+            do_test_runs(args, spark_session)
+    except KeyboardInterrupt:
+        logger.warning("Interrupted!")
+        return
+    logger.info("Done!")
 
 
 if __name__ == "__main__":
-    print(f"Running {__file__}")
+    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
     main()
-    print("Done!")

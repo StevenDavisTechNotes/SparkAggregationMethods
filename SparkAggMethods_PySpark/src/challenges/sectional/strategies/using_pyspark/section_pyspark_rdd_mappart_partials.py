@@ -25,7 +25,7 @@ def section_pyspark_rdd_mappart_partials(
         exec_params: SectionExecutionParametersPyspark,
         data_set: SectionDataSetPyspark,
 ) -> TChallengePythonPysparkAnswer:
-    logger = spark_session.log
+    logger = spark_session.logger
     if data_set.data_description.num_students > pow(10, 5-1):
         # unreliable in local mode
         return "infeasible"

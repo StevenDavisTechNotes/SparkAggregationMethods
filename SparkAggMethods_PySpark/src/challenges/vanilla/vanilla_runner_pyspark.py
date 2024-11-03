@@ -2,7 +2,9 @@
 # usage: python -m src.challenges.vanilla.vanilla_pyspark_runner
 import argparse
 import gc
+import logging
 import os
+import sys
 import time
 from dataclasses import dataclass
 
@@ -31,12 +33,14 @@ from src.challenges.six_field_test_data.six_test_data_for_pyspark import (
 from src.challenges.vanilla.vanilla_strategy_directory_pyspark import VANILLA_STRATEGIES_USING_PYSPARK_REGISTRY
 from src.utils.tidy_session_pyspark import TidySparkSession
 
+logger = logging.getLogger(__name__)
+
 LANGUAGE = SolutionLanguage.PYTHON
 ENGINE = CalcEngine.PYSPARK
 CHALLENGE = Challenge.VANILLA
 
 
-DEBUG_ARGS = None if False else (
+DEBUG_ARGS = None if True else (
     []
     # + '--size 3_3_1'.split()
     + '--runs 0'.split()
@@ -121,7 +125,7 @@ def do_test_runs(
         args: Arguments,
         spark_session: TidySparkSession,
 ) -> None:
-    logger = spark_session.log
+    logger = spark_session.logger
     itinerary = assemble_itinerary(args)
     if len(itinerary) == 0:
         logger.info("No runs to execute.")
@@ -192,23 +196,28 @@ def update_challenge_registration():
 
 
 def main():
-    args = parse_args()
-    update_challenge_registration()
-    config = {
-        "spark.sql.shuffle.partitions": args.exec_params.default_parallelism,
-        "spark.default.parallelism": args.exec_params.default_parallelism,
-        "spark.driver.memory": "2g",
-        "spark.executor.memory": "3g",
-        "spark.executor.memoryOverhead": "1g",
-    }
-    with TidySparkSession(
-        config,
-        enable_hive_support=False
-    ) as spark_session:
-        do_test_runs(args, spark_session)
+    logger.info(f"Running {__file__}")
+    try:
+        args = parse_args()
+        update_challenge_registration()
+        config = {
+            "spark.sql.shuffle.partitions": args.exec_params.default_parallelism,
+            "spark.default.parallelism": args.exec_params.default_parallelism,
+            "spark.driver.memory": "2g",
+            "spark.executor.memory": "3g",
+            "spark.executor.memoryOverhead": "1g",
+        }
+        with TidySparkSession(
+            config,
+            enable_hive_support=False
+        ) as spark_session:
+            do_test_runs(args, spark_session)
+    except KeyboardInterrupt:
+        logger.warning("Interrupted!")
+        return
+    logger.info("Done!")
 
 
 if __name__ == "__main__":
-    print(f"Running {__file__}")
+    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
     main()
-    print("Done!")

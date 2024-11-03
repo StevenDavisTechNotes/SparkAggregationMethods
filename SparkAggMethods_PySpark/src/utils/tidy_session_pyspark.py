@@ -7,9 +7,8 @@ from typing import Any, cast
 import findspark
 from pyspark import SparkContext
 from pyspark.sql import SparkSession
-from spark_agg_methods_common_python.perf_test_common import (
-    LOCAL_NUM_EXECUTORS,
-)
+from spark_agg_methods_common_python.perf_test_common import LOCAL_NUM_EXECUTORS
+
 SPARK_SCRATCH_FOLDER = "D:\\temp\\spark_scratch"
 
 
@@ -81,7 +80,7 @@ class TidySparkSession:
     python_src_code_path: str
     spark: SparkSession
     spark_context: SparkContext
-    log: Any
+    logger: Any
 
     def __init__(
             self,
@@ -100,7 +99,7 @@ class TidySparkSession:
         self.python_src_code_path = open_session.python_src_code_path
         self.spark = open_session.spark_session
         self.spark_context = open_session.spark_context
-        self.log = open_session.log
+        self.logger = open_session.log
 
     def __enter__(self):
         return self

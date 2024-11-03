@@ -47,7 +47,7 @@ def test_one_step_in_dask_itinerary(
             raise ValueError("No result returned")
     result = process_answer(
         challenge=challenge,
-        data_size=data_set.data_description,
+        data_description=data_set.data_description,
         correct_answer=correct_answer,
         numerical_tolerance=challenge_method_registration.numerical_tolerance,
         started_time=started_time,

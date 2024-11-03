@@ -2,7 +2,9 @@
 # usage: python -m src.summarize_test_results
 
 import io
+import logging
 import os
+import sys
 from dataclasses import dataclass
 from typing import Any, cast
 
@@ -15,6 +17,7 @@ from spark_agg_methods_common_python.challenge_strategy_registry import (
 from spark_agg_methods_common_python.perf_test_common import CalcEngine, Challenge, SolutionLanguage
 from spark_agg_methods_common_python.utils.pandas_helpers import make_empty_pd_dataframe_from_schema
 
+logger = logging.getLogger(__name__)
 FINAL_REPORT_FILE_PATH = '../results/{challenge}_results.csv'
 
 
@@ -75,10 +78,10 @@ def read_run_result_file(
         for i_line, line in enumerate(f):
             line = line.rstrip()
             if line.startswith('#'):
-                print(f"Excluding line: {line} at {i_line}")
+                logger.info(f"Excluding line: {line} at {i_line}")
                 continue
             if line.find(',') < 0:
-                print(f"Excluding line: {line} at {i_line}")
+                logger.info(f"Excluding line: {line} at {i_line}")
                 continue
             if line.startswith(' '):
                 match parse_segment(segment):
@@ -113,11 +116,11 @@ def clean_key_field(
     file_language = src_df[key_field].dropna().unique().tolist()
     src_file_path = challenge_result_log_registration.result_file_path
     if len(file_language) > 1:
-        print(f"Warning: multiple {key_field} found in {src_file_path}: {file_language}")
+        logger.warning(f"Warning: multiple {key_field} found in {src_file_path}: {file_language}")
     elif 1 == len(file_language):
         actual_value = file_language[0]
         if actual_value != expected_value:
-            print(f"Warning: {key_field} in {src_file_path} is {actual_value} but expected {expected_value}")
+            logger.warning(f"Warning: {key_field} in {src_file_path} is {actual_value} but expected {expected_value}")
     src_df[key_field] = expected_value
     return src_df
 
@@ -186,7 +189,7 @@ def analyze_run_results():
                 )
                 df_clean_regressor = df[regressor_column_name].round(0).astype(int)
                 if (df_clean_regressor - df[regressor_column_name]).abs().max() > 0:
-                    print(f"Warning: regressor values in {result_file_path} are not integers")
+                    logger.warning(f"Warning: regressor values in {result_file_path} are not integers")
                 df[regressor_column_name] = df_clean_regressor
                 df = clean_key_field(
                     key_field="language",
@@ -206,12 +209,12 @@ def analyze_run_results():
                     src_df=df,
                     challenge_result_log_registration=challenge_result_log_registration,
                 )
-                print(df)
                 group_iterator = cast(Any, df.groupby(by=['strategy_name', regressor_column_name]))
                 for (strategy_name, regressor_value), group in group_iterator:
                     if strategy_name not in challenge_result_log_registration_by_strategy_name:
-                        print(f"Warning: strategy {strategy_name} in results but not in challenge registration for "
-                              f"language {language}, engine {engine}, challenge {challenge}")
+                        logger.warning(
+                            f"Warning: strategy {strategy_name} in results but not in challenge registration for "
+                            f"language {language}, engine {engine}, challenge {challenge}")
                         continue
                     strategy = challenge_result_log_registration_by_strategy_name[strategy_name]
                     elapsed_time_samples = cast(pd.Series, group[elapsed_time_column_name])
@@ -234,14 +237,22 @@ def print_summary(
     file_report_file_path = FINAL_REPORT_FILE_PATH.format(challenge=challenge.name.lower())
     os.unlink(file_report_file_path) if os.path.exists(file_report_file_path) else None
     if len(summary_status) > 0:
-        print(f"Summary for challenge: {challenge}")
+        logger.info(f"Summarizing challenge: {challenge}")
         df = pd.DataFrame(summary_status)
         df = df.sort_values(by=['challenge', 'language', 'interface', 'strategy_name'])
-        print(df)
         df.to_csv(file_report_file_path, index=False)
 
 
+def main():
+    logger.info(f"Running {__file__}")
+    try:
+        analyze_run_results()
+    except KeyboardInterrupt:
+        logger.warning("Interrupted!")
+        return
+    logger.info("Done!")
+
+
 if __name__ == "__main__":
-    print(f"Running {__file__}")
-    analyze_run_results()
-    print("Done!")
+    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+    main()

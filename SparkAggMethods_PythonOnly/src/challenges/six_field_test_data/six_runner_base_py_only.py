@@ -34,7 +34,7 @@ def test_one_step_in_python_only_itinerary(
             raise ValueError("Must return at least 1 type")
     result = process_answer(
         challenge=challenge,
-        data_size=data_set.data_description,
+        data_description=data_set.data_description,
         correct_answer=correct_answer,
         numerical_tolerance=numerical_tolerance,
         started_time=started_time,

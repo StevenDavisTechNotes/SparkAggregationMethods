@@ -1,6 +1,8 @@
 import datetime as dt
+import logging
 import os
 import random
+import sys
 from pathlib import Path
 
 from spark_agg_methods_common_python.challenges.sectional.section_nospark_logic import section_nospark_logic
@@ -11,6 +13,8 @@ from spark_agg_methods_common_python.challenges.sectional.section_test_data_type
     derive_source_test_data_file_path,
 )
 from spark_agg_methods_common_python.utils.pandas_helpers import make_pd_dataframe_from_list_of_named_tuples
+
+logger = logging.getLogger(__name__)
 
 
 def section_generate_data_file(
@@ -29,7 +33,7 @@ def section_generate_data_file(
     num_departments = NUM_DEPARTMENTS
     num_classes_per_trimester = NUM_CLASSES_PER_TRIMESTER
     with open(temp_file_name, "w") as f:
-        print(f"Creating {final_file_name}")
+        logger.info(f"Creating {final_file_name}")
         for student_id in range(1, num_students + 1):
             f.write(f"S,{student_id},John{student_id}\n")
             for trimester in range(1, num_trimesters + 1):
@@ -80,7 +84,16 @@ def sectional_generate_data(
             AnswerFileSectional.write_answer_file_sectional(data_description, df)
 
 
+def main():
+    logger.info(f"Running {__file__}")
+    try:
+        sectional_generate_data(make_new_files=False)
+    except KeyboardInterrupt:
+        logger.warning("Interrupted!")
+        return
+    logger.info("Done!")
+
+
 if __name__ == "__main__":
-    print(f"Running {__file__}")
-    sectional_generate_data(make_new_files=False)
-    print("Done!")
+    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+    main()

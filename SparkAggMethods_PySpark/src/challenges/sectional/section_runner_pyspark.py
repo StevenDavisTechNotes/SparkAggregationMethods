@@ -4,7 +4,9 @@
 import argparse
 import datetime as dt
 import gc
+import logging
 import os
+import sys
 import time
 from dataclasses import dataclass
 from typing import Iterable, Literal
@@ -37,7 +39,9 @@ from src.challenges.sectional.section_test_data_types_pyspark import (
 )
 from src.utils.tidy_session_pyspark import TidySparkSession
 
-DEBUG_ARGS = None if False else (
+logger = logging.getLogger(__name__)
+
+DEBUG_ARGS = None if True else (
     []
     + '--size 1'.split()
     # + ['--no-check']
@@ -139,7 +143,7 @@ def do_test_runs(
         args: Arguments,
         spark_session: TidySparkSession,
 ) -> None:
-    logger = spark_session.log
+    logger = spark_session.logger
     itinerary = assemble_itinerary(args)
     if len(itinerary) == 0:
         logger.info("No runs to execute.")
@@ -171,7 +175,7 @@ def run_one_itinerary_step(
         challenge_method_registration: SectionChallengeMethodPysparkRegistration,
         data_set: SectionDataSetPyspark,
 ) -> SectionRunResult | Literal["infeasible"]:
-    logger = spark_session.log
+    logger = spark_session.logger
     startedTime = time.time()
     rdd: RDD | None = None
     found_students: Iterable[StudentSummary] | pd.DataFrame
@@ -291,17 +295,22 @@ def spark_configs(
 
 
 def main():
-    args = parse_args()
-    update_challenge_registration()
-    with TidySparkSession(
-        spark_configs(args.exec_params.default_parallelism),
-        enable_hive_support=False,
-    ) as spark_session:
-        os.chdir(spark_session.python_src_code_path)
-        do_test_runs(args, spark_session)
+    logger.info(f"Running {__file__}")
+    try:
+        args = parse_args()
+        update_challenge_registration()
+        with TidySparkSession(
+            spark_configs(args.exec_params.default_parallelism),
+            enable_hive_support=False,
+        ) as spark_session:
+            os.chdir(spark_session.python_src_code_path)
+            do_test_runs(args, spark_session)
+    except KeyboardInterrupt:
+        logger.warning("Interrupted!")
+        return
+    logger.info("Done!")
 
 
 if __name__ == "__main__":
-    print(f"Running {__file__}")
+    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
     main()
-    print("Done!")

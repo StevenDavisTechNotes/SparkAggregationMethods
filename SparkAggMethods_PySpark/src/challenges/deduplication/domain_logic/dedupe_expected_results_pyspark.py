@@ -37,7 +37,7 @@ def verify_correctness(
         lst: list[Row],
         spark_session: TidySparkSession,
 ) -> bool:
-    logger = spark_session.log
+    logger = spark_session.logger
     try:
         lst.sort(key=lambda x: int(x.FieldA))
         actual_num_people = data_description.num_people
@@ -178,8 +178,10 @@ def count_in_a_partition(
 def print_partition_distribution(
         rdd_out: RDD[Row],
         df_out: PySparkDataFrame,
+        start_session: TidySparkSession,
 ) -> None:
-    print("records per partition ",
-          (rdd_out or df_out.rdd)
-          .mapPartitionsWithIndex(count_in_a_partition)
-          .collect())
+    start_session.logger.info(
+        "records per partition ",
+        (rdd_out or df_out.rdd)
+        .mapPartitionsWithIndex(count_in_a_partition)
+        .collect())

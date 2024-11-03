@@ -1,11 +1,14 @@
 # TODO
 
+import logging
 import os
 
 from spark_agg_methods_common_python.challenges.conditional.conditional_record_runs import (
     ConditionalPythonRunResultFileWriter,
 )
 from spark_agg_methods_common_python.perf_test_common import CalcEngine
+
+logger = logging.getLogger(__name__)
 
 ENGINE = CalcEngine.PYTHON_ONLY
 
@@ -18,3 +21,16 @@ class ConditionalPythonOnlyRunResultFileWriter(ConditionalPythonRunResultFileWri
             engine=ENGINE,
             rel_log_file_path=__class__.RUN_LOG_FILE_PATH,
         )
+
+
+def main() -> None:
+    logger.info(f"Running {__file__}")
+    try:
+        #     args = parse_args()
+        #     update_challenge_registration()
+        #     do_test_runs(args)
+        pass
+    except KeyboardInterrupt:
+        logger.warning("Interrupted!")
+        return
+    logger.info("Done!")

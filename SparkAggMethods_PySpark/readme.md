@@ -76,6 +76,3 @@ Look to see what version of Spark and Dask you are going to use, and then work b
   - python --version
   - pyspark --version
   - pyspark
-
-## Debugging Dask
-- `.compute(scheduler='single-threaded')`

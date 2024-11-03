@@ -1,9 +1,13 @@
+import logging
 import os
+import sys
 from pathlib import Path
 
 from spark_agg_methods_common_python.challenges.deduplication.dedupe_test_data_types import (
     DATA_SIZE_LIST_DEDUPE, DEDUPE_SOURCE_CODES, dedupe_derive_source_test_data_file_paths, name_hash,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def line(
@@ -74,7 +78,16 @@ def dedupe_generate_data_files(
                 )
 
 
+def main():
+    logger.info(f"Running {__file__}")
+    try:
+        dedupe_generate_data_files(make_new_files=False)
+    except KeyboardInterrupt:
+        logger.warning("Interrupted!")
+        return
+    logger.info("Done!")
+
+
 if __name__ == "__main__":
-    print(f"Running {__file__}")
-    dedupe_generate_data_files(make_new_files=False)
-    print("Done!")
+    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+    main()

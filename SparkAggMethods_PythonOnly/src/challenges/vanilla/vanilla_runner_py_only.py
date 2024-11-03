@@ -4,6 +4,7 @@ import argparse
 import gc
 import logging
 import os
+import sys
 import time
 from dataclasses import dataclass
 
@@ -183,13 +184,19 @@ def update_challenge_registration():
     )
 
 
-def main():
-    args = parse_args()
-    update_challenge_registration()
-    do_test_runs(args)
+def main(
+) -> None:
+    logger.info(f"Running {__file__}")
+    try:
+        args = parse_args()
+        update_challenge_registration()
+        do_test_runs(args)
+    except KeyboardInterrupt:
+        logger.warning("Interrupted!")
+        return
+    logger.info("Done!")
 
 
 if __name__ == "__main__":
-    print(f"Running {__file__}")
+    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
     main()
-    print("Done!")

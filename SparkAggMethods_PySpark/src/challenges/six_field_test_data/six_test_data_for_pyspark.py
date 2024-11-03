@@ -104,6 +104,7 @@ def six_populate_data_set_pyspark(
         exec_params: SixTestExecutionParameters,
         data_description: SixTestDataSetDescription,
 ) -> SixFieldDataSetDataPyspark:
+    logger = spark_session.logger
     num_grp_1 = data_description.num_grp_1
     num_grp_2 = data_description.num_grp_2
     points_per_index = data_description.points_per_index
@@ -129,11 +130,11 @@ def six_populate_data_set_pyspark(
     df_src.persist(StorageLevel.DISK_ONLY)
     rdd_src.persist(StorageLevel.DISK_ONLY)
     cnt, parts = rdd_src.count(), rdd_src.getNumPartitions()
-    print("Found rdd %i rows in %i parts ratio %.1f" % (cnt, parts, cnt / parts))
+    logger.info("Found rdd %i rows in %i parts ratio %.1f" % (cnt, parts, cnt / parts))
     assert cnt == num_source_rows
 
     cnt, parts = df_src.count(), df_src.rdd.getNumPartitions()
-    print("Found df %i rows in %i parts ratio %.1f" % (cnt, parts, cnt / parts))
+    logger.info("Found df %i rows in %i parts ratio %.1f" % (cnt, parts, cnt / parts))
     assert cnt == num_source_rows
 
     return SixFieldDataSetDataPyspark(

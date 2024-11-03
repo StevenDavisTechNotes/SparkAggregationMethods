@@ -4,6 +4,7 @@ import argparse
 import gc
 import logging
 import os
+import sys
 import time
 from dataclasses import dataclass
 
@@ -35,14 +36,14 @@ LANGUAGE = SolutionLanguage.PYTHON
 ENGINE = CalcEngine.PYTHON_ONLY
 CHALLENGE = Challenge.BI_LEVEL
 
-DEBUG_ARGS = None if False else (
+DEBUG_ARGS = None if True else (
     []
-    + '--size 3_3_10'.split()
-    + '--runs 0'.split()
+    # + '--size 3_300_1k'.split()
+    + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
     + ['--strategy',
-       #    'bi_level_py_only_pd_grp_numpy',
+       'bi_level_py_only_pd_grp_numpy',
        ]
 )
 
@@ -187,12 +188,17 @@ def update_challenge_registration():
 
 
 def main():
-    args = parse_args()
-    update_challenge_registration()
-    do_test_runs(args)
+    logger.info(f"Running {__file__}")
+    try:
+        args = parse_args()
+        update_challenge_registration()
+        do_test_runs(args)
+    except KeyboardInterrupt:
+        logger.warning("Interrupted!")
+        return
+    logger.info("Done!")
 
 
 if __name__ == "__main__":
-    print(f"Running {__file__}")
+    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
     main()
-    print("Done!")

@@ -97,8 +97,6 @@ def parse_line_to_types_with_line_no(
 def print_test_data_file(
         prepped_file_path: str,
 ) -> None:
-    print(f"Running {__file__}")
     with open(prepped_file_path, "rt") as fh:
         for i_line, line in enumerate(fh):
             parse_line_to_types_with_line_no(prepped_file_path, i_line, line.rstrip())
-    print("Done!")

@@ -4,6 +4,7 @@ import argparse
 import gc
 import logging
 import os
+import sys
 import time
 from dataclasses import dataclass
 
@@ -35,7 +36,7 @@ CHALLENGE = Challenge.VANILLA
 
 logger = logging.getLogger(__name__)
 
-DEBUG_ARGS = None if False else (
+DEBUG_ARGS = None if True else (
     []
     + '--size 3_3_10'.split()
     + '--runs 0'.split()
@@ -200,15 +201,20 @@ def do_with_local_client():
 
 
 def main():
-    # with DaskClient(
-    #         processes=True,
-    #         n_workers=LOCAL_NUM_EXECUTORS,
-    #         threads_per_worker=1,
-    # ) as dask_client:
-    do_with_local_client()
+    logger.info(f"Running {__file__}")
+    try:
+        # with DaskClient(
+        #         processes=True,
+        #         n_workers=LOCAL_NUM_EXECUTORS,
+        #         threads_per_worker=1,
+        # ) as dask_client:
+        do_with_local_client()
+    except KeyboardInterrupt:
+        logger.warning("Interrupted!")
+        return
+    logger.info("Done!")
 
 
 if __name__ == "__main__":
-    print(f"Running {__file__}")
+    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
     main()
-    print("Done!")

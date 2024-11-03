@@ -1,5 +1,5 @@
 #! python
-# usage: python -m src.challenges.sectional.section_runner_py_only
+# usage: python -O -m src.challenges.sectional.section_runner_py_only
 # cSpell: ignore wasb, sparkperftesting, Reqs
 import argparse
 import datetime as dt

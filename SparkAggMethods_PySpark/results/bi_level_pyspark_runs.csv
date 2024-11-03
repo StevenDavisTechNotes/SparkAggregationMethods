@@ -71,3 +71,4 @@ bi_level_pyspark_sql_join,sql,900000,1000,14.421589,3,pyspark,2024-10-10T02:20:4
 9.326689720153809,pyspark,2024-10-13T21:19:00.150196,fluent,python,3,900000,10,bi_level_pyspark_df_join,
 5.328997850418091,pyspark,2024-10-13T21:19:05.663067,sql,python,3,900000,100,bi_level_pyspark_sql_nested,
 17.956788063049316,pyspark,2024-10-13T21:19:23.794733,fluent,python,3,900000,1000,bi_level_pyspark_df_nested,
+# Added -O flag to the python command

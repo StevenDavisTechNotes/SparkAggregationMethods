@@ -1,5 +1,5 @@
 #! python
-# usage: python -m src.challenges.bi_level.bi_level_python_only_runner
+# usage: python -O -m src.challenges.bi_level.bi_level_runner_py_only
 import argparse
 import gc
 import logging

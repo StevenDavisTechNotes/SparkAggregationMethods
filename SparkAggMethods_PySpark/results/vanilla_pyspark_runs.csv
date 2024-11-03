@@ -142,3 +142,4 @@ vanilla_pyspark_df_grp_numba,pandas,90,8.069313,9,pyspark,2024-10-08T21:43:01.64
 vanilla_pyspark_rdd_grp_map,rdd,90,48.121999,9,pyspark,2024-10-08T21:43:49.953586,
 vanilla_pyspark_rdd_reduce,rdd,90,50.560115,9,pyspark,2024-10-08T21:44:40.715936,
 vanilla_pyspark_rdd_mappart,rdd,90,50.114085,9,pyspark,2024-10-08T21:45:31.033063,
+# Added -O flag to the python command

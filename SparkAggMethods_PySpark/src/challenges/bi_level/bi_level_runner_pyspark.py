@@ -1,5 +1,5 @@
 #! python
-# usage: python -m src.challenges.bi_level.bi_level_pyspark_runner
+# usage: python -O -m src.challenges.bi_level.bi_level_pyspark_runner
 import argparse
 import gc
 import logging

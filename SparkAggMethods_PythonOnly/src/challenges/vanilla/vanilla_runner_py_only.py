@@ -1,5 +1,5 @@
 #! python
-# usage: python -m src.challenges.vanilla.vanilla_python_only_runner
+# usage: python -O -m src.challenges.vanilla.vanilla_runner_py_only
 import argparse
 import gc
 import logging
@@ -38,7 +38,7 @@ CHALLENGE = Challenge.VANILLA
 
 logger = logging.getLogger(__name__)
 
-DEBUG_ARGS = None if False else (
+DEBUG_ARGS = None if True else (
     []
     + '--size 3_3_10'.split()
     + '--runs 0'.split()

@@ -154,3 +154,11 @@ bi_level_py_only_pd_grp_numpy,pandas,90,1,0.007014,3,python_only,2024-10-09T15:3
 0.15237784385681152,python_only,2024-10-13T16:42:39.979126,pandas,python,3,900000,100,bi_level_py_only_pd_grp_numpy,
 0.885761022567749,python_only,2024-10-13T16:42:41.007987,pandas,python,3,900000,1000,bi_level_py_only_pd_grp_numpy,
 0.08103179931640625,python_only,2024-10-13T16:42:41.233950,pandas,python,3,900000,10,bi_level_py_only_pd_grp_numpy,
+# Added -O flag to the python command
+ elapsed_time,engine,finished_at,interface,language,num_output_rows,num_source_rows,relative_cardinality_between_groupings,strategy_name,
+0.6494438648223877,python_only,2024-11-03T08:30:00.503126,pandas,python,3,900000,1000,bi_level_py_only_pd_grp_numpy,
+ elapsed_time,engine,finished_at,interface,language,num_output_rows,num_source_rows,relative_cardinality_between_groupings,strategy_name,
+0.6430871486663818,python_only,2024-11-03T08:35:14.232662,pandas,python,3,900000,1000,bi_level_py_only_pd_grp_numpy,
+0.1281418800354004,python_only,2024-11-03T08:35:14.476035,pandas,python,3,900000,100,bi_level_py_only_pd_grp_numpy,
+0.07006597518920898,python_only,2024-11-03T08:35:14.660342,pandas,python,3,900000,1,bi_level_py_only_pd_grp_numpy,
+0.07343363761901855,python_only,2024-11-03T08:35:14.857928,pandas,python,3,900000,10,bi_level_py_only_pd_grp_numpy,

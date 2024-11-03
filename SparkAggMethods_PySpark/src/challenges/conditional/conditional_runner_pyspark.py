@@ -1,5 +1,5 @@
 #! python
-# usage: python -m src.challenges.conditional.conditional_pyspark_runner
+# usage: python -O -m src.challenges.conditional.conditional_pyspark_runner
 import argparse
 import gc
 import logging

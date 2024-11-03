@@ -1,5 +1,5 @@
 #!python
-# usage: python -m src.perf_test_runner_for_py_only
+# usage: python -O -m src.perf_test_runner_for_py_only
 
 import logging
 import sys

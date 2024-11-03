@@ -390,3 +390,4 @@ bi_level_dask_sql_nested_no_gpu,ddf,900000,1,0.158484,3,dask,2024-10-10T15:12:01
 0.9434206485748291,dask,2024-10-13T16:43:49.259195,ddf,python,3,900000,100,bi_level_dask_sql_single_join_no_gpu,
 7.5638649463653564,dask,2024-10-13T16:43:56.965812,ddf,python,3,900000,1000,bi_level_dask_sql_nested_no_gpu,
 0.26436758041381836,dask,2024-10-13T16:43:57.373385,ddf,python,3,900000,10,bi_level_dask_sql_nested_no_gpu,
+# Added -O flag to the python command

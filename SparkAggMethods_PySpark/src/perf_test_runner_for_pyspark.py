@@ -1,5 +1,5 @@
 #!python
-# usage: .\venv\Scripts\activate.ps1; python -m src.perf_test_runner_for_pyspark
+# usage: .\venv\Scripts\activate.ps1; python -O -m src.perf_test_runner_for_pyspark
 
 import logging
 import sys

@@ -1,5 +1,3 @@
-# TODO
-
 import logging
 import os
 
@@ -21,6 +19,8 @@ class ConditionalPythonOnlyRunResultFileWriter(ConditionalPythonRunResultFileWri
             engine=ENGINE,
             rel_log_file_path=__class__.RUN_LOG_FILE_PATH,
         )
+
+# TODO: Implement the main function
 
 
 def main() -> None:

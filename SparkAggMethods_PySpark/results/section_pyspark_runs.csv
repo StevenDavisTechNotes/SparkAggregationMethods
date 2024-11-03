@@ -106,3 +106,4 @@ success,section_pyspark_df_prep_txt,fluent,1,49,49,45.749583,1,2024-10-08T21:21:
 success,section_pyspark_df_prep_grp_csv,fluent,1,49,49,22.567562,1,2024-10-08T21:21:51.103656,
 success,section_join_groupby,fluent,1,49,49,39.993351,1,2024-10-08T21:22:31.220820,
 success,section_pyspark_rdd_join_mappart,rdd,1,49,49,207.887679,1,2024-10-08T21:25:59.236186,
+# Added -O flag to the python command

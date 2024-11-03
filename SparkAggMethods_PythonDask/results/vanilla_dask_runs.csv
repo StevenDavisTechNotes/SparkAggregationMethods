@@ -4288,3 +4288,4 @@ vanilla_dask_bag_foldby,bag,90000,5.058454,9,dask,2024-10-09T08:42:30.900656,
 4.8471479415893555,dask,2024-10-19T10:09:43.978486,bag,python,9,90,vanilla_dask_bag_reduction,
 4.9728498458862305,dask,2024-10-19T10:09:49.101900,bag,python,9,90,vanilla_dask_bag_map_partitions,
 0.1443924903869629,dask,2024-10-19T10:09:49.403242,ddf,python,9,90,vanilla_dask_sql_no_gpu,
+# Added -O flag to the python command

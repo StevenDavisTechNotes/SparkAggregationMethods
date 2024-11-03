@@ -1,5 +1,5 @@
 #! python
-# usage: python -m src.challenges.bi_level.bi_level_dask_runner
+# usage: python -O -m src.challenges.bi_level.bi_level_dask_runner
 import argparse
 import gc
 import logging

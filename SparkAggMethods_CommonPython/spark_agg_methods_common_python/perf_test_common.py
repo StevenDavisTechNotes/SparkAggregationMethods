@@ -1,3 +1,4 @@
+import logging
 import random
 from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass
@@ -6,6 +7,8 @@ from enum import Enum, StrEnum
 from typing import Callable, Generic, TextIO, TypeVar
 
 from spark_agg_methods_common_python.utils.utils import set_random_seed
+
+logger = logging.getLogger(__name__)
 
 ELAPSED_TIME_COLUMN_NAME: str = 'elapsed_time'
 LOCAL_TEST_DATA_FILE_LOCATION = 'd:/temp/SparkPerfTesting'
@@ -179,7 +182,11 @@ class RunResultFileWriterBase(Generic[TSolutionInterface], ABC):
         header = ' '+','.join(sorted(
             [x.name for x in dataclass_fields(self.persisted_row_type)]
         ))+','
-        print(header, file=self.file)
+        if __debug__:
+            logger.info(f"Skipping writing header {header}")
+        else:
+            logger.info(f"Writing header {header}")
+            print(header, file=self.file)
 
     @abstractmethod
     def write_run_result(
@@ -198,10 +205,15 @@ class RunResultFileWriterBase(Generic[TSolutionInterface], ABC):
             str(getattr(persisted_result_row, field_name))
             for field_name in sorted(dict_result)
         )+','
-        print(line, file=self.file)
-        self.file.flush()
+        if __debug__:
+            logger.info(f"Skipping writing line {line}")
+        else:
+            logger.info(f"Writing result {line}")
+            print(line, file=self.file)
+            self.file.flush()
 
     def close(self):
+        self.file.flush()
         self.file.close()
         del self.file
 

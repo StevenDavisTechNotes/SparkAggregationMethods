@@ -1,3 +1,4 @@
+import logging
 import math
 import os
 import pickle
@@ -15,6 +16,8 @@ from spark_agg_methods_common_python.utils.utils import always_true
 
 # cSpell: ignore arange
 
+logger = logging.getLogger(__name__)
+
 
 def generate_answer_file(data_size: SixTestDataSetDescription) -> None:
     answer_file_names = six_derive_expected_answer_data_file_path(data_size)
@@ -30,20 +33,6 @@ def generate_answer_file(data_size: SixTestDataSetDescription) -> None:
     repetition = data_size.points_per_index
     num_data_points = num_grp_1 * num_grp_2 * repetition
     assert len(df) == num_data_points
-    vanilla_answer: pd.DataFrame = pd.DataFrame.from_records(
-        [
-            {
-                "grp": grp,
-                "subgrp": subgrp,
-                "mean_of_C": df_cluster["C"].mean(),
-                "max_of_D": df_cluster["D"].max(),
-                "var_of_E": df_cluster["E"].var(ddof=0),
-                "var_of_E2": df_cluster["E"].var(ddof=0),
-            }
-            for grp in range(num_grp_1)
-            for subgrp in range(num_grp_2)
-            if always_true(df_cluster := df[(df["grp"] == grp) & (df["subgrp"] == subgrp)])
-        ])
 
     def hand_coded_variance(column: pd.Series) -> float:
         n = len(column)
@@ -83,20 +72,21 @@ def generate_answer_file(data_size: SixTestDataSetDescription) -> None:
             if always_true(df_cluster := df[(df["grp"] == grp) & (df["subgrp"] == subgrp)])
             if always_true(negE := df_cluster.loc[df_cluster["E"] < 0, 'E'])
         ])
-    print(f"Using {num_grp_1}, {num_grp_2}, {repetition} ")
-    #   f"src_num_partitions={src_num_partitions} "
-    #   f"each {num_grp_1 * num_grp_2 * repetition/src_num_partitions:.1f}")
-
-    # return SixTestDataSetWAnswers(
-    #     num_source_rows=num_data_points,
-    #     src_num_partitions=src_num_partitions,
-    #     tgt_num_partitions_1_level=num_grp_1,
-    #     tgt_num_partitions_2_level=num_grp_1 * num_grp_2,
-    #     df_src=df,
-    #     vanilla_answer=vanilla_answer,
-    #     bilevel_answer=bilevel_answer,
-    #     conditional_answer=conditional_answer,
-    # )
+    vanilla_answer: pd.DataFrame = pd.DataFrame.from_records(
+        [
+            {
+                "grp": grp,
+                "subgrp": subgrp,
+                "mean_of_C": df_cluster["C"].mean(),
+                "max_of_D": df_cluster["D"].max(),
+                "var_of_E": df_cluster["E"].var(ddof=0),
+                "var_of_E2": df_cluster["E"].var(ddof=0),
+            }
+            for grp in range(num_grp_1)
+            for subgrp in range(num_grp_2)
+            if always_true(df_cluster := df[(df["grp"] == grp) & (df["subgrp"] == subgrp)])
+        ])
+    logger.info(f"Generating 6 data for {num_grp_1}, {num_grp_2}, {repetition} ")
     bi_level_answer.to_csv(answer_file_names[Challenge.BI_LEVEL], index=False)
     conditional_answer.to_csv(answer_file_names[Challenge.CONDITIONAL], index=False)
     vanilla_answer.to_csv(answer_file_names[Challenge.VANILLA], index=False)
@@ -131,12 +121,6 @@ def generate_source_data_file(
             "grp": np.array([i // num_grp_2 % num_grp_1 for i in range(num_data_points)], dtype=np.int32),
             "subgrp": np.array([i % num_grp_2 for i in range(num_data_points)], dtype=np.int32),
         },
-        # np.array([[
-        #     i,
-        #     (i // numGrp2) % numGrp1,
-        #     i % numGrp2,
-        # ] for i in range(num_data_points)]),
-        # columns=['id', 'grp', 'subgrp'],
         dtype=np.int32,
     )
     df['A'] = np.random.randint(1, repetition + 1, num_data_points, dtype=np.int32)
@@ -149,7 +133,7 @@ def generate_source_data_file(
     if True:
         df.to_parquet(temp_source_file_name_parquet, engine='pyarrow', index=False)
         os.rename(temp_source_file_name_parquet, source_file_name_parquet)
-    if num_data_points < 1000:
+    if True:  # num_data_points < 1000:
         with open(temp_source_file_name_csv, "wb") as fh:
             df.to_csv(fh, index=False)
         os.rename(temp_source_file_name_csv, source_file_name_csv)

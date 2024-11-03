@@ -16,7 +16,6 @@ SIX_TEST_CHALLENGES = [Challenge.BI_LEVEL, Challenge.CONDITIONAL, Challenge.VANI
 
 
 class DataPointNT(NamedTuple):
-    id: int
     grp: int
     subgrp: int
     A: float
@@ -29,7 +28,6 @@ class DataPointNT(NamedTuple):
 
 @dataclass(frozen=True)
 class DataPointDC():
-    id: int
     grp: int
     subgrp: int
     A: float

@@ -1,6 +1,6 @@
 import logging
 from dataclasses import dataclass
-from typing import Literal, Protocol
+from typing import Literal, Protocol, cast
 
 import dask.dataframe
 import pandas as pd
@@ -94,12 +94,16 @@ def six_populate_data_set_dask(
             )
         )
     )
-    df_src: DaskDataFrame = dask.dataframe.read_parquet(  # type: ignore
-        source_file_name_parquet, engine='pyarrow',
-    ).set_index('Id')
+    read_parquet = dask.dataframe.read_parquet  # type: ignore
+    df_src = cast(DaskDataFrame, read_parquet(
+        source_file_name_parquet,
+        engine='pyarrow',
+    ))
+    df_src = df_src.set_index('id', npartitions=src_num_partitions)
     cnt, parts = len(df_src), len(df_src.divisions)
     logger.info("Found %i rows in %i parts ratio %.1f" % (cnt, parts, cnt / parts))
     assert cnt == num_source_rows
+
     bag_src: DaskBag = df_src.to_bag().map(lambda x: DataPointNT(*x))
     return SixTestDataSetDataDask(
         src_num_partitions=src_num_partitions,

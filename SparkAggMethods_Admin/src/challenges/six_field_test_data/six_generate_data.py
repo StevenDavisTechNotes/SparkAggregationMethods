@@ -1,15 +1,12 @@
 import logging
 import math
 import os
-import pickle
-import random
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
-    DataPointNT, SixTestDataSetDescription, six_derive_expected_answer_data_file_path,
-    six_derive_source_test_data_file_path,
+    SixTestDataSetDescription, six_derive_expected_answer_data_file_path, six_derive_source_test_data_file_path,
 )
 from spark_agg_methods_common_python.perf_test_common import Challenge
 from spark_agg_methods_common_python.utils.utils import always_true
@@ -137,31 +134,6 @@ def generate_source_data_file(
         with open(temp_source_file_name_csv, "wb") as fh:
             df.to_csv(fh, index=False)
         os.rename(temp_source_file_name_csv, source_file_name_csv)
-
-
-def generate_data_to_file_using_python_random(
-        file_name: str,
-        numGrp1: int,
-        numGrp2: int,
-        repetition: int,
-) -> None:
-    data_points = [
-        DataPointNT(
-            id=i,
-            grp=(i // numGrp2) % numGrp1,
-            subgrp=i % numGrp2,
-            A=random.randint(1, repetition),
-            B=random.randint(1, repetition),
-            C=random.uniform(1, 10),
-            D=random.uniform(1, 10),
-            E=random.normalvariate(0, 10),
-            F=random.normalvariate(1, 10))
-        for i in range(0, numGrp1 * numGrp2 * repetition)]
-    Path(file_name).parent.mkdir(parents=True, exist_ok=True)
-    tmp_file_name = f'{file_name}_t'
-    with open(tmp_file_name, "wb") as fh:
-        pickle.dump(data_points, fh)
-    os.rename(tmp_file_name, file_name)
 
 
 def six_generate_data_file(

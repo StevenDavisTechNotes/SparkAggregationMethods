@@ -136,6 +136,25 @@ class SixTestDataChallengeMethodRegistrationBase(
     numerical_tolerance: NumericalToleranceExpectations
 
 
+def six_derive_expected_answer_data_file_path(
+        data_description: SixTestDataSetDescription,
+        *,
+        temp_file: bool = False,
+) -> dict[Challenge, str]:
+    num_grp_1 = data_description.num_grp_1
+    num_grp_2 = data_description.num_grp_2
+    repetition = data_description.points_per_index
+    temp_postfix = "_temp" if temp_file else ""
+    answer_file_names = {
+        challenge: os.path.join(
+            LOCAL_TEST_DATA_FILE_LOCATION,
+            "SixField_Test_Data",
+            f"{challenge}_answer_data_{num_grp_1}_{num_grp_2}_{repetition}{temp_postfix}.csv")
+        for challenge in SIX_TEST_CHALLENGES
+    }
+    return answer_file_names
+
+
 def six_derive_source_test_data_file_path(
         data_description: SixTestDataSetDescription,
         *,
@@ -154,25 +173,6 @@ def six_derive_source_test_data_file_path(
         "SixField_Test_Data",
         f"six_field_source_data_{num_grp_1}_{num_grp_2}_{repetition}{temp_postfix}.csv")
     return source_file_name_parquet, source_file_name_csv
-
-
-def six_derive_expected_answer_data_file_path(
-        data_description: SixTestDataSetDescription,
-        *,
-        temp_file: bool = False,
-) -> dict[Challenge, str]:
-    num_grp_1 = data_description.num_grp_1
-    num_grp_2 = data_description.num_grp_2
-    repetition = data_description.points_per_index
-    temp_postfix = "_temp" if temp_file else ""
-    answer_file_names = {
-        challenge: os.path.join(
-            LOCAL_TEST_DATA_FILE_LOCATION,
-            "SixField_Test_Data",
-            f"{challenge}_answer_data_{num_grp_1}_{num_grp_2}_{repetition}{temp_postfix}.csv")
-        for challenge in SIX_TEST_CHALLENGES
-    }
-    return answer_file_names
 
 
 def fetch_six_data_set_answer(

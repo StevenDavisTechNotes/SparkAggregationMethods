@@ -31,7 +31,7 @@ class AnswerFileSectional(ABC):
         expected_answer_data_file_path = derive_expected_answer_data_file_path(data_description)
         if not os.path.exists(expected_answer_data_file_path):
             raise FileNotFoundError(f"Expected answer data file not found: {expected_answer_data_file_path}")
-        return pd.read_parquet(expected_answer_data_file_path)
+        return pd.read_parquet(expected_answer_data_file_path, engine='pyarrow')
 
     @staticmethod
     def write_answer_file_sectional(

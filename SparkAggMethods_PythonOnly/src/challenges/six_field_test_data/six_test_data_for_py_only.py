@@ -62,7 +62,7 @@ def six_populate_data_set_python_only(
     source_file_name_parquet, source_file_name_csv = six_derive_source_test_data_file_path(
         data_description=data_description,
     )
-    df_src = pd.read_parquet(source_file_name_parquet)
+    df_src = pd.read_parquet(source_file_name_parquet, engine='pyarrow')
     assert len(df_src) == num_source_rows
     return DataSetDataPythonOnly(
         df_src=df_src,

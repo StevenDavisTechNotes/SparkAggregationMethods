@@ -13,7 +13,7 @@ from spark_agg_methods_common_python.perf_test_common import (
 
 @dataclass(frozen=True)
 class DataSetDataPythonOnly():
-    df_src: pd.DataFrame
+    source_file_path_parquet: str
 
 
 @dataclass(frozen=True)
@@ -54,16 +54,9 @@ def six_populate_data_set_python_only(
         exec_params: SixTestExecutionParameters,
         data_description: SixTestDataSetDescription,
 ) -> DataSetDataPythonOnly:
-    num_grp_1 = data_description.num_grp_1
-    num_grp_2 = data_description.num_grp_2
-    points_per_index = data_description.points_per_index
-    num_source_rows = num_grp_1 * num_grp_2 * points_per_index
-
-    source_file_name_parquet, source_file_name_csv = six_derive_source_test_data_file_path(
+    source_file_paths = six_derive_source_test_data_file_path(
         data_description=data_description,
     )
-    df_src = pd.read_parquet(source_file_name_parquet, engine='pyarrow')
-    assert len(df_src) == num_source_rows
     return DataSetDataPythonOnly(
-        df_src=df_src,
+        source_file_path_parquet=source_file_paths.source_file_path_parquet_modern,
     )

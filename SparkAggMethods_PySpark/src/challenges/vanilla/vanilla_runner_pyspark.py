@@ -1,5 +1,5 @@
 #! python
-# usage: python -O -m src.challenges.vanilla.vanilla_pyspark_runner
+# usage: python -O -m src.challenges.vanilla.vanilla_runner_pyspark
 import argparse
 import gc
 import logging
@@ -26,7 +26,7 @@ from spark_agg_methods_common_python.perf_test_common import (
     assemble_itinerary,
 )
 
-from src.challenges.six_field_test_data.six_runner_base_pyspark import test_one_step_in_pyspark_itinerary
+from src.challenges.six_field_test_data.six_runner_base_pyspark import run_one_step_in_pyspark_itinerary
 from src.challenges.six_field_test_data.six_test_data_for_pyspark import (
     SixFieldDataSetPyspark, six_populate_data_set_pyspark,
 )
@@ -42,15 +42,20 @@ CHALLENGE = Challenge.VANILLA
 
 DEBUG_ARGS = None if True else (
     []
-    # + '--size 3_3_1'.split()
-    + '--runs 0'.split()
+    + '--size 3_3_1m 3_3_10m 3_3_100m'.split()
+    + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
-    # + ['--strategy',
-    #    'vanilla_pyspark_rdd_grp_map',
-    #    'vanilla_pyspark_rdd_mappart',
-    #    'vanilla_pyspark_rdd_reduce',
-    #    ]
+    + ['--strategy',
+       #    'vanilla_pyspark_df_grp_builtin',
+       #    'vanilla_pyspark_df_grp_numba',
+       #    'vanilla_pyspark_df_grp_numpy',
+       #    'vanilla_pyspark_df_grp_pandas',
+       #    'vanilla_pyspark_rdd_grp_map',
+       #    'vanilla_pyspark_rdd_mappart',
+       #    'vanilla_pyspark_rdd_reduce',
+        #   'vanilla_pyspark_sql',
+       ]
 )
 
 
@@ -66,7 +71,7 @@ class Arguments(RunnerArgumentsBase):
 
 def parse_args() -> Arguments:
     sizes = [x.size_code for x in DATA_SIZES_LIST_VANILLA]
-    strategy_names = [x.strategy_name for x in VANILLA_STRATEGIES_USING_PYSPARK_REGISTRY]
+    strategy_names = sorted(x.strategy_name for x in VANILLA_STRATEGIES_USING_PYSPARK_REGISTRY)
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--random-seed', type=int)
@@ -103,7 +108,11 @@ def prepare_data_sets(
                 args.exec_params,
                 data_description=size,
             ),
-            answer=fetch_six_data_set_answer(CHALLENGE, size),
+            answer=fetch_six_data_set_answer(
+                CHALLENGE,
+                size,
+                spark_logger=spark_session.logger,
+            ),
         )
         for size in DATA_SIZES_LIST_VANILLA
         if size.size_code in args.sizes
@@ -140,7 +149,7 @@ def do_test_runs(
             logger.info("Working on %d of %d" % (index, len(itinerary)))
             logger.info(f"Working on {challenge_method_registration.strategy_name} "
                         f"for {data_set.data_description.size_code}")
-            base_run_result = test_one_step_in_pyspark_itinerary(
+            base_run_result = run_one_step_in_pyspark_itinerary(
                 challenge=CHALLENGE,
                 spark_session=spark_session,
                 exec_params=args.exec_params,

@@ -2,7 +2,7 @@ from dataclasses import asdict
 
 import pandas as pd
 from dask.bag.core import Bag as DaskBag
-from spark_agg_methods_common_python.challenges.six_field_test_data import six_domain_logic
+from spark_agg_methods_common_python.challenges.six_field_test_data.six_domain_logic import naive_accumulation
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
     DataPointNT, SixTestExecutionParameters, SubTotalDC,
 )
@@ -16,10 +16,13 @@ def vanilla_dask_bag_foldby(
         exec_params: SixTestExecutionParameters,
         data_set: SixTestDataSetDask
 ) -> TChallengeAnswerPythonDask:
+    if (data_set.data_description.points_per_index >= 10**6):  # EOM before calling accumulator
+        return "infeasible"
     check_memory(throw=True)
-    stage0: DaskBag = data_set.data.bag_src
+    stage0: DaskBag = data_set.data.open_source_data_as_bag()
     stage1 = dict(
         stage0
+        .map(lambda x: DataPointNT(*x))
         .foldby(
             key=lambda x: (x.grp, x.subgrp),
             binop=combine_with_running_subtotal,
@@ -35,14 +38,14 @@ def combine_with_running_subtotal(
         prior: SubTotalDC | None,
         element: DataPointNT,
 ) -> SubTotalDC:
-    return six_domain_logic.accumulate_subtotal(prior, element)
+    return naive_accumulation.accumulate_subtotal(prior, element)
 
 
 def combine_subtotals(
         lhs: SubTotalDC,
         rhs: SubTotalDC,
 ) -> SubTotalDC:
-    return six_domain_logic.combine_subtotals(lhs, rhs)
+    return naive_accumulation.combine_subtotals(lhs, rhs)
 
 
 def finalize(
@@ -54,7 +57,7 @@ def finalize(
                 "grp": grp,
                 "subgrp": subgrp,
             }
-            | asdict(six_domain_logic.total_from_subtotal(subtotal))
+            | asdict(naive_accumulation.total_from_subtotal(subtotal))
             for (grp, subgrp), subtotal in acc.items()
         ]
     )

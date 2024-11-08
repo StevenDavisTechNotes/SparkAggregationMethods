@@ -59,7 +59,7 @@ class Arguments(RunnerArgumentsBase):
 
 def parse_args() -> Arguments:
     sizes = [x.size_code for x in DATA_SIZE_LIST_SECTIONAL]
-    strategy_names = [x.strategy_name for x in SECTIONAL_STRATEGIES_USING_PYTHON_ONLY_REGISTRY]
+    strategy_names = sorted(x.strategy_name for x in SECTIONAL_STRATEGIES_USING_PYTHON_ONLY_REGISTRY)
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--check', default=True, action=argparse.BooleanOptionalAction,

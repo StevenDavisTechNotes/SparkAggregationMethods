@@ -19,18 +19,24 @@ def vanilla_pyspark_rdd_reduce(
         exec_params: SixTestExecutionParameters,
         data_set: SixFieldDataSetPyspark
 ) -> TSixFieldChallengePendingAnswerPythonPyspark:
+    if (data_set.data_description.num_source_rows >= 9*10**6):  # incorrect answer at that point
+        return "infeasible"
+    if (data_set.data_description.num_source_rows >= 9*10**8):  # EOM
+        return "infeasible"
     agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(data_set.data, CHALLENGE)
-    sumCount: RDD[Row] = (
-        data_set.data.rdd_src
+    rdd_src = data_set.data.open_source_data_as_rdd(spark_session)
+    sum_count: RDD[Row] = (
+        rdd_src
+        .map(lambda r: DataPointNT(*r))
         .map(lambda x: ((x.grp, x.subgrp), x))
         .combineByKey(create_combiner_2,
                       merge_value_2,
                       merge_combiners_2)
         .map(lambda kv: final_analytics_2(kv[0], kv[1])))
-    rddResult = sumCount.sortBy(
+    rdd_result = sum_count.sortBy(
         keyfunc=lambda x: cast(tuple[int, int], (x.grp, x.subgrp)),  # type: ignore
         numPartitions=agg_tgt_num_partitions)
-    return rddResult
+    return rdd_result
 
 
 def max(

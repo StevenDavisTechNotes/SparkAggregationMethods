@@ -15,7 +15,8 @@ def cond_pyspark_sql_null(
 ) -> TSixFieldChallengePendingAnswerPythonPyspark:
     spark = spark_session.spark
     spark.catalog.dropTempView("example_data")
-    data_set.data.df_src.createTempView("example_data")
+    df_src = data_set.data.open_source_data_as_df(spark_session)
+    df_src.createTempView("example_data")
     df = spark.sql('''
     SELECT
         grp, subgrp, AVG(C) mean_of_C, MAX(D) max_of_D,

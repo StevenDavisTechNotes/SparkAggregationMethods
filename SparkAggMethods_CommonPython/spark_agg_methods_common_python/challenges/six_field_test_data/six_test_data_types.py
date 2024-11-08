@@ -1,13 +1,17 @@
+import logging
 import os
 from dataclasses import dataclass
-from typing import NamedTuple
+from typing import Any, NamedTuple
 
 import pandas as pd
+import pyarrow
 
 from spark_agg_methods_common_python.perf_test_common import (
     LOCAL_TEST_DATA_FILE_LOCATION, Challenge, ChallengeMethodRegistrationBase, DataSetDescriptionBase,
     ExecutionParametersBase, NumericalToleranceExpectations, TChallengeMethodDelegate, TSolutionInterface,
 )
+
+logger = logging.getLogger(__name__)
 
 # cSpell: ignore arange
 
@@ -16,6 +20,7 @@ SIX_TEST_CHALLENGES = [Challenge.BI_LEVEL, Challenge.CONDITIONAL, Challenge.VANI
 
 
 class DataPointNT(NamedTuple):
+    id: int
     grp: int
     subgrp: int
     A: float
@@ -28,6 +33,7 @@ class DataPointNT(NamedTuple):
 
 @dataclass(frozen=True)
 class DataPointDC():
+    id: int
     grp: int
     subgrp: int
     A: float
@@ -36,6 +42,19 @@ class DataPointDC():
     D: float
     E: float
     F: float
+
+
+SIX_TEST_SOURCE_DATA_PYARROW_SCHEMA = pyarrow.schema([
+    pyarrow.field("id", pyarrow.int32()),
+    pyarrow.field("grp", pyarrow.int32()),
+    pyarrow.field("subgrp", pyarrow.int32()),
+    pyarrow.field("A", pyarrow.int32()),
+    pyarrow.field("B", pyarrow.int32()),
+    pyarrow.field("C", pyarrow.float64()),
+    pyarrow.field("D", pyarrow.float64()),
+    pyarrow.field("E", pyarrow.float64()),
+    pyarrow.field("F", pyarrow.float64()),
+])
 
 
 @dataclass(frozen=True)
@@ -136,7 +155,23 @@ class SixTestDataChallengeMethodRegistrationBase(
     numerical_tolerance: NumericalToleranceExpectations
 
 
-def six_derive_expected_answer_data_file_path(
+@dataclass(frozen=True)
+class SixTestSourceDataFilePaths():
+    source_directory_path: str
+    source_file_path_parquet_original: str
+    source_file_path_parquet_modern: str
+    source_file_path_csv: str
+
+    @property
+    def file_paths(self) -> list[str]:
+        return [
+            self.source_file_path_parquet_original,
+            self.source_file_path_parquet_modern,
+            self.source_file_path_csv,
+        ]
+
+
+def six_derive_expected_answer_data_file_path_csv(
         data_description: SixTestDataSetDescription,
         *,
         temp_file: bool = False,
@@ -159,25 +194,33 @@ def six_derive_source_test_data_file_path(
         data_description: SixTestDataSetDescription,
         *,
         temp_file: bool = False,
-) -> tuple[str, str]:
+) -> SixTestSourceDataFilePaths:
     num_grp_1 = data_description.num_grp_1
     num_grp_2 = data_description.num_grp_2
     repetition = data_description.points_per_index
     temp_postfix = "_temp" if temp_file else ""
-    source_file_name_parquet = os.path.join(
+    source_directory_path = os.path.join(
         LOCAL_TEST_DATA_FILE_LOCATION,
         "SixField_Test_Data",
-        f"six_field_source_data_{num_grp_1}_{num_grp_2}_{repetition}{temp_postfix}.parquet")
-    source_file_name_csv = os.path.join(
-        LOCAL_TEST_DATA_FILE_LOCATION,
-        "SixField_Test_Data",
-        f"six_field_source_data_{num_grp_1}_{num_grp_2}_{repetition}{temp_postfix}.csv")
-    return source_file_name_parquet, source_file_name_csv
+    )
+    stem = os.path.join(
+        source_directory_path,
+        f"six_field_source_data_{num_grp_1}_{num_grp_2}_{repetition}{temp_postfix}",
+    )
+    return SixTestSourceDataFilePaths(
+        source_directory_path=source_directory_path,
+        source_file_path_parquet_original=f"{stem}_orig.parquet",
+        source_file_path_parquet_modern=f"{stem}_modern.parquet",
+        source_file_path_csv=f"{stem}.csv",
+    )
 
 
 def fetch_six_data_set_answer(
         challenge: Challenge,
         data_size: SixTestDataSetDescription,
+        *,
+        spark_logger: Any | None = None,
 ) -> pd.DataFrame:
-    answer_file_names = six_derive_expected_answer_data_file_path(data_size)[challenge]
-    return pd.read_csv(answer_file_names)
+    answer_file_path_csv = six_derive_expected_answer_data_file_path_csv(data_size)[challenge]
+    (spark_logger or logger).info(f"Loading answer from {answer_file_path_csv}")
+    return pd.read_csv(answer_file_path_csv)

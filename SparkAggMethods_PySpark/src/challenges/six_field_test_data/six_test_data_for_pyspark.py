@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 from typing import Literal, Protocol
 
-from pyspark import RDD, StorageLevel
+from pyspark import RDD
 from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import Row
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
-    DataPointNT, SixTestDataChallengeMethodRegistrationBase, SixTestDataSetDescription, SixTestExecutionParameters,
+    SixTestDataChallengeMethodRegistrationBase, SixTestDataSetDescription, SixTestExecutionParameters,
     six_derive_source_test_data_file_path,
 )
 from spark_agg_methods_common_python.perf_test_common import (
@@ -24,8 +24,25 @@ class SixFieldDataSetDataPyspark():
     src_num_partitions: int
     agg_tgt_num_partitions_1_level: int
     agg_tgt_num_partitions_2_level: int
-    df_src: PySparkDataFrame
-    rdd_src: RDD[DataPointNT]
+    source_file_path_parquet: str
+
+    def open_source_data_as_df(
+            self,
+            spark_session: TidySparkSession,
+    ) -> PySparkDataFrame:
+        data_set = self
+        source_file_name_parquet = data_set.source_file_path_parquet
+        spark_session.logger.info(f"Loading source data from {source_file_name_parquet}")
+        df_src = spark_session.spark.read.parquet(data_set.source_file_path_parquet)
+        df_src = df_src.repartition(data_set.src_num_partitions, df_src.id)
+        return df_src
+
+    def open_source_data_as_rdd(
+            self,
+            spark_session: TidySparkSession,
+    ) -> RDD[Row]:
+        rdd_src = self.open_source_data_as_df(spark_session).rdd
+        return rdd_src
 
 
 def pick_agg_tgt_num_partitions_pyspark(data: SixFieldDataSetDataPyspark, challenge: Challenge) -> int:
@@ -104,13 +121,12 @@ def six_populate_data_set_pyspark(
         exec_params: SixTestExecutionParameters,
         data_description: SixTestDataSetDescription,
 ) -> SixFieldDataSetDataPyspark:
-    logger = spark_session.logger
     num_grp_1 = data_description.num_grp_1
     num_grp_2 = data_description.num_grp_2
     points_per_index = data_description.points_per_index
     num_source_rows = num_grp_1 * num_grp_2 * points_per_index
 
-    source_file_name_parquet, source_file_name_csv = six_derive_source_test_data_file_path(
+    source_file_paths = six_derive_source_test_data_file_path(
         data_description=data_description,
     )
     max_data_points_per_partition = MAX_DATA_POINTS_PER_SPARK_PARTITION
@@ -124,23 +140,9 @@ def six_populate_data_set_pyspark(
             )
         )
     )
-    df_src = spark_session.spark.read.parquet(source_file_name_parquet)
-    df_src = df_src.repartition(src_num_partitions, df_src.Id)
-    rdd_src: RDD[DataPointNT] = df_src.rdd.map(lambda r: DataPointNT(*r))
-    df_src.persist(StorageLevel.DISK_ONLY)
-    rdd_src.persist(StorageLevel.DISK_ONLY)
-    cnt, parts = rdd_src.count(), rdd_src.getNumPartitions()
-    logger.info("Found rdd %i rows in %i parts ratio %.1f" % (cnt, parts, cnt / parts))
-    assert cnt == num_source_rows
-
-    cnt, parts = df_src.count(), df_src.rdd.getNumPartitions()
-    logger.info("Found df %i rows in %i parts ratio %.1f" % (cnt, parts, cnt / parts))
-    assert cnt == num_source_rows
-
     return SixFieldDataSetDataPyspark(
         src_num_partitions=src_num_partitions,
         agg_tgt_num_partitions_1_level=num_grp_1,
         agg_tgt_num_partitions_2_level=num_grp_1 * num_grp_2,
-        df_src=df_src,
-        rdd_src=rdd_src,
+        source_file_path_parquet=source_file_paths.source_file_path_parquet_original,
     )

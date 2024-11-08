@@ -14,17 +14,17 @@ def cond_pyspark_df_zero(
         exec_params: SixTestExecutionParameters,
         data_set: SixFieldDataSetPyspark,
 ) -> TSixFieldChallengePendingAnswerPythonPyspark:
-    dfData = data_set.data.df_src
+    df_src = data_set.data.open_source_data_as_df(spark_session)
     df = (
-        dfData
-        .groupBy(dfData.grp, dfData.subgrp)
-        .agg(func.mean(dfData.C).alias("mean_of_C"),
-             func.max(dfData.D).alias("max_of_D"),
-             func.sum(func.when(dfData.E < 0, dfData.E * dfData.E)
+        df_src
+        .groupBy(df_src.grp, df_src.subgrp)
+        .agg(func.mean(df_src.C).alias("mean_of_C"),
+             func.max(df_src.D).alias("max_of_D"),
+             func.sum(func.when(df_src.E < 0, df_src.E * df_src.E)
                       .otherwise(0)).alias("cond_sum_of_E_squared"),
-             func.sum(func.when(dfData.E < 0, dfData.E)
+             func.sum(func.when(df_src.E < 0, df_src.E)
                       .otherwise(0)).alias("cond_sum_of_E"),
-             func.sum(func.when(dfData.E < 0, 1)
+             func.sum(func.when(df_src.E < 0, 1)
                       .otherwise(0)).alias("cond_count"))
     )
     df = df\

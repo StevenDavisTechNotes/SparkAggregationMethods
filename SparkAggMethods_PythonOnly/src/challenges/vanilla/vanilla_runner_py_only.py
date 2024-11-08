@@ -25,7 +25,7 @@ from spark_agg_methods_common_python.perf_test_common import (
     ELAPSED_TIME_COLUMN_NAME, CalcEngine, Challenge, RunnerArgumentsBase, SolutionLanguage, assemble_itinerary,
 )
 
-from src.challenges.six_field_test_data.six_runner_base_py_only import test_one_step_in_python_only_itinerary
+from src.challenges.six_field_test_data.six_runner_base_py_only import run_one_step_in_python_only_itinerary
 from src.challenges.six_field_test_data.six_test_data_for_py_only import (
     SixDataSetPythonOnly, six_populate_data_set_python_only,
 )
@@ -41,12 +41,13 @@ logger = logging.getLogger(__name__)
 DEBUG_ARGS = None if True else (
     []
     + '--size 3_3_10'.split()
-    + '--runs 0'.split()
+    + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
     + ['--strategy',
-       'vanilla_py_only_pd_grp_numpy',
-       'vanilla_py_only_pd_grp_numba',
+       #    'vanilla_py_only_pd_grp_numpy',
+       #    'vanilla_py_only_pd_grp_numba',
+       'vanilla_py_only_pd_prog_numpy',
        ]
 )
 
@@ -63,7 +64,7 @@ class Arguments(RunnerArgumentsBase):
 
 def parse_args() -> Arguments:
     sizes = [x.size_code for x in DATA_SIZES_LIST_VANILLA]
-    strategy_names = [x.strategy_name for x in VANILLA_STRATEGIES_USING_PYTHON_ONLY_REGISTRY]
+    strategy_names = sorted(x.strategy_name for x in VANILLA_STRATEGIES_USING_PYTHON_ONLY_REGISTRY)
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--random-seed', type=int)
@@ -131,9 +132,9 @@ def do_test_runs(
             challenge_method_registration = keyed_implementation_list[strategy_name]
             data_set = keyed_data_sets[size_code]
             logger.info("Working on %d of %d" % (index, len(itinerary)))
-            logger.info(f"Working on {challenge_method_registration.strategy_name} for {
-                        data_set.data_description.size_code}")
-            base_run_result = test_one_step_in_python_only_itinerary(
+            logger.info(f"Working on {challenge_method_registration.strategy_name} "
+                        f"for {data_set.data_description.size_code}")
+            base_run_result = run_one_step_in_python_only_itinerary(
                 challenge=CHALLENGE,
                 exec_params=args.exec_params,
                 challenge_method_registration=challenge_method_registration,

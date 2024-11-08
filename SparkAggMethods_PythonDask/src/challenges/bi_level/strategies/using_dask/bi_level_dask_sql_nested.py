@@ -16,7 +16,7 @@ def bi_level_dask_sql_nested_no_gpu(
         exec_params: SixTestExecutionParameters,
         data_set: SixTestDataSetDask,
 ) -> TChallengeAnswerPythonDask:
-    df = data_set.data.df_src
+    df = data_set.data.open_source_data_as_ddf()
     return inner(df, gpu=False)
 
 

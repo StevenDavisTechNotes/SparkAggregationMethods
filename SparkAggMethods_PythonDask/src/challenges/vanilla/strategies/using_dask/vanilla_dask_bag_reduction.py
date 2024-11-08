@@ -3,7 +3,7 @@ from typing import Iterable
 
 import pandas as pd
 from dask.bag.core import Bag as DaskBag
-from spark_agg_methods_common_python.challenges.six_field_test_data import six_domain_logic
+from spark_agg_methods_common_python.challenges.six_field_test_data.six_domain_logic import naive_accumulation
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
     DataPointNT, SixTestExecutionParameters, SubTotalDC,
 )
@@ -17,10 +17,13 @@ def vanilla_dask_bag_reduction(
         exec_params: SixTestExecutionParameters,
         data_set: SixTestDataSetDask
 ) -> TChallengeAnswerPythonDask:
+    if (data_set.data_description.points_per_index >= 10**6):  # EOM before calling accumulator
+        return "infeasible"
     check_memory(throw=True)
-    stage0: DaskBag = data_set.data.bag_src
+    stage0: DaskBag = data_set.data.open_source_data_as_bag()
     stage1 = (
         stage0
+        .map(lambda x: DataPointNT(*x))
         .reduction(
             perpartition=combine_within_partition,
             aggregate=combine_subtotals,
@@ -38,7 +41,7 @@ def combine_within_partition(
     for element in lst:
         key = (element.grp, element.subgrp)
         prior = acc[key] if key in acc else None
-        acc[key] = six_domain_logic.accumulate_subtotal(prior, element)
+        acc[key] = naive_accumulation.accumulate_subtotal(prior, element)
     return acc
 
 
@@ -48,7 +51,7 @@ def combine_subtotals(
     acc = dict()
     for subtotal_set in lst:
         for key, subtotal in subtotal_set.items():
-            acc[key] = six_domain_logic.combine_subtotals(acc.get(key), subtotal)
+            acc[key] = naive_accumulation.combine_subtotals(acc.get(key), subtotal)
     return acc
 
 
@@ -61,7 +64,7 @@ def finalize(
                 "grp": grp,
                 "subgrp": subgrp,
             }
-            | asdict(six_domain_logic.total_from_subtotal(subtotal))
+            | asdict(naive_accumulation.total_from_subtotal(subtotal))
             for (grp, subgrp), subtotal in acc.items()
         ]
     )

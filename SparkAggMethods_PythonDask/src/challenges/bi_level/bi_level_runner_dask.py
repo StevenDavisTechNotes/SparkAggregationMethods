@@ -1,5 +1,5 @@
 #! python
-# usage: python -O -m src.challenges.bi_level.bi_level_runner_dask
+# usage: .\venv\Scripts\activate.ps1 ; python -O -m src.challenges.bi_level.bi_level_runner_dask
 import argparse
 import gc
 import logging
@@ -27,7 +27,7 @@ from spark_agg_methods_common_python.perf_test_common import (
 )
 
 from src.challenges.bi_level.bi_level_strategy_directory_dask import BI_LEVEL_STRATEGIES_USING_DASK_REGISTRY
-from src.challenges.six_field_test_data.six_runner_dask_base import test_one_step_in_dask_itinerary
+from src.challenges.six_field_test_data.six_runner_dask_base import run_one_step_in_dask_itinerary
 from src.challenges.six_field_test_data.six_test_data_for_dask import SixTestDataSetDask, six_populate_data_set_dask
 
 logger = logging.getLogger(__name__)
@@ -40,11 +40,13 @@ logger = logging.getLogger(__name__)
 
 DEBUG_ARGS = None if True else (
     []
-    + '--size 3_3_10'.split()
-    + '--runs 0'.split()
+    # + '--size 3_3_10'.split()
+    + '--runs 1'.split()
     # + '--random-seed 1234'.split()
-    # + ['--no-shuffle']
-    # + ['--strategy',       ]
+    + ['--no-shuffle']
+    # + ['--strategy',
+    #    'bi_level_dask_sql_nested_no_gpu',
+    #    ]
 )
 
 
@@ -62,7 +64,7 @@ class Arguments(RunnerArgumentsBase):
 def parse_args() -> Arguments:
     sizes = [x.size_code for x in DATA_SIZES_LIST_BI_LEVEL]
     default_sizes = [x.size_code for x in DATA_SIZES_LIST_BI_LEVEL if not x.debugging_only]
-    strategy_names = [x.strategy_name for x in BI_LEVEL_STRATEGIES_USING_DASK_REGISTRY]
+    strategy_names = sorted(x.strategy_name for x in BI_LEVEL_STRATEGIES_USING_DASK_REGISTRY)
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--random-seed', type=int)
@@ -134,7 +136,7 @@ def do_test_runs(
             logger.info("Working on %d of %d" % (index, len(itinerary)))
             logger.info(f"Working on {challenge_method_registration.strategy_name} "
                         f"for {data_set.data_description.size_code}")
-            base_run_result = test_one_step_in_dask_itinerary(
+            base_run_result = run_one_step_in_dask_itinerary(
                 challenge=CHALLENGE,
                 exec_params=args.exec_params,
                 challenge_method_registration=challenge_method_registration,

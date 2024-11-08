@@ -46,8 +46,9 @@ class SolutionInterfaceDask(StrEnum):
 
 
 class SolutionInterfacePythonOnly(StrEnum):
-    PYTHON = 'python'
     PANDAS = 'pandas'
+    PROGRESSIVE = 'progressive'
+    PYTHON = 'python'
 
 
 class SolutionInterfacePySpark(StrEnum):

@@ -1,7 +1,8 @@
 import math
 
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
-    DataPointNT, SubTotalDC, TotalDC)
+    DataPointNT, SubTotalDC, TotalDC,
+)
 
 
 def zero_subtotal(
@@ -56,7 +57,8 @@ def total_from_subtotal(
     num = subtotal.running_count
     var_of_E2 = (
         subtotal.running_sum_of_E_squared / subtotal.running_count
-        - (subtotal.running_sum_of_E / subtotal.running_count)**2)
+        - (subtotal.running_sum_of_E / subtotal.running_count)**2
+    )
     result = TotalDC(
         mean_of_C=subtotal.running_sum_of_C / num,
         max_of_D=subtotal.running_max_of_D,

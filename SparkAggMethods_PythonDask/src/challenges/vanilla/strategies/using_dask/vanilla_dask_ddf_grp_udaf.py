@@ -41,7 +41,7 @@ def vanilla_dask_ddf_grp_udaf(
 ) -> TChallengeAnswerPythonDask:
     if (data_set.data_description.points_per_index > 10**4):
         return "infeasible"
-    df: DaskDataFrame = data_set.data.df_src
+    df: DaskDataFrame = data_set.data.open_source_data_as_ddf()
     custom_var_ddof_0 = groupby.Aggregation(
         name='custom_var_ddof_0',
         chunk=ddof_0_do_chunk,

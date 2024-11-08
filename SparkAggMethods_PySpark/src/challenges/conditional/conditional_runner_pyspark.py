@@ -1,5 +1,5 @@
 #! python
-# usage: python -O -m src.challenges.conditional.conditional_pyspark_runner
+# usage: .\venv\Scripts\activate.ps1 ; python -O -m src.challenges.conditional.conditional_runner_pyspark
 import argparse
 import gc
 import logging
@@ -29,7 +29,7 @@ from spark_agg_methods_common_python.perf_test_common import (
 from src.challenges.conditional.conditional_strategy_directory_pyspark import (
     CONDITIONAL_STRATEGIES_USING_PYSPARK_REGISTRY,
 )
-from src.challenges.six_field_test_data.six_runner_base_pyspark import test_one_step_in_pyspark_itinerary
+from src.challenges.six_field_test_data.six_runner_base_pyspark import run_one_step_in_pyspark_itinerary
 from src.challenges.six_field_test_data.six_test_data_for_pyspark import (
     SixFieldDataSetPyspark, six_populate_data_set_pyspark,
 )
@@ -43,15 +43,26 @@ CHALLENGE = Challenge.CONDITIONAL
 
 DEBUG_ARGS = None if True else (
     []
-    + '--size 3_3_1'.split()
-    + '--runs 0'.split()
+    + '--size 3_3_10m'.split()
+    # + '--size 3_3_1'.split()
+    + '--runs 1'.split()
     # + '--random-seed 1234'.split()
-    # + ['--no-shuffle']
-    # + ['--strategy',
-    #    'cond_pyspark_rdd_grp_map',
-    #    'cond_pyspark_rdd_map_part',
-    #    'cond_pyspark_rdd_reduce',
-    #    ]
+    + ['--no-shuffle']
+    + ['--strategy',
+       'cond_pyspark_df_grp_pandas',
+       #    'cond_pyspark_df_grp_pandas_numba',
+       #    'cond_pyspark_df_join',
+       #    'cond_pyspark_df_nested',
+       #    'cond_pyspark_df_null',
+       #    'cond_pyspark_df_window',
+       #    'cond_pyspark_df_zero',
+       #    'cond_pyspark_rdd_grp_map',
+       #    'cond_pyspark_rdd_map_part',
+       #    'cond_pyspark_rdd_reduce',
+        #   'cond_pyspark_sql_join',
+       #    'cond_pyspark_sql_nested',
+       #    'cond_pyspark_sql_null',
+       ]
 )
 
 
@@ -67,7 +78,7 @@ class Arguments(RunnerArgumentsBase):
 
 def parse_args() -> Arguments:
     sizes = [x.size_code for x in DATA_SIZES_LIST_CONDITIONAL]
-    strategy_names = [x.strategy_name for x in CONDITIONAL_STRATEGIES_USING_PYSPARK_REGISTRY]
+    strategy_names = sorted(x.strategy_name for x in CONDITIONAL_STRATEGIES_USING_PYSPARK_REGISTRY)
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--random-seed', type=int)
@@ -104,7 +115,11 @@ def prepare_data_sets(
                 args.exec_params,
                 data_description=size,
             ),
-            answer=fetch_six_data_set_answer(CHALLENGE, size),
+            answer=fetch_six_data_set_answer(
+                CHALLENGE,
+                size,
+                spark_logger=spark_session.logger,
+            ),
         )
         for size in DATA_SIZES_LIST_CONDITIONAL
         if size.size_code in args.sizes
@@ -143,7 +158,7 @@ def do_test_runs(
                 (challenge_method_registration.strategy_name, index, len(itinerary)))
             logger.info(f"Working on {challenge_method_registration.strategy_name} "
                         f"for {data_set.data_description.size_code}")
-            base_run_result = test_one_step_in_pyspark_itinerary(
+            base_run_result = run_one_step_in_pyspark_itinerary(
                 challenge=CHALLENGE,
                 spark_session=spark_session,
                 exec_params=args.exec_params,

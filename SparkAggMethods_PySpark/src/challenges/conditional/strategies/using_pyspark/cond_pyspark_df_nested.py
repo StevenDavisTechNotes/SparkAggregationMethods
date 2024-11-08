@@ -15,38 +15,38 @@ def cond_pyspark_df_nested(
         exec_params: SixTestExecutionParameters,
         data_set: SixFieldDataSetPyspark,
 ) -> TSixFieldChallengePendingAnswerPythonPyspark:
-    dfData = data_set.data.df_src
-    dfInter = dfData\
-        .withColumn('cond', func.when(dfData.E < 0, -1).otherwise(1))
-    dfInter = (
-        dfInter
-        .groupBy(dfInter.grp, dfInter.subgrp, dfInter.cond)
-        .agg(func.mean(dfData.C).alias("sub_mean_of_C"),
-             func.count(dfData.C).alias("sub_count"),
-             func.sum(dfData.C).alias("sub_sum_of_C"),
-             func.max(dfData.D).alias("sub_max_of_D"),
-             func.var_pop(dfData.E).alias("sub_var_of_E"),
-             func.sum(dfData.E * dfData.E).alias("sub_sum_of_E_squared"),
-             func.sum(dfData.E).alias("sub_sum_of_E")))
-    dfInter = (
-        dfInter
-        .groupBy(dfInter.grp, dfInter.subgrp)
-        .agg(func.mean(dfInter.sub_mean_of_C).alias("wrong_mean_of_C"),
+    df_src = data_set.data.open_source_data_as_df(spark_session)
+    df_inter = df_src\
+        .withColumn('cond', func.when(df_src.E < 0, -1).otherwise(1))
+    df_inter = (
+        df_inter
+        .groupBy(df_inter.grp, df_inter.subgrp, df_inter.cond)
+        .agg(func.mean(df_src.C).alias("sub_mean_of_C"),
+             func.count(df_src.C).alias("sub_count"),
+             func.sum(df_src.C).alias("sub_sum_of_C"),
+             func.max(df_src.D).alias("sub_max_of_D"),
+             func.var_pop(df_src.E).alias("sub_var_of_E"),
+             func.sum(df_src.E * df_src.E).alias("sub_sum_of_E_squared"),
+             func.sum(df_src.E).alias("sub_sum_of_E")))
+    df_inter = (
+        df_inter
+        .groupBy(df_inter.grp, df_inter.subgrp)
+        .agg(func.mean(df_inter.sub_mean_of_C).alias("wrong_mean_of_C"),
              (
-            func.sum(dfInter.sub_mean_of_C * dfInter.sub_count)
-            / func.sum(dfInter.sub_count)
+            func.sum(df_inter.sub_mean_of_C * df_inter.sub_count)
+            / func.sum(df_inter.sub_count)
         ).alias("mean_of_C2"),
-            func.sum(dfInter.sub_count).alias("uncond_count"),
-            func.sum(func.when(dfInter.cond < 0, dfInter.sub_count)
+            func.sum(df_inter.sub_count).alias("uncond_count"),
+            func.sum(func.when(df_inter.cond < 0, df_inter.sub_count)
                      .otherwise(0)).alias("cond_count"),
-            func.sum(dfInter.sub_sum_of_C).alias("sum_of_C"),
-            func.max(dfInter.sub_max_of_D).alias("max_of_D"),
-            func.sum(func.when(dfInter.cond < 0, dfInter.sub_var_of_E)
+            func.sum(df_inter.sub_sum_of_C).alias("sum_of_C"),
+            func.max(df_inter.sub_max_of_D).alias("max_of_D"),
+            func.sum(func.when(df_inter.cond < 0, df_inter.sub_var_of_E)
                      .otherwise(0)).alias("cond_var_of_E"))
     )
-    dfInter = dfInter \
-        .withColumn('mean_of_C', dfInter.sum_of_C / dfInter.uncond_count)
-    dfResult = dfInter.select('grp', 'subgrp', 'mean_of_C', 'mean_of_C2', 'wrong_mean_of_C',
-                              'max_of_D', 'cond_var_of_E')
-    dfResult = dfResult.orderBy(dfResult.grp, dfResult.subgrp)
-    return dfResult
+    df_inter = df_inter \
+        .withColumn('mean_of_C', df_inter.sum_of_C / df_inter.uncond_count)
+    df_result = df_inter.select('grp', 'subgrp', 'mean_of_C', 'mean_of_C2', 'wrong_mean_of_C',
+                                'max_of_D', 'cond_var_of_E')
+    df_result = df_result.orderBy(df_result.grp, df_result.subgrp)
+    return df_result

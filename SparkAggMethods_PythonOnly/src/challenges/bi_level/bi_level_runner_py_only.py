@@ -26,7 +26,7 @@ from spark_agg_methods_common_python.perf_test_common import (
 )
 
 from src.challenges.bi_level.bi_level_strategy_directory_py_only import BI_LEVEL_STRATEGIES_USING_PYTHON_ONLY_REGISTRY
-from src.challenges.six_field_test_data.six_runner_base_py_only import test_one_step_in_python_only_itinerary
+from src.challenges.six_field_test_data.six_runner_base_py_only import run_one_step_in_python_only_itinerary
 from src.challenges.six_field_test_data.six_test_data_for_py_only import (
     SixDataSetPythonOnly, six_populate_data_set_python_only,
 )
@@ -38,12 +38,13 @@ CHALLENGE = Challenge.BI_LEVEL
 
 DEBUG_ARGS = None if True else (
     []
-    # + '--size 3_300_1k'.split()
+    + '--size 3_3_10'.split()
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
     + ['--strategy',
-       'bi_level_py_only_pd_grp_numpy',
+       #    'bi_level_py_only_pd_grp_numpy',
+       'bi_level_py_only_pd_prog_numpy',
        ]
 )
 
@@ -60,7 +61,7 @@ class BiLevelDataSetWAnswerPythonOnly(SixDataSetPythonOnly):
 
 def parse_args() -> Arguments:
     sizes = [x.size_code for x in DATA_SIZES_LIST_BI_LEVEL]
-    strategy_names = [x.strategy_name for x in BI_LEVEL_STRATEGIES_USING_PYTHON_ONLY_REGISTRY]
+    strategy_names = sorted(x.strategy_name for x in BI_LEVEL_STRATEGIES_USING_PYTHON_ONLY_REGISTRY)
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--random-seed', type=int)
@@ -125,12 +126,12 @@ def do_test_runs(
     keyed_data_sets = {x.data_description.size_code: x for x in prepare_data_sets(args)}
     with BiLevelPythonOnlyRunResultFileWriter() as file:
         for index, (strategy_name, size_code) in enumerate(itinerary):
-            logger.info("Working on %d of %d" % (index, len(itinerary)))
             challenge_method_registration = keyed_implementation_list[strategy_name]
             data_set = keyed_data_sets[size_code]
-            logger.info(f"Working on {challenge_method_registration.strategy_name} for {
-                        data_set.data_description.size_code}")
-            base_run_result = test_one_step_in_python_only_itinerary(
+            logger.info("Working on %d of %d" % (index, len(itinerary)))
+            logger.info(f"Working on {challenge_method_registration.strategy_name} "
+                        f"for {data_set.data_description.size_code}")
+            base_run_result = run_one_step_in_python_only_itinerary(
                 challenge=CHALLENGE,
                 exec_params=args.exec_params,
                 challenge_method_registration=challenge_method_registration,

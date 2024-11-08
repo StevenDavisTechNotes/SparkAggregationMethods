@@ -1,4 +1,5 @@
 import datetime as dt
+import math
 
 import pandas as pd
 
@@ -6,6 +7,21 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_dat
     Challenge, NumericalToleranceExpectations, SixTestDataSetDescription,
 )
 from spark_agg_methods_common_python.perf_test_common import RunResultBase
+
+
+def estimate_expected_summation_error(
+        numerical_tolerance: NumericalToleranceExpectations,
+        data_description: SixTestDataSetDescription,
+
+) -> float:
+    return (
+        numerical_tolerance.value
+        * max(
+            1.0,
+            math.sqrt(data_description.points_per_index)
+            / math.sqrt(10**5)
+        )
+    )
 
 
 def process_answer(
@@ -31,8 +47,10 @@ def process_answer(
     abs_diff = float(
         (correct_answer - df_answer)
         .abs().max().max())
-    if abs_diff >= numerical_tolerance.value:
-        raise ValueError(f"abs_diff={abs_diff} >= numerical_tolerance={numerical_tolerance.value}")
+    expected_summation_error = estimate_expected_summation_error(
+        numerical_tolerance, data_description)
+    if abs_diff >= expected_summation_error:
+        raise ValueError(f"abs_diff={abs_diff} >= numerical_tolerance={expected_summation_error}")
     record_count = len(df_answer)
     result = RunResultBase(
         num_source_rows=data_description.num_source_rows,

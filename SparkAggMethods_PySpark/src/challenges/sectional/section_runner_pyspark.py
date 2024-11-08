@@ -64,7 +64,7 @@ class Arguments(RunnerArgumentsBase):
 
 def parse_args() -> Arguments:
     sizes = [x.size_code for x in DATA_SIZE_LIST_SECTIONAL]
-    strategy_names = [x.strategy_name for x in SECTIONAL_STRATEGIES_USING_PYSPARK_REGISTRY]
+    strategy_names = sorted(x.strategy_name for x in SECTIONAL_STRATEGIES_USING_PYSPARK_REGISTRY)
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--random-seed', type=int)
@@ -157,7 +157,7 @@ def do_test_runs(
             data_set = keyed_data_sets[size_code]
             logger.info("Working on %d of %d" % (index, len(itinerary)))
             logger.info(f"Working on {challenge_method_registration.strategy_name} "
-                        f"for {data_set.data_description.num_source_rows}")
+                        f"for {data_set.data_description.size_code}")
             run_result = run_one_itinerary_step(args, spark_session, challenge_method_registration, data_set)
             match run_result:
                 case "infeasible":

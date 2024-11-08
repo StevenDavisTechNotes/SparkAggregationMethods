@@ -14,6 +14,15 @@
                         "strategy_name": "bi_level_py_only_pd_grp_numpy",
                         "numerical_tolerance": 1e-12,
                         "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "python_only",
+                        "challenge": "bilevel",
+                        "interface": "progressive",
+                        "strategy_name": "bi_level_py_only_pd_prog_numpy",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
                     }
                 ],
                 "expected_regressor_values": [
@@ -45,6 +54,15 @@
                         "strategy_name": "vanilla_py_only_pd_grp_numpy",
                         "numerical_tolerance": 1e-12,
                         "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "python_only",
+                        "challenge": "vanilla",
+                        "interface": "progressive",
+                        "strategy_name": "vanilla_py_only_pd_prog_numpy",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
                     }
                 ],
                 "expected_regressor_values": [
@@ -53,7 +71,10 @@
                     900,
                     9000,
                     90000,
-                    900000
+                    900000,
+                    9000000,
+                    90000000,
+                    900000000
                 ]
             },
             "sectional": {

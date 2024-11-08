@@ -15,7 +15,7 @@ def cond_pyspark_df_window(
         exec_params: SixTestExecutionParameters,
         data_set: SixFieldDataSetPyspark,
 ) -> TSixFieldChallengePendingAnswerPythonPyspark:
-    df = data_set.data.df_src
+    df = data_set.data.open_source_data_as_df(spark_session)
     df = df \
         .withColumn("cond", func.when(df.E < 0, -1).otherwise(+1))
     df = df \

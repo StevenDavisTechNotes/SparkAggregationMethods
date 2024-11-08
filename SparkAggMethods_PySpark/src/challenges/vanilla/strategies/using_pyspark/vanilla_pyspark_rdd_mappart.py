@@ -46,26 +46,29 @@ def vanilla_pyspark_rdd_mappart(
         exec_params: SixTestExecutionParameters,
         data_set: SixFieldDataSetPyspark
 ) -> TSixFieldChallengePendingAnswerPythonPyspark:
+    if (data_set.data_description.num_source_rows >= 9*10**6):  # incorrect answer at that point
+        return "infeasible"
     agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(data_set.data, CHALLENGE)
-    rddSrc = data_set.data.rdd_src
-    sumCount = (
-        rddSrc
+    rdd_src = data_set.data.open_source_data_as_rdd(spark_session)
+    sum_count = (
+        rdd_src
         .mapPartitions(partition_triage)
         .groupByKey()
         .map(lambda kv: (kv[0], merge_combiners_3(kv[0], kv[1])))
         .map(lambda kv: final_analytics_2(kv[0], kv[1]))
     )
-    rddResult = sumCount.sortBy(
+    rdd_result = sum_count.sortBy(
         lambda x: (x.grp, x.subgrp),  # type: ignore
         numPartitions=agg_tgt_num_partitions)
-    return rddResult
+    return rdd_result
 
 
 def partition_triage(
-        iterator: Iterable[DataPointNT],
+        iterator: Iterable[Row],
 ) -> Iterable[tuple[tuple[int, int], SubTotal]]:
     running_subtotals = {}
-    for v in iterator:
+    for r in iterator:
+        v = DataPointNT(*r)
         k = (v.grp, v.subgrp)
         if k not in running_subtotals:
             running_subtotals[k] = MutableRunningTotal.zero()

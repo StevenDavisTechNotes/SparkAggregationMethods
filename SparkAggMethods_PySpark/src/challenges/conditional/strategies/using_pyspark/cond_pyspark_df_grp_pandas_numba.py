@@ -51,7 +51,7 @@ def cond_pyspark_df_grp_pandas_numba(
         exec_params: SixTestExecutionParameters,
         data_set: SixFieldDataSetPyspark,
 ) -> TSixFieldChallengePendingAnswerPythonPyspark:
-    df = data_set.data.df_src
+    df = data_set.data.open_source_data_as_df(spark_session)
     if numba is None:
         return "infeasible"
 

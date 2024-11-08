@@ -16,7 +16,7 @@ from src.challenges.six_field_test_data.six_test_data_for_dask import (
 logger = logging.getLogger(__name__)
 
 
-def test_one_step_in_dask_itinerary(
+def run_one_step_in_dask_itinerary(
         challenge: Challenge,
         exec_params: SixTestExecutionParameters,
         challenge_method_registration: ChallengeMethodPythonDaskRegistration,
@@ -24,34 +24,41 @@ def test_one_step_in_dask_itinerary(
         correct_answer: pd.DataFrame,
 ) -> RunResultBase | None:
     started_time = time.time()
-    agg_tgt_num_partitions = pick_agg_tgt_num_partitions_dask(data_set.data, challenge)
-    df_answer: pd.DataFrame
-    match challenge_method_registration.delegate(
-        exec_params=exec_params,
-        data_set=data_set,
-    ):
-        case DaskDataFrame() as ddf:
-            if ddf.npartitions > max(agg_tgt_num_partitions, exec_params.default_parallelism):
-                logger.info(f"{challenge_method_registration.strategy_name} "
-                            f"output rdd has {ddf.npartitions} partitions")
-                findings = ddf.compute()
-                logger.info(f"size={len(findings)}, ", findings)
-                exit(1)
-            df_answer = ddf.compute()
-            finished_time = time.time()
-        case pd.DataFrame() as df_answer:
-            finished_time = time.time()
-        case "infeasible":
-            return None
-        case _:
-            raise ValueError("No result returned")
-    result = process_answer(
-        challenge=challenge,
-        data_description=data_set.data_description,
-        correct_answer=correct_answer,
-        numerical_tolerance=challenge_method_registration.numerical_tolerance,
-        started_time=started_time,
-        df_answer=df_answer,
-        finished_time=finished_time,
-    )
+    try:
+        agg_tgt_num_partitions = pick_agg_tgt_num_partitions_dask(data_set.data, challenge)
+        df_answer: pd.DataFrame
+        match challenge_method_registration.delegate(
+            exec_params=exec_params,
+            data_set=data_set,
+        ):
+            case DaskDataFrame() as ddf:
+                if ddf.npartitions > max(agg_tgt_num_partitions, exec_params.default_parallelism):
+                    logger.info(f"{challenge_method_registration.strategy_name} "
+                                f"output rdd has {ddf.npartitions} partitions")
+                    findings = ddf.compute()
+                    logger.info(f"size={len(findings)}, ", findings)
+                    exit(1)
+                df_answer = ddf.compute()
+                finished_time = time.time()
+            case pd.DataFrame() as df_answer:
+                finished_time = time.time()
+            case "infeasible":
+                return None
+            case _:
+                raise ValueError("No result returned")
+        result = process_answer(
+            challenge=challenge,
+            data_description=data_set.data_description,
+            correct_answer=correct_answer,
+            numerical_tolerance=challenge_method_registration.numerical_tolerance,
+            started_time=started_time,
+            df_answer=df_answer,
+            finished_time=finished_time,
+        )
+    except Exception as e:
+        logger.error(
+            f"Error in {challenge_method_registration.strategy_name} "
+            f"of {data_set.data_description.size_code}"
+        )
+        raise e
     return result

@@ -1,17 +1,17 @@
 import math
 
-import numpy
+import pandas as pd
 
 
 class ProgressiveMean:
     count_so_far: int = 0
     mean_so_far: float = 0.0
 
-    def update(self, batch: numpy.ndarray):
+    def update(self, batch: pd.Series):
         if len(batch) == 0:
             return
         if self.count_so_far == 0:
-            self.mean_so_far = batch.mean()
+            self.mean_so_far = float(batch.mean())
             self.count_so_far = len(batch)
             return
         n_a = self.count_so_far

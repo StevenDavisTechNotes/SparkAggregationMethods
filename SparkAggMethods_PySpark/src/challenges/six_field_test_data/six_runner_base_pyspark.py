@@ -16,7 +16,7 @@ from src.challenges.six_field_test_data.six_test_data_for_pyspark import (
 from src.utils.tidy_session_pyspark import TidySparkSession
 
 
-def test_one_step_in_pyspark_itinerary(
+def run_one_step_in_pyspark_itinerary(
         challenge: Challenge,
         spark_session: TidySparkSession,
         exec_params: SixTestExecutionParameters,
@@ -36,41 +36,49 @@ def test_one_step_in_pyspark_itinerary(
             logger.info(f"size={len(findings)}, ", findings)
             exit(1)
 
+    logger = spark_session.logger
     started_time = time.time()
-    rdd_some: RDD
-    match challenge_method_registration.delegate(
-            spark_session=spark_session,
-            exec_params=exec_params,
-            data_set=data_set,
-    ):
-        case PySparkDataFrame() as spark_df:
-            rdd_some = spark_df.rdd
-            check_partitions(rdd_some)
-            df_answer = spark_df.toPandas()
-            finished_time = time.time()
-        case RDD() as rdd_some:
-            check_partitions(rdd_some)
-            answer = rdd_some.collect()
-            finished_time = time.time()
-            if len(answer) == 0:
-                df_answer = pd.DataFrame(data=[], columns=result_columns)
-            else:
-                match answer[0]:
-                    case Row():
-                        df_answer = pd.DataFrame.from_records([x.asDict() for x in answer])
-                    case _:
-                        df_answer = pd.DataFrame.from_records([x._asdict() for x in answer])
-        case "infeasible":
-            return None
-        case _:
-            raise ValueError("Must return at least 1 type")
-    result = process_answer(
-        challenge=challenge,
-        data_description=data_set.data_description,
-        correct_answer=correct_answer,
-        numerical_tolerance=challenge_method_registration.numerical_tolerance,
-        started_time=started_time,
-        df_answer=df_answer,
-        finished_time=finished_time,
-    )
+    try:
+        rdd_some: RDD
+        match challenge_method_registration.delegate(
+                spark_session=spark_session,
+                exec_params=exec_params,
+                data_set=data_set,
+        ):
+            case PySparkDataFrame() as spark_df:
+                rdd_some = spark_df.rdd
+                check_partitions(rdd_some)
+                df_answer = spark_df.toPandas()
+                finished_time = time.time()
+            case RDD() as rdd_some:
+                check_partitions(rdd_some)
+                answer = rdd_some.collect()
+                finished_time = time.time()
+                if len(answer) == 0:
+                    df_answer = pd.DataFrame(data=[], columns=result_columns)
+                else:
+                    match answer[0]:
+                        case Row():
+                            df_answer = pd.DataFrame.from_records([x.asDict() for x in answer])
+                        case _:
+                            df_answer = pd.DataFrame.from_records([x._asdict() for x in answer])
+            case "infeasible":
+                return None
+            case _:
+                raise ValueError("Must return at least 1 type")
+        result = process_answer(
+            challenge=challenge,
+            data_description=data_set.data_description,
+            correct_answer=correct_answer,
+            numerical_tolerance=challenge_method_registration.numerical_tolerance,
+            started_time=started_time,
+            df_answer=df_answer,
+            finished_time=finished_time,
+        )
+    except Exception as e:
+        logger.error(
+            f"Error in {challenge_method_registration.strategy_name} "
+            f"of {data_set.data_description.size_code}"
+        )
+        raise e
     return result

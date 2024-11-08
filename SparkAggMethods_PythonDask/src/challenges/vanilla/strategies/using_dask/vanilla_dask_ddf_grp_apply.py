@@ -17,7 +17,7 @@ def vanilla_dask_ddf_grp_apply(
 ) -> TChallengeAnswerPythonDask:
     if (data_set.data_description.points_per_index > 10**4):
         return "infeasible"
-    ddf = data_set.data.df_src
+    ddf = data_set.data.open_source_data_as_ddf()
     ddf = cast(
         DaskDataFrame,
         ddf

@@ -1,5 +1,5 @@
 #! python
-# usage: python -O -m src.challenges.vanilla.vanilla_runner_dask
+# usage: .\venv\Scripts\activate.ps1 ; python -O -m src.challenges.vanilla.vanilla_runner_dask
 import argparse
 import gc
 import logging
@@ -26,7 +26,7 @@ from spark_agg_methods_common_python.perf_test_common import (
     assemble_itinerary,
 )
 
-from src.challenges.six_field_test_data.six_runner_dask_base import test_one_step_in_dask_itinerary
+from src.challenges.six_field_test_data.six_runner_dask_base import run_one_step_in_dask_itinerary
 from src.challenges.six_field_test_data.six_test_data_for_dask import SixTestDataSetDask, six_populate_data_set_dask
 from src.challenges.vanilla.vanilla_strategy_directory_dask import VANILLA_STRATEGIES_USING_DASK_REGISTRY
 
@@ -38,19 +38,19 @@ logger = logging.getLogger(__name__)
 
 DEBUG_ARGS = None if True else (
     []
-    + '--size 3_3_10'.split()
+    + '--size 3_3_1m'.split()
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
     + ['--strategy',
-       #    'vanilla_dask_bag_accumulate',
-       #    'vanilla_dask_bag_fold',
-       #    'vanilla_dask_bag_foldby',
-       #    'vanilla_dask_bag_reduction',
-       #    'vanilla_dask_bag_map_partitions',
+       'vanilla_dask_bag_accumulate',
+       'vanilla_dask_bag_fold',
+       'vanilla_dask_bag_foldby',
+       'vanilla_dask_bag_reduction',
+       'vanilla_dask_bag_map_partitions',
        'vanilla_dask_ddf_grp_apply',
-       #    'vanilla_dask_ddf_grp_udaf',
-       #    'vanilla_dask_sql_no_gpu',
+       'vanilla_dask_ddf_grp_udaf',
+       'vanilla_dask_sql_no_gpu',
        ]
 )
 
@@ -68,7 +68,7 @@ class Arguments(RunnerArgumentsBase):
 
 def parse_args() -> Arguments:
     sizes = [x.size_code for x in DATA_SIZES_LIST_VANILLA]
-    strategy_names = [x.strategy_name for x in VANILLA_STRATEGIES_USING_DASK_REGISTRY]
+    strategy_names = sorted(x.strategy_name for x in VANILLA_STRATEGIES_USING_DASK_REGISTRY)
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--random-seed', type=int)
@@ -138,9 +138,9 @@ def do_test_runs(
             challenge_method_registration = keyed_implementation_list[strategy_name]
             data_set = keyed_data_sets[size_code]
             logger.info("Working on %d of %d" % (index, len(itinerary)))
-            logger.info(f"Working on {challenge_method_registration.strategy_name} for {
-                        data_set.data_description.size_code}")
-            base_run_result = test_one_step_in_dask_itinerary(
+            logger.info(f"Working on {challenge_method_registration.strategy_name} "
+                        f"for {data_set.data_description.size_code}")
+            base_run_result = run_one_step_in_dask_itinerary(
                 challenge=CHALLENGE,
                 exec_params=args.exec_params,
                 challenge_method_registration=challenge_method_registration,

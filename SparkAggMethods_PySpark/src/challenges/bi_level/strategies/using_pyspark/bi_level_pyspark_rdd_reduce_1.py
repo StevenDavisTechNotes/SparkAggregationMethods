@@ -1,6 +1,7 @@
 import math
 from typing import NamedTuple
 
+from pyspark import RDD
 from pyspark.sql import Row
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
     Challenge, DataPointNT, SixTestExecutionParameters,
@@ -31,11 +32,12 @@ def bi_level_pyspark_rdd_reduce_1(
         exec_params: SixTestExecutionParameters,
         data_set: SixFieldDataSetPyspark
 ) -> TSixFieldChallengePendingAnswerPythonPyspark:
-    rddSrc = data_set.data.rdd_src
+    rdd_src: RDD[Row] = data_set.data.open_source_data_as_rdd(spark_session)
     agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(data_set.data, CHALLENGE)
 
-    rddResult = (
-        rddSrc
+    rdd_result = (
+        rdd_src
+        .map(lambda r: DataPointNT(*r))
         .map(lambda x: (x.grp, x))
         .combineByKey(create_combiner,
                       merge_value,
@@ -43,7 +45,7 @@ def bi_level_pyspark_rdd_reduce_1(
         .sortByKey(numPartitions=agg_tgt_num_partitions)  # type: ignore
         .map(lambda pair: final_analytics(pair[0], pair[1]))
     )
-    return rddResult
+    return rdd_result
 
 
 def merge_value(

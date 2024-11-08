@@ -15,26 +15,26 @@ def cond_pyspark_df_join(
         exec_params: SixTestExecutionParameters,
         data_set: SixFieldDataSetPyspark,
 ) -> TSixFieldChallengePendingAnswerPythonPyspark:
-    dfData = data_set.data.df_src
-    uncond = (
-        dfData
-        .groupBy(dfData.grp, dfData.subgrp)
+    df_src = data_set.data.open_source_data_as_df(spark_session)
+    df_uncond = (
+        df_src
+        .groupBy(df_src.grp, df_src.subgrp)
         .agg(
-            func.mean(dfData.C).alias("mean_of_C"),
-            func.max(dfData.D).alias("max_of_D"))
+            func.mean(df_src.C).alias("mean_of_C"),
+            func.max(df_src.D).alias("max_of_D"))
     )
-    cond = (
-        dfData
-        .filter(dfData.E < 0)
-        .groupBy(dfData.grp, dfData.subgrp)
+    df_cond = (
+        df_src
+        .filter(df_src.E < 0)
+        .groupBy(df_src.grp, df_src.subgrp)
         .agg(
-            func.var_pop(dfData.E).alias("cond_var_of_E"))
+            func.var_pop(df_src.E).alias("cond_var_of_E"))
     )
     df = (
-        uncond
-        .join(cond, (uncond.grp == cond.grp) & (uncond.subgrp == cond.subgrp))
-        .drop(cond.grp)
-        .drop(cond.subgrp)
+        df_uncond
+        .join(df_cond, (df_uncond.grp == df_cond.grp) & (df_uncond.subgrp == df_cond.subgrp))
+        .drop(df_cond.grp)
+        .drop(df_cond.subgrp)
     )
     df = df.orderBy(df.grp, df.subgrp)
     return df

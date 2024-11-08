@@ -66,9 +66,9 @@ class Arguments(RunnerArgumentsBase):
 
 
 def parse_args() -> Arguments:
-    strategy_names = [x.strategy_name for x in DEDUPE_STRATEGIES_USING_PYSPARK_REGISTRY]
     sizes = [x.size_code for x in DATA_SIZE_LIST_DEDUPE]
     default_sizes = [x.size_code for x in DATA_SIZE_LIST_DEDUPE if not x.debugging_only]
+    strategy_names = sorted(x.strategy_name for x in DEDUPE_STRATEGIES_USING_PYSPARK_REGISTRY)
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--assume-no-dupes-per-partition', default=True, action=argparse.BooleanOptionalAction)
@@ -234,11 +234,9 @@ def run_one_itinerary_step(
     exec_params = args.exec_params
     logger = spark_session.logger
     logger.info("Working on %d of %d" % (index, num_itinerary_stops))
+    logger.info(f"Working on {challenge_method_registration.strategy_name} "
+                f"for {data_set.data_description.size_code}")
     startedTime = time.time()
-    logger.info("Working on %s %d %d" %
-                (challenge_method_registration.strategy_name,
-                 data_set.data_description.num_people,
-                 data_set.data_description.num_source_rows))
     success = True
     try:
         rdd_out: RDD[Row]
@@ -270,8 +268,8 @@ def run_one_itinerary_step(
         found_people: list[Row] = rdd_out.collect()
     except Exception as exception:
         found_people = []
+        logger.error(exception)
         exit(1)
-        logger.exception(exception)
         success = False
     finished_at = time.time()
     elapsed_time = finished_at - startedTime

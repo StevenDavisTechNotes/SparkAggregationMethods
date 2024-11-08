@@ -20,8 +20,6 @@ def bi_level_pyspark_rdd_grp_map(
         exec_params: SixTestExecutionParameters,
         data_set: SixFieldDataSetPyspark
 ) -> TSixFieldChallengePendingAnswerPythonPyspark:
-    rddSrc: RDD[DataPointNT] = data_set.data.rdd_src
-
     if (
             data_set.data_description.num_source_rows
             > MAX_DATA_POINTS_PER_SPARK_PARTITION
@@ -29,18 +27,23 @@ def bi_level_pyspark_rdd_grp_map(
     ):
         # This strategy only works if all of the values per key can fit into memory at once.
         return "infeasible"
+    rdd_src: RDD[Row] = data_set.data.open_source_data_as_rdd(spark_session)
     agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(data_set.data, CHALLENGE)
 
-    rddResult = cast(
+    rdd_result = cast(
         RDD[Row],
-        rddSrc
+        rdd_src
+        .map(lambda r: DataPointNT(*r))
         .groupBy(lambda x: x.grp)
-        .map(lambda pair: (pair[0], process_data_1(pair[0], pair[1])), preservesPartitioning=True)
+        .map(lambda pair: (
+            pair[0],
+            process_data_1(pair[0], pair[1])),
+            preservesPartitioning=True)
         .sortByKey(numPartitions=agg_tgt_num_partitions)  # type: ignore
         .values()
     )
 
-    return rddResult
+    return rdd_result
 
 
 class MutableRunningTotal:

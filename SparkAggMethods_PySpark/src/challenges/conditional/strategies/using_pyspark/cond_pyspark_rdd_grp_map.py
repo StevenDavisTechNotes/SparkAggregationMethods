@@ -21,22 +21,23 @@ def cond_pyspark_rdd_grp_map(
         data_set: SixFieldDataSetPyspark,
 ) -> TSixFieldChallengePendingAnswerPythonPyspark:
     if (
-            data_set.data_description.num_source_rows
+            data_set.data_description.points_per_index
             > MAX_DATA_POINTS_PER_SPARK_PARTITION
-            * data_set.data_description.num_grp_1 * data_set.data_description.num_grp_2
     ):
         # This strategy only works if all of the values per key can fit into memory at once.
         return "infeasible"
     agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(data_set.data, CHALLENGE)
-    rddResult = cast(
+    rdd_src = data_set.data.open_source_data_as_rdd(spark_session)
+    rdd_result = cast(
         RDD[Row],
-        data_set.data.rdd_src
+        rdd_src
+        .map(lambda r: DataPointNT(*r))
         .groupBy(lambda x: (x.grp, x.subgrp))
         .map(lambda pair: (pair[0], process_data_1(pair[0], pair[1])), preservesPartitioning=True)
         .sortByKey(numPartitions=agg_tgt_num_partitions)  # type: ignore
         .values()
     )
-    return rddResult
+    return rdd_result
 
 
 def process_data_1(
@@ -65,7 +66,8 @@ def process_data_1(
         if unconditional_count > 0 else math.nan
     cond_var_of_E = (
         cond_sum_of_E_squared / cond_count_of_E
-        - (cond_sum_of_E / cond_count_of_E)**2)
+        - (cond_sum_of_E / cond_count_of_E)**2
+        if cond_count_of_E > 0 else math.nan)
     return Row(
         grp=key[0],
         subgrp=key[1],

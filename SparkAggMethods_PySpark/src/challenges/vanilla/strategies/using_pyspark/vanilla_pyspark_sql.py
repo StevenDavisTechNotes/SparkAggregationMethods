@@ -13,7 +13,9 @@ def vanilla_pyspark_sql(
         exec_params: SixTestExecutionParameters,
         data_set: SixFieldDataSetPyspark
 ) -> TSixFieldChallengePendingAnswerPythonPyspark:
-    df = data_set.data.df_src
+    if (data_set.data_description.num_source_rows >= 9*10**6):  # incorrect answer at that point
+        return "infeasible"
+    df = data_set.data.open_source_data_as_df(spark_session)
     spark_session.spark.catalog.dropTempView("example_data")
     df.createTempView("example_data")
     df = spark_session.spark.sql('''

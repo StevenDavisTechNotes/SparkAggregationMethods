@@ -10,6 +10,9 @@ from src.challenges.vanilla.strategies.using_python_only.vanilla_py_only_pd_grp_
 from src.challenges.vanilla.strategies.using_python_only.vanilla_py_only_pd_grp_numpy import (
     vanilla_py_only_pd_grp_numpy,
 )
+from src.challenges.vanilla.strategies.using_python_only.vanilla_py_only_pd_prog_numpy import (
+    vanilla_py_only_pd_prog_numpy,
+)
 
 VANILLA_STRATEGIES_USING_PYTHON_ONLY_REGISTRY: list[ChallengeMethodPythonOnlyRegistration] = [
     ChallengeMethodPythonOnlyRegistration(
@@ -31,5 +34,15 @@ VANILLA_STRATEGIES_USING_PYTHON_ONLY_REGISTRY: list[ChallengeMethodPythonOnlyReg
         numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         requires_gpu=False,
         delegate=vanilla_py_only_pd_grp_numpy,
+    ),
+    ChallengeMethodPythonOnlyRegistration(
+        strategy_name_2018=None,
+        strategy_name=name_of_function(vanilla_py_only_pd_prog_numpy),
+        language=SolutionLanguage.PYTHON,
+        engine=CalcEngine.PYTHON_ONLY,
+        interface=SolutionInterfacePythonOnly.PROGRESSIVE,
+        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
+        requires_gpu=False,
+        delegate=vanilla_py_only_pd_prog_numpy,
     ),
 ]

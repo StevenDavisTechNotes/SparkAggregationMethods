@@ -73,7 +73,10 @@ class ProgressiveVariance:
         self._var = 0.0
         self._n = 0
 
-    def update(self, batch: np.ndarray) -> Tuple[Union[float, np.ndarray], Union[float, np.ndarray]]:
+    def update(
+            self,
+            batch: np.ndarray,
+    ) -> Tuple[Union[float, np.ndarray], Union[float, np.ndarray]]:
         """
         Update the mean and variance from a batch of data.
 
@@ -81,17 +84,19 @@ class ProgressiveVariance:
             mean (float | np.ndarray): updated mean
             variance (float | np.ndarray): updated variance
         """
-        batch_mean = batch.mean(axis=self._axis)
-        batch_var = batch.var(ddof=self._ddof, axis=self._axis)
         batch_size = batch.size if self._axis is None else batch.shape[self._axis]
         if batch_size == 0:
             return self._mean, self._var
+        batch_mean = batch.mean(axis=self._axis)
+        batch_var = batch.var(ddof=self._ddof, axis=self._axis)
         return self._update_from_batch_mean_var(batch_mean, batch_var, batch_size)
 
-    def _update_from_batch_mean_var(self,
-                                    batch_mean: Union[float, np.ndarray],
-                                    batch_var: Union[float, np.ndarray],
-                                    batch_size: int) -> Tuple[Union[float, np.ndarray], Union[float, np.ndarray]]:
+    def _update_from_batch_mean_var(
+            self,
+            batch_mean: Union[float, np.ndarray],
+            batch_var: Union[float, np.ndarray],
+            batch_size: int,
+    ) -> Tuple[Union[float, np.ndarray], Union[float, np.ndarray]]:
         # n: batch size
         # M: sum of squares
         # a: old batch

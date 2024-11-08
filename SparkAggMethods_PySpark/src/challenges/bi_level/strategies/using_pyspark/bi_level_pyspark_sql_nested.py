@@ -13,11 +13,11 @@ def bi_level_pyspark_sql_nested(
         exec_params: SixTestExecutionParameters,
         data_set: SixFieldDataSetPyspark
 ) -> TSixFieldChallengePendingAnswerPythonPyspark:
-    dfSrc = data_set.data.df_src
+    df_src = data_set.data.open_source_data_as_df(spark_session)
     spark = spark_session.spark
 
     spark.catalog.dropTempView("example_data")
-    dfSrc.createTempView("example_data")
+    df_src.createTempView("example_data")
     df = spark.sql('''
     SELECT
             grp,

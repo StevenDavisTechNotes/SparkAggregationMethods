@@ -1,43 +1,40 @@
 import logging
 import os
+import shutil
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import pyarrow.parquet
+from spark_agg_methods_common_python.challenges.bi_level.bi_level_test_data_types import DATA_SIZES_LIST_BI_LEVEL
+from spark_agg_methods_common_python.challenges.conditional.conditional_test_data_types import (
+    DATA_SIZES_LIST_CONDITIONAL,
+)
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_domain_logic.merging_samples import (
     calculate_solutions_progressively,
 )
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
-    SIX_TEST_SOURCE_DATA_PYARROW_SCHEMA, SixTestDataSetDescription, six_derive_expected_answer_data_file_path_csv,
+    SIX_TEST_SOURCE_DATA_PYARROW_SCHEMA, SixTestDataSetDescription, six_derive_expected_answer_data_file_paths_csv,
     six_derive_source_test_data_file_path,
 )
+from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types import DATA_SIZES_LIST_VANILLA
 from spark_agg_methods_common_python.perf_test_common import Challenge
 
 # cSpell: ignore arange, aggfunc
 
 logger = logging.getLogger(__name__)
+TARGET_BATCH_SIZE = 65536
 
 
-def generate_answer_file(data_size: SixTestDataSetDescription) -> None:
-    answer_file_names = six_derive_expected_answer_data_file_path_csv(data_size)
-    for file_name in answer_file_names.values():
-        if os.path.exists(file_name):
-            os.remove(file_name)
-    num_grp_1 = data_size.num_grp_1
-    num_grp_2 = data_size.num_grp_2
-    repetition = data_size.points_per_index
-    logger.info(f"Generating 6 data for {num_grp_1}, {num_grp_2}, {repetition} ")
-    answer = calculate_solutions_progressively(
-        data_size,
-        challenges=[Challenge.BI_LEVEL, Challenge.CONDITIONAL, Challenge.VANILLA],
-    )
-    answer[Challenge.BI_LEVEL].to_csv(answer_file_names[Challenge.BI_LEVEL], index=False)
-    answer[Challenge.CONDITIONAL].to_csv(answer_file_names[Challenge.CONDITIONAL], index=False)
-    answer[Challenge.VANILLA].to_csv(answer_file_names[Challenge.VANILLA], index=False)
+def _remove_data_files_for_size(
+        data_description: SixTestDataSetDescription,
+) -> None:
+    source_file_paths = six_derive_source_test_data_file_path(data_description)
+    if os.path.exists(source_file_paths.source_directory_path):
+        shutil.rmtree(source_file_paths.source_directory_path)
 
 
-def generate_source_data_file(
+def _generate_source_data_file_for_size(
         data_description: SixTestDataSetDescription,
 ) -> None:
     num_grp_1 = data_description.num_grp_1
@@ -51,22 +48,20 @@ def generate_source_data_file(
         data_description=data_description,
         temp_file=True,
     )
+    if (os.path.exists(final_source_file_paths.source_file_path_parquet_modern)):
+        return
     for path in final_source_file_paths.file_paths + temp_source_file_paths.file_paths:
         if os.path.exists(path):
             os.remove(path)
     num_data_points = num_grp_1 * num_grp_2 * repetition
     Path(final_source_file_paths.source_directory_path).mkdir(parents=True, exist_ok=True)
-    parquet_file_original = pyarrow.parquet.ParquetWriter(
-        temp_source_file_paths.source_file_path_parquet_original,
-        SIX_TEST_SOURCE_DATA_PYARROW_SCHEMA,
-        version="1.0",
-    )
     parquet_file_modern = pyarrow.parquet.ParquetWriter(
-        temp_source_file_paths.source_file_path_parquet_modern,
-        SIX_TEST_SOURCE_DATA_PYARROW_SCHEMA,
+        where=temp_source_file_paths.source_file_path_parquet_modern,
+        schema=SIX_TEST_SOURCE_DATA_PYARROW_SCHEMA,
+        compression="ZSTD",
     )
-    for i_batch_start in range(0, num_data_points, 10000):
-        i_batch_end = min(i_batch_start + 10000, num_data_points)
+    for i_batch_start in range(0, num_data_points, TARGET_BATCH_SIZE):
+        i_batch_end = min(i_batch_start + TARGET_BATCH_SIZE, num_data_points)
         batch_size = i_batch_end - i_batch_start
         batch_range = range(i_batch_start, i_batch_end)
         df = pd.DataFrame(
@@ -90,32 +85,45 @@ def generate_source_data_file(
                 temp_source_file_paths.source_file_path_csv,
                 final_source_file_paths.source_file_path_csv)
         as_pyarrow_table = pyarrow.table(df)
-        parquet_file_original.write_table(as_pyarrow_table)
         parquet_file_modern.write_table(as_pyarrow_table)
-    parquet_file_original.close()
-    os.rename(
-        temp_source_file_paths.source_file_path_parquet_original,
-        final_source_file_paths.source_file_path_parquet_original)
     parquet_file_modern.close()
     os.rename(
         temp_source_file_paths.source_file_path_parquet_modern,
         final_source_file_paths.source_file_path_parquet_modern)
 
 
-def six_generate_data_file(
+def _generate_answer_file(data_description: SixTestDataSetDescription) -> None:
+    answer_file_paths = six_derive_expected_answer_data_file_paths_csv(data_description)
+    if all(os.path.exists(f) for f in answer_file_paths.values()):
+        return
+    for file_name in answer_file_paths.values():
+        if os.path.exists(file_name):
+            os.remove(file_name)
+    num_grp_1 = data_description.num_grp_1
+    num_grp_2 = data_description.num_grp_2
+    repetition = data_description.points_per_index
+    logger.info(f"Generating 6 answer data for {num_grp_1}, {num_grp_2}, {repetition} ")
+    answer = calculate_solutions_progressively(
+        data_description,
+        challenges=[Challenge.BI_LEVEL, Challenge.CONDITIONAL, Challenge.VANILLA],
+    )
+    answer[Challenge.BI_LEVEL].to_csv(answer_file_paths[Challenge.BI_LEVEL], index=False)
+    answer[Challenge.CONDITIONAL].to_csv(answer_file_paths[Challenge.CONDITIONAL], index=False)
+    answer[Challenge.VANILLA].to_csv(answer_file_paths[Challenge.VANILLA], index=False)
+
+
+def six_generate_data_files(
         *,
-        data_description: SixTestDataSetDescription,
         make_new_files: bool,
 ) -> None:
-    source_file_paths = six_derive_source_test_data_file_path(
-        data_description=data_description,
+    data_descriptions = (
+        DATA_SIZES_LIST_BI_LEVEL
+        + DATA_SIZES_LIST_CONDITIONAL
+        + DATA_SIZES_LIST_VANILLA
     )
-    if (
-        make_new_files
-        or not os.path.exists(source_file_paths.source_file_path_parquet_original)
-        or not os.path.exists(source_file_paths.source_file_path_parquet_modern)
-    ):
-        generate_source_data_file(data_description)
-    answer_file_names = six_derive_expected_answer_data_file_path_csv(data_description)
-    if make_new_files or any(not os.path.exists(x) for x in answer_file_names.values()):
-        generate_answer_file(data_description)
+    if make_new_files:
+        for data_description in data_descriptions:
+            _remove_data_files_for_size(data_description)
+    for data_description in data_descriptions:
+        _generate_source_data_file_for_size(data_description)
+        _generate_answer_file(data_description)

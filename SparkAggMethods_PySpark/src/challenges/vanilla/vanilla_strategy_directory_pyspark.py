@@ -35,7 +35,7 @@ VANILLA_STRATEGIES_USING_PYSPARK_REGISTRY: list[SixFieldChallengeMethodPythonPys
         engine=CalcEngine.PYSPARK,
         interface=SolutionInterfacePySpark.PYSPARK_DATAFRAME_SQL,
         requires_gpu=False,
-        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
+        numerical_tolerance=NumericalToleranceExpectations.SIMPLE_SUM,
         delegate=vanilla_pyspark_df_grp_builtin,
     ),
     SixFieldChallengeMethodPythonPysparkRegistration(
@@ -45,7 +45,7 @@ VANILLA_STRATEGIES_USING_PYSPARK_REGISTRY: list[SixFieldChallengeMethodPythonPys
         engine=CalcEngine.PYSPARK,
         interface=SolutionInterfacePySpark.PYSPARK_DATAFRAME_PANDAS,
         requires_gpu=False,
-        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
+        numerical_tolerance=NumericalToleranceExpectations.SIMPLE_SUM,
         delegate=vanilla_pyspark_df_grp_pandas,
     ),
     SixFieldChallengeMethodPythonPysparkRegistration(
@@ -55,7 +55,7 @@ VANILLA_STRATEGIES_USING_PYSPARK_REGISTRY: list[SixFieldChallengeMethodPythonPys
         engine=CalcEngine.PYSPARK,
         interface=SolutionInterfacePySpark.PYSPARK_DATAFRAME_PANDAS,
         requires_gpu=False,
-        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
+        numerical_tolerance=NumericalToleranceExpectations.SIMPLE_SUM,
         delegate=vanilla_pyspark_df_grp_numpy,
     ),
     SixFieldChallengeMethodPythonPysparkRegistration(
@@ -65,7 +65,7 @@ VANILLA_STRATEGIES_USING_PYSPARK_REGISTRY: list[SixFieldChallengeMethodPythonPys
         engine=CalcEngine.PYSPARK,
         interface=SolutionInterfacePySpark.PYSPARK_DATAFRAME_PANDAS,
         requires_gpu=True,
-        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
+        numerical_tolerance=NumericalToleranceExpectations.NUMBA,
         delegate=vanilla_pyspark_df_grp_numba,
     ),
     SixFieldChallengeMethodPythonPysparkRegistration(
@@ -85,7 +85,7 @@ VANILLA_STRATEGIES_USING_PYSPARK_REGISTRY: list[SixFieldChallengeMethodPythonPys
         engine=CalcEngine.PYSPARK,
         interface=SolutionInterfacePySpark.PYSPARK_RDD,
         requires_gpu=False,
-        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
+        numerical_tolerance=NumericalToleranceExpectations.SIMPLE_SUM,
         delegate=vanilla_pyspark_rdd_reduce,
     ),
     SixFieldChallengeMethodPythonPysparkRegistration(
@@ -95,7 +95,7 @@ VANILLA_STRATEGIES_USING_PYSPARK_REGISTRY: list[SixFieldChallengeMethodPythonPys
         engine=CalcEngine.PYSPARK,
         interface=SolutionInterfacePySpark.PYSPARK_RDD,
         requires_gpu=False,
-        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
+        numerical_tolerance=NumericalToleranceExpectations.SIMPLE_SUM,
         delegate=vanilla_pyspark_rdd_mappart,
     ),
 ]

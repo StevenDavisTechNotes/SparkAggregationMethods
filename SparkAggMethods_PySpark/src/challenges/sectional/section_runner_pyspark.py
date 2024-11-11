@@ -6,7 +6,6 @@ import datetime as dt
 import gc
 import logging
 import os
-import sys
 import time
 from dataclasses import dataclass
 from typing import Iterable, Literal
@@ -23,13 +22,14 @@ from spark_agg_methods_common_python.challenges.sectional.section_record_runs im
 )
 from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import (
     DATA_SIZE_LIST_SECTIONAL, SECTION_SIZE_MAXIMUM, SectionDataSetDescription, StudentSummary,
-    derive_source_test_data_file_path, section_verify_correctness,
+    section_derive_source_test_data_file_path, section_verify_correctness,
 )
 from spark_agg_methods_common_python.perf_test_common import (
     ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge, NumericalToleranceExpectations,
     RunnerArgumentsBase, SolutionLanguage, assemble_itinerary,
 )
 from spark_agg_methods_common_python.utils.pandas_helpers import make_pd_dataframe_from_list_of_named_tuples
+from spark_agg_methods_common_python.utils.platform import setup_logging
 from spark_agg_methods_common_python.utils.utils import int_divide_round_up
 
 from src.challenges.sectional.section_strategy_directory_pyspark import SECTIONAL_STRATEGIES_USING_PYSPARK_REGISTRY
@@ -104,7 +104,7 @@ def prepare_data_sets(
         if data_description.size_code not in args.sizes:
             continue
         num_students = data_description.num_students
-        file_path = derive_source_test_data_file_path(data_description)
+        file_path = section_derive_source_test_data_file_path(data_description)
         data_size = num_students * SECTION_SIZE_MAXIMUM
         assert os.path.exists(file_path)
         src_num_partitions = max(
@@ -312,8 +312,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(
-        stream=sys.stdout,
-        level=logging.DEBUG if __debug__ else logging.INFO,
-    )
+    setup_logging()
     main()

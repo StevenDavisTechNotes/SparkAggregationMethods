@@ -50,7 +50,7 @@ class ChallengeMethodPythonOnlyRegistration(
     delegate: IChallengeMethodPythonOnly
 
 
-def six_populate_data_set_python_only(
+def six_prepare_data_set_python_only(
         exec_params: SixTestExecutionParameters,
         data_description: SixTestDataSetDescription,
 ) -> DataSetDataPythonOnly:

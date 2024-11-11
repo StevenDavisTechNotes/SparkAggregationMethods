@@ -145,7 +145,7 @@ def add_months_to_date_retracting(
     return dt.date(year, month, min(d.day, num_days))
 
 
-def derive_source_test_data_file_path(
+def section_derive_source_test_data_file_path(
         data_description: SectionDataSetDescription,
         *,
         temp_file: bool = False,
@@ -159,7 +159,7 @@ def derive_source_test_data_file_path(
     )
 
 
-def derive_expected_answer_data_file_path(
+def section_derive_expected_answer_data_file_path(
         data_description: SectionDataSetDescription,
         *,
         temp_file: bool = False,

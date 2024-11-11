@@ -2,7 +2,8 @@
 # usage: python -O -m src.perf_test_runner_for_py_only
 
 import logging
-import sys
+
+from spark_agg_methods_common_python.utils.platform import setup_logging
 
 from src.challenges.bi_level import bi_level_runner_py_only
 from src.challenges.conditional import conditional_runner_py_only
@@ -28,8 +29,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(
-        stream=sys.stdout,
-        level=logging.DEBUG if __debug__ else logging.INFO,
-    )
+    setup_logging()
     main()

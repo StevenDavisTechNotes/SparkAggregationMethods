@@ -16,8 +16,6 @@ def vanilla_dask_sql_no_gpu(
         exec_params: SixTestExecutionParameters,
         data_set: SixTestDataSetDask,
 ) -> TChallengeAnswerPythonDask:
-    if (data_set.data_description.points_per_index >= 10**6):  # incorrect answer at that point
-        return "infeasible"
     df = data_set.data.open_source_data_as_ddf()
     return inner(df, gpu=False)
 

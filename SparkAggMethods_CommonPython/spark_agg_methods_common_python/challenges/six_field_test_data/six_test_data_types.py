@@ -158,20 +158,20 @@ class SixTestDataChallengeMethodRegistrationBase(
 @dataclass(frozen=True)
 class SixTestSourceDataFilePaths():
     source_directory_path: str
-    source_file_path_parquet_original: str
+    source_file_path_parquet_for_spark: str
     source_file_path_parquet_modern: str
     source_file_path_csv: str
 
     @property
     def file_paths(self) -> list[str]:
         return [
-            self.source_file_path_parquet_original,
+            self.source_file_path_parquet_for_spark,
             self.source_file_path_parquet_modern,
             self.source_file_path_csv,
         ]
 
 
-def six_derive_expected_answer_data_file_path_csv(
+def six_derive_expected_answer_data_file_paths_csv(
         data_description: SixTestDataSetDescription,
         *,
         temp_file: bool = False,
@@ -209,7 +209,7 @@ def six_derive_source_test_data_file_path(
     )
     return SixTestSourceDataFilePaths(
         source_directory_path=source_directory_path,
-        source_file_path_parquet_original=f"{stem}_orig.parquet",
+        source_file_path_parquet_for_spark=f"{stem}_spark",
         source_file_path_parquet_modern=f"{stem}_modern.parquet",
         source_file_path_csv=f"{stem}.csv",
     )
@@ -221,6 +221,6 @@ def fetch_six_data_set_answer(
         *,
         spark_logger: Any | None = None,
 ) -> pd.DataFrame:
-    answer_file_path_csv = six_derive_expected_answer_data_file_path_csv(data_size)[challenge]
+    answer_file_path_csv = six_derive_expected_answer_data_file_paths_csv(data_size)[challenge]
     (spark_logger or logger).info(f"Loading answer from {answer_file_path_csv}")
     return pd.read_csv(answer_file_path_csv)

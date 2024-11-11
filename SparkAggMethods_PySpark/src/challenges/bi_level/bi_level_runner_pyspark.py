@@ -4,7 +4,6 @@ import argparse
 import gc
 import logging
 import os
-import sys
 import time
 from dataclasses import dataclass
 
@@ -25,11 +24,12 @@ from spark_agg_methods_common_python.perf_test_common import (
     ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge, RunnerArgumentsBase, SolutionLanguage,
     assemble_itinerary,
 )
+from spark_agg_methods_common_python.utils.platform import setup_logging
 
 from src.challenges.bi_level.bi_level_strategy_directory_pyspark import BI_LEVEL_STRATEGIES_USING_PYSPARK_REGISTRY
 from src.challenges.six_field_test_data.six_runner_base_pyspark import run_one_step_in_pyspark_itinerary
 from src.challenges.six_field_test_data.six_test_data_for_pyspark import (
-    SixFieldDataSetPyspark, six_populate_data_set_pyspark,
+    SixFieldDataSetPyspark, six_prepare_data_set_pyspark,
 )
 from src.utils.tidy_session_pyspark import TidySparkSession
 
@@ -99,7 +99,7 @@ def prepare_data_sets(
     data_sets = [
         BiLevelDataSetWAnswerPyspark(
             data_description=size,
-            data=six_populate_data_set_pyspark(
+            data=six_prepare_data_set_pyspark(
                 spark_session,
                 args.exec_params,
                 data_description=size,
@@ -228,8 +228,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(
-        stream=sys.stdout,
-        level=logging.DEBUG if __debug__ else logging.INFO,
-    )
+    setup_logging()
     main()

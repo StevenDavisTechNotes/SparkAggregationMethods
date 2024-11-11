@@ -5,7 +5,7 @@ import pandas as pd
 from pydantic import BaseModel, RootModel, TypeAdapter
 
 from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import (
-    SectionDataSetDescription, derive_expected_answer_data_file_path,
+    SectionDataSetDescription, section_derive_expected_answer_data_file_path,
 )
 
 
@@ -28,7 +28,7 @@ class AnswerFileSectional(ABC):
     def read_answer_file_sectional(
             data_description: SectionDataSetDescription,
     ) -> pd.DataFrame:
-        expected_answer_data_file_path = derive_expected_answer_data_file_path(data_description)
+        expected_answer_data_file_path = section_derive_expected_answer_data_file_path(data_description)
         if not os.path.exists(expected_answer_data_file_path):
             raise FileNotFoundError(f"Expected answer data file not found: {expected_answer_data_file_path}")
         return pd.read_parquet(expected_answer_data_file_path, engine='pyarrow')
@@ -38,10 +38,14 @@ class AnswerFileSectional(ABC):
             data_description: SectionDataSetDescription,
             answer: pd.DataFrame,
     ) -> None:
-        final_file_name = derive_expected_answer_data_file_path(
+        final_file_name = section_derive_expected_answer_data_file_path(
             data_description, temp_file=False)
-        temp_file_name = derive_expected_answer_data_file_path(
+        temp_file_name = section_derive_expected_answer_data_file_path(
             data_description, temp_file=True)
-        if True:
-            answer.to_parquet(temp_file_name, engine='pyarrow', index=False)
-            os.rename(temp_file_name, final_file_name)
+        answer.to_parquet(
+            temp_file_name,
+            engine='pyarrow',
+            compression='zstd',
+            index=False,
+        )
+        os.rename(temp_file_name, final_file_name)

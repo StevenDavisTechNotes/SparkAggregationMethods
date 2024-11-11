@@ -86,7 +86,7 @@ class ChallengeMethodPythonDaskRegistration(
     delegate: IChallengeMethodPythonDask
 
 
-def six_populate_data_set_dask(
+def six_prepare_data_set_dask(
         exec_params: SixTestExecutionParameters,
         data_description: SixTestDataSetDescription,
 ) -> SixTestDataSetDataDask:

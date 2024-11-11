@@ -108,6 +108,7 @@ def calculate_solutions_progressively(
     assert correct_num_data_points == num_data_points_visited
     result: dict[Challenge, pd.DataFrame] = dict()
     if include_bi_level:
+        df_bi_level_answer: pd.DataFrame
         df_bi_level_answer = (
             df_summary
             .groupby("grp")  # pyright: ignore[reportOptionalMemberAccess]

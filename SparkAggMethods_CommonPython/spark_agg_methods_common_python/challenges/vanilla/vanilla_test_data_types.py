@@ -52,8 +52,8 @@ DATA_SIZES_LIST_VANILLA = [
         (10 ** 3, '3_3_1k'),
         (10 ** 4, '3_3_10k'),
         (10 ** 5, '3_3_100k'),
-        (10 ** 6, '3_3_1m'),  # load data EOM ever since numpy.array is used for the answer generation
-        (10 ** 7, '3_3_10m'),  # load data EOM ever since numpy.array is used for the answer generation
-        (10 ** 8, '3_3_100m'),  # load data EOM ever since numpy.array is used for the answer generation
+        (10 ** 6, '3_3_1m'),
+        (10 ** 7, '3_3_10m'),
+        (10 ** 8, '3_3_100m'),
     ]
 ]

@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 ELAPSED_TIME_COLUMN_NAME: str = 'elapsed_time'
 LOCAL_TEST_DATA_FILE_LOCATION = 'd:/temp/SparkPerfTesting'
-LOCAL_NUM_EXECUTORS = 7
+LOCAL_NUM_EXECUTORS = 5
 
 
 class SolutionLanguage(StrEnum):

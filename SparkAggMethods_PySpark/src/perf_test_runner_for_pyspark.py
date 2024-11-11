@@ -2,7 +2,8 @@
 # usage: .\venv\Scripts\activate.ps1; python -O -m src.perf_test_runner_for_pyspark
 
 import logging
-import sys
+
+from spark_agg_methods_common_python.utils.platform import setup_logging
 
 from src.challenges.bi_level import bi_level_runner_pyspark
 from src.challenges.conditional import conditional_runner_pyspark
@@ -28,8 +29,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(
-        stream=sys.stdout,
-        level=logging.DEBUG if __debug__ else logging.INFO,
-    )
+    setup_logging()
     main()

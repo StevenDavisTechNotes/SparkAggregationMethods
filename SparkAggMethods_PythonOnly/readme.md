@@ -35,7 +35,7 @@ Then Close and reopen VSCode
 ```
 . .\venv\Scripts\Activate.ps1
 flake8 src
-.\venv\Scripts\Activate.ps1; clear && pyclean src && flake8 src && pyright src && python -m pytest src
+.\venv\Scripts\Activate.ps1 ; clear ; if ($?) { pyclean src } ; if ($?) { flake8 src } ; if ($?) { pyright src } ; if ($?) { python -m pytest src }
 autopep8 --recursive --diff src | findstr /i /c:'--- original/'
 autopep8 --recursive  --in-place src
 & "cspell-cli" "src/**/*.py" "--no-summary" "--no-progress" "--exclude" "__pycache__" "--exclude" ".git" "--exclude" "venv" "--fail-fast"

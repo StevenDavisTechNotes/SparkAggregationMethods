@@ -6,7 +6,6 @@ import datetime as dt
 import gc
 import logging
 import os
-import sys
 import time
 from dataclasses import dataclass
 from functools import reduce
@@ -29,6 +28,7 @@ from spark_agg_methods_common_python.perf_test_common import (
     ELAPSED_TIME_COLUMN_NAME, CalcEngine, Challenge, NumericalToleranceExpectations, RunnerArgumentsBase,
     SolutionLanguage, assemble_itinerary,
 )
+from spark_agg_methods_common_python.utils.platform import setup_logging
 from spark_agg_methods_common_python.utils.utils import int_divide_round_up
 
 from src.challenges.deduplication.dedupe_strategy_directory_pyspark import DEDUPE_STRATEGIES_USING_PYSPARK_REGISTRY
@@ -351,8 +351,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(
-        stream=sys.stdout,
-        level=logging.DEBUG if __debug__ else logging.INFO,
-    )
+    setup_logging()
     main()

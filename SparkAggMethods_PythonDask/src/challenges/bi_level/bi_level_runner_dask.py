@@ -4,7 +4,6 @@ import argparse
 import gc
 import logging
 import os
-import sys
 import time
 from dataclasses import dataclass
 
@@ -25,10 +24,11 @@ from spark_agg_methods_common_python.perf_test_common import (
     ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge, RunnerArgumentsBase, SolutionLanguage,
     assemble_itinerary,
 )
+from spark_agg_methods_common_python.utils.platform import setup_logging
 
 from src.challenges.bi_level.bi_level_strategy_directory_dask import BI_LEVEL_STRATEGIES_USING_DASK_REGISTRY
 from src.challenges.six_field_test_data.six_runner_dask_base import run_one_step_in_dask_itinerary
-from src.challenges.six_field_test_data.six_test_data_for_dask import SixTestDataSetDask, six_populate_data_set_dask
+from src.challenges.six_field_test_data.six_test_data_for_dask import SixTestDataSetDask, six_prepare_data_set_dask
 
 logger = logging.getLogger(__name__)
 
@@ -97,7 +97,7 @@ def prepare_data_sets(
     data_sets = [
         BiLevelDataSetWAnswerDask(
             data_description=size,
-            data=six_populate_data_set_dask(
+            data=six_prepare_data_set_dask(
                 exec_params=args.exec_params,
                 data_description=size,
             ),
@@ -215,8 +215,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(
-        stream=sys.stdout,
-        level=logging.DEBUG if __debug__ else logging.INFO,
-    )
+    setup_logging()
     main()

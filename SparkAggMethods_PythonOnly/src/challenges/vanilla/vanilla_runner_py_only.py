@@ -4,7 +4,6 @@ import argparse
 import gc
 import logging
 import os
-import sys
 import time
 from dataclasses import dataclass
 
@@ -24,10 +23,11 @@ from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types 
 from spark_agg_methods_common_python.perf_test_common import (
     ELAPSED_TIME_COLUMN_NAME, CalcEngine, Challenge, RunnerArgumentsBase, SolutionLanguage, assemble_itinerary,
 )
+from spark_agg_methods_common_python.utils.platform import setup_logging
 
 from src.challenges.six_field_test_data.six_runner_base_py_only import run_one_step_in_python_only_itinerary
 from src.challenges.six_field_test_data.six_test_data_for_py_only import (
-    SixDataSetPythonOnly, six_populate_data_set_python_only,
+    SixDataSetPythonOnly, six_prepare_data_set_python_only,
 )
 from src.challenges.vanilla.vanilla_strategy_directory_py_only import VANILLA_STRATEGIES_USING_PYTHON_ONLY_REGISTRY
 
@@ -95,7 +95,7 @@ def prepare_data_sets(
     data_sets = [
         VanillaDataSetWAnswerPythonOnly(
             data_description=size,
-            data=six_populate_data_set_python_only(
+            data=six_prepare_data_set_python_only(
                 exec_params=args.exec_params,
                 data_description=size,
             ),
@@ -199,8 +199,5 @@ def main(
 
 
 if __name__ == "__main__":
-    logging.basicConfig(
-        stream=sys.stdout,
-        level=logging.DEBUG if __debug__ else logging.INFO,
-    )
+    setup_logging()
     main()

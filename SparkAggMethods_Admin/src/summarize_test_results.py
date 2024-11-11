@@ -4,7 +4,6 @@
 import io
 import logging
 import os
-import sys
 from dataclasses import dataclass
 from typing import Any, cast
 
@@ -16,6 +15,7 @@ from spark_agg_methods_common_python.challenge_strategy_registry import (
 )
 from spark_agg_methods_common_python.perf_test_common import CalcEngine, Challenge, SolutionLanguage
 from spark_agg_methods_common_python.utils.pandas_helpers import make_empty_pd_dataframe_from_schema
+from spark_agg_methods_common_python.utils.platform import setup_logging
 
 logger = logging.getLogger(__name__)
 FINAL_REPORT_FILE_PATH = '../results/{challenge}_results.csv'
@@ -254,8 +254,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(
-        stream=sys.stdout,
-        level=logging.DEBUG if __debug__ else logging.INFO,
-    )
+    setup_logging()
     main()

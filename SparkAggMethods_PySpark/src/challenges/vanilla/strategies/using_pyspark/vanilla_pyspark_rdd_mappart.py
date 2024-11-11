@@ -46,8 +46,6 @@ def vanilla_pyspark_rdd_mappart(
         exec_params: SixTestExecutionParameters,
         data_set: SixFieldDataSetPyspark
 ) -> TSixFieldChallengePendingAnswerPythonPyspark:
-    if (data_set.data_description.num_source_rows >= 9*10**6):  # incorrect answer at that point
-        return "infeasible"
     agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(data_set.data, CHALLENGE)
     rdd_src = data_set.data.open_source_data_as_rdd(spark_session)
     sum_count = (

@@ -5,7 +5,7 @@ from spark_agg_methods_common_python.challenges.sectional.domain_logic.section_m
     aggregate_typed_rows_to_grades,
 )
 from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import (
-    SectionDataSetDescription, StudentSummary, derive_source_test_data_file_path,
+    SectionDataSetDescription, StudentSummary, section_derive_source_test_data_file_path,
 )
 
 
@@ -14,7 +14,7 @@ def section_nospark_logic(
         data_description: SectionDataSetDescription,
 ) -> Iterable[StudentSummary]:
     def read_file() -> Iterable[str]:
-        with open(derive_source_test_data_file_path(data_description), "r") as fh:
+        with open(section_derive_source_test_data_file_path(data_description), "r") as fh:
             for line in fh:
                 yield line
 

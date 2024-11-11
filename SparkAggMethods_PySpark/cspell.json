@@ -35,6 +35,7 @@
         "perpartition",
         "prepcsv",
         "psutil",
+        "pyarrow",
         "pydantic",
         "pyspark",
         "subgrp",

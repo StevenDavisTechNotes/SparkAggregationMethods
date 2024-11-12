@@ -18,8 +18,7 @@ def estimate_expected_summation_error(
         numerical_tolerance.value
         * max(
             1.0,
-            math.sqrt(data_description.points_per_index)
-            / math.sqrt(10**5)
+            data_description.points_per_index / 1e+5  # originally calibrated at 1e+5
         )
     )
 

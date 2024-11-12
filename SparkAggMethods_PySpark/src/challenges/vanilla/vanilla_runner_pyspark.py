@@ -26,7 +26,9 @@ from spark_agg_methods_common_python.perf_test_common import (
 )
 from spark_agg_methods_common_python.utils.platform import setup_logging
 
-from src.challenges.six_field_test_data.six_runner_base_pyspark import run_one_step_in_pyspark_itinerary
+from src.challenges.six_field_test_data.six_runner_base_pyspark import (
+    run_one_step_in_pyspark_itinerary, six_spark_config_base,
+)
 from src.challenges.six_field_test_data.six_test_data_for_pyspark import (
     SixFieldDataSetPyspark, six_prepare_data_set_pyspark,
 )
@@ -209,15 +211,8 @@ def main():
     try:
         args = parse_args()
         update_challenge_registration()
-        config = {
-            "spark.sql.shuffle.partitions": args.exec_params.default_parallelism,
-            "spark.default.parallelism": args.exec_params.default_parallelism,
-            "spark.driver.memory": "2g",
-            "spark.executor.memory": "3g",
-            "spark.executor.memoryOverhead": "1g",
-        }
         with TidySparkSession(
-            config,
+            six_spark_config_base(args.exec_params),
             enable_hive_support=False
         ) as spark_session:
             do_test_runs(args, spark_session)

@@ -82,3 +82,20 @@ def run_one_step_in_pyspark_itinerary(
         )
         raise e
     return result
+
+
+def six_spark_config_base(
+        exec_params: SixTestExecutionParameters,
+) -> dict[str, str | int]:
+    return {
+        "spark.sql.shuffle.partitions": exec_params.default_parallelism,
+        "spark.default.parallelism": exec_params.default_parallelism,
+        "spark.driver.memory": "2g",
+        "spark.executor.memory": "3g",
+        "spark.executor.memoryOverhead": "1g",
+        "spark.executor.heartbeatInterval": "3600s",
+        "spark.network.timeout": "36000s",
+        "spark.shuffle.io.maxRetries": "10",
+        "spark.shuffle.io.retryWait": "600s",
+        "spark.sql.execution.arrow.pyspark.enabled": "true",
+    }

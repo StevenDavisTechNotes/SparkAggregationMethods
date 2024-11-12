@@ -221,26 +221,6 @@ def update_challenge_registration():
     )
 
 
-def spark_configs(
-        default_parallelism: int,
-) -> dict[str, str | int]:
-    return {
-        "spark.sql.shuffle.partitions": default_parallelism,
-        "spark.default.parallelism": default_parallelism,
-        "spark.worker.cleanup.enabled": "true",
-        "spark.driver.memory": "2g",
-        "spark.executor.memory": "3g",
-        "spark.executor.memoryOverhead": "1g",
-        "spark.port.maxRetries": "1",
-        "spark.reducer.maxReqsInFlight": "1",
-        "spark.executor.heartbeatInterval": "3600s",
-        "spark.network.timeout": "36000s",
-        "spark.shuffle.io.maxRetries": "10",
-        "spark.shuffle.io.retryWait": "600s",
-        "spark.sql.execution.arrow.pyspark.enabled": "true",
-    }
-
-
 def main():
     logger.info(f"Running {__file__}")
     try:

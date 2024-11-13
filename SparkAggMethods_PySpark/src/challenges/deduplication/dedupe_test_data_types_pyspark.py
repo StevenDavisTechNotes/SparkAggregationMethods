@@ -34,7 +34,11 @@ class DedupeDataSetPySpark(DedupeDataSetBase):
     df_source: PySparkDataFrame
 
 
-TChallengePendingAnswerPythonPyspark = Literal["infeasible"] | RDD[Row] | PySparkDataFrame
+TChallengePendingAnswerPythonPyspark = (
+    tuple[Literal["infeasible"], str]
+    | RDD[Row]
+    | PySparkDataFrame
+)
 
 
 @dataclass(frozen=True)

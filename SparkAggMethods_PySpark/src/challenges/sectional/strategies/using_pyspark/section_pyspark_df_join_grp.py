@@ -17,7 +17,7 @@ def section_join_groupby(
         data_set: SectionDataSetPyspark,
 ) -> TChallengePythonPysparkAnswer:
     if data_set.data_description.num_students > pow(10, MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT - 1):
-        return "infeasible"
+        return "infeasible", "Requires that all records for a student must fit in memory simultaneously."
     sc = spark_session.spark_context
     spark = spark_session.spark
     sectionMaximum = data_set.section_maximum

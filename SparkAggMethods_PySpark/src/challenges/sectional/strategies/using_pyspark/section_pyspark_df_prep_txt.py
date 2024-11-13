@@ -20,8 +20,7 @@ def section_pyspark_df_prep_txt(
         data_set: SectionDataSetPyspark,
 ) -> TChallengePythonPysparkAnswer:
     if data_set.data_description.num_students > pow(10, 8-1):
-        # times out
-        return "infeasible"
+        return "infeasible", "Times out"
     sc = spark_session.spark_context
     spark = spark_session.spark
     section_maximum = data_set.section_maximum

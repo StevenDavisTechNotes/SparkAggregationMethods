@@ -21,8 +21,7 @@ def section_pyspark_rdd_prep_mappart(
         data_set: SectionDataSetPyspark,
 ) -> TChallengePythonPysparkAnswer:
     if data_set.data_description.num_students > pow(10, 8 - 1):
-        # takes too long
-        return "infeasible"
+        return "infeasible", "Too slow"
     sc = spark_session.spark_context
     filename = data_set.source_data_file_path
     target_num_partitions = data_set.target_num_partitions

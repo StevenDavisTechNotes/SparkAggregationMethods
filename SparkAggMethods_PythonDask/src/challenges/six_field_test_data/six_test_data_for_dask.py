@@ -59,7 +59,11 @@ class SixTestDataSetDask:
     data: SixTestDataSetDataDask
 
 
-TChallengeAnswerPythonDask = Literal["infeasible"] | DaskDataFrame | pd.DataFrame
+TChallengeAnswerPythonDask = (
+    tuple[Literal["infeasible"], str]
+    | DaskDataFrame
+    | pd.DataFrame
+)
 
 
 class IChallengeMethodPythonDask(Protocol):

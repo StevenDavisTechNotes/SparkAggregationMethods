@@ -130,7 +130,9 @@ class SectionChallengeMethodRegistrationBase(
 
 
 TChallengePythonAnswer = (
-    Literal["infeasible"] | list[StudentSummary] | pd.DataFrame
+    tuple[Literal["infeasible"], str]
+    | list[StudentSummary]
+    | pd.DataFrame
 )
 
 

@@ -40,7 +40,7 @@ def vanilla_dask_ddf_grp_udaf(
         data_set: SixTestDataSetDask
 ) -> TChallengeAnswerPythonDask:
     if (data_set.data_description.points_per_index > 10**4):
-        return "infeasible"
+        return "infeasible", "Unknown reason"
     df: DaskDataFrame = data_set.data.open_source_data_as_ddf()
     custom_var_ddof_0 = groupby.Aggregation(
         name='custom_var_ddof_0',

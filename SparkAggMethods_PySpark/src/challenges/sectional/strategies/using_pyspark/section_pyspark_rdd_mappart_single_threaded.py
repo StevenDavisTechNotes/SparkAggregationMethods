@@ -16,8 +16,7 @@ def section_pyspark_rdd_mappart_single_threaded(
         data_set: SectionDataSetPyspark,
 ) -> TChallengePythonPysparkAnswer:
     if data_set.data_description.num_students > pow(10, MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT-1):
-        # unreliable
-        return "infeasible"
+        return "infeasible", "Unreliable"
     sc = spark_session.spark_context
     if data_set.data_description.num_source_rows > exec_params.maximum_processable_segment:
         raise ValueError("Single thread mapPartitions is limited to 1 segment")

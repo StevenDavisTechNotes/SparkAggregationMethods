@@ -160,7 +160,7 @@ def do_test_runs(
                         f"for {data_set.data_description.size_code}")
             run_result = run_one_itinerary_step(args, spark_session, challenge_method_registration, data_set)
             match run_result:
-                case "infeasible":
+                case ("infeasible", _):
                     pass
                 case _:
                     if not data_set.data_description.debugging_only:
@@ -174,7 +174,7 @@ def run_one_itinerary_step(
         spark_session: TidySparkSession,
         challenge_method_registration: SectionChallengeMethodPysparkRegistration,
         data_set: SectionDataSetPyspark,
-) -> SectionRunResult | Literal["infeasible"]:
+) -> SectionRunResult | tuple[Literal["infeasible"], str]:
     logger = spark_session.logger
     startedTime = time.time()
     rdd: RDD | None = None
@@ -184,6 +184,8 @@ def run_one_itinerary_step(
         exec_params=args.exec_params,
         data_set=data_set,
     ):
+        case ("infeasible", msg):
+            return "infeasible", msg
         case PySparkDataFrame() as df:
             logger.info(f"output rdd has {df.rdd.getNumPartitions()} partitions")
             rdd = df.rdd
@@ -194,8 +196,6 @@ def run_one_itinerary_step(
             count = rdd.count()
             logger.info("Got a count", count)
             found_students = rdd.toLocalIterator()
-        case "infeasible":
-            return "infeasible"
         case pd.DataFrame() as df:
             found_students = df
         case list() as iter_tuple:

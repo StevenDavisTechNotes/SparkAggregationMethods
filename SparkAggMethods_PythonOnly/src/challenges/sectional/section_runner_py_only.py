@@ -138,7 +138,7 @@ def do_test_runs(
                         f"for {data_set.data_description.num_source_rows}")
             run_result = run_one_itinerary_step(args, challenge_method_registration, data_set)
             match run_result:
-                case "infeasible":
+                case ("infeasible", _):
                     pass
                 case _:
                     if not data_set.data_description.debugging_only:
@@ -151,7 +151,7 @@ def run_one_itinerary_step(
         args: Arguments,
         challenge_method_registration: SectionChallengeMethodPythonOnlyRegistration,
         data_set: SectionDataSetPyOnly,
-) -> SectionRunResult | Literal["infeasible"]:
+) -> SectionRunResult | tuple[Literal["infeasible"], str]:
     startedTime = time.time()
     df_concrete_students: pd.DataFrame
     match challenge_method_registration.delegate(

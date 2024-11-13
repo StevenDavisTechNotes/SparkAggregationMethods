@@ -213,7 +213,7 @@ def do_test_runs(
                     data_set=data_set,
                     args=args,
                     spark_session=spark_session):
-                case "infeasible":
+                case ("infeasible", _):
                     pass
                 case result:
                     if not data_set.data_description.debugging_only:
@@ -230,7 +230,7 @@ def run_one_itinerary_step(
         data_set: DedupeDataSetPySpark,
         args: Arguments,
         spark_session: TidySparkSession
-) -> DedupeRunResult | Literal["infeasible"]:
+) -> DedupeRunResult | tuple[Literal["infeasible"], str]:
     exec_params = args.exec_params
     logger = spark_session.logger
     logger.info("Working on %d of %d" % (index, num_itinerary_stops))
@@ -249,8 +249,8 @@ def run_one_itinerary_step(
                 rdd_out = rdd_row
             case PySparkDataFrame() as spark_df:
                 rdd_out = spark_df.rdd
-            case "infeasible":
-                return "infeasible"
+            case ("infeasible", msg):
+                return "infeasible", msg
             case _:
                 raise Exception(
                     f"{challenge_method_registration.strategy_name} did not returning anything")

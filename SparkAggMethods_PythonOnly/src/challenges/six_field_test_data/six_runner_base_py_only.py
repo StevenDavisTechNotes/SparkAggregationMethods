@@ -7,12 +7,26 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_dat
     Challenge, SixTestExecutionParameters,
 )
 from spark_agg_methods_common_python.perf_test_common import NumericalToleranceExpectations, RunResultBase
+from spark_agg_methods_common_python.utils.call_with_timeout import timeout
 
 from src.challenges.six_field_test_data.six_test_data_for_py_only import (
     ChallengeMethodPythonOnlyRegistration, SixDataSetPythonOnly,
 )
 
 logger = logging.getLogger(__name__)
+
+
+@timeout(3600*2)
+def _call_delegate_with_timeout(
+    *,
+    challenge_method_registration: ChallengeMethodPythonOnlyRegistration,
+    exec_params: SixTestExecutionParameters,
+        data_set: SixDataSetPythonOnly,
+):
+    return challenge_method_registration.delegate(
+        exec_params=exec_params,
+        data_set=data_set,
+    )
 
 
 def run_one_step_in_python_only_itinerary(
@@ -25,9 +39,10 @@ def run_one_step_in_python_only_itinerary(
 ) -> RunResultBase | None:
     started_time = time.time()
     try:
-        match challenge_method_registration.delegate(
-                exec_params=exec_params,
-                data_set=data_set,
+        match _call_delegate_with_timeout(
+            challenge_method_registration=challenge_method_registration,
+            exec_params=exec_params,
+            data_set=data_set,
         ):
             case pd.DataFrame() as pandas_df:
                 df_answer = pandas_df

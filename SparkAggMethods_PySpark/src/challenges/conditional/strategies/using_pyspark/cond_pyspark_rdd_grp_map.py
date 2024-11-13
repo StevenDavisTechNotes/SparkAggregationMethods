@@ -25,7 +25,7 @@ def cond_pyspark_rdd_grp_map(
             > MAX_DATA_POINTS_PER_SPARK_PARTITION
     ):
         # This strategy only works if all of the values per key can fit into memory at once.
-        return "infeasible"
+        return "infeasible", "Requires all values per key to fit in memory"
     agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(data_set.data, CHALLENGE)
     rdd_src = data_set.data.open_source_data_as_rdd(spark_session)
     rdd_result = cast(

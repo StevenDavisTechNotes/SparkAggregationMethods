@@ -49,7 +49,7 @@ def vanilla_pyspark_df_grp_numba(
         data_set: SixFieldDataSetPyspark
 ) -> TSixFieldChallengePendingAnswerPythonPyspark:
     if numba is None:
-        return "infeasible"
+        return "infeasible", "Requires Numba be installed"
     df = data_set.data.open_source_data_as_df(spark_session)
     df = (
         df.groupby(df.grp, df.subgrp)

@@ -20,7 +20,7 @@ def dedupe_pyspark_df_nested_pandas(
 ) -> TChallengePendingAnswerPythonPyspark:
     dfSrc = data_set.df_source
     if data_set.data_description.num_source_rows > 50200:
-        return "infeasible"
+        return "infeasible", "Unknown reason"
 
     spark = spark_session.spark
     numPartitions = exec_params.num_executors

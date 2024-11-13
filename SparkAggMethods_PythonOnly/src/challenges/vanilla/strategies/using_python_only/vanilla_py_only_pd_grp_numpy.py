@@ -14,7 +14,7 @@ def vanilla_py_only_pd_grp_numpy(
         data_set: SixDataSetPythonOnly,
 ) -> TChallengePythonOnlyAnswer:
     if data_set.data_description.num_source_rows > 9 * 10**6:
-        return "infeasible"
+        return "infeasible", "Unknown reason"
     df = df = pd.read_parquet(data_set.data.source_file_path_parquet, engine='pyarrow')
     df_result = (
         df

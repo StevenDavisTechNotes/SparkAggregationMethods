@@ -16,7 +16,7 @@ def dedupe_pyspark_rdd_map_part(
         data_set: DedupeDataSetPySpark,
 ) -> TChallengePendingAnswerPythonPyspark:
     if data_set.data_description.num_source_rows > 502000:
-        return "infeasible"
+        return "infeasible", "Unknown reason"
     dfSrc = data_set.df_source
 
     rdd = (

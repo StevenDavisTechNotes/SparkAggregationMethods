@@ -1,4 +1,5 @@
 import time
+from typing import Literal
 
 import pandas as pd
 from pyspark import RDD
@@ -9,11 +10,27 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_dat
     Challenge, SixTestExecutionParameters,
 )
 from spark_agg_methods_common_python.perf_test_common import RunResultBase
+from spark_agg_methods_common_python.utils.call_with_timeout import timeout
 
 from src.challenges.six_field_test_data.six_test_data_for_pyspark import (
     SixFieldChallengeMethodPythonPysparkRegistration, SixFieldDataSetPyspark, pick_agg_tgt_num_partitions_pyspark,
 )
 from src.utils.tidy_session_pyspark import TidySparkSession
+
+
+@timeout(3600*2)
+def _call_delegate_with_timeout(
+    *,
+    challenge_method_registration: SixFieldChallengeMethodPythonPysparkRegistration,
+    spark_session: TidySparkSession,
+    exec_params: SixTestExecutionParameters,
+    data_set: SixFieldDataSetPyspark,
+):
+    return challenge_method_registration.delegate(
+        spark_session=spark_session,
+        exec_params=exec_params,
+        data_set=data_set,
+    )
 
 
 def run_one_step_in_pyspark_itinerary(
@@ -24,7 +41,7 @@ def run_one_step_in_pyspark_itinerary(
         result_columns: list[str],
         data_set: SixFieldDataSetPyspark,
         correct_answer: pd.DataFrame,
-) -> RunResultBase | None:
+) -> RunResultBase | tuple[Literal["infeasible"], str]:
 
     def check_partitions(rdd: RDD):
         logger = spark_session.logger
@@ -40,10 +57,11 @@ def run_one_step_in_pyspark_itinerary(
     started_time = time.time()
     try:
         rdd_some: RDD
-        match challenge_method_registration.delegate(
-                spark_session=spark_session,
-                exec_params=exec_params,
-                data_set=data_set,
+        match _call_delegate_with_timeout(
+            challenge_method_registration=challenge_method_registration,
+            spark_session=spark_session,
+            exec_params=exec_params,
+            data_set=data_set,
         ):
             case PySparkDataFrame() as spark_df:
                 rdd_some = spark_df.rdd
@@ -62,8 +80,8 @@ def run_one_step_in_pyspark_itinerary(
                             df_answer = pd.DataFrame.from_records([x.asDict() for x in answer])
                         case _:
                             df_answer = pd.DataFrame.from_records([x._asdict() for x in answer])
-            case "infeasible":
-                return None
+            case ("infeasible", reason):
+                return ("infeasible", reason)
             case _:
                 raise ValueError("Must return at least 1 type")
         result = process_answer(

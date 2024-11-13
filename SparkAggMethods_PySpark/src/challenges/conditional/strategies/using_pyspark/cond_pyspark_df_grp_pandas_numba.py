@@ -53,7 +53,9 @@ def cond_pyspark_df_grp_pandas_numba(
 ) -> TSixFieldChallengePendingAnswerPythonPyspark:
     df = data_set.data.open_source_data_as_df(spark_session)
     if numba is None:
-        return "infeasible"
+        return "infeasible", "Needs Numba installed"
+    if (data_set.data_description.num_source_rows >= 9*10**7):  # panda dataframe must fit in memory, get socket timeout
+        return "infeasible", "Whole Panda dataframe must fit in memory"
 
     df = (
         df

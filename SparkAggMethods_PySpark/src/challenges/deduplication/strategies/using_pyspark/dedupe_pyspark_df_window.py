@@ -16,7 +16,7 @@ def dedupe_pyspark_df_window(
         data_set: DedupeDataSetPySpark,
 ) -> TChallengePendingAnswerPythonPyspark:
     if data_set.data_description.num_source_rows > 50200:
-        return "infeasible"
+        return "infeasible", "Unknown reason"
     dfSrc = data_set.df_source
 
     numPartitions = max(

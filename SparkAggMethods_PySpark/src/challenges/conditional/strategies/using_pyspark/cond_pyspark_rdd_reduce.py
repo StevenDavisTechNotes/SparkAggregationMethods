@@ -21,8 +21,8 @@ def cond_pyspark_rdd_reduce(
         exec_params: SixTestExecutionParameters,
         data_set: SixFieldDataSetPyspark,
 ) -> TSixFieldChallengePendingAnswerPythonPyspark:
-    if (data_set.data_description.num_source_rows >= 9e+6):  # else "Python worker failed to connect back"
-        return "infeasible"
+    if (data_set.data_description.num_source_rows >= 9*10**8):  # too slow
+        return "infeasible", "Too slow"
     agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(data_set.data, CHALLENGE)
     rdd_src = data_set.data.open_source_data_as_rdd(spark_session)
     rdd_result = cast(

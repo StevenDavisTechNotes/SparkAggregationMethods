@@ -45,7 +45,11 @@ class SectionDataSetPyspark(SectionDataSetBase):
 
 
 TChallengePythonPysparkAnswer = (
-    Literal["infeasible"] | list[StudentSummary] | RDD[StudentSummary] | PySparkDataFrame)
+    tuple[Literal["infeasible"], str]
+    | list[StudentSummary]
+    | RDD[StudentSummary]
+    | PySparkDataFrame
+)
 
 
 @dataclass(frozen=True)

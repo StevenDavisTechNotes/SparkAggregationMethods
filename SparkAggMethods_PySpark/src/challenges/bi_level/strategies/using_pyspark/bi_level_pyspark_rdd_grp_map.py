@@ -26,7 +26,7 @@ def bi_level_pyspark_rdd_grp_map(
             * data_set.data_description.num_grp_1
     ):
         # This strategy only works if all of the values per key can fit into memory at once.
-        return "infeasible"
+        return "infeasible", "requires all values per key to fit in memory"
     rdd_src: RDD[Row] = data_set.data.open_source_data_as_rdd(spark_session)
     agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(data_set.data, CHALLENGE)
 

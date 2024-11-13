@@ -21,8 +21,7 @@ def section_pyspark_rdd_join_mappart(
         data_set: SectionDataSetPyspark,
 ) -> TChallengePythonPysparkAnswer:
     if data_set.data_description.num_students > pow(10, 7-1):
-        # times out
-        return "infeasible"
+        return "infeasible", "Times out"
     target_num_partitions = data_set.target_num_partitions
     sc = spark_session.spark_context
     rdd1: RDD[LabeledTypedRow] \

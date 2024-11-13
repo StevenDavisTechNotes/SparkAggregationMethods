@@ -22,7 +22,10 @@ class SixDataSetPythonOnly():
     data: DataSetDataPythonOnly
 
 
-TChallengePythonOnlyAnswer = Literal["infeasible"] | pd.DataFrame
+TChallengePythonOnlyAnswer = (
+    tuple[Literal["infeasible"], str]
+    | pd.DataFrame
+)
 
 
 class IChallengeMethodPythonOnly(Protocol):

@@ -16,7 +16,7 @@ def vanilla_dask_ddf_grp_apply(
         data_set: SixTestDataSetDask
 ) -> TChallengeAnswerPythonDask:
     if (data_set.data_description.points_per_index > 10**4):
-        return "infeasible"
+        return "infeasible", "Pandas dataframe requires all data in memory per key"
     ddf = data_set.data.open_source_data_as_ddf()
     ddf = cast(
         DaskDataFrame,

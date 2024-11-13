@@ -8,12 +8,26 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_dat
     Challenge, SixTestExecutionParameters,
 )
 from spark_agg_methods_common_python.perf_test_common import RunResultBase
+from spark_agg_methods_common_python.utils.call_with_timeout import timeout
 
 from src.challenges.six_field_test_data.six_test_data_for_dask import (
     ChallengeMethodPythonDaskRegistration, SixTestDataSetDask, pick_agg_tgt_num_partitions_dask,
 )
 
 logger = logging.getLogger(__name__)
+
+
+@timeout(3600*2)
+def _call_delegate_with_timeout(
+    *,
+    challenge_method_registration: ChallengeMethodPythonDaskRegistration,
+    exec_params: SixTestExecutionParameters,
+        data_set: SixTestDataSetDask,
+):
+    return challenge_method_registration.delegate(
+        exec_params=exec_params,
+        data_set=data_set,
+    )
 
 
 def run_one_step_in_dask_itinerary(
@@ -27,7 +41,8 @@ def run_one_step_in_dask_itinerary(
     try:
         agg_tgt_num_partitions = pick_agg_tgt_num_partitions_dask(data_set.data, challenge)
         df_answer: pd.DataFrame
-        match challenge_method_registration.delegate(
+        match _call_delegate_with_timeout(
+            challenge_method_registration=challenge_method_registration,
             exec_params=exec_params,
             data_set=data_set,
         ):

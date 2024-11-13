@@ -20,8 +20,7 @@ def section_pyspark_rdd_mappart_odd_even(
         data_set: SectionDataSetPyspark,
 ) -> TChallengePythonPysparkAnswer:
     if data_set.data_description.num_students > pow(10, 7-1):
-        # unreliable
-        return "infeasible"
+        return "infeasible", "Times out"
     section_maximum_size = data_set.section_maximum
     filename = data_set.source_data_file_path
     target_num_partitions = data_set.target_num_partitions

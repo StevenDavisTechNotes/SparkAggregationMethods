@@ -15,6 +15,9 @@ def cond_pyspark_df_window(
         exec_params: SixTestExecutionParameters,
         data_set: SixFieldDataSetPyspark,
 ) -> TSixFieldChallengePendingAnswerPythonPyspark:
+    # at 9*10**7 Low on memory, WARN RowBasedKeyValueBatch: Calling spill() on RowBasedKeyValueBatch.
+    if (data_set.data_description.num_source_rows >= 9*10**7):
+        return "infeasible", "Low on memory, unable to spill since RowBasedKeyValueBatch"
     df = data_set.data.open_source_data_as_df(spark_session)
     df = df \
         .withColumn("cond", func.when(df.E < 0, -1).otherwise(+1))

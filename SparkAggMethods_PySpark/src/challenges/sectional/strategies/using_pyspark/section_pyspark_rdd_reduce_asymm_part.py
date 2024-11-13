@@ -52,8 +52,7 @@ def section_pyspark_rdd_reduce_asymm_part(
         data_set: SectionDataSetPyspark,
 ) -> TChallengePythonPysparkAnswer:
     if data_set.data_description.num_students > pow(10, 7 - 1):
-        # unreliable
-        return "infeasible"
+        return "infeasible", "Unreliable"
     sc = spark_session.spark_context
     data_size = data_set.data_description.num_source_rows
     file_path = data_set.source_data_file_path

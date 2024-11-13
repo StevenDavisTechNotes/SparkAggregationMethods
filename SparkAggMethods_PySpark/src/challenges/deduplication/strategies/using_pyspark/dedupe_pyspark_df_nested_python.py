@@ -15,7 +15,7 @@ def dedupe_pyspark_df_nested_python(
         data_set: DedupeDataSetPySpark,
 ) -> TChallengePendingAnswerPythonPyspark:
     if data_set.data_description.num_source_rows > 502000:
-        return "infeasible"
+        return "infeasible", "Unknown reason"
 
     dfSrc = data_set.df_source
     df = nest_blocks_dataframe(dfSrc, data_set.grouped_num_partitions)

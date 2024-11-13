@@ -29,7 +29,9 @@ from spark_agg_methods_common_python.utils.platform import setup_logging
 from src.challenges.conditional.conditional_strategy_directory_pyspark import (
     CONDITIONAL_STRATEGIES_USING_PYSPARK_REGISTRY,
 )
-from src.challenges.six_field_test_data.six_runner_base_pyspark import run_one_step_in_pyspark_itinerary
+from src.challenges.six_field_test_data.six_runner_base_pyspark import (
+    run_one_step_in_pyspark_itinerary, six_spark_config_base,
+)
 from src.challenges.six_field_test_data.six_test_data_for_pyspark import (
     SixFieldDataSetPyspark, six_prepare_data_set_pyspark,
 )
@@ -43,25 +45,25 @@ CHALLENGE = Challenge.CONDITIONAL
 
 DEBUG_ARGS = None if True else (
     []
-    + '--size 3_3_10m'.split()
+    + '--size 3_3_100m'.split()
     # + '--size 3_3_1'.split()
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
     + ['--strategy',
-       'cond_pyspark_df_grp_pandas',
-       'cond_pyspark_df_grp_pandas_numba',
+       #    'cond_pyspark_df_grp_pandas',
+       #    'cond_pyspark_df_grp_pandas_numba',
        'cond_pyspark_df_join',
-       'cond_pyspark_df_nested',
-       'cond_pyspark_df_null',
-       'cond_pyspark_df_window',
-       'cond_pyspark_df_zero',
-       'cond_pyspark_rdd_grp_map',
-       'cond_pyspark_rdd_map_part',
-       'cond_pyspark_rdd_reduce',
-       'cond_pyspark_sql_join',
-       'cond_pyspark_sql_nested',
-       'cond_pyspark_sql_null',
+       #    'cond_pyspark_df_nested',
+       #    'cond_pyspark_df_null',
+       #    'cond_pyspark_df_window',
+       #    'cond_pyspark_df_zero',
+       #    'cond_pyspark_rdd_grp_map',
+       #    'cond_pyspark_rdd_map_part',
+       #    'cond_pyspark_rdd_reduce',
+       #    'cond_pyspark_sql_join',
+       #    'cond_pyspark_sql_nested',
+       #    'cond_pyspark_sql_null',
        ]
 )
 
@@ -158,7 +160,9 @@ def do_test_runs(
                 (challenge_method_registration.strategy_name, index, len(itinerary)))
             logger.info(f"Working on {challenge_method_registration.strategy_name} "
                         f"for {data_set.data_description.size_code}")
-            base_run_result = run_one_step_in_pyspark_itinerary(
+            print(f"Working on {challenge_method_registration.strategy_name} "
+                  f"for {data_set.data_description.size_code}")
+            match run_one_step_in_pyspark_itinerary(
                 challenge=CHALLENGE,
                 spark_session=spark_session,
                 exec_params=args.exec_params,
@@ -166,9 +170,11 @@ def do_test_runs(
                 result_columns=GROUP_BY_COLUMNS+AGGREGATION_COLUMNS_3,
                 data_set=data_set,
                 correct_answer=data_set.answer,
-            )
-            if base_run_result is None:
-                continue
+            ):
+                case ('infeasible', _):
+                    continue
+                case base_run_result:
+                    pass
             if data_set.data_description.debugging_only:
                 continue
             file.write_run_result(
@@ -218,16 +224,8 @@ def main():
     try:
         args = parse_args()
         update_challenge_registration()
-        config = {
-            "spark.sql.shuffle.partitions": args.exec_params.default_parallelism,
-            "spark.default.parallelism": args.exec_params.default_parallelism,
-            "spark.driver.memory": "2g",
-            "spark.executor.memory": "3g",
-            "spark.executor.memoryOverhead": "1g",
-            "spark.sql.execution.arrow.pyspark.enabled": "true",
-        }
         with TidySparkSession(
-            config,
+            six_spark_config_base(args.exec_params),
             enable_hive_support=False
         ) as spark_session:
             do_test_runs(args, spark_session)

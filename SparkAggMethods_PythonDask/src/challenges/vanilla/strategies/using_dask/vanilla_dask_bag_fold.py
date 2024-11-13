@@ -17,7 +17,7 @@ def vanilla_dask_bag_fold(
         data_set: SixTestDataSetDask
 ) -> TChallengeAnswerPythonDask:
     if (data_set.data_description.points_per_index >= 10**6):  # EOM before calling accumulator
-        return "infeasible"
+        return "infeasible", "EOM before calling accumulator"
     check_memory(throw=True)
     stage0: DaskBag = data_set.data.open_source_data_as_bag()
     stage1 = (

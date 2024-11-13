@@ -29,12 +29,15 @@ class SixFieldDataSetDataPyspark():
     def open_source_data_as_df(
             self,
             spark_session: TidySparkSession,
+            *,
+            src_num_partitions: int | None = None,
     ) -> PySparkDataFrame:
         data_set = self
         source_file_name_parquet = data_set.source_file_path_parquet
         spark_session.logger.info(f"Loading source data from {source_file_name_parquet}")
         df_src = spark_session.spark.read.parquet(data_set.source_file_path_parquet)
-        df_src = df_src.repartition(data_set.src_num_partitions, df_src.id)
+        src_num_partitions = src_num_partitions or data_set.src_num_partitions
+        df_src = df_src.repartition(src_num_partitions, df_src.id)
         return df_src
 
     def open_source_data_as_rdd(
@@ -62,7 +65,7 @@ class SixFieldDataSetPyspark():
 
 
 TSixFieldChallengePendingAnswerPythonPyspark = (
-    Literal["infeasible"]
+    tuple[Literal["infeasible"], str]
     | RDD[Row]
     | PySparkDataFrame
 )

@@ -25,7 +25,7 @@ from spark_agg_methods_common_python.challenges.deduplication.dedupe_test_data_t
     DATA_SIZE_LIST_DEDUPE, DEDUPE_SOURCE_CODES, DedupeDataSetDescription, dedupe_derive_source_test_data_file_paths,
 )
 from spark_agg_methods_common_python.perf_test_common import (
-    ELAPSED_TIME_COLUMN_NAME, CalcEngine, Challenge, NumericalToleranceExpectations, RunnerArgumentsBase,
+    ELAPSED_TIME_COLUMN_NAME, CalcEngine, Challenge, NumericalToleranceExpectations, RunnerArgumentsBase, RunResultBase,
     SolutionLanguage, assemble_itinerary,
 )
 from spark_agg_methods_common_python.utils.platform import setup_logging
@@ -215,7 +215,7 @@ def do_test_runs(
                     spark_session=spark_session):
                 case ("infeasible", _):
                     pass
-                case result:
+                case RunResultBase() as result:
                     if not data_set.data_description.debugging_only:
                         file.write_run_result(challenge_method_registration, result)
                     gc.collect()
@@ -252,7 +252,7 @@ def run_one_itinerary_step(
             case ("infeasible", msg):
                 return "infeasible", msg
             case _:
-                raise Exception(
+                raise ValueError(
                     f"{challenge_method_registration.strategy_name} did not returning anything")
         logger.info("NumPartitions: in vs out ",
                     data_set.df_source.rdd.getNumPartitions(),

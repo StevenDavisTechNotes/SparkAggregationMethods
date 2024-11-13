@@ -21,8 +21,8 @@ from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types 
     DATA_SIZES_LIST_VANILLA, VANILLA_RESULT_COLUMNS, VanillaDataSetDescription,
 )
 from spark_agg_methods_common_python.perf_test_common import (
-    ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge, RunnerArgumentsBase, SolutionLanguage,
-    assemble_itinerary,
+    ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge, RunnerArgumentsBase, RunResultBase,
+    SolutionLanguage, assemble_itinerary,
 )
 from spark_agg_methods_common_python.utils.platform import setup_logging
 
@@ -151,7 +151,7 @@ def do_test_runs(
             logger.info("Working on %d of %d" % (index, len(itinerary)))
             logger.info(f"Working on {challenge_method_registration.strategy_name} "
                         f"for {data_set.data_description.size_code}")
-            base_run_result = run_one_step_in_pyspark_itinerary(
+            match run_one_step_in_pyspark_itinerary(
                 challenge=CHALLENGE,
                 spark_session=spark_session,
                 exec_params=args.exec_params,
@@ -159,19 +159,21 @@ def do_test_runs(
                 result_columns=VANILLA_RESULT_COLUMNS,
                 data_set=data_set,
                 correct_answer=data_set.answer,
-            )
-            if base_run_result is None:
-                continue
-            if data_set.data_description.debugging_only:
-                continue
-            file.write_run_result(
-                challenge_method_registration=challenge_method_registration,
-                run_result=VanillaRunResult(
-                    num_source_rows=data_set.data_description.num_source_rows,
-                    elapsed_time=base_run_result.elapsed_time,
-                    num_output_rows=base_run_result.num_output_rows,
-                    finished_at=base_run_result.finished_at,
-                ))
+            ):
+                case ("infeasible", _):
+                    pass
+                case RunResultBase() as base_run_result:
+                    if not data_set.data_description.debugging_only:
+                        file.write_run_result(
+                            challenge_method_registration=challenge_method_registration,
+                            run_result=VanillaRunResult(
+                                num_source_rows=data_set.data_description.num_source_rows,
+                                elapsed_time=base_run_result.elapsed_time,
+                                num_output_rows=base_run_result.num_output_rows,
+                                finished_at=base_run_result.finished_at,
+                            ))
+                case _:
+                    raise ValueError("Must return at least 1 type")
             gc.collect()
             time.sleep(0.1)
 

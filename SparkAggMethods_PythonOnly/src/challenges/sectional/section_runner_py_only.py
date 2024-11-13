@@ -24,7 +24,7 @@ from spark_agg_methods_common_python.challenges.sectional.section_test_data_type
 )
 from spark_agg_methods_common_python.perf_test_common import (
     ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge, NumericalToleranceExpectations,
-    RunnerArgumentsBase, SolutionLanguage, assemble_itinerary,
+    RunnerArgumentsBase, RunResultBase, SolutionLanguage, assemble_itinerary,
 )
 from spark_agg_methods_common_python.utils.pandas_helpers import make_pd_dataframe_from_list_of_named_tuples
 from spark_agg_methods_common_python.utils.platform import setup_logging
@@ -136,13 +136,14 @@ def do_test_runs(
                 (index, len(itinerary)))
             logger.info(f"Working on {challenge_method_registration.strategy_name} "
                         f"for {data_set.data_description.num_source_rows}")
-            run_result = run_one_itinerary_step(args, challenge_method_registration, data_set)
-            match run_result:
+            match run_one_itinerary_step(args, challenge_method_registration, data_set):
                 case ("infeasible", _):
                     pass
-                case _:
+                case RunResultBase() as run_result:
                     if not data_set.data_description.debugging_only:
                         file.write_run_result(challenge_method_registration, run_result)
+                case _:
+                    raise ValueError("Must return at least 1 type")
             gc.collect()
             time.sleep(0.1)
 

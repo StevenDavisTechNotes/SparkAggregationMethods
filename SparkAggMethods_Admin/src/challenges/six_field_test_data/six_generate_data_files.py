@@ -14,8 +14,8 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_domain_l
     calculate_solutions_progressively,
 )
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
-    SIX_TEST_SOURCE_DATA_PYARROW_SCHEMA, SixTestDataSetDescription, six_derive_expected_answer_data_file_paths_csv,
-    six_derive_source_test_data_file_path,
+    SIX_TEST_SOURCE_DATA_PYARROW_SCHEMA, TARGET_PARQUET_BATCH_SIZE, SixTestDataSetDescription,
+    six_derive_expected_answer_data_file_paths_csv, six_derive_source_test_data_file_path,
 )
 from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types import DATA_SIZES_LIST_VANILLA
 from spark_agg_methods_common_python.perf_test_common import Challenge
@@ -23,7 +23,6 @@ from spark_agg_methods_common_python.perf_test_common import Challenge
 # cSpell: ignore arange, aggfunc
 
 logger = logging.getLogger(__name__)
-TARGET_BATCH_SIZE = 65536
 
 
 def _remove_data_files_for_size(
@@ -60,8 +59,8 @@ def _generate_source_data_file_for_size(
         schema=SIX_TEST_SOURCE_DATA_PYARROW_SCHEMA,
         compression="ZSTD",
     )
-    for i_batch_start in range(0, num_data_points, TARGET_BATCH_SIZE):
-        i_batch_end = min(i_batch_start + TARGET_BATCH_SIZE, num_data_points)
+    for i_batch_start in range(0, num_data_points, TARGET_PARQUET_BATCH_SIZE):
+        i_batch_end = min(i_batch_start + TARGET_PARQUET_BATCH_SIZE, num_data_points)
         batch_size = i_batch_end - i_batch_start
         batch_range = range(i_batch_start, i_batch_end)
         df = pd.DataFrame(

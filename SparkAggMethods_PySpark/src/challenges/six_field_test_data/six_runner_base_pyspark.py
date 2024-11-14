@@ -10,7 +10,6 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_dat
     Challenge, SixTestExecutionParameters,
 )
 from spark_agg_methods_common_python.perf_test_common import RunResultBase
-from spark_agg_methods_common_python.utils.call_with_timeout import timeout
 
 from src.challenges.six_field_test_data.six_test_data_for_pyspark import (
     SixFieldChallengeMethodPythonPysparkRegistration, SixFieldDataSetPyspark, pick_agg_tgt_num_partitions_pyspark,
@@ -18,7 +17,6 @@ from src.challenges.six_field_test_data.six_test_data_for_pyspark import (
 from src.utils.tidy_session_pyspark import TidySparkSession
 
 
-@timeout(3600*2)
 def _call_delegate_with_timeout(
     *,
     challenge_method_registration: SixFieldChallengeMethodPythonPysparkRegistration,

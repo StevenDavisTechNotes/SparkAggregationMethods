@@ -6,7 +6,7 @@ import pandas as pd
 import pyarrow.parquet
 
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
-    SixTestDataSetDescription, six_derive_source_test_data_file_path,
+    TARGET_PARQUET_BATCH_SIZE, SixTestDataSetDescription, six_derive_source_test_data_file_path,
 )
 from spark_agg_methods_common_python.perf_test_common import Challenge
 from spark_agg_methods_common_python.utils.progressive_statistics.progressive_max import ProgressiveMax
@@ -20,7 +20,7 @@ def calculate_solution_intermediates_progressively(
         data_size: SixTestDataSetDescription,
         include_conditional: bool = False,
         include_unconditional: bool = False,
-        batch_size: int = 10000,
+        batch_size: int = TARGET_PARQUET_BATCH_SIZE,
 ) -> tuple[int, pd.DataFrame]:
     source_file_names = six_derive_source_test_data_file_path(
         data_description=data_size,
@@ -55,17 +55,17 @@ def calculate_solution_progressively_from_iterable(
         = defaultdict(lambda: ProgressiveVariance(ddof=0))
     for df_chunk in chunk_iterable:
         for np_key, df_group in df_chunk.groupby(by=['grp', 'subgrp']):
+            key = int(np_key[0]), int(np_key[1])
             df_group_c = df_group.loc[:, 'C']
             df_group_d = df_group.loc[:, 'D']
-            cond_df_group_e = df_group.loc[df_group["E"] < 0, 'E']
-            uncond_df_group_e = df_group.loc[:, 'E']
-            key = int(np_key[0]), int(np_key[1])
             uncond_count_subtotal[key] += len(df_group)
             mean_c_subtotal[key].update(df_group_c)
             max_d_subtotal[key].update(df_group_d)
             if include_conditional:
+                cond_df_group_e = df_group.loc[df_group["E"] < 0, 'E']
                 cond_var_e_subtotal[key].update(cond_df_group_e.to_numpy())
             if include_unconditional:
+                uncond_df_group_e = df_group.loc[:, 'E']
                 uncond_var_e_subtotal[key].update(uncond_df_group_e.to_numpy())
     num_data_points_visited = sum(uncond_count_subtotal.values())
     df_summary = (

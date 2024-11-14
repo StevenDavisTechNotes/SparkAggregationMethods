@@ -17,22 +17,10 @@ logger = logging.getLogger(__name__)
 
 
 SIX_TEST_CHALLENGES = [Challenge.BI_LEVEL, Challenge.CONDITIONAL, Challenge.VANILLA]
+TARGET_PARQUET_BATCH_SIZE = 65536
 
 
 class DataPointNT(NamedTuple):
-    id: int
-    grp: int
-    subgrp: int
-    A: float
-    B: float
-    C: float
-    D: float
-    E: float
-    F: float
-
-
-@dataclass(frozen=True)
-class DataPointDC():
     id: int
     grp: int
     subgrp: int

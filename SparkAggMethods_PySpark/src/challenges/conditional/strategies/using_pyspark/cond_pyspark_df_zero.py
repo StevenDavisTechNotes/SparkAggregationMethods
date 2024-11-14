@@ -14,6 +14,8 @@ def cond_pyspark_df_zero(
         exec_params: SixTestExecutionParameters,
         data_set: SixFieldDataSetPyspark,
 ) -> TSixFieldChallengePendingAnswerPythonPyspark:
+    if (data_set.data_description.num_source_rows >= 9*10**8):
+        return "infeasible", "More than 2 hours to run"
     df_src = data_set.data.open_source_data_as_df(spark_session)
     df = (
         df_src

@@ -89,10 +89,32 @@ class ProgressiveVariance:
             return self._mean, self._var
         batch_mean = batch.mean(axis=self._axis)
         batch_var = batch.var(ddof=self._ddof, axis=self._axis)
-        return self._update_from_batch_mean_var(batch_mean, batch_var, batch_size)
+        return self._update_from_batch_mean_var(
+            batch_mean=batch_mean,
+            batch_var=batch_var,
+            batch_size=batch_size,
+        )
+
+    def merge_subtotals(
+            self,
+            other: 'ProgressiveVariance',
+    ) -> Tuple[Union[float, np.ndarray], Union[float, np.ndarray]]:
+        if other.batch_size == 0:
+            return self._mean, self._var
+        if self._n == 0:
+            self._mean = other.mean
+            self._var = other.variance
+            self._n = other.batch_size
+            return self._mean, self._var
+        return self._update_from_batch_mean_var(
+            batch_mean=other.mean,
+            batch_var=other.variance,
+            batch_size=other.batch_size,
+        )
 
     def _update_from_batch_mean_var(
             self,
+            *,
             batch_mean: Union[float, np.ndarray],
             batch_var: Union[float, np.ndarray],
             batch_size: int,

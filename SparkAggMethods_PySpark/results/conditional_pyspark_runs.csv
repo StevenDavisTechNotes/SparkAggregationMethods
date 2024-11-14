@@ -261,4 +261,5 @@ cond_pyspark_rdd_map_part,rdd,90,35.919531,9,pyspark,2024-10-08T21:13:14.275625,
 0.5632059574127197,pyspark,2024-11-13T05:45:19.651520,fluent,python,9,9000,cond_pyspark_df_zero,
 41.65816068649292,pyspark,2024-11-13T05:46:01.446174,fluent,python,9,9000000,cond_pyspark_df_nested,
 1.0986266136169434,pyspark,2024-11-13T05:46:02.678731,fluent,python,9,90000,cond_pyspark_df_null,
- 
+  elapsed_time,engine,finished_at,interface,language,num_output_rows,num_source_rows,strategy_name,
+66358.57402873039,pyspark,2024-11-14T11:09:02.032692,sql,python,9,900000000,cond_pyspark_sql_join,

@@ -7,7 +7,7 @@ from src.challenges.sectional.section_test_data_types_py_only import (
 )
 
 
-def section_py_only_single_threaded(
+def section_py_st_linear_file_read(
         data_set: SectionDataSetPyOnly,
         exec_params: SectionExecutionParametersPyOnly,
 ) -> list[StudentSummary] | pd.DataFrame:

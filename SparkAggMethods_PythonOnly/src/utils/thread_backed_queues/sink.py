@@ -11,33 +11,36 @@ TIn = TypeVar('TIn')
 
 
 class Sink(Generic[TIn]):
-    _action: Callable[[TIn], None]
-    num_threads: int
-    polling_timeout: float
+    _actions: tuple[Callable[[TIn], None], ...]
     queue_in: queue_mod.Queue[TIn]
     _report_error: Callable[[str], None]
     _threads: list[threading.Thread]
-    __slots__ = ["_action", "num_threads", "polling_timeout", "queue_in", "_report_error", "_threads"]
+    __slots__ = ["_actions",  "queue_in", "_report_error", "_threads"]
 
     def __init__(
             self,
             *,
-            action: Callable[[TIn], None],
-            num_threads: int,
+            actions: tuple[Callable[[TIn], None], ...],
             report_error: Callable[[str], None],
             queue_in: queue_mod.Queue[TIn] | None = None
     ):
-        self._action = action
-        self.num_threads = num_threads
+        self._actions = actions
         self._report_error = report_error
 
         self.queue_in = queue_in or queue_mod.Queue()
         self._threads = [
-            threading.Thread(target=self._consume)
-            for _ in range(num_threads)
+            threading.Thread(target=self._consume, args=(action,))
+            for action in actions
         ]
 
-    def _consume(self):
+    @property
+    def num_threads(self) -> int:
+        return len(self._actions)
+
+    def _consume(
+            self,
+            action: Callable[[TIn], None],
+    ) -> None:
         try:
             while True:
                 try:
@@ -47,7 +50,7 @@ class Sink(Generic[TIn]):
                     if self.queue_in.is_shutdown:
                         break
                     logger.debug(f"taking action on {id(item)}")
-                    self._action(item)
+                    action(item)
                     self.queue_in.task_done()
                 except queue_mod.Empty:
                     continue
@@ -89,25 +92,24 @@ class Sink(Generic[TIn]):
 
 if __name__ == "__main__":
     setup_logging()
+    delay = 0.1
+    num_threads = 5
+    num_samples = 100
 
     def action(item: str):
-        time.sleep(0.2)
+        time.sleep(0.1)
         logger.info(f"Consumed {item}")
     with Sink[str](
-        action=action,
-        num_threads=5,
+        actions=(action,)*num_threads,
         queue_in=queue_mod.Queue(maxsize=5),
         report_error=lambda error: logger.info(f"Error: {error}"),
+
     ) as sink:
         start_time = time.perf_counter()
-        sink.queue_in.put("item1")
-        sink.queue_in.put("item2")
-        sink.add_item("item3")
-        sink.add_item("item4")
-        for i in range(5, 100):
-            sink.add_item(f"item{i}")
+        for i in range(num_samples):
+            sink.add_item(f"item{i+1}")
         sink.queue_in.join()
         end_time = time.perf_counter()
         sink.stop()
         print(f"Time taken: {end_time - start_time}")
-        print(f"Expected time: {0.2 * 100 / sink.num_threads}")
+        print(f"Expected time: {delay * num_samples / num_threads}")

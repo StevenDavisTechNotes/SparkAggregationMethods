@@ -125,9 +125,17 @@ class ProgressiveVariance:
         # b: new batch
         # d: DDOF
         d = self._ddof
-
         n_a = self._n
         n_b = batch_size
+
+        if n_a == 0:
+            self._mean = batch_mean
+            self._var = batch_var
+            self._n = n_b
+            return self._mean, self._var
+        elif n_b == 0:
+            return self._mean, self._var
+
         n = n_a + n_b
 
         # update mean

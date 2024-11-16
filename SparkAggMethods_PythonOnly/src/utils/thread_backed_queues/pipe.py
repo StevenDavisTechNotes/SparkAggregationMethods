@@ -14,8 +14,7 @@ TOut = TypeVar('TOut')
 
 
 class Pipe(Generic[TIn, TOut]):
-    _action: Callable[[TIn], TOut]
-    num_threads: int
+    _actions: tuple[Callable[[TIn], TOut], ...]
     queue_in: queue_mod.Queue[TIn]
     queue_out: queue_mod.Queue[TOut]
     _report_error: Callable[[str], None]
@@ -24,24 +23,29 @@ class Pipe(Generic[TIn, TOut]):
     def __init__(
             self,
             *,
-            action: Callable[[TIn], TOut],
-            num_threads: int,
+            actions: tuple[Callable[[TIn], TOut], ...],
             report_error: Callable[[str], None],
             queue_in: queue_mod.Queue[TIn] | None = None,
             queue_out: queue_mod.Queue[TOut] | None = None,
     ):
-        self._action = action
-        self.num_threads = num_threads
+        self._actions = actions
         self._report_error = report_error
 
         self.queue_in = queue_in or queue_mod.Queue()
         self.queue_out = queue_out or queue_mod.Queue()
         self._threads = [
-            threading.Thread(target=self._consume)
-            for _ in range(num_threads)
+            threading.Thread(target=self._consume, args=(action,))
+            for action in actions
         ]
 
-    def _consume(self):
+    @property
+    def num_threads(self) -> int:
+        return len(self._actions)
+
+    def _consume(
+            self,
+            action: Callable[[TIn], TOut],
+    ) -> None:
         try:
             while True:
                 if self.queue_in.is_shutdown or self.queue_out.is_shutdown:
@@ -50,7 +54,7 @@ class Pipe(Generic[TIn, TOut]):
                 if self.queue_in.is_shutdown or self.queue_out.is_shutdown:
                     break
                 logger.debug(f"Taking action on {id(input)}")
-                output = self._action(input)
+                output = action(input)
                 logger.debug(f"Enqueuing output {id(output)}")
                 self.queue_out.put(output)
                 logger.debug(f"Consumed on {id(input)}")
@@ -87,40 +91,41 @@ if __name__ == "__main__":
     setup_logging()
     queue_in = queue_mod.Queue()
     queue_out = queue_mod.Queue(maxsize=5)
-    timeout = 0.1
+    pipe_delay = 0.1
+    sink_delay = 0.1
     num_messages = 100
 
     def pipe_action(item: str) -> str:
-        time.sleep(timeout)
+        time.sleep(pipe_delay)
         logger.info(f"Pipe Consumed {item}")
         return item
 
     def sink_action(item: str) -> None:
-        time.sleep(timeout)
+        time.sleep(sink_delay)
         logger.info(f"Sink Consumed {item}")
 
     with \
             Pipe[str, str](
-                action=pipe_action,
-                num_threads=5,
+                actions=(pipe_action,),
                 queue_in=queue_in,
                 queue_out=queue_out,
                 report_error=lambda error: logger.info(f"Error: {error}"),
             ) as pipe, \
             Sink[str](
-                action=sink_action,
-                num_threads=5,
+                actions=(sink_action,)*5,
                 queue_in=queue_out,
                 report_error=lambda error: logger.info(f"Error: {error}"),
             ) as sink:
         start_time = time.perf_counter()
-        for i in range(1, num_messages):
-            queue_in.put(f"item{i}")
+        for i in range(num_messages):
+            queue_in.put(f"item{i+1}")
         queue_in.join()
         queue_out.join()
         end_time = time.perf_counter()
         pipe.stop()
         sink.stop()
         print(f"Time taken: {end_time - start_time}")
-        expected = timeout * num_messages / min(pipe.num_threads, sink.num_threads)
+        expected = max(
+            pipe_delay * num_messages / pipe.num_threads,
+            sink_delay * num_messages / sink.num_threads)
         print(f"Expected time: {expected}")

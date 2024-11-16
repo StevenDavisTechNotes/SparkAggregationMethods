@@ -10,10 +10,10 @@ from src.challenges.six_field_test_data.six_test_data_for_py_only import (
     SixDataSetPythonOnly, TChallengePythonOnlyAnswer,
 )
 
-CHALLENGE = Challenge.BI_LEVEL
+CHALLENGE = Challenge.VANILLA
 
 
-def bi_level_py_only_pd_prog_numpy(
+def vanilla_py_st_pd_prog_numpy(
         exec_params: SixTestExecutionParameters,
         data_set: SixDataSetPythonOnly,
 ) -> TChallengePythonOnlyAnswer:

@@ -37,6 +37,87 @@ def calculate_solution_intermediates_progressively(
     )
 
 
+class ProgressiveSixTestStage1BatchAccumulator:
+    include_conditional: bool
+    include_unconditional: bool
+    uncond_count_subtotal: dict[tuple[int, int], int]
+    mean_c_subtotal: dict[tuple[int, int], ProgressiveMean]
+    max_d_subtotal: dict[tuple[int, int], ProgressiveMax]
+    uncond_var_e_subtotal: dict[tuple[int, int], ProgressiveVariance]
+    cond_var_e_subtotal: dict[tuple[int, int], ProgressiveVariance]
+
+    def __init__(
+            self,
+            *,
+            include_conditional: bool,
+            include_unconditional: bool,
+    ):
+        self.include_conditional = include_conditional
+        self.include_unconditional = include_unconditional
+        self.uncond_count_subtotal = defaultdict(lambda: 0)
+        self.mean_c_subtotal = defaultdict(lambda: ProgressiveMean())
+        self.max_d_subtotal = defaultdict(lambda: ProgressiveMax())
+        self.uncond_var_e_subtotal = defaultdict(lambda: ProgressiveVariance(ddof=0))
+        self.cond_var_e_subtotal = defaultdict(lambda: ProgressiveVariance(ddof=0))
+
+    def update(self, df_chunk: pd.DataFrame):
+        for np_key, df_group in df_chunk.groupby(by=['grp', 'subgrp']):
+            key = int(np_key[0]), int(np_key[1])
+            df_group_c = df_group.loc[:, 'C']
+            df_group_d = df_group.loc[:, 'D']
+            self.uncond_count_subtotal[key] += len(df_group)
+            self.mean_c_subtotal[key].update(df_group_c)
+            self.max_d_subtotal[key].update(df_group_d)
+            if self.include_conditional:
+                cond_df_group_e = df_group.loc[df_group["E"] < 0, 'E']
+                self.cond_var_e_subtotal[key].update(cond_df_group_e.to_numpy())
+            if self.include_unconditional:
+                uncond_df_group_e = df_group.loc[:, 'E']
+                self.uncond_var_e_subtotal[key].update(uncond_df_group_e.to_numpy())
+
+    def summary(self) -> tuple[int, pd.DataFrame]:
+        num_data_points_visited = sum(self.uncond_count_subtotal.values())
+        if num_data_points_visited > 0:
+            df_summary = (
+                pd.DataFrame.from_records(
+                    data=[
+                        {
+                            "grp": key[0],
+                            "subgrp": key[1],
+                            "mean_of_C": self.mean_c_subtotal[key].mean,
+                            "max_of_D": self.max_d_subtotal[key].max,
+                        } | ({
+                            "cond_var_of_E": self.cond_var_e_subtotal[key].variance,
+                        } if self.include_conditional else {}
+                        ) | ({
+                            "uncond_var_of_E": self.uncond_var_e_subtotal[key].variance,
+                        } if self.include_unconditional else {})
+                        for key in self.uncond_count_subtotal
+                    ],
+                    columns=(
+                        ["grp", "subgrp", "mean_of_C", "max_of_D"]
+                        + (["cond_var_of_E"] if self.include_conditional else [])
+                        + (["uncond_var_of_E"] if self.include_unconditional else [])
+                    )
+                )
+                .sort_values(by=["grp", "subgrp"])
+            )
+        else:
+            columns: list[pd.Series] = []
+            columns += [
+                pd.Series([], name="grp", dtype=int),
+                pd.Series([], name="subgrp"),
+                pd.Series([], name="mean_of_C"),
+                pd.Series([], name="max_of_D"),
+            ]
+            if self.include_conditional:
+                columns.append(pd.Series([], name="cond_var_of_E"))
+            if self.include_unconditional:
+                columns.append(pd.Series([], name="uncond_var_of_E"))
+            df_summary = pd.concat(columns, axis=1)
+        return num_data_points_visited, df_summary
+
+
 def calculate_solution_progressively_from_iterable(
         *,
         include_conditional: bool,
@@ -89,18 +170,15 @@ def calculate_solution_progressively_from_iterable(
     return num_data_points_visited, df_summary
 
 
-def calculate_solutions_progressively(
+def calculate_solutions_from_summary(
         data_size: SixTestDataSetDescription,
         challenges: list[Challenge],
+        num_data_points_visited: int,
+        df_summary: pd.DataFrame,
 ) -> dict[Challenge, pd.DataFrame]:
     include_bi_level = Challenge.BI_LEVEL in challenges
     include_conditional = Challenge.CONDITIONAL in challenges
     include_vanilla = Challenge.VANILLA in challenges
-    num_data_points_visited, df_summary = calculate_solution_intermediates_progressively(
-        data_size=data_size,
-        include_conditional=include_conditional,
-        include_unconditional=include_bi_level or include_vanilla,
-    )
     num_grp_1 = data_size.num_grp_1
     num_grp_2 = data_size.num_grp_2
     repetition = data_size.points_per_index
@@ -132,3 +210,23 @@ def calculate_solutions_progressively(
         df_vanilla_answer["var_of_E2"] = df_vanilla_answer["var_of_E"]
         result[Challenge.VANILLA] = df_vanilla_answer
     return result
+
+
+def calculate_solutions_progressively(
+        data_size: SixTestDataSetDescription,
+        challenges: list[Challenge],
+) -> dict[Challenge, pd.DataFrame]:
+    include_bi_level = Challenge.BI_LEVEL in challenges
+    include_conditional = Challenge.CONDITIONAL in challenges
+    include_vanilla = Challenge.VANILLA in challenges
+    num_data_points_visited, df_summary = calculate_solution_intermediates_progressively(
+        data_size=data_size,
+        include_conditional=include_conditional,
+        include_unconditional=include_bi_level or include_vanilla,
+    )
+    return calculate_solutions_from_summary(
+        data_size=data_size,
+        challenges=challenges,
+        num_data_points_visited=num_data_points_visited,
+        df_summary=df_summary,
+    )

@@ -45,9 +45,10 @@ DEBUG_ARGS = None if True else (
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
     + ['--strategy',
-       #    'vanilla_py_only_pd_grp_numpy',
-       #    'vanilla_py_only_pd_grp_numba',
-       'vanilla_py_only_pd_prog_numpy',
+       #    'vanilla_py_st_pd_grp_numpy',
+       #    'vanilla_py_st_pd_grp_numba',
+       #    'vanilla_py_st_pd_prog_numpy',
+       'vanilla_py_mt_queue_pd_prog_numpy',
        ]
 )
 

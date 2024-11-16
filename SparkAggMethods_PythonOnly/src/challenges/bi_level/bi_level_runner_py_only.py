@@ -43,8 +43,8 @@ DEBUG_ARGS = None if True else (
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
     + ['--strategy',
-       #    'bi_level_py_only_pd_grp_numpy',
-       'bi_level_py_only_pd_prog_numpy',
+       #    'bi_level_py_st_pd_grp_numpy',
+       'bi_level_py_st_pd_prog_numpy',
        ]
 )
 

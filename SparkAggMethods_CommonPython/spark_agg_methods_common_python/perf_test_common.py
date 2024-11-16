@@ -48,7 +48,8 @@ class SolutionInterfaceDask(StrEnum):
 class SolutionInterfacePythonOnly(StrEnum):
     PANDAS = 'pandas'
     PROGRESSIVE = 'progressive'
-    PYTHON = 'python'
+    SINGLE_THREADED = 'single_threaded'
+    QUEUES = 'queues'
 
 
 class SolutionInterfacePySpark(StrEnum):

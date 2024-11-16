@@ -12,14 +12,14 @@ from spark_agg_methods_common_python.perf_test_common import (
 
 
 @dataclass(frozen=True)
-class DataSetDataPythonOnly():
+class SixDataSetDataPythonOnly():
     source_file_path_parquet: str
 
 
 @dataclass(frozen=True)
 class SixDataSetPythonOnly():
     data_description: SixTestDataSetDescription
-    data: DataSetDataPythonOnly
+    data: SixDataSetDataPythonOnly
 
 
 TChallengePythonOnlyAnswer = (
@@ -56,10 +56,10 @@ class ChallengeMethodPythonOnlyRegistration(
 def six_prepare_data_set_python_only(
         exec_params: SixTestExecutionParameters,
         data_description: SixTestDataSetDescription,
-) -> DataSetDataPythonOnly:
+) -> SixDataSetDataPythonOnly:
     source_file_paths = six_derive_source_test_data_file_path(
         data_description=data_description,
     )
-    return DataSetDataPythonOnly(
+    return SixDataSetDataPythonOnly(
         source_file_path_parquet=source_file_paths.source_file_path_parquet_modern,
     )

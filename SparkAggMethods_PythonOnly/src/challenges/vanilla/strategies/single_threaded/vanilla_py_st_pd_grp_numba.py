@@ -42,7 +42,7 @@ except ImportError:
     numba = None
 
 
-def vanilla_py_only_pd_grp_numba(
+def vanilla_py_st_pd_grp_numba(
         exec_params: SixTestExecutionParameters,
         data_set: SixDataSetPythonOnly,
 ) -> TChallengePythonOnlyAnswer:

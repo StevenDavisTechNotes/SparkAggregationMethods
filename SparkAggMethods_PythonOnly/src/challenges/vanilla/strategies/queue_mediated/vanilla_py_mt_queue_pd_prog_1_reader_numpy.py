@@ -1,11 +1,12 @@
-# usage: python -m src.challenges.vanilla.strategies.queue_mediated.vanilla_py_mt_queue_pd_prog_numpy
+# usage: python -m src.challenges.vanilla.strategies.queue_mediated.vanilla_py_mt_queue_pd_prog_1_reader_numpy
 
 import logging
 import queue
+from typing import Generator
 
 import pyarrow.parquet
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_domain_logic.merging_samples import (
-    ProgressiveSixTestStage1BatchAccumulator, calculate_solutions_from_summary,
+    SixProgressiveBatchSampleStatistics, calculate_solutions_from_summary,
 )
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
     TARGET_PARQUET_BATCH_SIZE, SixTestDataSetDescription, SixTestExecutionParameters,
@@ -27,59 +28,39 @@ logger = logging.getLogger(__name__)
 
 def read_linearly_from_single_parquet_file(
         data_size: SixTestDataSetDescription,
-        queue: queue.Queue[pyarrow.Table],
-) -> None:
+) -> Generator[pyarrow.Table]:
     source_file_names = six_derive_source_test_data_file_path(
         data_description=data_size,
     )
     parquet_file = pyarrow.parquet.ParquetFile(source_file_names.source_file_path_parquet_modern)
-    for batch in parquet_file.iter_batches(batch_size=TARGET_PARQUET_BATCH_SIZE):
-        if queue.is_shutdown:
-            break
-        queue.put(batch)
+    return parquet_file.iter_batches(batch_size=TARGET_PARQUET_BATCH_SIZE)
 
-
-# def calculate_subtotals(
-#         df_chunk: pd.DataFrame,
-# ) -> None:
-#     for np_key, df_group in df_chunk.groupby(by=['grp', 'subgrp']):
-#         key = int(np_key[0]), int(np_key[1])
-#         df_group_c = df_group.loc[:, 'C']
-#         df_group_d = df_group.loc[:, 'D']
-#         df_group_e = df_group.loc[:, 'E']
-#         uncond_count_subtotal[key] += df_group.shape[0]
-#         mean_c_subtotal[key].update(df_group_c)
-#         max_d_subtotal[key].update(df_group_d)
-#         uncond_var_e_subtotal[key].update(df_group_e)
-#         if df_group.shape[0] > 1:
-#             cond_var_e_subtotal[key].update(df_group_e)
 
 def nop(*args, **kwargs):
     pass
 
 
-def vanilla_py_mt_queue_pd_prog_numpy(
+def vanilla_py_mt_queue_pd_prog_1_reader_numpy(
         exec_params: SixTestExecutionParameters,
         data_set: SixDataSetPythonOnly,
 ) -> TChallengePythonOnlyAnswer:
     num_threads = 1
     stage1_batch_accumulators = [
-        ProgressiveSixTestStage1BatchAccumulator(
+        SixProgressiveBatchSampleStatistics(
             include_conditional=False,
             include_unconditional=True,
         ) for _ in range(num_threads)
     ]
 
-    def source_action(queue: queue.Queue[pyarrow.Table]):
-        read_linearly_from_single_parquet_file(
+    def source_action():
+        return read_linearly_from_single_parquet_file(
             data_size=data_set.data_description,
-            queue=queue,
         )
 
     success = execute_in_three_stages(
         actions_0=(source_action,),
         actions_1=(lambda table: table.to_pandas(),),
-        actions_2=tuple(acc.update for acc in stage1_batch_accumulators),
+        actions_2=tuple(acc.update_with_population for acc in stage1_batch_accumulators),
         actions_3=(nop,),
         queue_0=queue.Queue(maxsize=3),
         queue_1=queue.Queue(maxsize=1),
@@ -103,7 +84,7 @@ if __name__ == "__main__":
     source_file_names = six_derive_source_test_data_file_path(
         data_description=data_size,
     ).source_file_path_parquet_modern
-    df_result = vanilla_py_mt_queue_pd_prog_numpy(
+    df_result = vanilla_py_mt_queue_pd_prog_1_reader_numpy(
         exec_params=SixTestExecutionParameters(
             default_parallelism=0,
             num_executors=LOCAL_NUM_EXECUTORS,

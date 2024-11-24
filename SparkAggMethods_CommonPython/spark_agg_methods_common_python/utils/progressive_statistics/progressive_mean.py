@@ -1,4 +1,5 @@
 import math
+from typing import Self
 
 import pandas as pd
 
@@ -11,7 +12,7 @@ class ProgressiveMean:
         self.count_so_far = 0
         self.mean_so_far = 0.0
 
-    def update(self, batch: pd.Series):
+    def update_with_population(self, batch: pd.Series):
         if len(batch) == 0:
             return
         if self.count_so_far == 0:
@@ -27,7 +28,7 @@ class ProgressiveMean:
         self.mean_so_far += delta * n_b / n_ab
         self.count_so_far = n_ab
 
-    def merge_subtotals(self, right: 'ProgressiveMean'):
+    def merge_subtotals(self, right: Self):
         if self.count_so_far == 0:
             self.mean_so_far = right.mean_so_far
             self.count_so_far = right.count_so_far

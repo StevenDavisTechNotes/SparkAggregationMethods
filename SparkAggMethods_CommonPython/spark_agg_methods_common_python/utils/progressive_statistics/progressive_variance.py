@@ -1,6 +1,6 @@
 # from https://gist.github.com/DevSlem/555e7caf4b843741682fbff64ae1cf15
 
-from typing import Optional, Tuple, Union
+from typing import Optional, Self, Tuple, Union
 
 import numpy as np
 
@@ -73,7 +73,7 @@ class ProgressiveVariance:
         self._var = 0.0
         self._n = 0
 
-    def update(
+    def update_with_population(
             self,
             batch: np.ndarray,
     ) -> Tuple[Union[float, np.ndarray], Union[float, np.ndarray]]:
@@ -97,7 +97,7 @@ class ProgressiveVariance:
 
     def merge_subtotals(
             self,
-            other: 'ProgressiveVariance',
+            other: Self,
     ) -> Tuple[Union[float, np.ndarray], Union[float, np.ndarray]]:
         if other.batch_size == 0:
             return self._mean, self._var

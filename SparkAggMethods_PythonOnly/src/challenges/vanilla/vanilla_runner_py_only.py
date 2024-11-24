@@ -1,5 +1,5 @@
 #! python
-# usage: python -O -m src.challenges.vanilla.vanilla_runner_py_only
+# usage: .\venv\Scripts\activate.ps1; python -O -m src.challenges.vanilla.vanilla_runner_py_only
 import argparse
 import gc
 import logging
@@ -48,7 +48,7 @@ DEBUG_ARGS = None if True else (
        #    'vanilla_py_st_pd_grp_numpy',
        #    'vanilla_py_st_pd_grp_numba',
        #    'vanilla_py_st_pd_prog_numpy',
-       'vanilla_py_mt_queue_pd_prog_numpy',
+       'vanilla_py_mt_queue_pd_prog_1_reader_numpy',
        ]
 )
 

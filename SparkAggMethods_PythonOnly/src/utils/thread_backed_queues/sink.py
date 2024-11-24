@@ -29,7 +29,7 @@ class Sink(Generic[TIn]):
 
         self.queue_in = queue_in or queue_mod.Queue()
         self._threads = [
-            threading.Thread(target=self._consume, args=(action,))
+            threading.Thread(target=self._process, args=(action,))
             for action in actions
         ]
 
@@ -37,7 +37,7 @@ class Sink(Generic[TIn]):
     def num_threads(self) -> int:
         return len(self._actions)
 
-    def _consume(
+    def _process(
             self,
             action: Callable[[TIn], None],
     ) -> None:
@@ -49,7 +49,7 @@ class Sink(Generic[TIn]):
                     item = self.queue_in.get()
                     if self.queue_in.is_shutdown:
                         break
-                    logger.debug(f"taking action on {id(item)}")
+                    logger.debug(f"taking action on {id(item)} by thread {threading.current_thread().name}")
                     action(item)
                     self.queue_in.task_done()
                 except queue_mod.Empty:
@@ -70,10 +70,15 @@ class Sink(Generic[TIn]):
             logger.exception("Error in putting message")
             self._report_error(str(e))
 
-    def stop(self):
+    def stop(
+            self,
+            immediate: bool,
+    ):
         logger.debug("Stopping")
         if not self.queue_in.is_shutdown:
-            self.queue_in.shutdown()
+            self.queue_in.shutdown(
+                immediate=immediate,
+            )
         for thread in self._threads:
             thread.join()
         logger.debug("Stopped")
@@ -85,7 +90,7 @@ class Sink(Generic[TIn]):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.stop()
+        self.stop(immediate=True)
         logger.debug("Exited")
         return False
 
@@ -94,7 +99,7 @@ if __name__ == "__main__":
     setup_logging()
     delay = 0.1
     num_threads = 5
-    num_samples = 100
+    num_samples = 10
 
     def action(item: str):
         time.sleep(0.1)
@@ -109,7 +114,7 @@ if __name__ == "__main__":
         for i in range(num_samples):
             sink.add_item(f"item{i+1}")
         sink.queue_in.join()
+        sink.stop(immediate=False)
         end_time = time.perf_counter()
-        sink.stop()
         print(f"Time taken: {end_time - start_time}")
         print(f"Expected time: {delay * num_samples / num_threads}")

@@ -1,4 +1,5 @@
 import math
+from typing import Self
 
 import pandas as pd
 
@@ -9,14 +10,14 @@ class ProgressiveMax:
     def __init__(self):
         self.max_so_far = None
 
-    def update(self, batch: pd.Series):
+    def update_with_population(self, batch: pd.Series):
         if len(batch) == 0:
             return
         new_max = batch.max()
         if self.max_so_far is None or new_max > self.max_so_far:
             self.max_so_far = new_max
 
-    def merge_subtotals(self, right: 'ProgressiveMax'):
+    def merge_subtotals(self, right: Self):
         if self.max_so_far is None:
             self.max_so_far = right.max_so_far
         elif right.max_so_far is None:

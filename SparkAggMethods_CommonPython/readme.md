@@ -22,6 +22,7 @@ rm venv -r # to remove the venv folder
 get-childitem spark_agg_methods_common_python -include __pycache__ -recurse | remove-item -Force -Recurse
 py -3.13 -m venv venv
 .\venv\Scripts\Activate.ps1
+python --version
 python -c "import sys; print(sys.executable)"
 .\venv\Scripts\python.exe -m pip install --upgrade pip
 pip install -r .\requirements.txt

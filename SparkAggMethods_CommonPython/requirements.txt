@@ -4,6 +4,7 @@
 autopep8
 build
 flake8
+isort
 numpy
 pandas
 prettyprinter

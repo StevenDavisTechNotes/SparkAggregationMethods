@@ -25,7 +25,7 @@ py -3.12 -m venv venv
 python -c "import sys; print(sys.executable)"
 .\venv\Scripts\python.exe -m pip install --upgrade pip
 pip install -r .\requirements.txt
-pip3 freeze > frozen_requirements.txt
+pip freeze > frozen_requirements.txt
 pip install -e 'C:\Src\GitHub_Hosted\SparkAggMethods2\SparkAggMethods_CommonPython\' --config-settings editable_mode=compat
 ```
 Then Close and reopen VSCode

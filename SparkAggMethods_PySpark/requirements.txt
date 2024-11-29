@@ -7,6 +7,7 @@ dask==2024.1.1
 dask[dataframe]==2024.1.1
 dask-sql==2024.3.0
 # dask[distributed] too many conflicts for now
+isort
 findspark
 flake8
 networkx

@@ -22,10 +22,11 @@ rm venv -r # to remove the venv folder
 get-childitem src -include __pycache__ -recurse | remove-item -Force -Recurse
 py -3.11 -m venv venv
 .\venv\Scripts\Activate.ps1
+python --version
 python -c "import sys; print(sys.executable)"
 .\venv\Scripts\python.exe -m pip install --upgrade pip
 pip install -r .\requirements.txt
-pip3 freeze > frozen_requirements.txt
+pip freeze > frozen_requirements.txt
 pip install -e 'C:\Src\GitHub_Hosted\SparkAggMethods2\SparkAggMethods_CommonPython\' --config-settings editable_mode=compat
 ```
 Then Close and reopen VSCode

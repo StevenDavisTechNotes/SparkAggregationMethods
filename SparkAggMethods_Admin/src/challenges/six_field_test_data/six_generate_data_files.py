@@ -47,7 +47,7 @@ def _generate_source_data_file_for_size(
         data_description=data_description,
         temp_file=True,
     )
-    if (os.path.exists(final_source_file_paths.source_file_path_parquet_modern)):
+    if (os.path.exists(final_source_file_paths.source_file_path_parquet_single_file)):
         return
     for path in final_source_file_paths.file_paths + temp_source_file_paths.file_paths:
         if os.path.exists(path):
@@ -55,7 +55,7 @@ def _generate_source_data_file_for_size(
     num_data_points = num_grp_1 * num_grp_2 * repetition
     Path(final_source_file_paths.source_directory_path).mkdir(parents=True, exist_ok=True)
     parquet_file_modern = pyarrow.parquet.ParquetWriter(
-        where=temp_source_file_paths.source_file_path_parquet_modern,
+        where=temp_source_file_paths.source_file_path_parquet_single_file,
         schema=SIX_TEST_SOURCE_DATA_PYARROW_SCHEMA,
         compression="ZSTD",
     )
@@ -87,8 +87,8 @@ def _generate_source_data_file_for_size(
         parquet_file_modern.write_table(as_pyarrow_table)
     parquet_file_modern.close()
     os.rename(
-        temp_source_file_paths.source_file_path_parquet_modern,
-        final_source_file_paths.source_file_path_parquet_modern)
+        temp_source_file_paths.source_file_path_parquet_single_file,
+        final_source_file_paths.source_file_path_parquet_single_file)
 
 
 def _generate_answer_file(data_description: SixTestDataSetDescription) -> None:

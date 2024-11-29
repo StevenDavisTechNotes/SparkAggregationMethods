@@ -195,10 +195,7 @@ class test_section_mappart_partials_logic:
                     sc.parallelize(student_history[num_rows_in_first_segment:], numSlices=1)
                 )
                 .zipWithIndex()
-                .map(lambda pair:
-                     LabeledTypedRow(
-                         Index=pair[1],
-                         Value=pair[0]))
+                .map(lambda pair: LabeledTypedRow(Index=pair[1], Value=pair[0]))
             )
             rdd = section_mappart_partials_logic(
                 sc=sc,

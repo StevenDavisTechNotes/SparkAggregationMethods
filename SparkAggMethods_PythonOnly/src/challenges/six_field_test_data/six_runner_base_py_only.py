@@ -47,6 +47,8 @@ def run_one_step_in_python_only_itinerary(
                 finished_time = time.time()
             case "infeasible":
                 return None
+            case None:
+                return None
             case _:
                 raise ValueError("Must return at least 1 type")
         result = process_answer(
@@ -58,10 +60,14 @@ def run_one_step_in_python_only_itinerary(
             df_answer=df_answer,
             finished_time=finished_time,
         )
-    except Exception as e:
-        logger.error(
+    except KeyboardInterrupt:
+        return None
+    except Exception as ex:
+        msg = (
             f"Error in {challenge_method_registration.strategy_name} "
             f"of {data_set.data_description.size_code}"
+            + ":"+str(ex)
         )
-        raise e
+        logger.error(msg)
+        raise Exception(msg)
     return result

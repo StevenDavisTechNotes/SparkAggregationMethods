@@ -26,7 +26,8 @@ def calculate_solution_intermediates_progressively(
     source_file_names = six_derive_source_test_data_file_path(
         data_description=data_size,
     )
-    parquet_file = pyarrow.parquet.ParquetFile(source_file_names.source_file_path_parquet_modern)
+    parquet_file = pyarrow.parquet.ParquetFile(
+        source_file_names.source_file_path_parquet_single_file)
     chunk_iterable: Iterable[pd.DataFrame] = map(
         lambda x: x.to_pandas(),
         parquet_file.iter_batches(batch_size=batch_size)

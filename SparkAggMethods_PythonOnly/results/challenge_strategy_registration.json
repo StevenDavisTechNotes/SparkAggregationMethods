@@ -42,7 +42,16 @@
                         "engine": "python_only",
                         "challenge": "vanilla",
                         "interface": "queues",
-                        "strategy_name": "vanilla_py_mt_queue_pd_prog_1_reader_numpy",
+                        "strategy_name": "vanilla_py_mt_queue_pd_prog_numpy",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "python_only",
+                        "challenge": "vanilla",
+                        "interface": "queues",
+                        "strategy_name": "vanilla_py_mt_queue_pd_prog_numpy_1_reader",
                         "numerical_tolerance": 1e-12,
                         "requires_gpu": false
                     },

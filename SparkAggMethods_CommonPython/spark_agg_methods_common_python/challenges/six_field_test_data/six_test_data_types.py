@@ -146,15 +146,15 @@ class SixTestDataChallengeMethodRegistrationBase(
 @dataclass(frozen=True)
 class SixTestSourceDataFilePaths():
     source_directory_path: str
-    source_file_path_parquet_for_spark: str
-    source_file_path_parquet_modern: str
+    source_file_path_parquet_small_v1_files: str
+    source_file_path_parquet_single_file: str
     source_file_path_csv: str
 
     @property
     def file_paths(self) -> list[str]:
         return [
-            self.source_file_path_parquet_for_spark,
-            self.source_file_path_parquet_modern,
+            self.source_file_path_parquet_small_v1_files,
+            self.source_file_path_parquet_single_file,
             self.source_file_path_csv,
         ]
 
@@ -197,8 +197,8 @@ def six_derive_source_test_data_file_path(
     )
     return SixTestSourceDataFilePaths(
         source_directory_path=source_directory_path,
-        source_file_path_parquet_for_spark=f"{stem}_spark",
-        source_file_path_parquet_modern=f"{stem}_modern.parquet",
+        source_file_path_parquet_small_v1_files=f"{stem}_spark",
+        source_file_path_parquet_single_file=f"{stem}_modern.parquet",
         source_file_path_csv=f"{stem}.csv",
     )
 

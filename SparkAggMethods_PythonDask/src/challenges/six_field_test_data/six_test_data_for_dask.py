@@ -117,5 +117,5 @@ def six_prepare_data_set_dask(
         src_num_partitions=src_num_partitions,
         agg_tgt_num_partitions_1_level=num_grp_1,
         agg_tgt_num_partitions_2_level=num_grp_1 * num_grp_2,
-        source_file_path_parquet=source_file_paths.source_file_path_parquet_modern,
+        source_file_path_parquet=source_file_paths.source_file_path_parquet_single_file,
     )

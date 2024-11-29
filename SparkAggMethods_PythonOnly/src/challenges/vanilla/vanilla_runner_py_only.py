@@ -1,5 +1,6 @@
 #! python
 # usage: .\venv\Scripts\activate.ps1; python -O -m src.challenges.vanilla.vanilla_runner_py_only
+
 import argparse
 import gc
 import logging
@@ -40,7 +41,7 @@ logger = logging.getLogger(__name__)
 
 DEBUG_ARGS = None if True else (
     []
-    + '--size 3_3_10'.split()
+    + '--size 3_3_100m'.split()
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
@@ -48,7 +49,8 @@ DEBUG_ARGS = None if True else (
        #    'vanilla_py_st_pd_grp_numpy',
        #    'vanilla_py_st_pd_grp_numba',
        #    'vanilla_py_st_pd_prog_numpy',
-       'vanilla_py_mt_queue_pd_prog_1_reader_numpy',
+       #    'vanilla_py_mt_queue_pd_prog_numpy_1_reader',
+       'vanilla_py_mt_queue_pd_prog_numpy',
        ]
 )
 
@@ -144,7 +146,8 @@ def do_test_runs(
                 correct_answer=data_set.answer,
             )
             if base_run_result is None:
-                continue
+                logger.info("Failed!")
+                break
             if not data_set.data_description.debugging_only:
                 file.write_run_result(challenge_method_registration, VanillaRunResult(
                     num_source_rows=data_set.data_description.num_source_rows,

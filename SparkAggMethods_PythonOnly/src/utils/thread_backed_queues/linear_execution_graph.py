@@ -1,13 +1,10 @@
-# usage: python -m src.utils.thread_backed_queues.linear_execution_graph
-
 import logging
 import queue as queue_mod
-import time
 from typing import Callable, Generator, TypeVar
 
-from spark_agg_methods_common_python.utils.platform import setup_logging
-
-from src.utils.thread_backed_queues import Pipe, Sink, Source
+from src.utils.thread_backed_queues.pipe import Pipe
+from src.utils.thread_backed_queues.sink import Sink
+from src.utils.thread_backed_queues.source import GeneratorSource
 
 logger = logging.getLogger(__name__)
 T0 = TypeVar('T0')
@@ -21,11 +18,12 @@ def execute_in_three_stages(
         actions_1: tuple[Callable[[T0], T1], ...],
         actions_2: tuple[Callable[[T1], T2], ...],
         actions_3: tuple[Callable[[T2], None], ...],
+        block_thread_timeout: float = 0.1,
         queue_0: queue_mod.Queue[T0] | None = None,
         queue_1: queue_mod.Queue[T1] | None = None,
         queue_2: queue_mod.Queue[T2] | None = None,
         report_error: Callable[[str], None],
-) -> bool:
+) -> None:
     queue_0 = queue_0 or queue_mod.Queue()
     queue_1 = queue_1 or queue_mod.Queue()
     queue_2 = queue_2 or queue_mod.Queue()
@@ -33,94 +31,63 @@ def execute_in_three_stages(
     def stop(
             immediate: bool,
     ):
-        logger.debug("Stopping")
         queue_0.shutdown(immediate=immediate)
         queue_1.shutdown(immediate=immediate)
         queue_2.shutdown(immediate=immediate)
-        logger.debug("Stopped")
 
     def wrapped_report_error(error: str) -> None:
         report_error(error)
         stop(immediate=True)
 
-    success: bool = False
     with \
-            Source[T0](
+            GeneratorSource[T0](
                 actions=actions_0,
+                block_thread_timeout=block_thread_timeout,
+                name="Source",
                 queue_out=queue_0,
                 report_error=wrapped_report_error,
             ) as source, \
             Pipe[T0, T1](
                 actions=actions_1,
+                block_thread_timeout=block_thread_timeout,
+                name="Pipe-1",
                 queue_in=queue_0,
                 queue_out=queue_1,
                 report_error=wrapped_report_error,
-            ), \
+            ) as pipe_1, \
             Pipe[T1, T2](
                 actions=actions_2,
+                block_thread_timeout=block_thread_timeout,
+                name="Pipe-2",
                 queue_in=queue_1,
                 queue_out=queue_2,
                 report_error=wrapped_report_error,
-            ), \
+            ) as pipe_2, \
             Sink[T2](
                 actions=actions_3,
+                block_thread_timeout=block_thread_timeout,
+                name="Sink",
                 queue_in=queue_2,
                 report_error=wrapped_report_error,
-            ):
-        try:
-            source.interruptable_join()
-            queue_0.join()
-            queue_1.join()
-            queue_2.join()
-            success = True
-        except KeyboardInterrupt:
-            stop(immediate=True)
-        except Exception as e:
-            wrapped_report_error(str(e))
-            stop(immediate=True)
-    return success
-
-
-if __name__ == "__main__":
-    setup_logging()
-    queue_0 = queue_mod.Queue(maxsize=5)
-    queue_1 = queue_mod.Queue(maxsize=5)
-    queue_2 = queue_mod.Queue(maxsize=5)
-    delay = 0.1
-    num_messages = 100
-    num_threads_1 = 5
-
-    def source_action() -> Generator[str, None, None]:
-        for i in range(num_messages):
-            yield f"item{i+1}"
-
-    def pipe_1_action(item: str) -> str:
-        time.sleep(delay)
-        logger.info(f"Pipe-1 {item}")
-        return item
-
-    def pipe_2_action(item: str) -> str:
-        logger.info(f"Pipe-2 {item}")
-        return item
-
-    def sink_action(item: str) -> None:
-        logger.info(f"Sink {item}")
-
-    start_time = time.perf_counter()
-    if execute_in_three_stages(
-        actions_0=(source_action,),
-        actions_1=(pipe_1_action,)*num_threads_1,
-        actions_2=(pipe_2_action,),
-        actions_3=(sink_action,),
-        queue_0=queue_0,
-        queue_1=queue_1,
-        queue_2=queue_2,
-        report_error=lambda error: logger.info(f"Error: {error}"),
-    ):
-        logger.info("Success")
-        end_time = time.perf_counter()
-        print(f"Time taken: {end_time - start_time}")
-        expected = delay * num_messages / num_threads_1
-        print(f"Expected time: {expected}")
-    else:
-        logger.error("Failed")
+            ) as sink:
+        source.wait_for_completion()
+        pipe_1.wait_for_completion()
+        pipe_2.wait_for_completion()
+        sink.wait_for_completion()
+    keyboard_interrupted = (
+        source.keyboard_interrupted
+        or pipe_1.keyboard_interrupted
+        or pipe_2.keyboard_interrupted
+        or sink.keyboard_interrupted
+    )
+    if keyboard_interrupted:
+        raise KeyboardInterrupt()
+    exceptions = (
+        source.execution_exceptions
+        + pipe_1.execution_exceptions
+        + pipe_2.execution_exceptions
+        + sink.execution_exceptions
+    )
+    if len(exceptions) > 0:
+        msgs = "\n".join([str(e) for e in exceptions])
+        raise Exception(f"Exceptions occurred: {msgs}")

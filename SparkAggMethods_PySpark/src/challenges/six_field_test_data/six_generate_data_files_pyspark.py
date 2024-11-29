@@ -34,8 +34,8 @@ def six_remove_source_data_file_for_size_pyspark(
         temp_file=True,
     )
     for path in [
-        final_source_file_paths.source_file_path_parquet_for_spark,
-        temp_source_file_paths.source_file_path_parquet_for_spark
+        final_source_file_paths.source_file_path_parquet_small_v1_files,
+        temp_source_file_paths.source_file_path_parquet_small_v1_files
     ]:
         if os.path.exists(path):
             shutil.rmtree(path)
@@ -53,8 +53,8 @@ def six_generate_source_data_file_for_size_pyspark(
         data_description=data_description,
         temp_file=True,
     )
-    read_file_path = final_source_file_paths.source_file_path_parquet_modern
-    write_folder_path = temp_source_file_paths.source_file_path_parquet_for_spark
+    read_file_path = final_source_file_paths.source_file_path_parquet_single_file
+    write_folder_path = temp_source_file_paths.source_file_path_parquet_small_v1_files
 
     if (
         os.path.exists(write_folder_path)
@@ -77,8 +77,8 @@ def six_generate_source_data_file_for_size_pyspark(
         )
     source_file.close()
     os.rename(
-        temp_source_file_paths.source_file_path_parquet_for_spark,
-        final_source_file_paths.source_file_path_parquet_for_spark,
+        temp_source_file_paths.source_file_path_parquet_small_v1_files,
+        final_source_file_paths.source_file_path_parquet_small_v1_files,
     )
 
 

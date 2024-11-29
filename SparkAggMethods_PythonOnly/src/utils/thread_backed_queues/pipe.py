@@ -1,139 +1,93 @@
 import logging
 import queue as queue_mod
-import threading
-import time
 from typing import Callable, Generic, TypeVar
 
-from spark_agg_methods_common_python.utils.platform import setup_logging
-
-from src.utils.thread_backed_queues.sink import Sink
+from src.utils.thread_backed_queues.pipeline_component import PipelineComponent
 
 logger = logging.getLogger(__name__)
 TIn = TypeVar('TIn')
 TOut = TypeVar('TOut')
 
 
-class Pipe(Generic[TIn, TOut]):
-    _actions: tuple[Callable[[TIn], TOut], ...]
+class Pipe(Generic[TIn, TOut], PipelineComponent[Callable[[TIn], TOut]]):
     queue_in: queue_mod.Queue[TIn]
     queue_out: queue_mod.Queue[TOut]
-    _report_error: Callable[[str], None]
-    _threads: list[threading.Thread]
-    __slots__ = ["_actions", "queue_in", "queue_out", "_report_error", "_threads"]
+    shutdown_is_immediate: bool
 
     def __init__(
             self,
             *,
             actions: tuple[Callable[[TIn], TOut], ...],
-            report_error: Callable[[str], None],
-            queue_in: queue_mod.Queue[TIn] | None = None,
+            block_thread_timeout: float,
+            name: str,
+            queue_in: queue_mod.Queue[TIn],
             queue_out: queue_mod.Queue[TOut] | None = None,
+            report_error: Callable[[str], None],
     ):
-        self._actions = actions
-        self._report_error = report_error
-
-        self.queue_in = queue_in or queue_mod.Queue()
+        self.queue_in = queue_in
         self.queue_out = queue_out or queue_mod.Queue()
-        self._threads = [
-            threading.Thread(target=self._process, args=(action,))
-            for action in actions
-        ]
+        self.shutdown_is_immediate = False
+        super().__init__(
+            actions=actions,
+            block_thread_timeout=block_thread_timeout,
+            name=name,
+            num_threads=len(actions),
+            report_error=report_error,
+        )
 
-    @property
-    def num_threads(self) -> int:
-        return len(self._actions)
-
-    def _process(
+    def _run_action_until_complete(
             self,
             action: Callable[[TIn], TOut],
     ) -> None:
-        try:
-            while True:
-                if self.queue_in.is_shutdown or self.queue_out.is_shutdown:
+        while not self.queue_out.is_shutdown:
+            try:
+                input = self.queue_in.get(
+                    timeout=self.block_thread_timeout,
+                )
+            except queue_mod.Empty:
+                continue
+            try:
+                if self.queue_out.is_shutdown:
                     break
-                input = self.queue_in.get()
-                if self.queue_in.is_shutdown or self.queue_out.is_shutdown:
-                    break
-                logger.debug(f"Taking action on {id(input)} by thread {threading.current_thread().name}")
                 output = action(input)
-                logger.debug(f"Enqueuing output {id(output)}")
                 self.queue_out.put(output)
-                logger.debug(f"Consumed on {id(input)}")
+            finally:
                 self.queue_in.task_done()
-        except queue_mod.ShutDown:
-            pass
-        except Exception as e:
-            logger.exception("Error in consumer thread")
-            self._report_error(str(e))
 
-    def stop(
+    def wait_for_completion(self):
+        self._wrapped_callable(
+            self.queue_in.join
+        )
+        self.shutdown(
+            immediate=self._keyboard_interrupted,
+        )
+        # self._wrapped_callable(
+        #     self.queue_out.join
+        # )
+
+    def shutdown(
             self,
             immediate: bool,
     ):
-        logger.debug("Stopping")
-        if not self.queue_in.is_shutdown:
+        # if immediate:
+        #     self.queue_in.shutdown(
+        #         immediate=immediate,
+        #     )
+        # self._wrapped_callable(
+        #     self._wait_for_threads_to_complete
+        # )
+        if (
+            (not self.queue_in.is_shutdown)
+            or (immediate != self.shutdown_is_immediate)
+        ):
             self.queue_in.shutdown(
                 immediate=immediate,
             )
-        if not self.queue_out.is_shutdown:
+        if (
+            (not self.queue_out.is_shutdown)
+            or (immediate != self.shutdown_is_immediate)
+        ):
             self.queue_out.shutdown(
                 immediate=immediate,
             )
-        for thread in self._threads:
-            thread.join()
-        logger.debug("Stopped")
-
-    def __enter__(self):
-        logger.debug("Entering")
-        for thread in self._threads:
-            thread.start()
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.stop(immediate=True)
-        logger.debug("Exited")
-        return False
-
-
-if __name__ == "__main__":
-    setup_logging()
-    queue_in = queue_mod.Queue()
-    queue_out = queue_mod.Queue(maxsize=5)
-    pipe_delay = 0.1
-    sink_delay = 0.1
-    num_messages = 10
-
-    def pipe_action(item: str) -> str:
-        time.sleep(pipe_delay)
-        logger.info(f"Pipe Consumed {item}")
-        return item
-
-    def sink_action(item: str) -> None:
-        time.sleep(sink_delay)
-        logger.info(f"Sink Consumed {item}")
-
-    with \
-            Pipe[str, str](
-                actions=(pipe_action,),
-                queue_in=queue_in,
-                queue_out=queue_out,
-                report_error=lambda error: logger.info(f"Error: {error}"),
-            ) as pipe, \
-            Sink[str](
-                actions=(sink_action,)*5,
-                queue_in=queue_out,
-                report_error=lambda error: logger.info(f"Error: {error}"),
-            ) as sink:
-        start_time = time.perf_counter()
-        for i in range(num_messages):
-            queue_in.put(f"item{i+1}")
-        queue_in.join()
-        queue_out.join()
-        pipe.stop(immediate=False)
-        sink.stop(immediate=False)
-        end_time = time.perf_counter()
-        print(f"Time taken: {end_time - start_time}")
-        expected = max(
-            pipe_delay * num_messages / pipe.num_threads,
-            sink_delay * num_messages / sink.num_threads)
-        print(f"Expected time: {expected}")
+        self.shutdown_is_immediate |= immediate

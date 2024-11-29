@@ -34,7 +34,7 @@ class IChallengeMethodPythonOnly(Protocol):
         *,
         exec_params: SixTestExecutionParameters,
         data_set: SixDataSetPythonOnly,
-    ) -> TChallengePythonOnlyAnswer: ...
+    ) -> TChallengePythonOnlyAnswer | None: ...
 
 
 @dataclass(frozen=True)
@@ -61,5 +61,5 @@ def six_prepare_data_set_python_only(
         data_description=data_description,
     )
     return SixDataSetDataPythonOnly(
-        source_file_path_parquet=source_file_paths.source_file_path_parquet_modern,
+        source_file_path_parquet=source_file_paths.source_file_path_parquet_single_file,
     )

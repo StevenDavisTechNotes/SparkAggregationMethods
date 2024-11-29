@@ -1,5 +1,8 @@
 {
-	"folders": [
+	"folders": [		
+		{
+			"path": "SimpleQueuedPipelines"
+		},
 		{
 			"path": "SparkAggMethods_CommonPython"
 		},

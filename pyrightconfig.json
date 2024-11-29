@@ -1,6 +1,11 @@
 {
   "executionEnvironments": [
     {
+      "root": "SimpleQueuedPipelines/simple_queued_pipelines", 
+      "pythonVersion": "3.13",
+      "pythonPlatform": "Windows",
+    },
+    {
       "root": "SparkAggMethods_CommonPython/spark_agg_methods_common_python", 
       "pythonVersion": "3.13",
       "pythonPlatform": "Windows",
@@ -8,12 +13,6 @@
     {
       "extraPaths": [ "SparkAggMethods_CommonPython/spark_agg_methods_common_python" ],
       "root": "SparkAggMethods_Admin/src", 
-      "pythonVersion": "3.13",
-      "pythonPlatform": "Windows",
-    },
-    {
-      "extraPaths": [ "SparkAggMethods_CommonPython/spark_agg_methods_common_python" ],
-      "root": "SparkAggMethods_PythonOnly/src" ,
       "pythonVersion": "3.13",
       "pythonPlatform": "Windows",
     },
@@ -27,6 +26,15 @@
       "extraPaths": [ "SparkAggMethods_CommonPython/spark_agg_methods_common_python" ],
       "root": "SparkAggMethods_PySpark/src" ,
       "pythonVersion": "3.11",
+      "pythonPlatform": "Windows",
+    },
+    {
+      "extraPaths": [ 
+        "SimpleQueuedPipelines/simple_queued_pipelines",
+        "SparkAggMethods_CommonPython/spark_agg_methods_common_python",
+       ],
+      "root": "SparkAggMethods_PythonOnly/src" ,
+      "pythonVersion": "3.13",
       "pythonPlatform": "Windows",
     }
   ],

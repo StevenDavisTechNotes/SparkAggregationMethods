@@ -5,6 +5,7 @@ import queue
 from typing import Generator
 
 import pyarrow.parquet
+from simple_queued_pipelines.linear_execution_graph import execute_in_three_stages
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_domain_logic.merging_samples import (
     SixProgressiveBatchSampleStatistics, calculate_solutions_from_summary,
 )
@@ -19,7 +20,6 @@ from spark_agg_methods_common_python.utils.platform import setup_logging
 from src.challenges.six_field_test_data.six_test_data_for_py_only import (
     SixDataSetDataPythonOnly, SixDataSetPythonOnly, TChallengePythonOnlyAnswer,
 )
-from src.utils.thread_backed_queues.linear_execution_graph import execute_in_three_stages
 
 CHALLENGE = Challenge.VANILLA
 

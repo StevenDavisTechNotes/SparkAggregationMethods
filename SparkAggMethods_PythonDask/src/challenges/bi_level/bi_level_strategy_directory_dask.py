@@ -11,16 +11,6 @@ from src.challenges.bi_level.strategies.using_dask.bi_level_dask_sql_temp_join i
 from src.challenges.six_field_test_data.six_test_data_for_dask import ChallengeMethodPythonDaskRegistration
 
 BI_LEVEL_STRATEGIES_USING_DASK_REGISTRY: list[ChallengeMethodPythonDaskRegistration] = [
-    # ChallengeMethodPythonDaskRegistration(
-    #     strategy_name_2018=None,
-    #     strategy_name=name_of_function(bi_level_dask_bag_foldby_twice),
-    #     language=SolutionLanguage.PYTHON,
-    #     engine=CalcEngine.DASK,
-    #     interface=SolutionInterfaceDask.DASK_BAG,
-    #     numerical_tolerance=NumericalToleranceExpectations.NUMPY,
-    #     requires_gpu=False,
-    #     delegate=bi_level_dask_bag_foldby_twice,
-    # ),
     ChallengeMethodPythonDaskRegistration(
         strategy_name_2018=None,
         strategy_name=name_of_function(bi_level_dask_sql_nested_no_gpu),

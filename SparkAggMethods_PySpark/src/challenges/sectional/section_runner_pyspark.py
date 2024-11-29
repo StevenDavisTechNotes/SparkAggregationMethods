@@ -189,7 +189,6 @@ def run_one_itinerary_step(
         case PySparkDataFrame() as df:
             logger.info(f"output rdd has {df.rdd.getNumPartitions()} partitions")
             rdd = df.rdd
-            # found_students_iterable = [StudentSummary(*x) for x in rdd.toLocalIterator()]
             found_students = df.toPandas()
         case RDD() as rdd:
             logger.info(f"output rdd has {rdd.getNumPartitions()} partitions")

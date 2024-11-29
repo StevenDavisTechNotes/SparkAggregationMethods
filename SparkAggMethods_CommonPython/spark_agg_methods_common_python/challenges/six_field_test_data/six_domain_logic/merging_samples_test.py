@@ -66,15 +66,12 @@ def test_different_batch_sizes_should_produce_similar_answers(
         reference_answer: pd.DataFrame,
 ):
     for batch_size in [1, 2, 3, 1000, MAX_BATCH_SIZE-3, MAX_BATCH_SIZE-2, MAX_BATCH_SIZE-1, MAX_BATCH_SIZE]:
-        # Arrange
         chunk_iterable = (df_full[i:i + batch_size] for i in range(0, MAX_BATCH_SIZE, batch_size))
-        # Act
         num_data_points_visited, df_summary = calculate_solution_progressively_from_iterable(
             include_conditional=True,
             include_unconditional=True,
             chunk_iterable=chunk_iterable,
         )
-        # Assert
         assert num_data_points_visited == MAX_BATCH_SIZE
         abs_diff = float(
             (reference_answer - df_summary)

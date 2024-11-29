@@ -151,7 +151,7 @@ def prepare_data_sets(
             6: combine_sources(6),
         }
         if exec_params.can_assume_no_dupes_per_partition is False:
-            # then scramble
+            # then scramble since we can't assume no duplicates
             quantized_data_sets = {
                 k: df.repartition(exec_params.num_executors)
                 for k, df in quantized_data_sets.items()

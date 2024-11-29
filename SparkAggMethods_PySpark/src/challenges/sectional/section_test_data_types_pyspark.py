@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Literal, Protocol
 
+import pandas as pd
 import pyspark.sql.types as DataTypes
 from pyspark import RDD
 from pyspark.sql import DataFrame as PySparkDataFrame
@@ -49,6 +50,7 @@ TChallengePythonPysparkAnswer = (
     | list[StudentSummary]
     | RDD[StudentSummary]
     | PySparkDataFrame
+    | pd.DataFrame
 )
 
 

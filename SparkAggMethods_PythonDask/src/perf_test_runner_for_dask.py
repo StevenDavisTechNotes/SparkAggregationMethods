@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 def main():
     logger.info(f"Running {__file__}")
     try:
-        # with DaskClient(
+        # with DaskClient(  TODO: Need to test cluster setup
         #         processes=True,
         #         n_workers=LOCAL_NUM_EXECUTORS,
         #         threads_per_worker=1,
@@ -23,8 +23,8 @@ def main():
         bi_level_runner_dask.do_with_client()
         conditional_runner_dask.do_with_client()
         vanilla_runner_dask.do_with_local_client()
-        # dedupe_runner_dask.do_with_client()
-        # sectional_runner_dask.do_with_client()
+        # dedupe_runner_dask.do_with_client()  TODO: Implement this
+        # sectional_runner_dask.do_with_client() TODO: Implement this
     except KeyboardInterrupt:
         logger.warning("Interrupted!")
         return

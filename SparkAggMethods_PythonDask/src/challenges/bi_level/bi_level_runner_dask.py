@@ -202,7 +202,7 @@ def do_with_client():
 def main():
     logger.info(f"Running {__file__}")
     try:
-        # with DaskClient(
+        # with DaskClient(  TODO: Add cluster testing
         #         processes=True,
         #         n_workers=LOCAL_NUM_EXECUTORS,
         #         threads_per_worker=1,

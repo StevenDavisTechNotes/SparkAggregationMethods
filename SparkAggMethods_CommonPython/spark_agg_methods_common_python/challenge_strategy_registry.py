@@ -25,13 +25,6 @@ class ChallengeStrategyRegistrationKeyColumns(BaseModel):
 
 
 class ChallengeStrategyRegistration(ChallengeStrategyRegistrationKeyColumns):
-    # ChallengeStrategyRegistrationKeyColumns
-    language: str
-    engine: str
-    challenge: str
-    interface: str
-    strategy_name: str
-    # Additional fields
     numerical_tolerance: float
     requires_gpu: bool
 

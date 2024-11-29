@@ -35,7 +35,6 @@ class Test_ProgressiveVariance:
         assert result[1].tolist() == [83.7, 38.8, 2.8]
 
     def test_different_batch_sizes_should_produce_similar_answers(self):
-        # Arrange
         batch_size = 1000
         num_batches = 100
         np.random.seed(0)
@@ -50,7 +49,5 @@ class Test_ProgressiveVariance:
             pv.update_with_population(batch)
         mean2 = pv.mean
         var2 = pv.variance
-        # Act
-        # Assert
         assert np.allclose(mean1, mean2)  # cSpell: ignore allclose
         assert np.allclose(var1, var2)  # cSpell: ignore allclose

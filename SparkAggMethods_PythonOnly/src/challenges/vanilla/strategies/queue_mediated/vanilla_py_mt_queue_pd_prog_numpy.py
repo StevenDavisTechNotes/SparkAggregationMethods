@@ -8,7 +8,9 @@ from typing import Generator
 
 import pandas as pd
 import pyarrow.parquet
-from simple_queued_pipelines.linear_execution_graph import execute_in_three_stages
+from simple_queued_pipelines.single_channel.sc_execution_graph import (
+    execute_single_channel_linear_execution_graph_with_four_stages,
+)
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_domain_logic.merging_samples import (
     SixProgressiveBatchSampleStatistics, calculate_solutions_from_summary,
 )
@@ -73,7 +75,7 @@ def vanilla_py_mt_queue_pd_prog_numpy(
         num_compute_threads  # number being processed
         + 1  # num waiting to keep memory down
     )
-    execute_in_three_stages(
+    execute_single_channel_linear_execution_graph_with_four_stages(
         actions_0=(source_action,),
         actions_1=(read_file,)*num_file_reader_threads,
         actions_2=tuple(acc.update_with_population for acc in stage1_batch_accumulators),

@@ -2,7 +2,7 @@
     "python": {
         "dask": {
             "bilevel": {
-                "result_file_path": "C:\\Src\\GitHub_Hosted\\SparkAggMethods2\\SparkAggMethods_PythonDask\\results\\bi_level_dask_runs.csv",
+                "result_file_path": "C:\\Src\\GitHub_Hosted\\SparkAggMethods2\\PythonDask\\results\\bi_level_dask_runs.csv",
                 "regressor_column_name": "relative_cardinality_between_groupings",
                 "elapsed_time_column_name": "elapsed_time",
                 "strategies": [
@@ -42,7 +42,7 @@
                 ]
             },
             "vanilla": {
-                "result_file_path": "C:\\Src\\GitHub_Hosted\\SparkAggMethods2\\SparkAggMethods_PythonDask\\results\\vanilla_dask_runs.csv",
+                "result_file_path": "C:\\Src\\GitHub_Hosted\\SparkAggMethods2\\PythonDask\\results\\vanilla_dask_runs.csv",
                 "regressor_column_name": "num_source_rows",
                 "elapsed_time_column_name": "elapsed_time",
                 "strategies": [

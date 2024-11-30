@@ -2,7 +2,7 @@
     "python": {
         "python_only": {
             "bilevel": {
-                "result_file_path": "C:\\Src\\GitHub_Hosted\\SparkAggMethods2\\SparkAggMethods_PythonOnly\\results\\bi_level_python_only_runs.csv",
+                "result_file_path": "C:\\Src\\GitHub_Hosted\\SparkAggMethods2\\PythonOnly\\results\\bi_level_python_only_runs.csv",
                 "regressor_column_name": "relative_cardinality_between_groupings",
                 "elapsed_time_column_name": "elapsed_time",
                 "strategies": [
@@ -33,7 +33,7 @@
                 ]
             },
             "vanilla": {
-                "result_file_path": "C:\\Src\\GitHub_Hosted\\SparkAggMethods2\\SparkAggMethods_PythonOnly\\results\\vanilla_python_only_runs.csv",
+                "result_file_path": "C:\\Src\\GitHub_Hosted\\SparkAggMethods2\\PythonOnly\\results\\vanilla_python_only_runs.csv",
                 "regressor_column_name": "num_source_rows",
                 "elapsed_time_column_name": "elapsed_time",
                 "strategies": [
@@ -96,7 +96,7 @@
                 ]
             },
             "sectional": {
-                "result_file_path": "C:\\Src\\GitHub_Hosted\\SparkAggMethods2\\SparkAggMethods_PythonOnly\\results\\section_python_only_runs.csv",
+                "result_file_path": "C:\\Src\\GitHub_Hosted\\SparkAggMethods2\\PythonOnly\\results\\section_python_only_runs.csv",
                 "regressor_column_name": "num_students",
                 "elapsed_time_column_name": "elapsed_time",
                 "strategies": [

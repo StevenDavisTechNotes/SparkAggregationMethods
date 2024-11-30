@@ -9,10 +9,10 @@ from spark_agg_methods_common_python.perf_test_common import CalcEngine, Challen
 REGISTRY_FILE_PATH = "results/challenge_strategy_registration.json"
 
 CHALLENGE_STRATEGY_REGISTRATION_MAP = {
-    CalcEngine.PYTHON_ONLY: "../SparkAggMethods_PythonOnly/results/challenge_strategy_registration.json",
-    CalcEngine.DASK: "../SparkAggMethods_PythonDask/results/challenge_strategy_registration.json",
-    CalcEngine.PYSPARK: "../SparkAggMethods_PySpark/results/challenge_strategy_registration.json",
-    CalcEngine.SCALA_SPARK: "../SparkAggMethods_Scala_Spark/results/challenge_strategy_registration.json",
+    CalcEngine.PYTHON_ONLY: "../PythonOnly/results/challenge_strategy_registration.json",
+    CalcEngine.DASK: "../PythonDask/results/challenge_strategy_registration.json",
+    CalcEngine.PYSPARK: "../PySpark/results/challenge_strategy_registration.json",
+    CalcEngine.SCALA_SPARK: "../Scala_Spark/results/challenge_strategy_registration.json",
 }
 
 

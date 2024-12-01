@@ -1,0 +1,13 @@
+[flake8]
+exclude = ["venv"]
+max-line-length = 120
+max-complexity = 10
+
+[pycodestyle]
+max_line_length = 120
+
+[tool.isort]
+multi_line_output = 5
+include_trailing_comma = true
+force_grid_wrap = 0
+line_length = 80

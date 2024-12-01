@@ -1,0 +1,22 @@
+{
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.autopep8",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+        }
+    },
+    "editor.codeActionsOnSave": {
+        "source.formatOnSave": "explicit"
+    },
+    "isort.args":[
+        "--settings-file", 
+        "pyproject.toml"
+    ],
+    "python.analysis.diagnosticMode": "workspace",
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+    "search.exclude": {
+        "/venv": true
+    }
+}

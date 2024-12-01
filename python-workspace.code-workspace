@@ -1,0 +1,27 @@
+{
+	"folders": [		
+		{ "path": "SimpleQueuedPipelines" },
+		{ "path": "CommonPython" },
+		{ "path": "Admin" },
+		{ "path": "PySpark" },
+		{ "path": "PythonDask" },
+		{ "path": "PythonOnly" },
+	],
+	"settings": {
+		"[python]": {
+			"editor.defaultFormatter": "ms-python.autopep8",
+			"editor.formatOnSave": true,
+			"editor.codeActionsOnSave": {
+				"source.organizeImports": "explicit"
+			}
+		},
+		"editor.codeActionsOnSave": {
+			"source.formatOnSave": "explicit"
+		},
+		"python.analysis.autoFormatStrings": false,
+		"python.languageServer": "Pylance",
+		"search.exclude": {
+			"/venv": true
+		}
+	}
+}

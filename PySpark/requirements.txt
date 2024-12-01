@@ -1,0 +1,22 @@
+# gc requirements.txt | sort > c:\temp\t.txt
+# pip install -r requirements.txt
+# pip freeze > requirements_frozen.txt
+# Python==3.11.8
+autopep8
+isort
+findspark
+flake8
+networkx
+numba
+numpy>=1.15,<2
+pandas>=1.0.5,<2.0
+prettyprinter
+psutil 
+pyarrow>=4.0.0
+pyclean
+pydantic
+Py4J>=0.10.9.7
+pyspark==3.5.1
+pytest
+pytz
+statsmodels

@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[flake8]
+exclude = ["venv"]    
+max-line-length = 120
+max-complexity = 10
+
+[project]
+name = "spark_agg_methods_common_python"
+version = "0.0.1"
+dependencies = [
+    "numpy",
+    "pandas",
+    "prettyprinter",
+    "psutil",
+    "pydantic",
+    "pytest",
+    "pytz",
+]
+
+[pycodestyle]
+max_line_length = 120
+
+[tool.setuptools.packages]
+find = {}  # Scan the project directory with the default parameters
+
+[tool.isort]
+multi_line_output = 5
+include_trailing_comma = true
+force_grid_wrap = 0
+line_length = 80

@@ -1,10 +1,7 @@
-# gc requirements.txt | sort > c:\temp\t.txt
-# pip install -r requirements.txt
-# pip freeze > requirements_frozen.txt
+# cSpell: disable
 autopep8
 flake8
 isort
-# numba
 numpy
 pandas
 prettyprinter

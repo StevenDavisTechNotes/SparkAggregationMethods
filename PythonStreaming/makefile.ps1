@@ -1,13 +1,12 @@
-# cSpell: ignore autopep8, childitem, findstr, isort, pycache, pyclean, pyright, pytest, venv
-
 $DefaultScriptCommand = "Test"
 $SrcFolderName = "src"
-$PythonVersion = "3.13"
+$PythonVersion = "3.13t"
 $EditablePackageFolders = @(
+	"SimpleQueuedPipelines", 
 	"CommonPython"
 )
 
-. ..\makefile_python.ps1
+. C:\Src\GitHub_Hosted\SparkAggMethods2\makefile_python.ps1
 
 if ($args.Length -eq 0) {
 	& $DefaultScriptCommand

@@ -5,7 +5,8 @@
 		{ "path": "Admin" },
 		{ "path": "PySpark" },
 		{ "path": "PythonDask" },
-		{ "path": "PythonOnly" },
+		{ "path": "PythonSingleThreaded" },
+		{ "path": "PythonStreaming" },
 	],
 	"settings": {
 		"[python]": {
@@ -18,10 +19,12 @@
 		"editor.codeActionsOnSave": {
 			"source.formatOnSave": "explicit"
 		},
+		"powershell.scriptAnalysis.settingsPath": "./PSScriptAnalyzerSettings.psd1",
 		"python.analysis.autoFormatStrings": false,
 		"python.languageServer": "Pylance",
 		"search.exclude": {
 			"/venv": true
-		}
+		},
+		"powershell.cwd": "CommonPython"
 	}
 }

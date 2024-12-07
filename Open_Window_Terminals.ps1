@@ -4,7 +4,8 @@ $folders = @(
     "Admin",
     "PySpark",
     "PythonDask",
-    "PythonOnly"
+    "PythonSingleThreaded",
+    "PythonStreaming"
 )
 $cmd = "&{. .\venv\Scripts\Activate.ps1}"
 $cmd = "echo open"

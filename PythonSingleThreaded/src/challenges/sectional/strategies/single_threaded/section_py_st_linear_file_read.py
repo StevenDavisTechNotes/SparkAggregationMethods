@@ -7,12 +7,12 @@ from spark_agg_methods_common_python.challenges.sectional.section_test_data_type
 )
 
 from src.challenges.sectional.section_test_data_types_py_st import (
-    SectionDataSetPyOnly, SectionExecutionParametersPyOnly,
+    SectionDataSetPyST, SectionExecutionParametersPyOnly,
 )
 
 
 def section_py_st_linear_file_read(
-        data_set: SectionDataSetPyOnly,
+        data_set: SectionDataSetPyST,
         exec_params: SectionExecutionParametersPyOnly,
 ) -> list[StudentSummary] | pd.DataFrame:
     return list(section_nospark_logic(

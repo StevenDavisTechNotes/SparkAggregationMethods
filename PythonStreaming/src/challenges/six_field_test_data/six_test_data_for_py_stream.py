@@ -7,8 +7,8 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_dat
     SixTestExecutionParameters, six_derive_source_test_data_file_path,
 )
 from spark_agg_methods_common_python.perf_test_common import (
-    CalcEngine, NumericalToleranceExpectations, SolutionInterfacePythonOnly,
-    SolutionLanguage,
+    CalcEngine, NumericalToleranceExpectations,
+    SolutionInterfacePythonStreaming, SolutionLanguage,
 )
 
 
@@ -23,7 +23,7 @@ class SixDataSetPythonStreaming():
     data: SixDataSetDataPythonStreaming
 
 
-TChallengePythonOnlyAnswer = (
+TChallengePythonStreamAnswer = (
     tuple[Literal["infeasible"], str]
     | pd.DataFrame
 )
@@ -35,20 +35,20 @@ class IChallengeMethodPythonStreaming(Protocol):
         *,
         exec_params: SixTestExecutionParameters,
         data_set: SixDataSetPythonStreaming,
-    ) -> TChallengePythonOnlyAnswer | None: ...
+    ) -> TChallengePythonStreamAnswer: ...
 
 
 @dataclass(frozen=True)
 class ChallengeMethodPythonStreamingRegistration(
     SixTestDataChallengeMethodRegistrationBase[
-        SolutionInterfacePythonOnly, IChallengeMethodPythonStreaming
+        SolutionInterfacePythonStreaming, IChallengeMethodPythonStreaming
     ]
 ):
     strategy_name_2018: str | None
     strategy_name: str
     language: SolutionLanguage
     engine: CalcEngine
-    interface: SolutionInterfacePythonOnly
+    interface: SolutionInterfacePythonStreaming
     numerical_tolerance: NumericalToleranceExpectations
     requires_gpu: bool
     delegate: IChallengeMethodPythonStreaming

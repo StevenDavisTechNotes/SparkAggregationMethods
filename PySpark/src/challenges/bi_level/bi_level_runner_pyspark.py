@@ -160,8 +160,6 @@ def do_test_runs(
                 data_set=data_set,
                 correct_answer=data_set.answer,
             ):
-                case ("infeasible", _):
-                    pass
                 case RunResultBase() as run_result:
                     if not data_set.data_description.debugging_only:
                         file.write_run_result(
@@ -175,8 +173,12 @@ def do_test_runs(
                                 ),
                                 finished_at=run_result.finished_at,
                             ))
-                case _:
-                    raise ValueError("Unexpected return type")
+                case ("infeasible", _):
+                    pass
+                case "interrupted":
+                    break
+                case base_run_result:
+                    raise ValueError(f"Unexpected result type {type(base_run_result)}")
             gc.collect()
             time.sleep(0.1)
 

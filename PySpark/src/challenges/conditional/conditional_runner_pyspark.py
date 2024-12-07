@@ -24,7 +24,7 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_dat
 )
 from spark_agg_methods_common_python.perf_test_common import (
     ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge,
-    RunnerArgumentsBase, SolutionLanguage, assemble_itinerary,
+    RunnerArgumentsBase, RunResultBase, SolutionLanguage, assemble_itinerary,
 )
 from spark_agg_methods_common_python.utils.platform import setup_logging
 
@@ -173,20 +173,22 @@ def do_test_runs(
                 data_set=data_set,
                 correct_answer=data_set.answer,
             ):
+                case RunResultBase() as base_run_result:
+                    if not data_set.data_description.debugging_only:
+                        file.write_run_result(
+                            challenge_method_registration=challenge_method_registration,
+                            run_result=ConditionalRunResult(
+                                num_source_rows=data_set.data_description.num_source_rows,
+                                elapsed_time=base_run_result.elapsed_time,
+                                num_output_rows=base_run_result.num_output_rows,
+                                finished_at=base_run_result.finished_at,
+                            ))
                 case ('infeasible', _):
-                    continue
-                case base_run_result:
                     pass
-            if data_set.data_description.debugging_only:
-                continue
-            file.write_run_result(
-                challenge_method_registration=challenge_method_registration,
-                run_result=ConditionalRunResult(
-                    num_source_rows=data_set.data_description.num_source_rows,
-                    elapsed_time=base_run_result.elapsed_time,
-                    num_output_rows=base_run_result.num_output_rows,
-                    finished_at=base_run_result.finished_at,
-                ))
+                case "interrupted":
+                    break
+                case base_run_result:
+                    raise ValueError(f"Unexpected return type: {type(base_run_result)}")
             gc.collect()
             time.sleep(0.1)
 

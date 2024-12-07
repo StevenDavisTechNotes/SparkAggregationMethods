@@ -1,4 +1,108 @@
 {
     "python": {
+        "python_single_threaded": {
+            "bilevel": {
+                "result_file_path": "C:\\Src\\GitHub_Hosted\\SparkAggMethods2\\PythonSingleThreaded\\results\\bi_level_python_single_threaded_runs.csv",
+                "regressor_column_name": "relative_cardinality_between_groupings",
+                "elapsed_time_column_name": "elapsed_time",
+                "strategies": [
+                    {
+                        "language": "python",
+                        "engine": "python_single_threaded",
+                        "challenge": "bilevel",
+                        "interface": "pandas",
+                        "strategy_name": "bi_level_py_st_pd_grp_numpy",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "python_single_threaded",
+                        "challenge": "bilevel",
+                        "interface": "progressive",
+                        "strategy_name": "bi_level_py_st_pd_prog_numpy",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    }
+                ],
+                "expected_regressor_values": [
+                    1,
+                    10,
+                    100,
+                    1000
+                ]
+            },
+            "vanilla": {
+                "result_file_path": "C:\\Src\\GitHub_Hosted\\SparkAggMethods2\\PythonSingleThreaded\\results\\vanilla_python_single_threaded_runs.csv",
+                "regressor_column_name": "num_source_rows",
+                "elapsed_time_column_name": "elapsed_time",
+                "strategies": [
+                    {
+                        "language": "python",
+                        "engine": "python_single_threaded",
+                        "challenge": "vanilla",
+                        "interface": "pandas",
+                        "strategy_name": "vanilla_py_st_pd_grp_numba",
+                        "numerical_tolerance": 1e-10,
+                        "requires_gpu": true
+                    },
+                    {
+                        "language": "python",
+                        "engine": "python_single_threaded",
+                        "challenge": "vanilla",
+                        "interface": "pandas",
+                        "strategy_name": "vanilla_py_st_pd_grp_numpy",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "python_single_threaded",
+                        "challenge": "vanilla",
+                        "interface": "progressive",
+                        "strategy_name": "vanilla_py_st_pd_prog_numpy",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    }
+                ],
+                "expected_regressor_values": [
+                    9,
+                    90,
+                    900,
+                    9000,
+                    90000,
+                    900000,
+                    9000000,
+                    90000000,
+                    900000000
+                ]
+            },
+            "sectional": {
+                "result_file_path": "C:\\Src\\GitHub_Hosted\\SparkAggMethods2\\PythonSingleThreaded\\results\\section_python_single_threaded_runs.csv",
+                "regressor_column_name": "num_students",
+                "elapsed_time_column_name": "elapsed_time",
+                "strategies": [
+                    {
+                        "language": "python",
+                        "engine": "python_single_threaded",
+                        "challenge": "sectional",
+                        "interface": "single_threaded",
+                        "strategy_name": "section_py_st_linear_file_read",
+                        "numerical_tolerance": -1.0,
+                        "requires_gpu": false
+                    }
+                ],
+                "expected_regressor_values": [
+                    1,
+                    10,
+                    100,
+                    1000,
+                    10000,
+                    100000,
+                    1000000,
+                    10000000
+                ]
+            }
+        }
     }
 }

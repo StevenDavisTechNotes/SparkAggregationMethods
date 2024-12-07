@@ -53,9 +53,7 @@ function Install-Venv() {
 	if (Test-Path .\venv) {
 		Remove-Item .\venv -Recurse -Force
 	}
-	if (Test-Path "$SrcFolderName.egg-info") {
-		Remove-Item "$SrcFolderName.egg-info" -Recurse -Force
-	}
+	Remove-Item "*.egg-info" -Recurse -Force
 	if (Test-Path ".pytest_cache") {
 		Remove-Item ".pytest_cache" -Recurse -Force
 	}
@@ -63,13 +61,14 @@ function Install-Venv() {
 	Enable-Venv
 	python --version
 	python -c "import sys; print(sys.executable)"
+	python -c "import sys; print('git_enabled', sys._is_gil_enabled() if hasattr(sys, '_is_gil_enabled') else None)"
 	if ($?) { .\venv\Scripts\python.exe -m pip install --quiet --upgrade pip }
-	if ($?) { Get-Content requirements.txt | Sort-Object > c:\temp\t.txt }
+	if ($?) { Get-Content "requirements.txt" | Sort-Object | Set-Content "requirements.txt" }
 	if ($?) { pip install  --quiet --requirement .\requirements.txt }
 	if ($?) { Invoke-Pyclean }
-	if ($?) { Install-Editable-Packages }
 	if ($?) { Write-Output "# cSpell: disable" > requirements_frozen.txt }
 	if ($?) { pip freeze >> requirements_frozen.txt }
+	if ($?) { Install-Editable-Packages }
 }
 
 function Invoke-Flake8() {

@@ -1,5 +1,6 @@
 import logging
 import time
+from typing import Literal
 
 import pandas as pd
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_runner_base import (
@@ -13,18 +14,19 @@ from spark_agg_methods_common_python.perf_test_common import (
 )
 
 from src.challenges.six_field_test_data.six_test_data_for_py_st import (
-    ChallengeMethodPythonSingleThreadedRegistration, SixDataSetPythonOnly,
+    ChallengeMethodPythonSingleThreadedRegistration, SixDataSetPythonST,
+    TChallengePythonSTAnswer,
 )
 
 logger = logging.getLogger(__name__)
 
 
 def _call_delegate_with_timeout(
-    *,
-    challenge_method_registration: ChallengeMethodPythonSingleThreadedRegistration,
-    exec_params: SixTestExecutionParameters,
-        data_set: SixDataSetPythonOnly,
-):
+        *,
+        challenge_method_registration: ChallengeMethodPythonSingleThreadedRegistration,
+        exec_params: SixTestExecutionParameters,
+        data_set: SixDataSetPythonST,
+) -> TChallengePythonSTAnswer:
     return challenge_method_registration.delegate(
         exec_params=exec_params,
         data_set=data_set,
@@ -36,9 +38,9 @@ def run_one_step_in_python_single_threaded_itinerary(
         exec_params: SixTestExecutionParameters,
         challenge_method_registration: ChallengeMethodPythonSingleThreadedRegistration,
         numerical_tolerance: NumericalToleranceExpectations,
-        data_set: SixDataSetPythonOnly,
+        data_set: SixDataSetPythonST,
         correct_answer: pd.DataFrame,
-) -> RunResultBase | None:
+) -> RunResultBase | tuple[Literal["infeasible"], str] | Literal["interrupted"]:
     started_time = time.time()
     try:
         match _call_delegate_with_timeout(
@@ -49,12 +51,10 @@ def run_one_step_in_python_single_threaded_itinerary(
             case pd.DataFrame() as pandas_df:
                 df_answer = pandas_df
                 finished_time = time.time()
-            case "infeasible":
-                return None
-            case None:
-                return None
-            case _:
-                raise ValueError("Must return at least 1 type")
+            case ("infeasible", reason):
+                return "infeasible", reason
+            case answer:
+                raise ValueError(f"Unexpected return type: {type(answer)}")
         result = process_answer(
             challenge=challenge,
             data_description=data_set.data_description,
@@ -65,7 +65,7 @@ def run_one_step_in_python_single_threaded_itinerary(
             finished_time=finished_time,
         )
     except KeyboardInterrupt:
-        return None
+        return "interrupted"
     except Exception as ex:
         msg = (
             f"Error in {challenge_method_registration.strategy_name} "

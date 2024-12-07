@@ -1,5 +1,5 @@
-#! python
-# usage: .\venv\Scripts\activate.ps1; python -O -m src.challenges.vanilla.vanilla_runner_py_only
+#!python
+# usage: .\venv\Scripts\activate.ps1; python -O -m src.challenges.vanilla.vanilla_runner_py_st
 
 import argparse
 import gc
@@ -24,7 +24,7 @@ from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types 
 )
 from spark_agg_methods_common_python.perf_test_common import (
     ELAPSED_TIME_COLUMN_NAME, CalcEngine, Challenge, RunnerArgumentsBase,
-    SolutionLanguage, assemble_itinerary,
+    RunResultBase, SolutionLanguage, assemble_itinerary,
 )
 from spark_agg_methods_common_python.utils.platform import setup_logging
 
@@ -32,7 +32,7 @@ from src.challenges.six_field_test_data.six_runner_base_py_st import (
     run_one_step_in_python_single_threaded_itinerary,
 )
 from src.challenges.six_field_test_data.six_test_data_for_py_st import (
-    SixDataSetPythonOnly, six_prepare_data_set_python_single_threaded,
+    SixDataSetPythonST, six_prepare_data_set_python_single_threaded,
 )
 from src.challenges.vanilla.vanilla_strategy_directory_py_st import (
     VANILLA_STRATEGY_REGISTRY_PYTHON_SINGLE_THREADED,
@@ -47,22 +47,20 @@ logger = logging.getLogger(__name__)
 
 DEBUG_ARGS = None if True else (
     []
-    + '--size 3_3_100m'.split()
+    + '--size 3_3_10'.split()
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
     + ['--strategy',
+       'vanilla_py_st_pd_grp_numba',
        #    'vanilla_py_st_pd_grp_numpy',
-       #    'vanilla_py_st_pd_grp_numba',
        #    'vanilla_py_st_pd_prog_numpy',
-       #    'vanilla_py_mt_queue_pd_prog_numpy_1_reader',
-       'vanilla_py_mt_queue_pd_prog_numpy',
        ]
 )
 
 
 @dataclass(frozen=True)
-class VanillaDataSetWAnswerPythonOnly(SixDataSetPythonOnly):
+class VanillaDataSetWAnswerPythonST(SixDataSetPythonST):
     answer: pd.DataFrame
 
 
@@ -100,9 +98,9 @@ def parse_args() -> Arguments:
 
 def prepare_data_sets(
         args: Arguments,
-) -> list[VanillaDataSetWAnswerPythonOnly]:
+) -> list[VanillaDataSetWAnswerPythonST]:
     data_sets = [
-        VanillaDataSetWAnswerPythonOnly(
+        VanillaDataSetWAnswerPythonST(
             data_description=size,
             data=six_prepare_data_set_python_single_threaded(
                 exec_params=args.exec_params,
@@ -116,8 +114,8 @@ def prepare_data_sets(
     return data_sets
 
 
-class VanillaPythonOnlyRunResultFileWriter(VanillaPythonRunResultFileWriter):
-    RUN_LOG_FILE_PATH: str = os.path.abspath('results/vanilla_python_only_runs.csv')
+class VanillaPythonSTRunResultFileWriter(VanillaPythonRunResultFileWriter):
+    RUN_LOG_FILE_PATH: str = os.path.abspath('results/vanilla_python_single_threaded_runs.csv')
 
     def __init__(self):
         super().__init__(
@@ -136,31 +134,35 @@ def do_test_runs(
     keyed_implementation_list = {
         x.strategy_name: x for x in VANILLA_STRATEGY_REGISTRY_PYTHON_SINGLE_THREADED}
     keyed_data_sets = {x.data_description.size_code: x for x in prepare_data_sets(args)}
-    with VanillaPythonOnlyRunResultFileWriter() as file:
+    with VanillaPythonSTRunResultFileWriter() as file:
         for index, (strategy_name, size_code) in enumerate(itinerary):
             challenge_method_registration = keyed_implementation_list[strategy_name]
             data_set = keyed_data_sets[size_code]
             logger.info("Working on %d of %d" % (index, len(itinerary)))
             logger.info(f"Working on {challenge_method_registration.strategy_name} "
                         f"for {data_set.data_description.size_code}")
-            base_run_result = run_one_step_in_python_single_threaded_itinerary(
+            match run_one_step_in_python_single_threaded_itinerary(
                 challenge=CHALLENGE,
                 exec_params=args.exec_params,
                 challenge_method_registration=challenge_method_registration,
                 numerical_tolerance=challenge_method_registration.numerical_tolerance,
                 data_set=data_set,
                 correct_answer=data_set.answer,
-            )
-            if base_run_result is None:
-                logger.info("Failed!")
-                break
-            if not data_set.data_description.debugging_only:
-                file.write_run_result(challenge_method_registration, VanillaRunResult(
-                    num_source_rows=data_set.data_description.num_source_rows,
-                    elapsed_time=base_run_result.elapsed_time,
-                    num_output_rows=base_run_result.num_output_rows,
-                    finished_at=base_run_result.finished_at,
-                ))
+            ):
+                case RunResultBase() as base_run_result:
+                    if not data_set.data_description.debugging_only:
+                        file.write_run_result(challenge_method_registration, VanillaRunResult(
+                            num_source_rows=data_set.data_description.num_source_rows,
+                            elapsed_time=base_run_result.elapsed_time,
+                            num_output_rows=base_run_result.num_output_rows,
+                            finished_at=base_run_result.finished_at,
+                        ))
+                case ("infeasible", _):
+                    pass
+                case "interrupted":
+                    break
+                case answer:
+                    raise ValueError(f"Unexpected return type: {type(answer)}")
             gc.collect()
             time.sleep(0.1)
 
@@ -171,7 +173,7 @@ def update_challenge_registration():
         engine=ENGINE,
         challenge=CHALLENGE,
         registration=ChallengeResultLogFileRegistration(
-            result_file_path=VanillaPythonOnlyRunResultFileWriter.RUN_LOG_FILE_PATH,
+            result_file_path=VanillaPythonSTRunResultFileWriter.RUN_LOG_FILE_PATH,
             regressor_column_name=VanillaDataSetDescription.regressor_field_name(),
             elapsed_time_column_name=ELAPSED_TIME_COLUMN_NAME,
             expected_regressor_values=[

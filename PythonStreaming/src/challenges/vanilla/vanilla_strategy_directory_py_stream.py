@@ -1,6 +1,6 @@
 from spark_agg_methods_common_python.perf_test_common import (
-    CalcEngine, NumericalToleranceExpectations, SolutionInterfacePythonOnly,
-    SolutionLanguage,
+    CalcEngine, NumericalToleranceExpectations,
+    SolutionInterfacePythonStreaming, SolutionLanguage,
 )
 from spark_agg_methods_common_python.utils.inspection import name_of_function
 
@@ -20,7 +20,7 @@ VANILLA_STRATEGY_REGISTRY_PYTHON_STREAMING: list[ChallengeMethodPythonStreamingR
         strategy_name=name_of_function(vanilla_py_mt_queue_pd_prog_numpy),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.STREAMING,
-        interface=SolutionInterfacePythonOnly.QUEUES,
+        interface=SolutionInterfacePythonStreaming.QUEUES,
         numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         requires_gpu=False,
         delegate=vanilla_py_mt_queue_pd_prog_numpy,
@@ -30,7 +30,7 @@ VANILLA_STRATEGY_REGISTRY_PYTHON_STREAMING: list[ChallengeMethodPythonStreamingR
         strategy_name=name_of_function(vanilla_py_mt_queue_pd_prog_numpy_1_reader),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.STREAMING,
-        interface=SolutionInterfacePythonOnly.QUEUES,
+        interface=SolutionInterfacePythonStreaming.QUEUES,
         numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         requires_gpu=False,
         delegate=vanilla_py_mt_queue_pd_prog_numpy_1_reader,

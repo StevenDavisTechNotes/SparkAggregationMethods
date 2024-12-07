@@ -7,7 +7,7 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_dat
 from spark_agg_methods_common_python.perf_test_common import Challenge
 
 from src.challenges.six_field_test_data.six_test_data_for_py_st import (
-    SixDataSetPythonOnly, TChallengePythonOnlyAnswer,
+    SixDataSetPythonST, TChallengePythonSTAnswer,
 )
 
 CHALLENGE = Challenge.BI_LEVEL
@@ -15,8 +15,8 @@ CHALLENGE = Challenge.BI_LEVEL
 
 def bi_level_py_st_pd_prog_numpy(
         exec_params: SixTestExecutionParameters,
-        data_set: SixDataSetPythonOnly,
-) -> TChallengePythonOnlyAnswer:
+        data_set: SixDataSetPythonST,
+) -> TChallengePythonSTAnswer:
     df_result = calculate_solutions_progressively(
         data_size=data_set.data_description,
         challenges=[CHALLENGE],

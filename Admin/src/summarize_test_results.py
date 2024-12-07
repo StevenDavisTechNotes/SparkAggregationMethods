@@ -177,6 +177,7 @@ def analyze_run_results():
         for language in challenge_result_log_registrations:
             for engine in challenge_result_log_registrations[language]:
                 if challenge not in challenge_result_log_registrations[language][engine]:
+                    print(f"Didn't find {challenge} in {language} {engine} registration")
                     continue
                 challenge_result_log_registration = challenge_result_log_registrations[language][engine][challenge]
                 challenge_result_log_registration_by_strategy_name = {

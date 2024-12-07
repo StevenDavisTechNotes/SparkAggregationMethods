@@ -25,7 +25,7 @@ from spark_agg_methods_common_python.utils.platform import setup_logging
 
 from src.challenges.six_field_test_data.six_test_data_for_py_stream import (
     SixDataSetDataPythonStreaming, SixDataSetPythonStreaming,
-    TChallengePythonOnlyAnswer,
+    TChallengePythonStreamAnswer,
 )
 
 CHALLENGE = Challenge.VANILLA
@@ -40,7 +40,7 @@ def nop(*args, **kwargs):
 def vanilla_py_mt_queue_pd_prog_numpy(
         exec_params: SixTestExecutionParameters,
         data_set: SixDataSetPythonStreaming,
-) -> TChallengePythonOnlyAnswer | None:
+) -> TChallengePythonStreamAnswer:
     num_file_reader_threads = 2
     num_compute_threads = 5
     stage1_batch_accumulators = [

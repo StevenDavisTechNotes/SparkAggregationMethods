@@ -1,5 +1,4 @@
 # cSpell: ignore nopython, prange
-from typing import cast
 
 import numpy
 import pandas as pd
@@ -8,7 +7,7 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_dat
 )
 
 from src.challenges.six_field_test_data.six_test_data_for_py_st import (
-    SixDataSetPythonOnly, TChallengePythonOnlyAnswer,
+    SixDataSetPythonST, TChallengePythonSTAnswer,
 )
 
 try:
@@ -32,11 +31,12 @@ try:
         n = len(E)
         accE2: float = 0.
         for i in numba.prange(n):
-            accE2 += cast(float, E[i]) ** 2
+            accE2 += E[i] ** 2
         accE: float = 0.
         for i in numba.prange(n):
-            accE += cast(float, E[i])
-        return accE2 / n - (accE / n)**2
+            accE += E[i]
+        var: float = accE2 / n - (accE / n)**2
+        return var
 
 except ImportError:
     numba = None
@@ -44,8 +44,8 @@ except ImportError:
 
 def vanilla_py_st_pd_grp_numba(
         exec_params: SixTestExecutionParameters,
-        data_set: SixDataSetPythonOnly,
-) -> TChallengePythonOnlyAnswer:
+        data_set: SixDataSetPythonST,
+) -> TChallengePythonSTAnswer:
     if numba is None:
         return "infeasible", "Needs Numba installed"
     if data_set.data_description.num_source_rows > 9 * 10**6:

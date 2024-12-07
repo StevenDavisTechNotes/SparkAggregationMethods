@@ -6,7 +6,7 @@ from spark_agg_methods_common_python.challenges.sectional.section_test_data_type
     SectionExecutionParametersBase, TChallengePythonAnswer,
 )
 from spark_agg_methods_common_python.perf_test_common import (
-    SolutionInterfacePythonOnly,
+    SolutionInterfacePythonST,
 )
 
 
@@ -16,22 +16,22 @@ class SectionExecutionParametersPyOnly(SectionExecutionParametersBase):
 
 
 @dataclass(frozen=True)
-class SectionDataSetPyOnly(SectionDataSetBase):
+class SectionDataSetPyST(SectionDataSetBase):
     pass
 
 
-class ISectionChallengeMethodPythonOnly(Protocol):
+class ISectionChallengeMethodPythonST(Protocol):
     def __call__(
         self,
         *,
-        data_set: SectionDataSetPyOnly,
+        data_set: SectionDataSetPyST,
         exec_params: SectionExecutionParametersPyOnly,
     ) -> TChallengePythonAnswer: ...
 
 
 @dataclass(frozen=True)
 class SectionChallengeMethodPythonSingleThreadedRegistration(
-    SectionChallengeMethodRegistrationBase[SolutionInterfacePythonOnly, ISectionChallengeMethodPythonOnly]
+    SectionChallengeMethodRegistrationBase[SolutionInterfacePythonST, ISectionChallengeMethodPythonST]
 ):
-    interface: SolutionInterfacePythonOnly
-    delegate: ISectionChallengeMethodPythonOnly
+    interface: SolutionInterfacePythonST
+    delegate: ISectionChallengeMethodPythonST

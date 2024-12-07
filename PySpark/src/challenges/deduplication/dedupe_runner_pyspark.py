@@ -220,14 +220,18 @@ def do_test_runs(
                     data_set=data_set,
                     args=args,
                     spark_session=spark_session):
-                case ("infeasible", _):
-                    pass
                 case RunResultBase() as result:
                     if not data_set.data_description.debugging_only:
                         file.write_run_result(challenge_method_registration, result)
-                    gc.collect()
-                    time.sleep(0.1)
+                case ("infeasible", _):
+                    pass
+                case "interrupted":
+                    break
+                case base_run_result:
+                    raise ValueError(f"Unexpected result type {type(base_run_result)}")
             logger.info("")
+            gc.collect()
+            time.sleep(0.01)
 
 
 def run_one_itinerary_step(
@@ -237,7 +241,7 @@ def run_one_itinerary_step(
         data_set: DedupeDataSetPySpark,
         args: Arguments,
         spark_session: TidySparkSession
-) -> DedupeRunResult | tuple[Literal["infeasible"], str]:
+) -> DedupeRunResult | tuple[Literal["infeasible"], str] | Literal["interrupted"]:
     exec_params = args.exec_params
     logger = spark_session.logger
     logger.info("Working on %d of %d" % (index, num_itinerary_stops))
@@ -258,9 +262,9 @@ def run_one_itinerary_step(
                 rdd_out = spark_df.rdd
             case ("infeasible", msg):
                 return "infeasible", msg
-            case _:
+            case base_run_result:
                 raise ValueError(
-                    f"{challenge_method_registration.strategy_name} did not returning anything")
+                    f"{challenge_method_registration.strategy_name} returned a {type(base_run_result)}")
         logger.info("NumPartitions: in vs out ",
                     data_set.df_source.rdd.getNumPartitions(),
                     rdd_out.getNumPartitions())
@@ -273,11 +277,12 @@ def run_one_itinerary_step(
             logger.info(f"size={len(findings)}!")
             exit(1)
         found_people: list[Row] = rdd_out.collect()
+    except KeyboardInterrupt:
+        return "interrupted"
     except Exception as exception:
         found_people = []
         logger.error(exception)
         exit(1)
-        success = False
     finished_at = time.time()
     elapsed_time = finished_at - startedTime
     num_people_found = len(found_people)

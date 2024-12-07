@@ -23,7 +23,8 @@ class SolutionLanguage(StrEnum):
 class CalcEngine(StrEnum):
     DASK = 'dask'
     PYSPARK = 'pyspark'
-    PYTHON_ONLY = 'python_only'
+    SINGLE_THREADED = 'python_single_threaded'
+    STREAMING = 'python_streaming'
     SCALA_SPARK = 'sc_spark'
 
 
@@ -45,10 +46,17 @@ class SolutionInterfaceDask(StrEnum):
     DASK_SQL = 'sql'
 
 
-class SolutionInterfacePythonOnly(StrEnum):
+class SolutionInterfacePythonST(StrEnum):
     PANDAS = 'pandas'
     PROGRESSIVE = 'progressive'
     SINGLE_THREADED = 'single_threaded'
+    # QUEUES = 'queues'
+
+
+class SolutionInterfacePythonStreaming(StrEnum):
+    # PANDAS = 'pandas'
+    # PROGRESSIVE = 'progressive'
+    # SINGLE_THREADED = 'single_threaded'
     QUEUES = 'queues'
 
 
@@ -75,21 +83,22 @@ class NumericalToleranceExpectations(Enum):
 SolutionInterface = (
     SolutionInterfaceInvalid
     | SolutionInterfaceDask
-    | SolutionInterfacePythonOnly
+    | SolutionInterfacePythonST
     | SolutionInterfacePySpark
     | SolutionInterfaceScalaSpark
 )
 
 SolutionInterfacePython = (
     SolutionInterfaceDask
-    | SolutionInterfacePythonOnly
+    | SolutionInterfacePythonST
     | SolutionInterfacePySpark
 )
 TSolutionInterface = TypeVar(
     'TSolutionInterface',
     SolutionInterfaceInvalid,
     SolutionInterfaceDask,
-    SolutionInterfacePythonOnly,
+    SolutionInterfacePythonST,
+    SolutionInterfacePythonStreaming,
     SolutionInterfacePySpark,
     SolutionInterfaceScalaSpark,
     SolutionInterfacePython,

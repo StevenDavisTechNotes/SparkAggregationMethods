@@ -2,7 +2,7 @@ from spark_agg_methods_common_python.challenges.sectional.section_test_data_type
     SolutionScale,
 )
 from spark_agg_methods_common_python.perf_test_common import (
-    CalcEngine, SolutionInterfacePythonOnly, SolutionLanguage,
+    CalcEngine, SolutionInterfacePythonST, SolutionLanguage,
 )
 from spark_agg_methods_common_python.utils.inspection import name_of_function
 
@@ -19,7 +19,7 @@ SECTIONAL_STRATEGY_REGISTRY_PYTHON_SINGLE_THREADED: list[SectionChallengeMethodP
         strategy_name=name_of_function(section_py_st_linear_file_read),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.SINGLE_THREADED,
-        interface=SolutionInterfacePythonOnly.SINGLE_THREADED,
+        interface=SolutionInterfacePythonST.SINGLE_THREADED,
         scale=SolutionScale.SINGLE_LINE,
         requires_gpu=False,
         delegate=section_py_st_linear_file_read

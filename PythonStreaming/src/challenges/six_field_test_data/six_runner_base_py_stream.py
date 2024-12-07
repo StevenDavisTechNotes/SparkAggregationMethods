@@ -1,5 +1,6 @@
 import logging
 import time
+from typing import Literal
 
 import pandas as pd
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_runner_base import (
@@ -31,14 +32,14 @@ def _call_delegate_with_timeout(
     )
 
 
-def run_one_step_in_python_only_itinerary(
+def run_one_step_in_python_streaming_itinerary(
         challenge: Challenge,
         exec_params: SixTestExecutionParameters,
         challenge_method_registration: ChallengeMethodPythonStreamingRegistration,
         numerical_tolerance: NumericalToleranceExpectations,
         data_set: SixDataSetPythonStreaming,
         correct_answer: pd.DataFrame,
-) -> RunResultBase | None:
+) -> RunResultBase | tuple[Literal["infeasible"], str] | Literal["interrupted"]:
     started_time = time.time()
     try:
         match _call_delegate_with_timeout(
@@ -49,12 +50,10 @@ def run_one_step_in_python_only_itinerary(
             case pd.DataFrame() as pandas_df:
                 df_answer = pandas_df
                 finished_time = time.time()
-            case "infeasible":
-                return None
-            case None:
-                return None
-            case _:
-                raise ValueError("Must return at least 1 type")
+            case "infeasible", reason:
+                return "infeasible", reason
+            case answer:
+                raise ValueError(f"Unexpected return type: {type(answer)}")
         result = process_answer(
             challenge=challenge,
             data_description=data_set.data_description,
@@ -65,7 +64,7 @@ def run_one_step_in_python_only_itinerary(
             finished_time=finished_time,
         )
     except KeyboardInterrupt:
-        return None
+        return "interrupted"
     except Exception as ex:
         msg = (
             f"Error in {challenge_method_registration.strategy_name} "

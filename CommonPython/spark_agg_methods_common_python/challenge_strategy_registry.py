@@ -4,15 +4,18 @@ from typing import Iterable
 
 from pydantic import BaseModel, TypeAdapter
 
-from spark_agg_methods_common_python.perf_test_common import CalcEngine, Challenge, SolutionLanguage
+from spark_agg_methods_common_python.perf_test_common import (
+    CalcEngine, Challenge, SolutionLanguage,
+)
 
 REGISTRY_FILE_PATH = "results/challenge_strategy_registration.json"
 
 CHALLENGE_STRATEGY_REGISTRATION_MAP = {
-    CalcEngine.PYTHON_ONLY: "../PythonOnly/results/challenge_strategy_registration.json",
+    CalcEngine.SINGLE_THREADED: "../PythonSingleThreaded/results/challenge_strategy_registration.json",
+    CalcEngine.STREAMING: "../PythonStreaming/results/challenge_strategy_registration.json",
     CalcEngine.DASK: "../PythonDask/results/challenge_strategy_registration.json",
     CalcEngine.PYSPARK: "../PySpark/results/challenge_strategy_registration.json",
-    CalcEngine.SCALA_SPARK: "../Scala_Spark/results/challenge_strategy_registration.json",
+    CalcEngine.SCALA_SPARK: "../ScalaSpark/results/challenge_strategy_registration.json",
 }
 
 

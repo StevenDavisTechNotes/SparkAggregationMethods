@@ -2,8 +2,8 @@
 autopep8
 dask
 dask[dataframe]
-dask-sql
 dask[distributed]
+dask-sql
 flake8
 isort
 numpy

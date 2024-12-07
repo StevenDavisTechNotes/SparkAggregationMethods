@@ -2,7 +2,7 @@
 
 $DefaultScriptCommand = "Test"
 $SrcFolderName = "src"
-$PythonVersion = "3.13"
+$PythonVersion = "3.11"
 $EditablePackageFolders = @(
 	"CommonPython"
 )

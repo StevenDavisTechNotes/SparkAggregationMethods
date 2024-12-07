@@ -42,7 +42,7 @@ def run_one_step_in_pyspark_itinerary(
         result_columns: list[str],
         data_set: SixFieldDataSetPyspark,
         correct_answer: pd.DataFrame,
-) -> RunResultBase | tuple[Literal["infeasible"], str]:
+) -> RunResultBase | tuple[Literal["infeasible"], str] | Literal["interrupted"]:
 
     def check_partitions(rdd: RDD):
         logger = spark_session.logger
@@ -94,6 +94,8 @@ def run_one_step_in_pyspark_itinerary(
             df_answer=df_answer,
             finished_time=finished_time,
         )
+    except KeyboardInterrupt:
+        return "interrupted"
     except Exception as e:
         logger.error(
             f"Error in {challenge_method_registration.strategy_name} "

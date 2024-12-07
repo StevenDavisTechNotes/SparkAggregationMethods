@@ -1,5 +1,6 @@
 import logging
 import time
+from typing import Literal
 
 import pandas as pd
 from dask.dataframe.core import DataFrame as DaskDataFrame
@@ -37,7 +38,7 @@ def run_one_step_in_dask_itinerary(
         challenge_method_registration: ChallengeMethodPythonDaskRegistration,
         data_set: SixTestDataSetDask,
         correct_answer: pd.DataFrame,
-) -> RunResultBase | None:
+) -> RunResultBase | tuple[Literal["infeasible"], str] | Literal["interrupted"]:
     started_time = time.time()
     try:
         agg_tgt_num_partitions = pick_agg_tgt_num_partitions_dask(data_set.data, challenge)
@@ -58,10 +59,10 @@ def run_one_step_in_dask_itinerary(
                 finished_time = time.time()
             case pd.DataFrame() as df_answer:
                 finished_time = time.time()
-            case "infeasible":
-                return None
-            case _:
-                raise ValueError("No result returned")
+            case ("infeasible", reason):
+                return ("infeasible", reason)
+            case answer:
+                raise ValueError(f"Unexpected answer type {type(answer)}")
         result = process_answer(
             challenge=challenge,
             data_description=data_set.data_description,
@@ -71,6 +72,8 @@ def run_one_step_in_dask_itinerary(
             df_answer=df_answer,
             finished_time=finished_time,
         )
+    except KeyboardInterrupt:
+        return "interrupted"
     except Exception as e:
         logger.error(
             f"Error in {challenge_method_registration.strategy_name} "

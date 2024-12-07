@@ -1,5 +1,5 @@
-#! python
-# usage: python -O -m src.challenges.sectional.section_runner_py_only
+#!python
+# usage: .\venv\Scripts\activate.ps1; python -O -m src.challenges.sectional.section_runner_py_st
 # cSpell: ignore wasb, sparkperftesting, Reqs
 import argparse
 import datetime as dt
@@ -40,8 +40,8 @@ from src.challenges.sectional.section_strategy_directory_py_st import (
     SECTIONAL_STRATEGY_REGISTRY_PYTHON_SINGLE_THREADED,
 )
 from src.challenges.sectional.section_test_data_types_py_st import (
-    SectionChallengeMethodPythonSingleThreadedRegistration,
-    SectionDataSetPyOnly, SectionExecutionParametersPyOnly,
+    SectionChallengeMethodPythonSingleThreadedRegistration, SectionDataSetPyST,
+    SectionExecutionParametersPyOnly,
 )
 
 logger = logging.getLogger(__name__)
@@ -100,8 +100,8 @@ def parse_args() -> Arguments:
 
 def prepare_data_sets(
         args: Arguments,
-) -> list[SectionDataSetPyOnly]:
-    datasets: list[SectionDataSetPyOnly] = []
+) -> list[SectionDataSetPyST]:
+    datasets: list[SectionDataSetPyST] = []
     for data_description in DATA_SIZE_LIST_SECTIONAL:
         if data_description.size_code not in args.sizes:
             continue
@@ -109,7 +109,7 @@ def prepare_data_sets(
         assert os.path.exists(file_path)
         correct_answer = AnswerFileSectional.read_answer_file_sectional(data_description)
         datasets.append(
-            SectionDataSetPyOnly(
+            SectionDataSetPyST(
                 data_description=data_description,
                 correct_answer=correct_answer,
                 section_maximum=SECTION_SIZE_MAXIMUM,
@@ -117,7 +117,7 @@ def prepare_data_sets(
     return datasets
 
 
-class SectionPythonOnlyRunResultFileWriter(SectionPythonRunResultFileWriter):
+class SectionPythonSTRunResultFileWriter(SectionPythonRunResultFileWriter):
     RUN_LOG_FILE_PATH: str = os.path.abspath('results/section_python_single_threaded_runs.csv')
 
     def __init__(self):
@@ -137,7 +137,7 @@ def do_test_runs(
     keyed_implementation_list = {
         x.strategy_name: x for x in SECTIONAL_STRATEGY_REGISTRY_PYTHON_SINGLE_THREADED}
     keyed_data_sets = {x.data_description.size_code: x for x in prepare_data_sets(args)}
-    with SectionPythonOnlyRunResultFileWriter() as file:
+    with SectionPythonSTRunResultFileWriter() as file:
         for index, (strategy_name, size_code) in enumerate(itinerary):
             challenge_method_registration = keyed_implementation_list[strategy_name]
             data_set = keyed_data_sets[size_code]
@@ -152,8 +152,8 @@ def do_test_runs(
                 case RunResultBase() as run_result:
                     if not data_set.data_description.debugging_only:
                         file.write_run_result(challenge_method_registration, run_result)
-                case _:
-                    raise ValueError("Must return at least 1 type")
+                case answer:
+                    raise ValueError(f"Unexpected return type: {type(answer)}")
             gc.collect()
             time.sleep(0.1)
 
@@ -161,16 +161,16 @@ def do_test_runs(
 def run_one_itinerary_step(
         args: Arguments,
         challenge_method_registration: SectionChallengeMethodPythonSingleThreadedRegistration,
-        data_set: SectionDataSetPyOnly,
-) -> SectionRunResult | tuple[Literal["infeasible"], str]:
+        data_set: SectionDataSetPyST,
+) -> SectionRunResult | tuple[Literal["infeasible"], str] | Literal["interrupted"]:
     startedTime = time.time()
     df_concrete_students: pd.DataFrame
     match challenge_method_registration.delegate(
         data_set=data_set,
         exec_params=args.exec_params,
     ):
-        case "infeasible":
-            return "infeasible"
+        case "infeasible", reason:
+            return "infeasible", reason
         case pd.DataFrame() as df:
             df_concrete_students = df
             finishedTime = time.time()
@@ -208,7 +208,7 @@ def update_challenge_registration():
         engine=ENGINE,
         challenge=CHALLENGE,
         registration=ChallengeResultLogFileRegistration(
-            result_file_path=SectionPythonOnlyRunResultFileWriter.RUN_LOG_FILE_PATH,
+            result_file_path=SectionPythonSTRunResultFileWriter.RUN_LOG_FILE_PATH,
             regressor_column_name=SectionDataSetDescription.regressor_field_name(),
             elapsed_time_column_name=ELAPSED_TIME_COLUMN_NAME,
             expected_regressor_values=[

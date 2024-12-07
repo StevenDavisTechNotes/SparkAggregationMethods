@@ -2,7 +2,7 @@
 
 $DefaultScriptCommand = "Test"
 $SrcFolderName = "spark_agg_methods_common_python"
-$PythonVersion = "3.13"
+$PythonVersion = "3.11"
 $EditablePackageFolders = @()
 
 . ..\makefile_python.ps1

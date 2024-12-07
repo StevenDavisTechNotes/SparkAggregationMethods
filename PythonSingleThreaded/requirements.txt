@@ -2,6 +2,7 @@
 autopep8
 flake8
 isort
+numba
 numpy
 pandas
 prettyprinter

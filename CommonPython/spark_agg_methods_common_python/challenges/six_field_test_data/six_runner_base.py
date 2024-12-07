@@ -41,7 +41,7 @@ def process_answer(
         if 'var_of_E2' not in df_answer:
             df_answer['var_of_E2'] = df_answer['var_of_E']
     else:
-        raise ValueError("Must return at least 1 type")
+        raise ValueError(f"Unexpected challenge: {challenge}")
     abs_diff = float(
         (correct_answer - df_answer)
         .abs().max().max())

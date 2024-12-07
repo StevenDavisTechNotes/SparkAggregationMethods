@@ -1,5 +1,5 @@
 #!python
-# usage: p.\venv\Scripts\activate.ps1; ython -O -m src.challenges.vanilla.vanilla_runner_pyspark
+# usage: p.\venv\Scripts\activate.ps1; python -O -m src.challenges.vanilla.vanilla_runner_pyspark
 import argparse
 import gc
 import logging
@@ -163,8 +163,6 @@ def do_test_runs(
                 data_set=data_set,
                 correct_answer=data_set.answer,
             ):
-                case ("infeasible", _):
-                    pass
                 case RunResultBase() as base_run_result:
                     if not data_set.data_description.debugging_only:
                         file.write_run_result(
@@ -175,6 +173,10 @@ def do_test_runs(
                                 num_output_rows=base_run_result.num_output_rows,
                                 finished_at=base_run_result.finished_at,
                             ))
+                case ("infeasible", _):
+                    pass
+                case "interrupted":
+                    break
                 case answer:
                     raise ValueError(f"Unexpected return type: {type(answer)}")
             gc.collect()

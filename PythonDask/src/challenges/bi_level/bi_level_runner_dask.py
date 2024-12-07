@@ -23,7 +23,7 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_dat
 )
 from spark_agg_methods_common_python.perf_test_common import (
     ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge,
-    RunnerArgumentsBase, SolutionLanguage, assemble_itinerary,
+    RunnerArgumentsBase, RunResultBase, SolutionLanguage, assemble_itinerary,
 )
 from spark_agg_methods_common_python.utils.platform import setup_logging
 
@@ -143,29 +143,33 @@ def do_test_runs(
             logger.info("Working on %d of %d" % (index, len(itinerary)))
             logger.info(f"Working on {challenge_method_registration.strategy_name} "
                         f"for {data_set.data_description.size_code}")
-            base_run_result = run_one_step_in_dask_itinerary(
+            match run_one_step_in_dask_itinerary(
                 challenge=CHALLENGE,
                 exec_params=args.exec_params,
                 challenge_method_registration=challenge_method_registration,
                 data_set=data_set,
                 correct_answer=data_set.answer,
-            )
-            if base_run_result is None:
-                continue
-            if data_set.data_description.debugging_only:
-                continue
-            file.write_run_result(
-                challenge_method_registration,
-                BiLevelRunResult(
-                    num_source_rows=base_run_result.num_source_rows,
-                    elapsed_time=base_run_result.elapsed_time,
-                    num_output_rows=base_run_result.num_output_rows,
-                    relative_cardinality_between_groupings=(
-                        data_set.data_description.relative_cardinality_between_groupings
-                    ),
-                    finished_at=base_run_result.finished_at,
-                )
-            )
+            ):
+                case RunResultBase() as base_run_result:
+                    if not data_set.data_description.debugging_only:
+                        file.write_run_result(
+                            challenge_method_registration,
+                            BiLevelRunResult(
+                                num_source_rows=base_run_result.num_source_rows,
+                                elapsed_time=base_run_result.elapsed_time,
+                                num_output_rows=base_run_result.num_output_rows,
+                                relative_cardinality_between_groupings=(
+                                    data_set.data_description.relative_cardinality_between_groupings
+                                ),
+                                finished_at=base_run_result.finished_at,
+                            )
+                        )
+                case ("infeasible", _):
+                    pass
+                case "interrupted":
+                    break
+                case base_run_result:
+                    raise ValueError(f"Unexpected result type: {type(base_run_result)}")
             gc.collect()
             time.sleep(0.1)
 

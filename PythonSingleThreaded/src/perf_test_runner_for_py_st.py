@@ -1,5 +1,5 @@
 #!python
-# usage: python -O -m src.perf_test_runner_for_py_only
+# usage: .\venv\Scripts\activate.ps1; python -O -m src.perf_test_runner_for_py_st
 
 import logging
 

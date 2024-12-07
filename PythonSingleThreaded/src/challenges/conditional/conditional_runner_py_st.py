@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 ENGINE = CalcEngine.SINGLE_THREADED
 
 
-class ConditionalPythonOnlyRunResultFileWriter(ConditionalPythonRunResultFileWriter):
+class ConditionalPythonSTRunResultFileWriter(ConditionalPythonRunResultFileWriter):
     RUN_LOG_FILE_PATH: str = os.path.abspath('results/conditional_python_single_threaded_runs.csv')
 
     def __init__(self):

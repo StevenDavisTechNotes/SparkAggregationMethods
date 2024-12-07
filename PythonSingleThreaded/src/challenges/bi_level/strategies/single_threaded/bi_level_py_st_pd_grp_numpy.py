@@ -7,14 +7,14 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_dat
 )
 
 from src.challenges.six_field_test_data.six_test_data_for_py_st import (
-    SixDataSetPythonOnly, TChallengePythonOnlyAnswer,
+    SixDataSetPythonST, TChallengePythonSTAnswer,
 )
 
 
 def bi_level_py_st_pd_grp_numpy(
         exec_params: SixTestExecutionParameters,
-        data_set: SixDataSetPythonOnly,
-) -> TChallengePythonOnlyAnswer:
+        data_set: SixDataSetPythonST,
+) -> TChallengePythonSTAnswer:
     if data_set.data_description.num_source_rows > 9 * 10**6:
         return "infeasible", "Unknown reason"
     df = pd.read_parquet(data_set.data.source_file_path_parquet, engine='pyarrow')

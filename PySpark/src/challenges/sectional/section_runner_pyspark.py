@@ -13,6 +13,7 @@ from typing import Iterable, Literal
 import pandas as pd
 from pyspark import RDD
 from pyspark.sql import DataFrame as PySparkDataFrame
+from pytest import RunResult
 from spark_agg_methods_common_python.challenge_strategy_registry import (
     ChallengeResultLogFileRegistration, ChallengeStrategyRegistration,
     update_challenge_strategy_registration,
@@ -167,13 +168,16 @@ def do_test_runs(
             logger.info("Working on %d of %d" % (index, len(itinerary)))
             logger.info(f"Working on {challenge_method_registration.strategy_name} "
                         f"for {data_set.data_description.size_code}")
-            run_result = run_one_itinerary_step(args, spark_session, challenge_method_registration, data_set)
-            match run_result:
-                case ("infeasible", _):
-                    pass
-                case _:
+            match run_one_itinerary_step(args, spark_session, challenge_method_registration, data_set):
+                case RunResult() as run_result:
                     if not data_set.data_description.debugging_only:
                         file.write_run_result(challenge_method_registration, run_result)
+                case ("infeasible", _):
+                    pass
+                case "interrupted":
+                    break
+                case base_run_result:
+                    raise ValueError(f"Unexpected return type {type(base_run_result)}")
             gc.collect()
             time.sleep(0.1)
 
@@ -183,7 +187,7 @@ def run_one_itinerary_step(
         spark_session: TidySparkSession,
         challenge_method_registration: SectionChallengeMethodPysparkRegistration,
         data_set: SectionDataSetPyspark,
-) -> SectionRunResult | tuple[Literal["infeasible"], str]:
+) -> SectionRunResult | tuple[Literal["infeasible"], str] | Literal["interrupted"]:
     logger = spark_session.logger
     startedTime = time.time()
     rdd: RDD | None = None
@@ -208,8 +212,8 @@ def run_one_itinerary_step(
             found_students = df
         case list() as iter_tuple:
             found_students = iter_tuple
-        case _:
-            raise ValueError("Unexpected return type")
+        case answer:
+            raise ValueError(f"Unexpected result type {type(answer)}")
     if rdd is not None and rdd.getNumPartitions() > max(
         args.exec_params.default_parallelism,
         data_set.target_num_partitions,

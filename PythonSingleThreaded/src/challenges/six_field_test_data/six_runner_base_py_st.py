@@ -2,14 +2,18 @@ import logging
 import time
 
 import pandas as pd
-from spark_agg_methods_common_python.challenges.six_field_test_data.six_runner_base import process_answer
+from spark_agg_methods_common_python.challenges.six_field_test_data.six_runner_base import (
+    process_answer,
+)
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
     Challenge, SixTestExecutionParameters,
 )
-from spark_agg_methods_common_python.perf_test_common import NumericalToleranceExpectations, RunResultBase
+from spark_agg_methods_common_python.perf_test_common import (
+    NumericalToleranceExpectations, RunResultBase,
+)
 
-from src.challenges.six_field_test_data.six_test_data_for_py_only import (
-    ChallengeMethodPythonOnlyRegistration, SixDataSetPythonOnly,
+from src.challenges.six_field_test_data.six_test_data_for_py_st import (
+    ChallengeMethodPythonSingleThreadedRegistration, SixDataSetPythonOnly,
 )
 
 logger = logging.getLogger(__name__)
@@ -17,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 def _call_delegate_with_timeout(
     *,
-    challenge_method_registration: ChallengeMethodPythonOnlyRegistration,
+    challenge_method_registration: ChallengeMethodPythonSingleThreadedRegistration,
     exec_params: SixTestExecutionParameters,
         data_set: SixDataSetPythonOnly,
 ):
@@ -27,10 +31,10 @@ def _call_delegate_with_timeout(
     )
 
 
-def run_one_step_in_python_only_itinerary(
+def run_one_step_in_python_single_threaded_itinerary(
         challenge: Challenge,
         exec_params: SixTestExecutionParameters,
-        challenge_method_registration: ChallengeMethodPythonOnlyRegistration,
+        challenge_method_registration: ChallengeMethodPythonSingleThreadedRegistration,
         numerical_tolerance: NumericalToleranceExpectations,
         data_set: SixDataSetPythonOnly,
         correct_answer: pd.DataFrame,

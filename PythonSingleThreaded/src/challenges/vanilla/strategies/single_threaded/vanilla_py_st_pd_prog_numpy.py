@@ -6,7 +6,7 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_dat
 )
 from spark_agg_methods_common_python.perf_test_common import Challenge
 
-from src.challenges.six_field_test_data.six_test_data_for_py_only import (
+from src.challenges.six_field_test_data.six_test_data_for_py_st import (
     SixDataSetPythonOnly, TChallengePythonOnlyAnswer,
 )
 

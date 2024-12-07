@@ -8,11 +8,11 @@ from spark_agg_methods_common_python.perf_test_common import CalcEngine
 
 logger = logging.getLogger(__name__)
 
-ENGINE = CalcEngine.PYTHON_ONLY
+ENGINE = CalcEngine.SINGLE_THREADED
 
 
 class ConditionalPythonOnlyRunResultFileWriter(ConditionalPythonRunResultFileWriter):
-    RUN_LOG_FILE_PATH: str = os.path.abspath('results/conditional_python_only_runs.csv')
+    RUN_LOG_FILE_PATH: str = os.path.abspath('results/conditional_python_single_threaded_runs.csv')
 
     def __init__(self):
         super().__init__(

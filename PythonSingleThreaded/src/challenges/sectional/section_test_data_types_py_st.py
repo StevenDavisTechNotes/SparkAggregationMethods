@@ -2,9 +2,12 @@ from dataclasses import dataclass
 from typing import Protocol
 
 from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import (
-    SectionChallengeMethodRegistrationBase, SectionDataSetBase, SectionExecutionParametersBase, TChallengePythonAnswer,
+    SectionChallengeMethodRegistrationBase, SectionDataSetBase,
+    SectionExecutionParametersBase, TChallengePythonAnswer,
 )
-from spark_agg_methods_common_python.perf_test_common import SolutionInterfacePythonOnly
+from spark_agg_methods_common_python.perf_test_common import (
+    SolutionInterfacePythonOnly,
+)
 
 
 @dataclass(frozen=True)
@@ -27,7 +30,7 @@ class ISectionChallengeMethodPythonOnly(Protocol):
 
 
 @dataclass(frozen=True)
-class SectionChallengeMethodPythonOnlyRegistration(
+class SectionChallengeMethodPythonSingleThreadedRegistration(
     SectionChallengeMethodRegistrationBase[SolutionInterfacePythonOnly, ISectionChallengeMethodPythonOnly]
 ):
     interface: SolutionInterfacePythonOnly

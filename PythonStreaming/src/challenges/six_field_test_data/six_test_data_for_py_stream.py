@@ -3,23 +3,24 @@ from typing import Literal, Protocol
 
 import pandas as pd
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
-    SixTestDataChallengeMethodRegistrationBase, SixTestDataSetDescription, SixTestExecutionParameters,
-    six_derive_source_test_data_file_path,
+    SixTestDataChallengeMethodRegistrationBase, SixTestDataSetDescription,
+    SixTestExecutionParameters, six_derive_source_test_data_file_path,
 )
 from spark_agg_methods_common_python.perf_test_common import (
-    CalcEngine, NumericalToleranceExpectations, SolutionInterfacePythonOnly, SolutionLanguage,
+    CalcEngine, NumericalToleranceExpectations, SolutionInterfacePythonOnly,
+    SolutionLanguage,
 )
 
 
 @dataclass(frozen=True)
-class SixDataSetDataPythonOnly():
+class SixDataSetDataPythonStreaming():
     source_file_path_parquet: str
 
 
 @dataclass(frozen=True)
-class SixDataSetPythonOnly():
+class SixDataSetPythonStreaming():
     data_description: SixTestDataSetDescription
-    data: SixDataSetDataPythonOnly
+    data: SixDataSetDataPythonStreaming
 
 
 TChallengePythonOnlyAnswer = (
@@ -28,19 +29,19 @@ TChallengePythonOnlyAnswer = (
 )
 
 
-class IChallengeMethodPythonOnly(Protocol):
+class IChallengeMethodPythonStreaming(Protocol):
     def __call__(
         self,
         *,
         exec_params: SixTestExecutionParameters,
-        data_set: SixDataSetPythonOnly,
+        data_set: SixDataSetPythonStreaming,
     ) -> TChallengePythonOnlyAnswer | None: ...
 
 
 @dataclass(frozen=True)
-class ChallengeMethodPythonOnlyRegistration(
+class ChallengeMethodPythonStreamingRegistration(
     SixTestDataChallengeMethodRegistrationBase[
-        SolutionInterfacePythonOnly, IChallengeMethodPythonOnly
+        SolutionInterfacePythonOnly, IChallengeMethodPythonStreaming
     ]
 ):
     strategy_name_2018: str | None
@@ -50,16 +51,16 @@ class ChallengeMethodPythonOnlyRegistration(
     interface: SolutionInterfacePythonOnly
     numerical_tolerance: NumericalToleranceExpectations
     requires_gpu: bool
-    delegate: IChallengeMethodPythonOnly
+    delegate: IChallengeMethodPythonStreaming
 
 
-def six_prepare_data_set_python_only(
+def six_prepare_data_set_python_streaming(
         exec_params: SixTestExecutionParameters,
         data_description: SixTestDataSetDescription,
-) -> SixDataSetDataPythonOnly:
+) -> SixDataSetDataPythonStreaming:
     source_file_paths = six_derive_source_test_data_file_path(
         data_description=data_description,
     )
-    return SixDataSetDataPythonOnly(
+    return SixDataSetDataPythonStreaming(
         source_file_path_parquet=source_file_paths.source_file_path_parquet_single_file,
     )

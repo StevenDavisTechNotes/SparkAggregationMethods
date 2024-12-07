@@ -1,8 +1,12 @@
 import pandas as pd
-from spark_agg_methods_common_python.challenges.sectional.section_nospark_logic import section_nospark_logic
-from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import StudentSummary
+from spark_agg_methods_common_python.challenges.sectional.section_nospark_logic import (
+    section_nospark_logic,
+)
+from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import (
+    StudentSummary,
+)
 
-from src.challenges.sectional.section_test_data_types_py_only import (
+from src.challenges.sectional.section_test_data_types_py_st import (
     SectionDataSetPyOnly, SectionExecutionParametersPyOnly,
 )
 

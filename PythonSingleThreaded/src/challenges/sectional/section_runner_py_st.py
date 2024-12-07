@@ -12,26 +12,36 @@ from typing import Literal
 
 import pandas as pd
 from spark_agg_methods_common_python.challenge_strategy_registry import (
-    ChallengeResultLogFileRegistration, ChallengeStrategyRegistration, update_challenge_strategy_registration,
+    ChallengeResultLogFileRegistration, ChallengeStrategyRegistration,
+    update_challenge_strategy_registration,
 )
-from spark_agg_methods_common_python.challenges.sectional.section_persist_test_data import AnswerFileSectional
+from spark_agg_methods_common_python.challenges.sectional.section_persist_test_data import (
+    AnswerFileSectional,
+)
 from spark_agg_methods_common_python.challenges.sectional.section_record_runs import (
     SectionPythonRunResultFileWriter, SectionRunResult,
 )
 from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import (
-    DATA_SIZE_LIST_SECTIONAL, SECTION_SIZE_MAXIMUM, SectionDataSetDescription, StudentSummary,
-    section_derive_source_test_data_file_path, section_verify_correctness,
+    DATA_SIZE_LIST_SECTIONAL, SECTION_SIZE_MAXIMUM, SectionDataSetDescription,
+    StudentSummary, section_derive_source_test_data_file_path,
+    section_verify_correctness,
 )
 from spark_agg_methods_common_python.perf_test_common import (
-    ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge, NumericalToleranceExpectations,
-    RunnerArgumentsBase, RunResultBase, SolutionLanguage, assemble_itinerary,
+    ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge,
+    NumericalToleranceExpectations, RunnerArgumentsBase, RunResultBase,
+    SolutionLanguage, assemble_itinerary,
 )
-from spark_agg_methods_common_python.utils.pandas_helpers import make_pd_dataframe_from_list_of_named_tuples
+from spark_agg_methods_common_python.utils.pandas_helpers import (
+    make_pd_dataframe_from_list_of_named_tuples,
+)
 from spark_agg_methods_common_python.utils.platform import setup_logging
 
-from src.challenges.sectional.section_strategy_directory_py_only import SECTIONAL_STRATEGIES_USING_PYTHON_ONLY_REGISTRY
-from src.challenges.sectional.section_test_data_types_py_only import (
-    SectionChallengeMethodPythonOnlyRegistration, SectionDataSetPyOnly, SectionExecutionParametersPyOnly,
+from src.challenges.sectional.section_strategy_directory_py_st import (
+    SECTIONAL_STRATEGY_REGISTRY_PYTHON_SINGLE_THREADED,
+)
+from src.challenges.sectional.section_test_data_types_py_st import (
+    SectionChallengeMethodPythonSingleThreadedRegistration,
+    SectionDataSetPyOnly, SectionExecutionParametersPyOnly,
 )
 
 logger = logging.getLogger(__name__)
@@ -47,7 +57,7 @@ DEBUG_ARGS = None if True else (
 )
 
 LANGUAGE = SolutionLanguage.PYTHON
-ENGINE = CalcEngine.PYTHON_ONLY
+ENGINE = CalcEngine.SINGLE_THREADED
 CHALLENGE = Challenge.SECTIONAL
 
 
@@ -59,7 +69,7 @@ class Arguments(RunnerArgumentsBase):
 
 def parse_args() -> Arguments:
     sizes = [x.size_code for x in DATA_SIZE_LIST_SECTIONAL]
-    strategy_names = sorted(x.strategy_name for x in SECTIONAL_STRATEGIES_USING_PYTHON_ONLY_REGISTRY)
+    strategy_names = sorted(x.strategy_name for x in SECTIONAL_STRATEGY_REGISTRY_PYTHON_SINGLE_THREADED)
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--check', default=True, action=argparse.BooleanOptionalAction,
@@ -108,7 +118,7 @@ def prepare_data_sets(
 
 
 class SectionPythonOnlyRunResultFileWriter(SectionPythonRunResultFileWriter):
-    RUN_LOG_FILE_PATH: str = os.path.abspath('results/section_python_only_runs.csv')
+    RUN_LOG_FILE_PATH: str = os.path.abspath('results/section_python_single_threaded_runs.csv')
 
     def __init__(self):
         super().__init__(
@@ -125,7 +135,7 @@ def do_test_runs(
         logger.info("No runs to execute.")
         return
     keyed_implementation_list = {
-        x.strategy_name: x for x in SECTIONAL_STRATEGIES_USING_PYTHON_ONLY_REGISTRY}
+        x.strategy_name: x for x in SECTIONAL_STRATEGY_REGISTRY_PYTHON_SINGLE_THREADED}
     keyed_data_sets = {x.data_description.size_code: x for x in prepare_data_sets(args)}
     with SectionPythonOnlyRunResultFileWriter() as file:
         for index, (strategy_name, size_code) in enumerate(itinerary):
@@ -150,7 +160,7 @@ def do_test_runs(
 
 def run_one_itinerary_step(
         args: Arguments,
-        challenge_method_registration: SectionChallengeMethodPythonOnlyRegistration,
+        challenge_method_registration: SectionChallengeMethodPythonSingleThreadedRegistration,
         data_set: SectionDataSetPyOnly,
 ) -> SectionRunResult | tuple[Literal["infeasible"], str]:
     startedTime = time.time()
@@ -216,7 +226,7 @@ def update_challenge_registration():
                     numerical_tolerance=NumericalToleranceExpectations.NOT_APPLICABLE.value,
                     requires_gpu=x.requires_gpu,
                 )
-                for x in SECTIONAL_STRATEGIES_USING_PYTHON_ONLY_REGISTRY
+                for x in SECTIONAL_STRATEGY_REGISTRY_PYTHON_SINGLE_THREADED
             ]
         ),
     )

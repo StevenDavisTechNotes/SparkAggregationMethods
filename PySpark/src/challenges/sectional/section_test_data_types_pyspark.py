@@ -6,9 +6,12 @@ import pyspark.sql.types as DataTypes
 from pyspark import RDD
 from pyspark.sql import DataFrame as PySparkDataFrame
 from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import (
-    SectionChallengeMethodRegistrationBase, SectionDataSetBase, SectionExecutionParametersBase, StudentSummary,
+    SectionChallengeMethodRegistrationBase, SectionDataSetBase,
+    SectionExecutionParametersBase, StudentSummary,
 )
-from spark_agg_methods_common_python.perf_test_common import SolutionInterfacePySpark
+from spark_agg_methods_common_python.perf_test_common import (
+    SolutionInterfacePySpark,
+)
 
 from src.utils.tidy_session_pyspark import TidySparkSession
 

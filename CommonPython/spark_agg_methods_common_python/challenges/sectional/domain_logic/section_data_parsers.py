@@ -2,9 +2,11 @@ import os
 import re
 
 from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import (
-    ClassLine, StudentHeader, TrimesterFooter, TrimesterHeader)
-from spark_agg_methods_common_python.perf_test_common import \
-    LOCAL_TEST_DATA_FILE_LOCATION
+    ClassLine, StudentHeader, TrimesterFooter, TrimesterHeader,
+)
+from spark_agg_methods_common_python.perf_test_common import (
+    LOCAL_TEST_DATA_FILE_LOCATION,
+)
 
 
 def parse_line_to_types(

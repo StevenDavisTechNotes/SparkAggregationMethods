@@ -5,7 +5,9 @@ import logging
 
 from spark_agg_methods_common_python.utils.platform import setup_logging
 
-from src.challenges.six_field_test_data.six_generate_data_files_pyspark import six_generate_data_files_pyspark
+from src.challenges.six_field_test_data.six_generate_data_files_pyspark import (
+    six_generate_data_files_pyspark,
+)
 from src.utils.tidy_session_pyspark import TidySparkSession
 
 logger = logging.getLogger(__name__)

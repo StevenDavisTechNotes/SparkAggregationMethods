@@ -4,14 +4,18 @@ import shutil
 from pathlib import Path
 
 import pyarrow.parquet
-from spark_agg_methods_common_python.challenges.bi_level.bi_level_test_data_types import DATA_SIZES_LIST_BI_LEVEL
+from spark_agg_methods_common_python.challenges.bi_level.bi_level_test_data_types import (
+    DATA_SIZES_LIST_BI_LEVEL,
+)
 from spark_agg_methods_common_python.challenges.conditional.conditional_test_data_types import (
     DATA_SIZES_LIST_CONDITIONAL,
 )
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
     SixTestDataSetDescription, six_derive_source_test_data_file_path,
 )
-from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types import DATA_SIZES_LIST_VANILLA
+from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types import (
+    DATA_SIZES_LIST_VANILLA,
+)
 
 from src.utils.tidy_session_pyspark import TidySparkSession
 

@@ -1,10 +1,16 @@
 from pyspark import RDD
 from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import Row
-from spark_agg_methods_common_python.challenges.sectional.domain_logic.section_data_parsers import parse_line_to_types
-from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import LabeledTypedRow, StudentSummary
+from spark_agg_methods_common_python.challenges.sectional.domain_logic.section_data_parsers import (
+    parse_line_to_types,
+)
+from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import (
+    LabeledTypedRow, StudentSummary,
+)
 
-from src.challenges.sectional.section_test_data_types_pyspark import SparseLineSchema
+from src.challenges.sectional.section_test_data_types_pyspark import (
+    SparseLineSchema,
+)
 from src.utils.tidy_session_pyspark import TidySparkSession
 
 # region parsers

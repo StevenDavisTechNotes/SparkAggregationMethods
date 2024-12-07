@@ -1,4 +1,4 @@
-#! python
+#!python
 # usage: .\venv\Scripts\activate.ps1 ; python -O -m src.challenges.conditional.conditional_runner_dask
 import logging
 import os

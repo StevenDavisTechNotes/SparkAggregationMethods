@@ -1,4 +1,4 @@
-#! python
+#!python
 # usage: .\venv\Scripts\activate.ps1 ; python -O -m src.challenges.conditional.conditional_runner_pyspark
 import argparse
 import gc
@@ -9,25 +9,27 @@ from dataclasses import dataclass
 
 import pandas as pd
 from spark_agg_methods_common_python.challenge_strategy_registry import (
-    ChallengeResultLogFileRegistration, ChallengeStrategyRegistration, update_challenge_strategy_registration,
+    ChallengeResultLogFileRegistration, ChallengeStrategyRegistration,
+    update_challenge_strategy_registration,
 )
 from spark_agg_methods_common_python.challenges.conditional.conditional_record_runs import (
     ConditionalPythonRunResultFileWriter, ConditionalRunResult,
 )
 from spark_agg_methods_common_python.challenges.conditional.conditional_test_data_types import (
-    AGGREGATION_COLUMNS_3, DATA_SIZES_LIST_CONDITIONAL, GROUP_BY_COLUMNS, ConditionalDataSetDescription,
+    AGGREGATION_COLUMNS_3, DATA_SIZES_LIST_CONDITIONAL, GROUP_BY_COLUMNS,
+    ConditionalDataSetDescription,
 )
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
     SixTestExecutionParameters, fetch_six_data_set_answer,
 )
 from spark_agg_methods_common_python.perf_test_common import (
-    ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge, RunnerArgumentsBase, SolutionLanguage,
-    assemble_itinerary,
+    ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge,
+    RunnerArgumentsBase, SolutionLanguage, assemble_itinerary,
 )
 from spark_agg_methods_common_python.utils.platform import setup_logging
 
 from src.challenges.conditional.conditional_strategy_directory_pyspark import (
-    CONDITIONAL_STRATEGIES_USING_PYSPARK_REGISTRY,
+    CONDITIONAL_STRATEGY_REGISTRY_PYSPARK,
 )
 from src.challenges.six_field_test_data.six_runner_base_pyspark import (
     run_one_step_in_pyspark_itinerary, six_spark_config_base,
@@ -80,7 +82,7 @@ class Arguments(RunnerArgumentsBase):
 
 def parse_args() -> Arguments:
     sizes = [x.size_code for x in DATA_SIZES_LIST_CONDITIONAL]
-    strategy_names = sorted(x.strategy_name for x in CONDITIONAL_STRATEGIES_USING_PYSPARK_REGISTRY)
+    strategy_names = sorted(x.strategy_name for x in CONDITIONAL_STRATEGY_REGISTRY_PYSPARK)
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--random-seed', type=int)
@@ -149,7 +151,7 @@ def do_test_runs(
         logger.info("No runs to execute.")
         return
     keyed_implementation_list = {
-        x.strategy_name: x for x in CONDITIONAL_STRATEGIES_USING_PYSPARK_REGISTRY}
+        x.strategy_name: x for x in CONDITIONAL_STRATEGY_REGISTRY_PYSPARK}
     keyed_data_sets = {x.data_description.size_code: x for x in prepare_data_sets(args, spark_session)}
     with ConditionalPysparkRunResultFileWriter() as file:
         for index, (strategy_name, size_code) in enumerate(itinerary):
@@ -213,7 +215,7 @@ def update_challenge_registration():
                     numerical_tolerance=x.numerical_tolerance.value,
                     requires_gpu=x.requires_gpu,
                 )
-                for x in CONDITIONAL_STRATEGIES_USING_PYSPARK_REGISTRY
+                for x in CONDITIONAL_STRATEGY_REGISTRY_PYSPARK
             ]
         ),
     )

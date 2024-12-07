@@ -2,7 +2,9 @@ from typing import cast
 
 import numpy as np
 
-from spark_agg_methods_common_python.utils.progressive_statistics.progressive_variance import ProgressiveVariance
+from spark_agg_methods_common_python.utils.progressive_statistics.progressive_variance import (
+    ProgressiveVariance,
+)
 
 
 class Test_ProgressiveVariance:

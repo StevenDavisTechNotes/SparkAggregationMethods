@@ -5,7 +5,8 @@ import typing
 from dataclasses import dataclass
 
 from spark_agg_methods_common_python.perf_test_common import (
-    LOCAL_TEST_DATA_FILE_LOCATION, DataSetDescriptionBase, ExecutionParametersBase,
+    LOCAL_TEST_DATA_FILE_LOCATION, DataSetDescriptionBase,
+    ExecutionParametersBase,
 )
 from spark_agg_methods_common_python.utils.utils import always_true
 

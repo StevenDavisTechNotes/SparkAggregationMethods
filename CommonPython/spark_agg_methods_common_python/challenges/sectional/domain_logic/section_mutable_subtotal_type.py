@@ -1,7 +1,8 @@
 from typing import Any, Iterable
 
 from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import (
-    NUM_DEPARTMENTS, ClassLine, StudentHeader, StudentSummary, TrimesterFooter, TrimesterHeader, TypedLine,
+    NUM_DEPARTMENTS, ClassLine, StudentHeader, StudentSummary, TrimesterFooter,
+    TrimesterHeader, TypedLine,
 )
 
 

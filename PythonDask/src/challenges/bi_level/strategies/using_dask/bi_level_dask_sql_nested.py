@@ -6,7 +6,9 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_dat
     SixTestExecutionParameters,
 )
 
-from src.challenges.six_field_test_data.six_test_data_for_dask import SixTestDataSetDask, TChallengeAnswerPythonDask
+from src.challenges.six_field_test_data.six_test_data_for_dask import (
+    SixTestDataSetDask, TChallengeAnswerPythonDask,
+)
 
 # pyright: reportArgumentType=false
 # pyright: reportCallIssue=false

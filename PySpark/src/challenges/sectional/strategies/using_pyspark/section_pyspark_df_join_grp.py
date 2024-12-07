@@ -3,9 +3,12 @@ import pyspark.sql.types as DataTypes
 from pyspark.sql import Row
 from pyspark.sql.window import Window
 
-from src.challenges.sectional.domain_logic.section_data_parsers_pyspark import parse_line_to_row, row_to_student_summary
+from src.challenges.sectional.domain_logic.section_data_parsers_pyspark import (
+    parse_line_to_row, row_to_student_summary,
+)
 from src.challenges.sectional.section_test_data_types_pyspark import (
-    MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT, SectionDataSetPyspark, SectionExecutionParametersPyspark, SparseLineSchema,
+    MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT, SectionDataSetPyspark,
+    SectionExecutionParametersPyspark, SparseLineSchema,
     TChallengePythonPysparkAnswer,
 )
 from src.utils.tidy_session_pyspark import TidySparkSession

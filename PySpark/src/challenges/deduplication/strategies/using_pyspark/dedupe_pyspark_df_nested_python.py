@@ -1,10 +1,12 @@
 import pyspark.sql.functions as func
 
 from src.challenges.deduplication.dedupe_test_data_types_pyspark import (
-    DedupeDataSetPySpark, DedupeExecutionParametersPyspark, TChallengePendingAnswerPythonPyspark,
+    DedupeDataSetPySpark, DedupeExecutionParametersPyspark,
+    TChallengePendingAnswerPythonPyspark,
 )
 from src.challenges.deduplication.domain_logic.dedupe_domain_methods_pyspark import (
-    SinglePass_RecList_DF_Returns, nest_blocks_dataframe, single_pass_rec_list, unnest_blocks_dataframe,
+    SinglePass_RecList_DF_Returns, nest_blocks_dataframe, single_pass_rec_list,
+    unnest_blocks_dataframe,
 )
 from src.utils.tidy_session_pyspark import TidySparkSession
 

@@ -5,7 +5,9 @@ from spark_agg_methods_common_python.challenges.deduplication.domain_logic.dedup
     is_match, match_single_name, min_not_null,
 )
 
-from src.challenges.deduplication.dedupe_test_data_types_pyspark import RecordSparseStruct
+from src.challenges.deduplication.dedupe_test_data_types_pyspark import (
+    RecordSparseStruct,
+)
 
 MATCH_THRESHOLD = 0.9
 # must be 0.4316546762589928 < MATCH_THRESHOLD < 0.9927007299270073 @ 10k

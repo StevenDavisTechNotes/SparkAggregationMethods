@@ -6,11 +6,13 @@ from spark_agg_methods_common_python.challenges.sectional.domain_logic.section_m
     aggregate_typed_rows_to_grades,
 )
 from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import (
-    ClassLine, StudentHeader, StudentSummary, TrimesterFooter, TrimesterHeader, TypedLine,
+    ClassLine, StudentHeader, StudentSummary, TrimesterFooter, TrimesterHeader,
+    TypedLine,
 )
 
 from src.challenges.sectional.section_test_data_types_pyspark import (
-    SectionDataSetPyspark, SectionExecutionParametersPyspark, TChallengePythonPysparkAnswer,
+    SectionDataSetPyspark, SectionExecutionParametersPyspark,
+    TChallengePythonPysparkAnswer,
 )
 from src.utils.tidy_session_pyspark import TidySparkSession
 

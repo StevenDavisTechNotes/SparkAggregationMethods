@@ -7,8 +7,10 @@ import pandas as pd
 import pyarrow
 
 from spark_agg_methods_common_python.perf_test_common import (
-    LOCAL_TEST_DATA_FILE_LOCATION, Challenge, ChallengeMethodRegistrationBase, DataSetDescriptionBase,
-    ExecutionParametersBase, NumericalToleranceExpectations, TChallengeMethodDelegate, TSolutionInterface,
+    LOCAL_TEST_DATA_FILE_LOCATION, Challenge, ChallengeMethodRegistrationBase,
+    DataSetDescriptionBase, ExecutionParametersBase,
+    NumericalToleranceExpectations, TChallengeMethodDelegate,
+    TSolutionInterface,
 )
 
 logger = logging.getLogger(__name__)

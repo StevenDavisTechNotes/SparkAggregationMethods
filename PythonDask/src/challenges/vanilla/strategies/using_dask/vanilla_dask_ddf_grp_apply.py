@@ -5,10 +5,16 @@ from dask.dataframe.core import DataFrame as DaskDataFrame
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
     SixTestExecutionParameters,
 )
-from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types import GROUP_BY_COLUMNS
+from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types import (
+    GROUP_BY_COLUMNS,
+)
 
-from src.challenges.six_field_test_data.six_test_data_for_dask import SixTestDataSetDask, TChallengeAnswerPythonDask
-from src.challenges.vanilla.vanilla_test_data_types_dask import POST_AGG_SCHEMA_NO_INDEX_DASK
+from src.challenges.six_field_test_data.six_test_data_for_dask import (
+    SixTestDataSetDask, TChallengeAnswerPythonDask,
+)
+from src.challenges.vanilla.vanilla_test_data_types_dask import (
+    POST_AGG_SCHEMA_NO_INDEX_DASK,
+)
 
 
 def vanilla_dask_ddf_grp_apply(

@@ -2,12 +2,17 @@ from itertools import chain
 
 from pyspark import RDD
 from pyspark.sql import Row
-from spark_agg_methods_common_python.challenges.deduplication.domain_logic.dedupe_domain_methods import is_match
+from spark_agg_methods_common_python.challenges.deduplication.domain_logic.dedupe_domain_methods import (
+    is_match,
+)
 
 from src.challenges.deduplication.dedupe_test_data_types_pyspark import (
-    DedupeDataSetPySpark, DedupeExecutionParametersPyspark, TChallengePendingAnswerPythonPyspark,
+    DedupeDataSetPySpark, DedupeExecutionParametersPyspark,
+    TChallengePendingAnswerPythonPyspark,
 )
-from src.challenges.deduplication.domain_logic.dedupe_domain_methods_pyspark import blocking_function, combine_row_list
+from src.challenges.deduplication.domain_logic.dedupe_domain_methods_pyspark import (
+    blocking_function, combine_row_list,
+)
 from src.utils.tidy_session_pyspark import TidySparkSession
 
 

@@ -7,7 +7,8 @@ from spark_agg_methods_common_python.challenges.deduplication.domain_logic.dedup
 )
 
 from src.challenges.deduplication.dedupe_test_data_types_pyspark import (
-    DedupeDataSetPySpark, DedupeExecutionParametersPyspark, RecordSparseStruct, TChallengePendingAnswerPythonPyspark,
+    DedupeDataSetPySpark, DedupeExecutionParametersPyspark, RecordSparseStruct,
+    TChallengePendingAnswerPythonPyspark,
 )
 from src.utils.spark_helpers import zip_dataframe_with_index
 from src.utils.tidy_session_pyspark import TidySparkSession

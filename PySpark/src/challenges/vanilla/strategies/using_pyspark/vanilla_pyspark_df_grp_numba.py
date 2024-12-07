@@ -4,12 +4,16 @@ import pandas as pd
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
     SixTestExecutionParameters,
 )
-from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types import VANILLA_RESULT_COLUMNS
+from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types import (
+    VANILLA_RESULT_COLUMNS,
+)
 
 from src.challenges.six_field_test_data.six_test_data_for_pyspark import (
     SixFieldDataSetPyspark, TSixFieldChallengePendingAnswerPythonPyspark,
 )
-from src.challenges.vanilla.vanilla_test_data_types_pyspark import pyspark_post_agg_schema
+from src.challenges.vanilla.vanilla_test_data_types_pyspark import (
+    pyspark_post_agg_schema,
+)
 from src.utils.tidy_session_pyspark import TidySparkSession
 
 try:

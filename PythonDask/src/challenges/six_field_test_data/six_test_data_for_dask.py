@@ -7,11 +7,12 @@ import pandas as pd
 from dask.bag.core import Bag as DaskBag
 from dask.dataframe.core import DataFrame as DaskDataFrame
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
-    SixTestDataChallengeMethodRegistrationBase, SixTestDataSetDescription, SixTestExecutionParameters,
-    six_derive_source_test_data_file_path,
+    SixTestDataChallengeMethodRegistrationBase, SixTestDataSetDescription,
+    SixTestExecutionParameters, six_derive_source_test_data_file_path,
 )
 from spark_agg_methods_common_python.perf_test_common import (
-    CalcEngine, Challenge, NumericalToleranceExpectations, SolutionInterfaceDask, SolutionLanguage,
+    CalcEngine, Challenge, NumericalToleranceExpectations,
+    SolutionInterfaceDask, SolutionLanguage,
 )
 from spark_agg_methods_common_python.utils.utils import int_divide_round_up
 

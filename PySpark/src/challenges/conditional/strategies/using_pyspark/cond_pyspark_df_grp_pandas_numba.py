@@ -8,7 +8,9 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_dat
     SixTestExecutionParameters,
 )
 
-from src.challenges.conditional.conditional_test_data_types_pyspark import POST_AGGREGATION_SCHEMA_4
+from src.challenges.conditional.conditional_test_data_types_pyspark import (
+    POST_AGGREGATION_SCHEMA_4,
+)
 from src.challenges.six_field_test_data.six_test_data_for_pyspark import (
     SixFieldDataSetPyspark, TSixFieldChallengePendingAnswerPythonPyspark,
 )

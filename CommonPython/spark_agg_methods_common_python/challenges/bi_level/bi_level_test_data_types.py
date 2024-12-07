@@ -1,6 +1,8 @@
 import typing
 
-from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import SixTestDataSetDescription
+from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
+    SixTestDataSetDescription,
+)
 
 GROUP_BY_COLUMNS = ['grp']
 AGGREGATION_COLUMNS = ['mean_of_C', 'max_of_D', 'avg_var_of_E', 'avg_var_of_E2']

@@ -6,7 +6,8 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_dat
 )
 
 from src.challenges.six_field_test_data.six_test_data_for_pyspark import (
-    MAX_DATA_POINTS_PER_SPARK_PARTITION, SixFieldDataSetPyspark, TSixFieldChallengePendingAnswerPythonPyspark,
+    MAX_DATA_POINTS_PER_SPARK_PARTITION, SixFieldDataSetPyspark,
+    TSixFieldChallengePendingAnswerPythonPyspark,
     pick_agg_tgt_num_partitions_pyspark,
 )
 from src.utils.tidy_session_pyspark import TidySparkSession

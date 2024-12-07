@@ -1,6 +1,8 @@
 from functools import reduce
 
-from src.challenges.sectional.domain_logic.section_snippet_subtotal_type import StudentSnippet1, merge_snippet_lists_1
+from src.challenges.sectional.domain_logic.section_snippet_subtotal_type import (
+    StudentSnippet1, merge_snippet_lists_1,
+)
 
 
 class test_full_set:

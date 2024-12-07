@@ -1,7 +1,13 @@
-from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import NUM_DEPARTMENTS, StudentSummary
-from spark_agg_methods_common_python.utils.printer import print_object_as_python_literal
+from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import (
+    NUM_DEPARTMENTS, StudentSummary,
+)
+from spark_agg_methods_common_python.utils.printer import (
+    print_object_as_python_literal,
+)
 
-from src.challenges.sectional.domain_logic.section_snippet_subtotal_type import CompletedStudent, grade_summary
+from src.challenges.sectional.domain_logic.section_snippet_subtotal_type import (
+    CompletedStudent, grade_summary,
+)
 
 
 def test_gpa_math():

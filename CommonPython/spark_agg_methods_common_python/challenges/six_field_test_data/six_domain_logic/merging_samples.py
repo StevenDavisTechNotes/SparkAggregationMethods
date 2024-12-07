@@ -6,13 +6,22 @@ import pandas as pd
 import pyarrow.parquet
 
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
-    TARGET_PARQUET_BATCH_SIZE, SixTestDataSetDescription, six_derive_source_test_data_file_path,
+    TARGET_PARQUET_BATCH_SIZE, SixTestDataSetDescription,
+    six_derive_source_test_data_file_path,
 )
 from spark_agg_methods_common_python.perf_test_common import Challenge
-from spark_agg_methods_common_python.utils.progressive_statistics.progressive_count import ProgressiveCount
-from spark_agg_methods_common_python.utils.progressive_statistics.progressive_max import ProgressiveMax
-from spark_agg_methods_common_python.utils.progressive_statistics.progressive_mean import ProgressiveMean
-from spark_agg_methods_common_python.utils.progressive_statistics.progressive_variance import ProgressiveVariance
+from spark_agg_methods_common_python.utils.progressive_statistics.progressive_count import (
+    ProgressiveCount,
+)
+from spark_agg_methods_common_python.utils.progressive_statistics.progressive_max import (
+    ProgressiveMax,
+)
+from spark_agg_methods_common_python.utils.progressive_statistics.progressive_mean import (
+    ProgressiveMean,
+)
+from spark_agg_methods_common_python.utils.progressive_statistics.progressive_variance import (
+    ProgressiveVariance,
+)
 
 # cSpell: ignore aggfunc, ddof, np_key
 

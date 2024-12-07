@@ -1,28 +1,53 @@
 from spark_agg_methods_common_python.perf_test_common import (
-    CalcEngine, NumericalToleranceExpectations, SolutionInterfacePySpark, SolutionLanguage,
+    CalcEngine, NumericalToleranceExpectations, SolutionInterfacePySpark,
+    SolutionLanguage,
 )
 from spark_agg_methods_common_python.utils.inspection import name_of_function
 
-from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_df_grp_pandas import cond_pyspark_df_grp_pandas
+from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_df_grp_pandas import (
+    cond_pyspark_df_grp_pandas,
+)
 from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_df_grp_pandas_numba import (
     cond_pyspark_df_grp_pandas_numba,
 )
-from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_df_join import cond_pyspark_df_join
-from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_df_nested import cond_pyspark_df_nested
-from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_df_null import cond_pyspark_df_null
-from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_df_window import cond_pyspark_df_window
-from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_df_zero import cond_pyspark_df_zero
-from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_rdd_grp_map import cond_pyspark_rdd_grp_map
-from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_rdd_map_part import cond_pyspark_rdd_map_part
-from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_rdd_reduce import cond_pyspark_rdd_reduce
-from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_sql_join import cond_pyspark_sql_join
-from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_sql_nested import cond_pyspark_sql_nested
-from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_sql_null import cond_pyspark_sql_null
+from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_df_join import (
+    cond_pyspark_df_join,
+)
+from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_df_nested import (
+    cond_pyspark_df_nested,
+)
+from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_df_null import (
+    cond_pyspark_df_null,
+)
+from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_df_window import (
+    cond_pyspark_df_window,
+)
+from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_df_zero import (
+    cond_pyspark_df_zero,
+)
+from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_rdd_grp_map import (
+    cond_pyspark_rdd_grp_map,
+)
+from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_rdd_map_part import (
+    cond_pyspark_rdd_map_part,
+)
+from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_rdd_reduce import (
+    cond_pyspark_rdd_reduce,
+)
+from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_sql_join import (
+    cond_pyspark_sql_join,
+)
+from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_sql_nested import (
+    cond_pyspark_sql_nested,
+)
+from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_sql_null import (
+    cond_pyspark_sql_null,
+)
 from src.challenges.six_field_test_data.six_test_data_for_pyspark import (
     SixFieldChallengeMethodPythonPysparkRegistration,
 )
 
-CONDITIONAL_STRATEGIES_USING_PYSPARK_REGISTRY: list[SixFieldChallengeMethodPythonPysparkRegistration] = [
+CONDITIONAL_STRATEGY_REGISTRY_PYSPARK: list[SixFieldChallengeMethodPythonPysparkRegistration] = [
     SixFieldChallengeMethodPythonPysparkRegistration(
         strategy_name_2018='cond_sql_join',
         strategy_name=name_of_function(cond_pyspark_sql_join),

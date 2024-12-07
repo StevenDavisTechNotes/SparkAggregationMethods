@@ -1,4 +1,4 @@
-#! python
+#!python
 # usage: .\venv\Scripts\activate.ps1 ; python -O -m src.challenges.bi_level.bi_level_runner_dask
 import argparse
 import gc
@@ -9,7 +9,8 @@ from dataclasses import dataclass
 
 import pandas as pd
 from spark_agg_methods_common_python.challenge_strategy_registry import (
-    ChallengeResultLogFileRegistration, ChallengeStrategyRegistration, update_challenge_strategy_registration,
+    ChallengeResultLogFileRegistration, ChallengeStrategyRegistration,
+    update_challenge_strategy_registration,
 )
 from spark_agg_methods_common_python.challenges.bi_level.bi_level_record_runs import (
     BiLevelPythonRunResultFileWriter, BiLevelRunResult,
@@ -21,14 +22,20 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_dat
     SixTestExecutionParameters, fetch_six_data_set_answer,
 )
 from spark_agg_methods_common_python.perf_test_common import (
-    ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge, RunnerArgumentsBase, SolutionLanguage,
-    assemble_itinerary,
+    ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge,
+    RunnerArgumentsBase, SolutionLanguage, assemble_itinerary,
 )
 from spark_agg_methods_common_python.utils.platform import setup_logging
 
-from src.challenges.bi_level.bi_level_strategy_directory_dask import BI_LEVEL_STRATEGIES_USING_DASK_REGISTRY
-from src.challenges.six_field_test_data.six_runner_dask_base import run_one_step_in_dask_itinerary
-from src.challenges.six_field_test_data.six_test_data_for_dask import SixTestDataSetDask, six_prepare_data_set_dask
+from src.challenges.bi_level.bi_level_strategy_directory_dask import (
+    BI_LEVEL_STRATEGY_REGISTRY_DASK,
+)
+from src.challenges.six_field_test_data.six_runner_dask_base import (
+    run_one_step_in_dask_itinerary,
+)
+from src.challenges.six_field_test_data.six_test_data_for_dask import (
+    SixTestDataSetDask, six_prepare_data_set_dask,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +71,7 @@ class Arguments(RunnerArgumentsBase):
 def parse_args() -> Arguments:
     sizes = [x.size_code for x in DATA_SIZES_LIST_BI_LEVEL]
     default_sizes = [x.size_code for x in DATA_SIZES_LIST_BI_LEVEL if not x.debugging_only]
-    strategy_names = sorted(x.strategy_name for x in BI_LEVEL_STRATEGIES_USING_DASK_REGISTRY)
+    strategy_names = sorted(x.strategy_name for x in BI_LEVEL_STRATEGY_REGISTRY_DASK)
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--random-seed', type=int)
@@ -127,7 +134,7 @@ def do_test_runs(
         logger.info("No runs to execute.")
         return
     keyed_implementation_list = {
-        x.strategy_name: x for x in BI_LEVEL_STRATEGIES_USING_DASK_REGISTRY}
+        x.strategy_name: x for x in BI_LEVEL_STRATEGY_REGISTRY_DASK}
     keyed_data_sets = {x.data_description.size_code: x for x in prepare_data_sets(args)}
     with BiLevelDaskRunResultFileWriter() as file:
         for index, (strategy_name, size_code) in enumerate(itinerary):
@@ -187,7 +194,7 @@ def update_challenge_registration():
                     numerical_tolerance=x.numerical_tolerance.value,
                     requires_gpu=x.requires_gpu,
                 )
-                for x in BI_LEVEL_STRATEGIES_USING_DASK_REGISTRY
+                for x in BI_LEVEL_STRATEGY_REGISTRY_DASK
             ]
         ),
     )

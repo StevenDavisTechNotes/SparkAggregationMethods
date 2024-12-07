@@ -5,12 +5,16 @@ from spark_agg_methods_common_python.challenges.sectional.domain_logic.section_m
     MutableStudent, MutableTrimester,
 )
 from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import (
-    ClassLine, LabeledTypedRow, StudentHeader, StudentSummary, TrimesterFooter, TrimesterHeader, TypedLine,
+    ClassLine, LabeledTypedRow, StudentHeader, StudentSummary, TrimesterFooter,
+    TrimesterHeader, TypedLine,
 )
 
-from src.challenges.sectional.domain_logic.section_data_parsers_pyspark import rdd_typed_with_index_factory
+from src.challenges.sectional.domain_logic.section_data_parsers_pyspark import (
+    rdd_typed_with_index_factory,
+)
 from src.challenges.sectional.section_test_data_types_pyspark import (
-    SectionDataSetPyspark, SectionExecutionParametersPyspark, TChallengePythonPysparkAnswer,
+    SectionDataSetPyspark, SectionExecutionParametersPyspark,
+    TChallengePythonPysparkAnswer,
 )
 from src.utils.tidy_session_pyspark import TidySparkSession
 

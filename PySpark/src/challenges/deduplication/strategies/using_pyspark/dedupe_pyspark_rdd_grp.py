@@ -1,6 +1,7 @@
 
 from src.challenges.deduplication.dedupe_test_data_types_pyspark import (
-    DedupeDataSetPySpark, DedupeExecutionParametersPyspark, TChallengePendingAnswerPythonPyspark,
+    DedupeDataSetPySpark, DedupeExecutionParametersPyspark,
+    TChallengePendingAnswerPythonPyspark,
 )
 from src.challenges.deduplication.domain_logic.dedupe_domain_methods_pyspark import (
     blocking_function, single_pass_rec_list,

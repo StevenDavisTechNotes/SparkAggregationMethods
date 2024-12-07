@@ -1,10 +1,13 @@
 import pyspark.sql.types as DataTypes
 from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types import (
-    AGGREGATION_COLUMNS_NON_NULL, AGGREGATION_COLUMNS_NULLABLE, GROUP_BY_COLUMNS,
+    AGGREGATION_COLUMNS_NON_NULL, AGGREGATION_COLUMNS_NULLABLE,
+    GROUP_BY_COLUMNS,
 )
 from spark_agg_methods_common_python.perf_test_common import Challenge
 
-from src.challenges.six_field_test_data.six_field_test_data_pyspark import DataPointSchema
+from src.challenges.six_field_test_data.six_field_test_data_pyspark import (
+    DataPointSchema,
+)
 
 CHALLENGE = Challenge.VANILLA
 pyspark_post_agg_schema = DataTypes.StructType(

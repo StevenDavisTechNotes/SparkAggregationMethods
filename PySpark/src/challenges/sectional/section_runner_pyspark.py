@@ -1,5 +1,5 @@
-#! python
-# usage: python -O -m src.challenges.sectional.section_pyspark_runner
+#!python
+# usage: .\venv\Scripts\activate.ps1; python -O -m src.challenges.sectional.section_pyspark_runner
 # cSpell: ignore wasb, sparkperftesting, Reqs
 import argparse
 import datetime as dt
@@ -14,28 +14,37 @@ import pandas as pd
 from pyspark import RDD
 from pyspark.sql import DataFrame as PySparkDataFrame
 from spark_agg_methods_common_python.challenge_strategy_registry import (
-    ChallengeResultLogFileRegistration, ChallengeStrategyRegistration, update_challenge_strategy_registration,
+    ChallengeResultLogFileRegistration, ChallengeStrategyRegistration,
+    update_challenge_strategy_registration,
 )
-from spark_agg_methods_common_python.challenges.sectional.section_persist_test_data import AnswerFileSectional
+from spark_agg_methods_common_python.challenges.sectional.section_persist_test_data import (
+    AnswerFileSectional,
+)
 from spark_agg_methods_common_python.challenges.sectional.section_record_runs import (
     SectionPythonRunResultFileWriter, SectionRunResult,
 )
 from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import (
-    DATA_SIZE_LIST_SECTIONAL, SECTION_SIZE_MAXIMUM, SectionDataSetDescription, StudentSummary,
-    section_derive_source_test_data_file_path, section_verify_correctness,
+    DATA_SIZE_LIST_SECTIONAL, SECTION_SIZE_MAXIMUM, SectionDataSetDescription,
+    StudentSummary, section_derive_source_test_data_file_path,
+    section_verify_correctness,
 )
 from spark_agg_methods_common_python.perf_test_common import (
-    ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge, NumericalToleranceExpectations,
-    RunnerArgumentsBase, SolutionLanguage, assemble_itinerary,
+    ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge,
+    NumericalToleranceExpectations, RunnerArgumentsBase, SolutionLanguage,
+    assemble_itinerary,
 )
-from spark_agg_methods_common_python.utils.pandas_helpers import make_pd_dataframe_from_list_of_named_tuples
+from spark_agg_methods_common_python.utils.pandas_helpers import (
+    make_pd_dataframe_from_list_of_named_tuples,
+)
 from spark_agg_methods_common_python.utils.platform import setup_logging
 from spark_agg_methods_common_python.utils.utils import int_divide_round_up
 
-from src.challenges.sectional.section_strategy_directory_pyspark import SECTIONAL_STRATEGIES_USING_PYSPARK_REGISTRY
+from src.challenges.sectional.section_strategy_directory_pyspark import (
+    SECTIONAL_STRATEGY_REGISTRY_PYSPARK,
+)
 from src.challenges.sectional.section_test_data_types_pyspark import (
-    MAXIMUM_PROCESSABLE_SEGMENT, SectionChallengeMethodPysparkRegistration, SectionDataSetPyspark,
-    SectionExecutionParametersPyspark,
+    MAXIMUM_PROCESSABLE_SEGMENT, SectionChallengeMethodPysparkRegistration,
+    SectionDataSetPyspark, SectionExecutionParametersPyspark,
 )
 from src.utils.tidy_session_pyspark import TidySparkSession
 
@@ -64,7 +73,7 @@ class Arguments(RunnerArgumentsBase):
 
 def parse_args() -> Arguments:
     sizes = [x.size_code for x in DATA_SIZE_LIST_SECTIONAL]
-    strategy_names = sorted(x.strategy_name for x in SECTIONAL_STRATEGIES_USING_PYSPARK_REGISTRY)
+    strategy_names = sorted(x.strategy_name for x in SECTIONAL_STRATEGY_REGISTRY_PYSPARK)
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--random-seed', type=int)
@@ -149,7 +158,7 @@ def do_test_runs(
         logger.info("No runs to execute.")
         return
     keyed_implementation_list = {
-        x.strategy_name: x for x in SECTIONAL_STRATEGIES_USING_PYSPARK_REGISTRY}
+        x.strategy_name: x for x in SECTIONAL_STRATEGY_REGISTRY_PYSPARK}
     keyed_data_sets = {x.data_description.size_code: x for x in prepare_data_sets(args)}
     with SectionPysparkRunResultFileWriter() as file:
         for index, (strategy_name, size_code) in enumerate(itinerary):
@@ -267,7 +276,7 @@ def update_challenge_registration():
                     numerical_tolerance=NumericalToleranceExpectations.NOT_APPLICABLE.value,
                     requires_gpu=x.requires_gpu,
                 )
-                for x in SECTIONAL_STRATEGIES_USING_PYSPARK_REGISTRY
+                for x in SECTIONAL_STRATEGY_REGISTRY_PYSPARK
             ]
         ),
     )

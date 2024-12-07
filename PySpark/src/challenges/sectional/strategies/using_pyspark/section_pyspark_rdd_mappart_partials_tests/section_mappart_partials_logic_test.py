@@ -3,16 +3,23 @@ from typing import Iterable
 import pytest
 from pyspark.sql import SparkSession
 from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import (
-    ClassLine, LabeledTypedRow, StudentHeader, StudentSummary, TrimesterFooter, TrimesterHeader, TypedLine,
+    ClassLine, LabeledTypedRow, StudentHeader, StudentSummary, TrimesterFooter,
+    TrimesterHeader, TypedLine,
 )
-from spark_agg_methods_common_python.utils.printer import print_object_as_python_literal
+from spark_agg_methods_common_python.utils.printer import (
+    print_object_as_python_literal,
+)
 
-from src.challenges.sectional.domain_logic.section_snippet_subtotal_type import CompletedStudent
+from src.challenges.sectional.domain_logic.section_snippet_subtotal_type import (
+    CompletedStudent,
+)
 from src.challenges.sectional.section_runner_pyspark import spark_configs
 from src.challenges.sectional.strategies.using_pyspark.section_pyspark_rdd_mappart_partials import (
     section_mappart_partials_logic,
 )
-from src.utils.tidy_session_pyspark import SPARK_SCRATCH_FOLDER, open_spark_session
+from src.utils.tidy_session_pyspark import (
+    SPARK_SCRATCH_FOLDER, open_spark_session,
+)
 
 
 @pytest.fixture

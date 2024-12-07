@@ -1,7 +1,8 @@
 import pytest
 
 from src.challenges.sectional.domain_logic.section_snippet_subtotal_type import (
-    FIRST_LAST_FIRST, FIRST_LAST_LAST, FIRST_LAST_NEITHER, CompletedStudent, StudentSnippet2,
+    FIRST_LAST_FIRST, FIRST_LAST_LAST, FIRST_LAST_NEITHER, CompletedStudent,
+    StudentSnippet2,
 )
 from src.challenges.sectional.strategies.using_pyspark.section_pyspark_rdd_mappart_partials import (
     consolidate_snippets_in_partition,

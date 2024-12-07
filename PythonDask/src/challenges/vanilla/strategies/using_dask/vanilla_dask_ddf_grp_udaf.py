@@ -8,9 +8,13 @@ from pandas.core.groupby.generic import SeriesGroupBy
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
     SixTestExecutionParameters,
 )
-from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types import GROUP_BY_COLUMNS
+from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types import (
+    GROUP_BY_COLUMNS,
+)
 
-from src.challenges.six_field_test_data.six_test_data_for_dask import SixTestDataSetDask, TChallengeAnswerPythonDask
+from src.challenges.six_field_test_data.six_test_data_for_dask import (
+    SixTestDataSetDask, TChallengeAnswerPythonDask,
+)
 
 
 def ddof_0_do_chunk(s: SeriesGroupBy) -> tuple[pd.Series, pd.Series, pd.Series]:

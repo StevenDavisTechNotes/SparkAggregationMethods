@@ -9,8 +9,9 @@ from typing import Literal, NamedTuple
 import pandas as pd
 
 from spark_agg_methods_common_python.perf_test_common import (
-    LOCAL_TEST_DATA_FILE_LOCATION, ChallengeMethodRegistrationBase, DataSetDescriptionBase, ExecutionParametersBase,
-    TChallengeMethodDelegate, TSolutionInterface,
+    LOCAL_TEST_DATA_FILE_LOCATION, ChallengeMethodRegistrationBase,
+    DataSetDescriptionBase, ExecutionParametersBase, TChallengeMethodDelegate,
+    TSolutionInterface,
 )
 
 NUM_TRIMESTERS = 8

@@ -1,9 +1,11 @@
 from spark_agg_methods_common_python.perf_test_common import (
-    CalcEngine, NumericalToleranceExpectations, SolutionInterfaceScalaSpark, SolutionLanguage,
+    CalcEngine, NumericalToleranceExpectations, SolutionInterfaceScalaSpark,
+    SolutionLanguage,
 )
 
 from src.challenges.six_field_test_data.six_test_data_for_pyspark import (
-    SixFieldChallengeMethodScalaSparkRegistration, TSixFieldChallengePendingAnswerPythonPyspark,
+    SixFieldChallengeMethodScalaSparkRegistration,
+    TSixFieldChallengePendingAnswerPythonPyspark,
 )
 
 
@@ -11,7 +13,7 @@ def ScalaSparkMethodPlaceholder() -> TSixFieldChallengePendingAnswerPythonPyspar
     raise NotImplementedError("ScalaSparkMethodPlaceholder")
 
 
-VANILLA_STRATEGIES_USING_SCALA_REGISTRY = [
+VANILLA_STRATEGY_REGISTRY_SCALA = [
     SixFieldChallengeMethodScalaSparkRegistration(
         strategy_name_2018='vanilla_pyspark_sql',
         strategy_name='vanilla_sc_spark_sql',

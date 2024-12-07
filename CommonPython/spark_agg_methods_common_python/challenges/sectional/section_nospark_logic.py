@@ -1,11 +1,14 @@
 from typing import Iterable
 
-from spark_agg_methods_common_python.challenges.sectional.domain_logic.section_data_parsers import parse_line_to_types
+from spark_agg_methods_common_python.challenges.sectional.domain_logic.section_data_parsers import (
+    parse_line_to_types,
+)
 from spark_agg_methods_common_python.challenges.sectional.domain_logic.section_mutable_subtotal_type import (
     aggregate_typed_rows_to_grades,
 )
 from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import (
-    SectionDataSetDescription, StudentSummary, section_derive_source_test_data_file_path,
+    SectionDataSetDescription, StudentSummary,
+    section_derive_source_test_data_file_path,
 )
 
 

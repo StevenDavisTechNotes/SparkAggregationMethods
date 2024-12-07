@@ -1,5 +1,5 @@
-#! python
-# usage: python -O -m src.challenges.deduplication.dedupe_pyspark_runner
+#!python
+# usage: .\venv\Scripts\activate.ps1; python -O -m src.challenges.deduplication.dedupe_pyspark_runner
 # cSpell: ignore wasb, sparkperftesting, Reqs
 import argparse
 import datetime as dt
@@ -16,27 +16,34 @@ from pyspark import RDD
 from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import Row
 from spark_agg_methods_common_python.challenge_strategy_registry import (
-    ChallengeResultLogFileRegistration, ChallengeStrategyRegistration, update_challenge_strategy_registration,
+    ChallengeResultLogFileRegistration, ChallengeStrategyRegistration,
+    update_challenge_strategy_registration,
 )
 from spark_agg_methods_common_python.challenges.deduplication.dedupe_record_runs import (
     DedupePythonRunResultFileWriter, DedupeRunResult,
 )
 from spark_agg_methods_common_python.challenges.deduplication.dedupe_test_data_types import (
-    DATA_SIZE_LIST_DEDUPE, DEDUPE_SOURCE_CODES, DedupeDataSetDescription, dedupe_derive_source_test_data_file_paths,
+    DATA_SIZE_LIST_DEDUPE, DEDUPE_SOURCE_CODES, DedupeDataSetDescription,
+    dedupe_derive_source_test_data_file_paths,
 )
 from spark_agg_methods_common_python.perf_test_common import (
-    ELAPSED_TIME_COLUMN_NAME, CalcEngine, Challenge, NumericalToleranceExpectations, RunnerArgumentsBase, RunResultBase,
+    ELAPSED_TIME_COLUMN_NAME, CalcEngine, Challenge,
+    NumericalToleranceExpectations, RunnerArgumentsBase, RunResultBase,
     SolutionLanguage, assemble_itinerary,
 )
 from spark_agg_methods_common_python.utils.platform import setup_logging
 from spark_agg_methods_common_python.utils.utils import int_divide_round_up
 
-from src.challenges.deduplication.dedupe_strategy_directory_pyspark import DEDUPE_STRATEGIES_USING_PYSPARK_REGISTRY
-from src.challenges.deduplication.dedupe_test_data_types_pyspark import (
-    DedupeChallengeMethodPythonPysparkRegistration, DedupeDataSetPySpark, DedupeExecutionParametersPyspark,
-    RecordSparseStruct,
+from src.challenges.deduplication.dedupe_strategy_directory_pyspark import (
+    DEDUPE_STRATEGY_REGISTRY_PYSPARK,
 )
-from src.challenges.deduplication.domain_logic.dedupe_expected_results_pyspark import verify_correctness
+from src.challenges.deduplication.dedupe_test_data_types_pyspark import (
+    DedupeChallengeMethodPythonPysparkRegistration, DedupeDataSetPySpark,
+    DedupeExecutionParametersPyspark, RecordSparseStruct,
+)
+from src.challenges.deduplication.domain_logic.dedupe_expected_results_pyspark import (
+    verify_correctness,
+)
 from src.utils.tidy_session_pyspark import TidySparkSession
 
 logger = logging.getLogger(__name__)
@@ -68,7 +75,7 @@ class Arguments(RunnerArgumentsBase):
 def parse_args() -> Arguments:
     sizes = [x.size_code for x in DATA_SIZE_LIST_DEDUPE]
     default_sizes = [x.size_code for x in DATA_SIZE_LIST_DEDUPE if not x.debugging_only]
-    strategy_names = sorted(x.strategy_name for x in DEDUPE_STRATEGIES_USING_PYSPARK_REGISTRY)
+    strategy_names = sorted(x.strategy_name for x in DEDUPE_STRATEGY_REGISTRY_PYSPARK)
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--assume-no-dupes-per-partition', default=True, action=argparse.BooleanOptionalAction)
@@ -201,7 +208,7 @@ def do_test_runs(
     keyed_data_sets = {x.data_description.size_code: x for x in prepare_data_sets(
         args.sizes, spark_session, args.exec_params)}
     keyed_implementation_list = {
-        x.strategy_name: x for x in DEDUPE_STRATEGIES_USING_PYSPARK_REGISTRY}
+        x.strategy_name: x for x in DEDUPE_STRATEGY_REGISTRY_PYSPARK}
     with DedupePysparkRunResultFileWriter() as file:
         for index, (strategy_name, size_code) in enumerate(itinerary):
             challenge_method_registration = keyed_implementation_list[strategy_name]
@@ -317,7 +324,7 @@ def update_challenge_registration():
                     numerical_tolerance=NumericalToleranceExpectations.NOT_APPLICABLE.value,
                     requires_gpu=x.requires_gpu,
                 )
-                for x in DEDUPE_STRATEGIES_USING_PYSPARK_REGISTRY
+                for x in DEDUPE_STRATEGY_REGISTRY_PYSPARK
             ]
         ),
     )

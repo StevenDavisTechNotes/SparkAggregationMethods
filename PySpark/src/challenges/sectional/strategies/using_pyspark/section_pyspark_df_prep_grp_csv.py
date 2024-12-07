@@ -2,12 +2,19 @@ import os
 
 import pyspark.sql.types as DataTypes
 from pyspark import RDD
-from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import StudentSummary
-from spark_agg_methods_common_python.perf_test_common import LOCAL_TEST_DATA_FILE_LOCATION
+from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import (
+    StudentSummary,
+)
+from spark_agg_methods_common_python.perf_test_common import (
+    LOCAL_TEST_DATA_FILE_LOCATION,
+)
 
-from src.challenges.sectional.domain_logic.section_data_parsers_pyspark import parse_line_to_row, row_to_student_summary
+from src.challenges.sectional.domain_logic.section_data_parsers_pyspark import (
+    parse_line_to_row, row_to_student_summary,
+)
 from src.challenges.sectional.section_test_data_types_pyspark import (
-    SectionDataSetPyspark, SectionExecutionParametersPyspark, SparseLineSchema, TChallengePythonPysparkAnswer,
+    SectionDataSetPyspark, SectionExecutionParametersPyspark, SparseLineSchema,
+    TChallengePythonPysparkAnswer,
 )
 from src.challenges.sectional.strategies.using_pyspark.section_pyspark_rdd_prep_shared import (
     section_pyspark_rdd_prep_shared,

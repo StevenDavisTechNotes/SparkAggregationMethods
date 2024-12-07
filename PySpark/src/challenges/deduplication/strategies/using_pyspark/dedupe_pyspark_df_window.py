@@ -3,9 +3,12 @@ import pyspark.sql.types as DataTypes
 from pyspark.sql import Window
 
 from src.challenges.deduplication.dedupe_test_data_types_pyspark import (
-    DedupeDataSetPySpark, DedupeExecutionParametersPyspark, TChallengePendingAnswerPythonPyspark,
+    DedupeDataSetPySpark, DedupeExecutionParametersPyspark,
+    TChallengePendingAnswerPythonPyspark,
 )
-from src.challenges.deduplication.domain_logic.dedupe_domain_methods_pyspark import udfMatchSingleName
+from src.challenges.deduplication.domain_logic.dedupe_domain_methods_pyspark import (
+    udfMatchSingleName,
+)
 from src.utils.spark_helpers import zip_dataframe_with_index
 from src.utils.tidy_session_pyspark import TidySparkSession
 

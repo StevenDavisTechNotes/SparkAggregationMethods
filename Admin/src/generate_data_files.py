@@ -5,9 +5,15 @@ import logging
 
 from spark_agg_methods_common_python.utils.platform import setup_logging
 
-from src.challenges.deduplication.dedupe_generate_data_files import dedupe_generate_data_files
-from src.challenges.sectional.section_generate_data_files import sectional_generate_data_files
-from src.challenges.six_field_test_data.six_generate_data_files import six_generate_data_files
+from src.challenges.deduplication.dedupe_generate_data_files import (
+    dedupe_generate_data_files,
+)
+from src.challenges.sectional.section_generate_data_files import (
+    sectional_generate_data_files,
+)
+from src.challenges.six_field_test_data.six_generate_data_files import (
+    six_generate_data_files,
+)
 
 logger = logging.getLogger(__name__)
 

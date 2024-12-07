@@ -13,8 +13,12 @@ from spark_agg_methods_common_python.challenge_strategy_registry import (
     ChallengeResultLogFileRegistration, ChallengeStrategyRegistrationKeyColumns,
     read_consolidated_challenge_strategy_registration,
 )
-from spark_agg_methods_common_python.perf_test_common import CalcEngine, Challenge, SolutionLanguage
-from spark_agg_methods_common_python.utils.pandas_helpers import make_empty_pd_dataframe_from_schema
+from spark_agg_methods_common_python.perf_test_common import (
+    CalcEngine, Challenge, SolutionLanguage,
+)
+from spark_agg_methods_common_python.utils.pandas_helpers import (
+    make_empty_pd_dataframe_from_schema,
+)
 from spark_agg_methods_common_python.utils.platform import setup_logging
 
 logger = logging.getLogger(__name__)

@@ -6,7 +6,9 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import pyarrow.parquet
-from spark_agg_methods_common_python.challenges.bi_level.bi_level_test_data_types import DATA_SIZES_LIST_BI_LEVEL
+from spark_agg_methods_common_python.challenges.bi_level.bi_level_test_data_types import (
+    DATA_SIZES_LIST_BI_LEVEL,
+)
 from spark_agg_methods_common_python.challenges.conditional.conditional_test_data_types import (
     DATA_SIZES_LIST_CONDITIONAL,
 )
@@ -14,10 +16,13 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_domain_l
     calculate_solutions_progressively,
 )
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
-    SIX_TEST_SOURCE_DATA_PYARROW_SCHEMA, TARGET_PARQUET_BATCH_SIZE, SixTestDataSetDescription,
-    six_derive_expected_answer_data_file_paths_csv, six_derive_source_test_data_file_path,
+    SIX_TEST_SOURCE_DATA_PYARROW_SCHEMA, TARGET_PARQUET_BATCH_SIZE,
+    SixTestDataSetDescription, six_derive_expected_answer_data_file_paths_csv,
+    six_derive_source_test_data_file_path,
 )
-from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types import DATA_SIZES_LIST_VANILLA
+from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types import (
+    DATA_SIZES_LIST_VANILLA,
+)
 from spark_agg_methods_common_python.perf_test_common import Challenge
 
 # cSpell: ignore arange, aggfunc

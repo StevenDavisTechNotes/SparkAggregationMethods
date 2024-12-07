@@ -4,14 +4,22 @@ import os
 import random
 from pathlib import Path
 
-from spark_agg_methods_common_python.challenges.sectional.section_nospark_logic import section_nospark_logic
-from spark_agg_methods_common_python.challenges.sectional.section_persist_test_data import AnswerFileSectional
+from spark_agg_methods_common_python.challenges.sectional.section_nospark_logic import (
+    section_nospark_logic,
+)
+from spark_agg_methods_common_python.challenges.sectional.section_persist_test_data import (
+    AnswerFileSectional,
+)
 from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import (
-    DATA_SIZE_LIST_SECTIONAL, NUM_CLASSES_PER_TRIMESTER, NUM_DEPARTMENTS, NUM_TRIMESTERS, SectionDataSetDescription,
-    StudentSummary, add_months_to_date_retracting, section_derive_expected_answer_data_file_path,
+    DATA_SIZE_LIST_SECTIONAL, NUM_CLASSES_PER_TRIMESTER, NUM_DEPARTMENTS,
+    NUM_TRIMESTERS, SectionDataSetDescription, StudentSummary,
+    add_months_to_date_retracting,
+    section_derive_expected_answer_data_file_path,
     section_derive_source_test_data_file_path,
 )
-from spark_agg_methods_common_python.utils.pandas_helpers import make_pd_dataframe_from_list_of_named_tuples
+from spark_agg_methods_common_python.utils.pandas_helpers import (
+    make_pd_dataframe_from_list_of_named_tuples,
+)
 from spark_agg_methods_common_python.utils.platform import setup_logging
 
 logger = logging.getLogger(__name__)

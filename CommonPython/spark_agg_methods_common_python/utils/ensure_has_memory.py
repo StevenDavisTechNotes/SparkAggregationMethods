@@ -1,7 +1,7 @@
 import psutil
 
 
-def check_memory(throw: bool = False) -> bool:
+def is_memory_low(throw: bool = False) -> bool:
     """Checks if the system is running low on memory."""
 
     # Get the virtual memory statistics

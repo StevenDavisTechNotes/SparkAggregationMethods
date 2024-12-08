@@ -250,14 +250,13 @@ def print_summary(
 
 def main():
     logger.info(f"Running {__file__}")
-    try:
-        analyze_run_results()
-    except KeyboardInterrupt:
-        logger.warning("Interrupted!")
-        return
+    analyze_run_results()
     logger.info("Done!")
 
 
 if __name__ == "__main__":
     setup_logging()
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        logger.warning("Interrupted!")

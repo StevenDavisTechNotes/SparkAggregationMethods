@@ -21,30 +21,29 @@ def main(
         make_new_files: bool,
 ) -> None:
     logger.info(f"Running {__file__}")
-    try:
-        config = {
-            "spark.sql.shuffle.partitions": 1,
-            "spark.default.parallelism": 1,
-            "spark.driver.memory": "2g",
-            "spark.executor.memory": "3g",
-            "spark.executor.memoryOverhead": "1g",
-        }
-        with TidySparkSession(
-            config,
-            enable_hive_support=False
-        ) as spark_session:
-            # dedupe_generate_data_files(make_new_files=make_new_files) TODO: Implement this
-            # sectional_generate_data_files(make_new_files=make_new_files) TODO: Implement this
-            six_generate_data_files_pyspark(
-                make_new_files=make_new_files,
-                spark_session=spark_session,
-            )
-    except KeyboardInterrupt:
-        logger.warning("Interrupted!")
-        return
+    config = {
+        "spark.sql.shuffle.partitions": 1,
+        "spark.default.parallelism": 1,
+        "spark.driver.memory": "2g",
+        "spark.executor.memory": "3g",
+        "spark.executor.memoryOverhead": "1g",
+    }
+    with TidySparkSession(
+        config,
+        enable_hive_support=False
+    ) as spark_session:
+        # dedupe_generate_data_files(make_new_files=make_new_files) TODO: Implement this
+        # sectional_generate_data_files(make_new_files=make_new_files) TODO: Implement this
+        six_generate_data_files_pyspark(
+            make_new_files=make_new_files,
+            spark_session=spark_session,
+        )
     logger.info("Done!")
 
 
 if __name__ == "__main__":
     setup_logging()
-    main(make_new_files=MAKE_NEW_FILES)
+    try:
+        main(make_new_files=MAKE_NEW_FILES)
+    except KeyboardInterrupt:
+        logger.warning("Interrupted!")

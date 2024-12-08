@@ -28,7 +28,7 @@ from spark_agg_methods_common_python.perf_test_common import (
 from spark_agg_methods_common_python.utils.platform import setup_logging
 
 from src.challenges.six_field_test_data.six_runner_base_pyspark import (
-    run_one_step_in_pyspark_itinerary, six_spark_config_base,
+    six_run_one_step_in_pyspark_itinerary, six_spark_config_base,
 )
 from src.challenges.six_field_test_data.six_test_data_for_pyspark import (
     SixFieldDataSetPyspark, six_prepare_data_set_pyspark,
@@ -141,7 +141,8 @@ def do_test_runs(
 ) -> None:
     logger = spark_session.logger
     itinerary = assemble_itinerary(args)
-    if len(itinerary) == 0:
+    num_itinerary_stops = len(itinerary)
+    if num_itinerary_stops == 0:
         logger.info("No runs to execute.")
         return
     keyed_implementation_list = {
@@ -151,34 +152,48 @@ def do_test_runs(
         for index, (strategy_name, size_code) in enumerate(itinerary):
             challenge_method_registration = keyed_implementation_list[strategy_name]
             data_set = keyed_data_sets[size_code]
-            logger.info("Working on %d of %d" % (index, len(itinerary)))
-            logger.info(f"Working on {challenge_method_registration.strategy_name} "
-                        f"for {data_set.data_description.size_code}")
-            match run_one_step_in_pyspark_itinerary(
-                challenge=CHALLENGE,
-                spark_session=spark_session,
-                exec_params=args.exec_params,
-                challenge_method_registration=challenge_method_registration,
-                result_columns=VANILLA_RESULT_COLUMNS,
-                data_set=data_set,
-                correct_answer=data_set.answer,
-            ):
-                case RunResultBase() as base_run_result:
-                    if not data_set.data_description.debugging_only:
-                        file.write_run_result(
-                            challenge_method_registration=challenge_method_registration,
-                            run_result=VanillaRunResult(
-                                num_source_rows=data_set.data_description.num_source_rows,
-                                elapsed_time=base_run_result.elapsed_time,
-                                num_output_rows=base_run_result.num_output_rows,
-                                finished_at=base_run_result.finished_at,
-                            ))
-                case ("infeasible", _):
-                    pass
-                case "interrupted":
-                    break
-                case answer:
-                    raise ValueError(f"Unexpected return type: {type(answer)}")
+            logger.info(
+                "Step {index}/{out_of}: {strategy} for {size_code}"
+                .format(
+                    index=index, out_of=num_itinerary_stops,
+                    strategy=challenge_method_registration.strategy_name,
+                    size_code=data_set.data_description.size_code))
+            try:
+                match six_run_one_step_in_pyspark_itinerary(
+                    challenge_method_registration=challenge_method_registration,
+                    challenge=CHALLENGE,
+                    correct_answer=data_set.answer,
+                    data_set=data_set,
+                    exec_params=args.exec_params,
+                    result_columns=VANILLA_RESULT_COLUMNS,
+                    spark_session=spark_session,
+                ):
+                    case RunResultBase() as run_result:
+                        if not data_set.data_description.debugging_only:
+                            file.write_run_result(
+                                challenge_method_registration=challenge_method_registration,
+                                run_result=VanillaRunResult(
+                                    num_source_rows=data_set.data_description.num_source_rows,
+                                    elapsed_time=run_result.elapsed_time,
+                                    num_output_rows=run_result.num_output_rows,
+                                    finished_at=run_result.finished_at,
+                                ))
+                    case ("infeasible", _):
+                        pass
+                    case answer:
+                        raise ValueError(f"Unexpected return type: {type(answer)}")
+            except KeyboardInterrupt as ex:
+                raise ex
+            except Exception as ex:
+                logger.error(
+                    "Error in {strategy_name} for {size_code}: {ex}"
+                    .format(
+                        strategy_name=challenge_method_registration.strategy_name,
+                        size_code=data_set.data_description.size_code,
+                        ex=ex,
+                    )
+                )
+                raise ex
             gc.collect()
             time.sleep(0.1)
 
@@ -213,22 +228,21 @@ def update_challenge_registration():
     )
 
 
-def main():
+def main() -> None:
     logger.info(f"Running {__file__}")
-    try:
-        args = parse_args()
-        update_challenge_registration()
-        with TidySparkSession(
-            six_spark_config_base(args.exec_params),
-            enable_hive_support=False
-        ) as spark_session:
-            do_test_runs(args, spark_session)
-    except KeyboardInterrupt:
-        logger.warning("Interrupted!")
-        return
+    args = parse_args()
+    update_challenge_registration()
+    with TidySparkSession(
+        six_spark_config_base(args.exec_params),
+        enable_hive_support=False
+    ) as spark_session:
+        do_test_runs(args, spark_session)
     logger.info("Done!")
 
 
 if __name__ == "__main__":
     setup_logging()
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        logger.warning("Interrupted!")

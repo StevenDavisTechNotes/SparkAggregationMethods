@@ -10,16 +10,15 @@ from src.challenges.vanilla import vanilla_runner_py_stream
 logger = logging.getLogger(__name__)
 
 
-def main():
+def main() -> None:
     logger.info(f"Running {__file__}")
-    try:
-        vanilla_runner_py_stream.main()
-    except KeyboardInterrupt:
-        logger.warning("Interrupted!")
-        return
+    vanilla_runner_py_stream.main()
     logger.info("Done!")
 
 
 if __name__ == "__main__":
     setup_logging()
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        logger.warning("Interrupted!")

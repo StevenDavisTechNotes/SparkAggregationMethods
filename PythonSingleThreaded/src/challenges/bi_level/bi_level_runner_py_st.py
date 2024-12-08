@@ -137,33 +137,44 @@ def do_test_runs(
             logger.info("Working on %d of %d" % (index, len(itinerary)))
             logger.info(f"Working on {challenge_method_registration.strategy_name} "
                         f"for {data_set.data_description.size_code}")
-            match run_one_step_in_python_single_threaded_itinerary(
-                challenge=CHALLENGE,
-                exec_params=args.exec_params,
-                challenge_method_registration=challenge_method_registration,
-                numerical_tolerance=challenge_method_registration.numerical_tolerance,
-                data_set=data_set,
-                correct_answer=data_set.answer,
-            ):
-                case RunResultBase() as base_run_result:
-                    if not data_set.data_description.debugging_only:
-                        file.write_run_result(
-                            challenge_method_registration=challenge_method_registration,
-                            run_result=BiLevelRunResult(
-                                num_source_rows=data_set.data_description.num_source_rows,
-                                elapsed_time=base_run_result.elapsed_time,
-                                num_output_rows=base_run_result.num_output_rows,
-                                relative_cardinality_between_groupings=(
-                                    data_set.data_description.relative_cardinality_between_groupings
-                                ),
-                                finished_at=base_run_result.finished_at,
-                            ))
-                case "interrupted":
-                    break
-                case "infeasible", _:
-                    pass
-                case base_run_result:
-                    raise ValueError(f"Unexpected return type: {type(base_run_result)}")
+            try:
+                match run_one_step_in_python_single_threaded_itinerary(
+                    challenge=CHALLENGE,
+                    exec_params=args.exec_params,
+                    challenge_method_registration=challenge_method_registration,
+                    numerical_tolerance=challenge_method_registration.numerical_tolerance,
+                    data_set=data_set,
+                    correct_answer=data_set.answer,
+                ):
+                    case RunResultBase() as run_result:
+                        if not data_set.data_description.debugging_only:
+                            file.write_run_result(
+                                challenge_method_registration=challenge_method_registration,
+                                run_result=BiLevelRunResult(
+                                    num_source_rows=data_set.data_description.num_source_rows,
+                                    elapsed_time=run_result.elapsed_time,
+                                    num_output_rows=run_result.num_output_rows,
+                                    relative_cardinality_between_groupings=(
+                                        data_set.data_description.relative_cardinality_between_groupings
+                                    ),
+                                    finished_at=run_result.finished_at,
+                                ))
+                    case "infeasible", _:
+                        pass
+                    case other:
+                        raise ValueError(f"Unexpected return type: {type(other)}")
+            except KeyboardInterrupt as ex:
+                raise ex
+            except Exception as ex:
+                logger.error(
+                    "Error in {strategy_name} for {size_code}: {ex}"
+                    .format(
+                        strategy_name=challenge_method_registration.strategy_name,
+                        size_code=data_set.data_description.size_code,
+                        ex=ex,
+                    )
+                )
+                raise ex
             gc.collect()
             time.sleep(0.1)
 
@@ -198,18 +209,17 @@ def update_challenge_registration():
     )
 
 
-def main():
+def main() -> None:
     logger.info(f"Running {__file__}")
-    try:
-        args = parse_args()
-        update_challenge_registration()
-        do_test_runs(args)
-    except KeyboardInterrupt:
-        logger.warning("Interrupted!")
-        return
+    args = parse_args()
+    update_challenge_registration()
+    do_test_runs(args)
     logger.info("Done!")
 
 
 if __name__ == "__main__":
     setup_logging()
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        logger.warning("Interrupted!")

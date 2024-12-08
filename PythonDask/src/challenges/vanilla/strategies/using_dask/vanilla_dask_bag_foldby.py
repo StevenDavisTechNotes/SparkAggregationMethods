@@ -11,7 +11,9 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_dat
 from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types import (
     VANILLA_RESULT_COLUMNS,
 )
-from spark_agg_methods_common_python.utils.ensure_has_memory import check_memory
+from spark_agg_methods_common_python.utils.ensure_has_memory import (
+    is_memory_low,
+)
 
 from src.challenges.six_field_test_data.six_test_data_for_dask import (
     SixTestDataSetDask, TChallengeAnswerPythonDask,
@@ -24,7 +26,7 @@ def vanilla_dask_bag_foldby(
 ) -> TChallengeAnswerPythonDask:
     if (data_set.data_description.points_per_index >= 10**6):  # EOM before calling accumulator
         return "infeasible", "EOM before calling accumulator"
-    check_memory(throw=True)
+    is_memory_low(throw=True)
     stage0: DaskBag = data_set.data.open_source_data_as_bag()
     stage1 = dict(
         stage0

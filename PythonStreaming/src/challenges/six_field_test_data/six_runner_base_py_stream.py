@@ -39,7 +39,7 @@ def run_one_step_in_python_streaming_itinerary(
         numerical_tolerance: NumericalToleranceExpectations,
         data_set: SixDataSetPythonStreaming,
         correct_answer: pd.DataFrame,
-) -> RunResultBase | tuple[Literal["infeasible"], str] | Literal["interrupted"]:
+) -> RunResultBase | tuple[Literal["infeasible"], str]:
     started_time = time.time()
     try:
         match _call_delegate_with_timeout(
@@ -63,8 +63,9 @@ def run_one_step_in_python_streaming_itinerary(
             df_answer=df_answer,
             finished_time=finished_time,
         )
-    except KeyboardInterrupt:
-        return "interrupted"
+        return result
+    except KeyboardInterrupt as ex:
+        raise ex
     except Exception as ex:
         msg = (
             f"Error in {challenge_method_registration.strategy_name} "
@@ -72,5 +73,4 @@ def run_one_step_in_python_streaming_itinerary(
             + ":"+str(ex)
         )
         logger.error(msg)
-        raise Exception(msg)
-    return result
+        raise ex

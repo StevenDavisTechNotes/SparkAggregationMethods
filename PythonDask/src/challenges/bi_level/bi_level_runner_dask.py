@@ -31,7 +31,7 @@ from src.challenges.bi_level.bi_level_strategy_directory_dask import (
     BI_LEVEL_STRATEGY_REGISTRY_DASK,
 )
 from src.challenges.six_field_test_data.six_runner_dask_base import (
-    run_one_step_in_dask_itinerary,
+    six_run_one_step_in_dask_itinerary,
 )
 from src.challenges.six_field_test_data.six_test_data_for_dask import (
     SixTestDataSetDask, six_prepare_data_set_dask,
@@ -143,33 +143,44 @@ def do_test_runs(
             logger.info("Working on %d of %d" % (index, len(itinerary)))
             logger.info(f"Working on {challenge_method_registration.strategy_name} "
                         f"for {data_set.data_description.size_code}")
-            match run_one_step_in_dask_itinerary(
-                challenge=CHALLENGE,
-                exec_params=args.exec_params,
-                challenge_method_registration=challenge_method_registration,
-                data_set=data_set,
-                correct_answer=data_set.answer,
-            ):
-                case RunResultBase() as base_run_result:
-                    if not data_set.data_description.debugging_only:
-                        file.write_run_result(
-                            challenge_method_registration,
-                            BiLevelRunResult(
-                                num_source_rows=base_run_result.num_source_rows,
-                                elapsed_time=base_run_result.elapsed_time,
-                                num_output_rows=base_run_result.num_output_rows,
-                                relative_cardinality_between_groupings=(
-                                    data_set.data_description.relative_cardinality_between_groupings
-                                ),
-                                finished_at=base_run_result.finished_at,
+            try:
+                match six_run_one_step_in_dask_itinerary(
+                    challenge=CHALLENGE,
+                    exec_params=args.exec_params,
+                    challenge_method_registration=challenge_method_registration,
+                    data_set=data_set,
+                    correct_answer=data_set.answer,
+                ):
+                    case RunResultBase() as run_result:
+                        if not data_set.data_description.debugging_only:
+                            file.write_run_result(
+                                challenge_method_registration,
+                                BiLevelRunResult(
+                                    num_source_rows=run_result.num_source_rows,
+                                    elapsed_time=run_result.elapsed_time,
+                                    num_output_rows=run_result.num_output_rows,
+                                    relative_cardinality_between_groupings=(
+                                        data_set.data_description.relative_cardinality_between_groupings
+                                    ),
+                                    finished_at=run_result.finished_at,
+                                )
                             )
-                        )
-                case ("infeasible", _):
-                    pass
-                case "interrupted":
-                    break
-                case base_run_result:
-                    raise ValueError(f"Unexpected result type: {type(base_run_result)}")
+                    case ("infeasible", _):
+                        pass
+                    case other:
+                        raise ValueError(f"Unexpected result type: {type(other)}")
+            except KeyboardInterrupt as ex:
+                raise ex
+            except Exception as ex:
+                logger.error(
+                    "Error in {strategy_name} for {size_code}: {ex}"
+                    .format(
+                        strategy_name=challenge_method_registration.strategy_name,
+                        size_code=data_set.data_description.size_code,
+                        ex=ex,
+                    )
+                )
+                raise ex
             gc.collect()
             time.sleep(0.1)
 
@@ -204,27 +215,22 @@ def update_challenge_registration():
     )
 
 
-def do_with_client():
+def main() -> None:
+    logger.info(f"Running {__file__}")
     args = parse_args()
     update_challenge_registration()
-    return do_test_runs(args)
-
-
-def main():
-    logger.info(f"Running {__file__}")
-    try:
-        # with DaskClient(  TODO: Add cluster testing
-        #         processes=True,
-        #         n_workers=LOCAL_NUM_EXECUTORS,
-        #         threads_per_worker=1,
-        # ) as dask_client:
-        do_with_client()
-    except KeyboardInterrupt:
-        logger.warning("Interrupted!")
-        return
+    # with DaskClient(  TODO: Add cluster testing
+    #         processes=True,
+    #         n_workers=LOCAL_NUM_EXECUTORS,
+    #         threads_per_worker=1,
+    # ) as dask_client:
+    do_test_runs(args)
     logger.info("Done!")
 
 
 if __name__ == "__main__":
     setup_logging()
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        logger.warning("Interrupted!")

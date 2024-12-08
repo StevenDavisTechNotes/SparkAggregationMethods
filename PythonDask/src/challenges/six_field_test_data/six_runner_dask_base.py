@@ -32,52 +32,43 @@ def _call_delegate_with_timeout(
     )
 
 
-def run_one_step_in_dask_itinerary(
+def six_run_one_step_in_dask_itinerary(
         challenge: Challenge,
         exec_params: SixTestExecutionParameters,
         challenge_method_registration: ChallengeMethodPythonDaskRegistration,
         data_set: SixTestDataSetDask,
         correct_answer: pd.DataFrame,
-) -> RunResultBase | tuple[Literal["infeasible"], str] | Literal["interrupted"]:
+) -> RunResultBase | tuple[Literal["infeasible"], str]:
     started_time = time.time()
-    try:
-        agg_tgt_num_partitions = pick_agg_tgt_num_partitions_dask(data_set.data, challenge)
-        df_answer: pd.DataFrame
-        match _call_delegate_with_timeout(
-            challenge_method_registration=challenge_method_registration,
-            exec_params=exec_params,
-            data_set=data_set,
-        ):
-            case DaskDataFrame() as ddf:
-                if ddf.npartitions > max(agg_tgt_num_partitions, exec_params.default_parallelism):
-                    logger.info(f"{challenge_method_registration.strategy_name} "
-                                f"output rdd has {ddf.npartitions} partitions")
-                    findings = ddf.compute()
-                    logger.info(f"size={len(findings)}, ", findings)
-                    exit(1)
-                df_answer = ddf.compute()
-                finished_time = time.time()
-            case pd.DataFrame() as df_answer:
-                finished_time = time.time()
-            case ("infeasible", reason):
-                return ("infeasible", reason)
-            case answer:
-                raise ValueError(f"Unexpected answer type {type(answer)}")
-        result = process_answer(
-            challenge=challenge,
-            data_description=data_set.data_description,
-            correct_answer=correct_answer,
-            numerical_tolerance=challenge_method_registration.numerical_tolerance,
-            started_time=started_time,
-            df_answer=df_answer,
-            finished_time=finished_time,
-        )
-    except KeyboardInterrupt:
-        return "interrupted"
-    except Exception as e:
-        logger.error(
-            f"Error in {challenge_method_registration.strategy_name} "
-            f"of {data_set.data_description.size_code}"
-        )
-        raise e
+    agg_tgt_num_partitions = pick_agg_tgt_num_partitions_dask(data_set.data, challenge)
+    df_answer: pd.DataFrame
+    match _call_delegate_with_timeout(
+        challenge_method_registration=challenge_method_registration,
+        exec_params=exec_params,
+        data_set=data_set,
+    ):
+        case DaskDataFrame() as ddf:
+            if ddf.npartitions > max(agg_tgt_num_partitions, exec_params.default_parallelism):
+                logger.info(f"{challenge_method_registration.strategy_name} "
+                            f"output rdd has {ddf.npartitions} partitions")
+                findings = ddf.compute()
+                logger.info(f"size={len(findings)}, ", findings)
+                exit(1)
+            df_answer = ddf.compute()
+            finished_time = time.time()
+        case pd.DataFrame() as df_answer:
+            finished_time = time.time()
+        case ("infeasible", reason):
+            return ("infeasible", reason)
+        case answer:
+            raise ValueError(f"Unexpected answer type {type(answer)}")
+    result = process_answer(
+        challenge=challenge,
+        data_description=data_set.data_description,
+        correct_answer=correct_answer,
+        numerical_tolerance=challenge_method_registration.numerical_tolerance,
+        started_time=started_time,
+        df_answer=df_answer,
+        finished_time=finished_time,
+    )
     return result

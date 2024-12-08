@@ -28,8 +28,8 @@ from spark_agg_methods_common_python.challenges.deduplication.dedupe_test_data_t
 )
 from spark_agg_methods_common_python.perf_test_common import (
     ELAPSED_TIME_COLUMN_NAME, CalcEngine, Challenge,
-    NumericalToleranceExpectations, RunnerArgumentsBase, RunResultBase,
-    SolutionLanguage, assemble_itinerary,
+    NumericalToleranceExpectations, RunnerArgumentsBase, SolutionLanguage,
+    assemble_itinerary,
 )
 from spark_agg_methods_common_python.utils.platform import setup_logging
 from spark_agg_methods_common_python.utils.utils import int_divide_round_up
@@ -199,10 +199,11 @@ class DedupePysparkRunResultFileWriter(DedupePythonRunResultFileWriter):
 def do_test_runs(
         args: Arguments,
         spark_session: TidySparkSession,
-):
+) -> None:
     logger = spark_session.logger
     itinerary = assemble_itinerary(args)
-    if len(itinerary) == 0:
+    num_itinerary_stops = len(itinerary)
+    if num_itinerary_stops == 0:
         logger.info("No runs to execute.")
         return
     keyed_data_sets = {x.data_description.size_code: x for x in prepare_data_sets(
@@ -213,76 +214,84 @@ def do_test_runs(
         for index, (strategy_name, size_code) in enumerate(itinerary):
             challenge_method_registration = keyed_implementation_list[strategy_name]
             data_set = keyed_data_sets[size_code]
-            match run_one_itinerary_step(
-                    index=index,
-                    num_itinerary_stops=len(itinerary),
+            logger.info(
+                "Step {index}/{out_of}: {strategy} for {size_code}"
+                .format(
+                    index=index, out_of=num_itinerary_stops,
+                    strategy=challenge_method_registration.strategy_name,
+                    size_code=data_set.data_description.size_code))
+            try:
+                match run_one_itinerary_step(
+                    args=args,
                     challenge_method_registration=challenge_method_registration,
                     data_set=data_set,
-                    args=args,
-                    spark_session=spark_session):
-                case RunResultBase() as result:
-                    if not data_set.data_description.debugging_only:
-                        file.write_run_result(challenge_method_registration, result)
-                case ("infeasible", _):
-                    pass
-                case "interrupted":
-                    break
-                case base_run_result:
-                    raise ValueError(f"Unexpected result type {type(base_run_result)}")
-            logger.info("")
+                    spark_session=spark_session,
+                ):
+                    case DedupeRunResult() as run_result:
+                        if not data_set.data_description.debugging_only:
+                            file.write_run_result(challenge_method_registration, run_result)
+                    case ("infeasible", _):
+                        pass
+                    case other:
+                        raise ValueError(f"Unexpected result type {type(other)}")
+            except KeyboardInterrupt as ex:
+                raise ex
+            except Exception as ex:
+                logger.error(
+                    "Error in {strategy_name} for {size_code}: {ex}"
+                    .format(
+                        strategy_name=challenge_method_registration.strategy_name,
+                        size_code=data_set.data_description.size_code,
+                        ex=ex,
+                    )
+                )
             gc.collect()
-            time.sleep(0.01)
+            time.sleep(0.1)
 
 
 def run_one_itinerary_step(
-        index: int,
-        num_itinerary_stops: int,
+        *,
+        args: Arguments,
         challenge_method_registration: DedupeChallengeMethodPythonPysparkRegistration,
         data_set: DedupeDataSetPySpark,
-        args: Arguments,
         spark_session: TidySparkSession
-) -> DedupeRunResult | tuple[Literal["infeasible"], str] | Literal["interrupted"]:
+) -> DedupeRunResult | tuple[Literal["infeasible"], str]:
     exec_params = args.exec_params
     logger = spark_session.logger
-    logger.info("Working on %d of %d" % (index, num_itinerary_stops))
-    logger.info(f"Working on {challenge_method_registration.strategy_name} "
-                f"for {data_set.data_description.size_code}")
     startedTime = time.time()
     success = True
-    try:
-        rdd_out: RDD[Row]
-        match challenge_method_registration.delegate(
-                spark_session=spark_session,
-                exec_params=exec_params,
-                data_set=data_set,
-        ):
-            case RDD() as rdd_row:
-                rdd_out = rdd_row
-            case PySparkDataFrame() as spark_df:
-                rdd_out = spark_df.rdd
-            case ("infeasible", msg):
-                return "infeasible", msg
-            case base_run_result:
-                raise ValueError(
-                    f"{challenge_method_registration.strategy_name} returned a {type(base_run_result)}")
-        logger.info("NumPartitions: in vs out ",
-                    data_set.df_source.rdd.getNumPartitions(),
-                    rdd_out.getNumPartitions())
-        if rdd_out.getNumPartitions() \
-                > max(args.exec_params.default_parallelism,
-                      data_set.grouped_num_partitions):
-            logger.info(f"{challenge_method_registration.strategy_name} output rdd "
-                        f"has {rdd_out.getNumPartitions()} partitions")
-            findings = rdd_out.collect()
-            logger.info(f"size={len(findings)}!")
-            exit(1)
-        found_people: list[Row] = rdd_out.collect()
-    except KeyboardInterrupt:
-        return "interrupted"
-    except Exception as exception:
-        found_people = []
-        logger.error(exception)
+    rdd_out: RDD[Row]
+    match challenge_method_registration.delegate(
+            spark_session=spark_session,
+            exec_params=exec_params,
+            data_set=data_set,
+    ):
+        case RDD() as rdd_row:
+            rdd_out = rdd_row
+        case PySparkDataFrame() as spark_df:
+            rdd_out = spark_df.rdd
+        case ("infeasible", reason):
+            return "infeasible", reason
+        case other:
+            raise ValueError(
+                "{strategy_name} unexpected returned a {other_type}"
+                .format(
+                    strategy_name=challenge_method_registration.strategy_name,
+                    other_type=type(other)
+                )
+            )
+    logger.info("NumPartitions: in vs out ",
+                data_set.df_source.rdd.getNumPartitions(),
+                rdd_out.getNumPartitions())
+    if rdd_out.getNumPartitions() \
+            > max(args.exec_params.default_parallelism,
+                  data_set.grouped_num_partitions):
+        logger.info(f"{challenge_method_registration.strategy_name} output rdd "
+                    f"has {rdd_out.getNumPartitions()} partitions")
+        findings = rdd_out.collect()
+        logger.info(f"size={len(findings)}!")
         exit(1)
+    found_people: list[Row] = rdd_out.collect()
     finished_at = time.time()
     elapsed_time = finished_at - startedTime
     num_people_found = len(found_people)
@@ -335,33 +344,39 @@ def update_challenge_registration():
     )
 
 
-def main():
+def spark_configs(
+        default_parallelism: int,
+) -> dict[str, str | int]:
+    return {
+        "spark.default.parallelism": default_parallelism,
+        "spark.executor.heartbeatInterval": "3600s",
+        "spark.network.timeout": "36000s",
+        "spark.port.maxRetries": "1",
+        "spark.python.worker.reuse": "false",
+        "spark.reducer.maxReqsInFlight": "1",
+        "spark.shuffle.io.maxRetries": "10",
+        "spark.shuffle.io.retryWait": "60s",
+        "spark.sql.execution.arrow.pyspark.enabled": "true",
+        "spark.sql.shuffle.partitions": default_parallelism,
+        "spark.storage.blockManagerHeartbeatTimeoutMs": "7200s",
+    }
+
+
+def main() -> None:
     logger.info(f"Running {__file__}")
-    try:
-        args = parse_args()
-        update_challenge_registration()
-        config = {
-            "spark.sql.shuffle.partitions": args.exec_params.default_parallelism,
-            "spark.default.parallelism": args.exec_params.default_parallelism,
-            "spark.python.worker.reuse": "false",
-            "spark.port.maxRetries": "1",
-            "spark.reducer.maxReqsInFlight": "1",
-            "spark.storage.blockManagerHeartbeatTimeoutMs": "7200s",
-            "spark.executor.heartbeatInterval": "3600s",
-            "spark.network.timeout": "36000s",
-            "spark.shuffle.io.maxRetries": "10",
-            "spark.shuffle.io.retryWait": "60s",
-            "spark.sql.execution.arrow.pyspark.enabled": "true",
-        }
-        enable_hive_support = args.exec_params.in_cloud_mode
-        with TidySparkSession(config, enable_hive_support) as spark_session:
-            do_test_runs(args, spark_session)
-    except KeyboardInterrupt:
-        logger.warning("Interrupted!")
-        return
+    args = parse_args()
+    update_challenge_registration()
+    with TidySparkSession(
+        spark_configs(args.exec_params.default_parallelism),
+        enable_hive_support=args.exec_params.in_cloud_mode,
+    ) as spark_session:
+        do_test_runs(args, spark_session)
     logger.info("Done!")
 
 
 if __name__ == "__main__":
     setup_logging()
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        logger.warning("Interrupted!")

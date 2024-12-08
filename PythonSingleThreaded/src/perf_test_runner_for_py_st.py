@@ -14,20 +14,19 @@ from src.challenges.vanilla import vanilla_runner_py_st
 logger = logging.getLogger(__name__)
 
 
-def main():
+def main() -> None:
     logger.info(f"Running {__file__}")
-    try:
-        bi_level_runner_py_st.main()
-        conditional_runner_py_st.main()
-        # dedupe_runner_py_st.main()  TODO: Implement this
-        section_runner_py_st.main()
-        vanilla_runner_py_st.main()
-    except KeyboardInterrupt:
-        logger.warning("Interrupted!")
-        return
+    bi_level_runner_py_st.main()
+    conditional_runner_py_st.main()
+    # dedupe_runner_py_st.main()  TODO: Implement this
+    section_runner_py_st.main()
+    vanilla_runner_py_st.main()
     logger.info("Done!")
 
 
 if __name__ == "__main__":
     setup_logging()
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        logger.warning("Interrupted!")

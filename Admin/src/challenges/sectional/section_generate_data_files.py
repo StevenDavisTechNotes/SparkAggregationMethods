@@ -110,14 +110,13 @@ def sectional_generate_data_files(
 
 def main():
     logger.info(f"Running {__file__}")
-    try:
-        sectional_generate_data_files(make_new_files=False)
-    except KeyboardInterrupt:
-        logger.warning("Interrupted!")
-        return
+    sectional_generate_data_files(make_new_files=False)
     logger.info("Done!")
 
 
 if __name__ == "__main__":
     setup_logging()
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        logger.warning("Interrupted!")

@@ -14,20 +14,19 @@ from src.challenges.vanilla import vanilla_runner_pyspark
 logger = logging.getLogger(__name__)
 
 
-def main():
+def main() -> None:
     logger.info(f"Running {__file__}")
-    try:
-        vanilla_runner_pyspark.main()
-        bi_level_runner_pyspark.main()
-        conditional_runner_pyspark.main()
-        section_runner_pyspark.main()
-        dedupe_runner_pyspark.main()
-    except KeyboardInterrupt:
-        logger.warning("Interrupted!")
-        return
+    vanilla_runner_pyspark.main()
+    bi_level_runner_pyspark.main()
+    conditional_runner_pyspark.main()
+    section_runner_pyspark.main()
+    dedupe_runner_pyspark.main()
     logger.info("Done!")
 
 
 if __name__ == "__main__":
     setup_logging()
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        logger.warning("Interrupted!")

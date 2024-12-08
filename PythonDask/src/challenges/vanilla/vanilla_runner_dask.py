@@ -28,7 +28,7 @@ from spark_agg_methods_common_python.perf_test_common import (
 from spark_agg_methods_common_python.utils.platform import setup_logging
 
 from src.challenges.six_field_test_data.six_runner_dask_base import (
-    run_one_step_in_dask_itinerary,
+    six_run_one_step_in_dask_itinerary,
 )
 from src.challenges.six_field_test_data.six_test_data_for_dask import (
     SixTestDataSetDask, six_prepare_data_set_dask,
@@ -147,28 +147,47 @@ def do_test_runs(
             logger.info("Working on %d of %d" % (index, len(itinerary)))
             logger.info(f"Working on {challenge_method_registration.strategy_name} "
                         f"for {data_set.data_description.size_code}")
-            match run_one_step_in_dask_itinerary(
-                challenge=CHALLENGE,
-                exec_params=args.exec_params,
-                challenge_method_registration=challenge_method_registration,
-                data_set=data_set,
-                correct_answer=data_set.answer,
-            ):
-                case "infeasible", _:
-                    pass
-                case RunResultBase() as base_run_result:
-                    if not data_set.data_description.debugging_only:
-                        file.write_run_result(
-                            challenge_method_registration,
-                            VanillaRunResult(
-                                num_source_rows=base_run_result.num_source_rows,
-                                elapsed_time=base_run_result.elapsed_time,
-                                num_output_rows=base_run_result.num_output_rows,
-                                finished_at=base_run_result.finished_at,
+            try:
+                match six_run_one_step_in_dask_itinerary(
+                    challenge=CHALLENGE,
+                    exec_params=args.exec_params,
+                    challenge_method_registration=challenge_method_registration,
+                    data_set=data_set,
+                    correct_answer=data_set.answer,
+                ):
+                    case RunResultBase() as base_run_result:
+                        if not data_set.data_description.debugging_only:
+                            file.write_run_result(
+                                challenge_method_registration,
+                                VanillaRunResult(
+                                    num_source_rows=base_run_result.num_source_rows,
+                                    elapsed_time=base_run_result.elapsed_time,
+                                    num_output_rows=base_run_result.num_output_rows,
+                                    finished_at=base_run_result.finished_at,
+                                )
+                            )
+                    case ("infeasible", _):
+                        pass
+                    case other:
+                        raise ValueError(
+                            "{strategy_name} unexpected returned a {other_type}"
+                            .format(
+                                strategy_name=challenge_method_registration.strategy_name,
+                                other_type=type(other)
                             )
                         )
-                case base_run_result:
-                    raise ValueError(f"Unexpected result type {type(base_run_result)}")
+            except KeyboardInterrupt as ex:
+                raise ex
+            except Exception as ex:
+                logger.error(
+                    "Error in {strategy_name} for {size_code}: {ex}"
+                    .format(
+                        strategy_name=challenge_method_registration.strategy_name,
+                        size_code=data_set.data_description.size_code,
+                        ex=ex,
+                    )
+                )
+                raise ex
             gc.collect()
             time.sleep(0.1)
 
@@ -203,27 +222,22 @@ def update_challenge_registration():
     )
 
 
-def do_with_local_client():
+def main() -> None:
+    logger.info(f"Running {__file__}")
     args = parse_args()
     update_challenge_registration()
-    return do_test_runs(args)
-
-
-def main():
-    logger.info(f"Running {__file__}")
-    try:
-        # with DaskClient(
-        #         processes=True,
-        #         n_workers=LOCAL_NUM_EXECUTORS,
-        #         threads_per_worker=1,
-        # ) as dask_client:
-        do_with_local_client()
-    except KeyboardInterrupt:
-        logger.warning("Interrupted!")
-        return
+    # with DaskClient(
+    #         processes=True,
+    #         n_workers=LOCAL_NUM_EXECUTORS,
+    #         threads_per_worker=1,
+    # ) as dask_client:
+    do_test_runs(args)
     logger.info("Done!")
 
 
 if __name__ == "__main__":
     setup_logging()
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        logger.warning("Interrupted!")

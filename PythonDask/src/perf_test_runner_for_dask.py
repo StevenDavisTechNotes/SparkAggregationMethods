@@ -12,25 +12,19 @@ from src.challenges.vanilla import vanilla_runner_dask
 logger = logging.getLogger(__name__)
 
 
-def main():
+def main() -> None:
     logger.info(f"Running {__file__}")
-    try:
-        # with DaskClient(  TODO: Need to test cluster setup
-        #         processes=True,
-        #         n_workers=LOCAL_NUM_EXECUTORS,
-        #         threads_per_worker=1,
-        # ) as dask_client:
-        bi_level_runner_dask.do_with_client()
-        conditional_runner_dask.do_with_client()
-        vanilla_runner_dask.do_with_local_client()
-        # dedupe_runner_dask.do_with_client()  TODO: Implement this
-        # sectional_runner_dask.do_with_client() TODO: Implement this
-    except KeyboardInterrupt:
-        logger.warning("Interrupted!")
-        return
+    bi_level_runner_dask.main()
+    conditional_runner_dask.main()
+    vanilla_runner_dask.main()
+    # dedupe_runner_dask.main()  TODO: Implement this
+    # sectional_runner_dask.main() TODO: Implement this
     logger.info("Done!")
 
 
 if __name__ == "__main__":
     setup_logging()
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        logger.warning("Interrupted!")

@@ -7,6 +7,7 @@ from spark_agg_methods_common_python.challenges.conditional.conditional_record_r
     ConditionalPythonRunResultFileWriter,
 )
 from spark_agg_methods_common_python.perf_test_common import CalcEngine
+from spark_agg_methods_common_python.utils.platform import setup_logging
 
 logger = logging.getLogger(__name__)
 
@@ -25,23 +26,22 @@ class ConditionalLevelDaskRunResultFileWriter(ConditionalPythonRunResultFileWrit
 # TODO
 
 
-def do_with_client():
+def main() -> None:
+    logger.info(f"Running {__file__}")
     # args = parse_args()
     # update_challenge_registration()
-    # return do_test_runs(args)
-    pass
+    # with DaskClient(  TODO: Add cluster testing
+    #         processes=True,
+    #         n_workers=LOCAL_NUM_EXECUTORS,
+    #         threads_per_worker=1,
+    # ) as dask_client:
+    # do_test_runs(args)
+    logger.info("Done!")
 
 
-def main():
-    logger.info(f"Running {__file__}")
+if __name__ == "__main__":
+    setup_logging()
     try:
-        # with DaskClient(  TODO: Add cluster testing
-        #         processes=True,
-        #         n_workers=LOCAL_NUM_EXECUTORS,
-        #         threads_per_worker=1,
-        # ) as dask_client:
-        do_with_client()
+        main()
     except KeyboardInterrupt:
         logger.warning("Interrupted!")
-        return
-    logger.info("Done!")

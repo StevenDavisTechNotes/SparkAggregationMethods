@@ -34,15 +34,19 @@ def _call_delegate_with_timeout(
     )
 
 
-def run_one_step_in_pyspark_itinerary(
-        challenge: Challenge,
-        spark_session: TidySparkSession,
-        exec_params: SixTestExecutionParameters,
+def six_run_one_step_in_pyspark_itinerary(
+        *,
         challenge_method_registration: SixFieldChallengeMethodPythonPysparkRegistration,
-        result_columns: list[str],
-        data_set: SixFieldDataSetPyspark,
+        challenge: Challenge,
         correct_answer: pd.DataFrame,
-) -> RunResultBase | tuple[Literal["infeasible"], str] | Literal["interrupted"]:
+        data_set: SixFieldDataSetPyspark,
+        exec_params: SixTestExecutionParameters,
+        result_columns: list[str],
+        spark_session: TidySparkSession,
+) -> (
+    RunResultBase
+    | tuple[Literal["infeasible"], str]
+):
 
     def check_partitions(rdd: RDD):
         logger = spark_session.logger
@@ -54,54 +58,50 @@ def run_one_step_in_pyspark_itinerary(
             logger.info(f"size={len(findings)}, ", findings)
             exit(1)
 
-    logger = spark_session.logger
     started_time = time.time()
-    try:
-        rdd_some: RDD
-        match _call_delegate_with_timeout(
-            challenge_method_registration=challenge_method_registration,
-            spark_session=spark_session,
-            exec_params=exec_params,
-            data_set=data_set,
-        ):
-            case PySparkDataFrame() as spark_df:
-                rdd_some = spark_df.rdd
-                check_partitions(rdd_some)
-                df_answer = spark_df.toPandas()
-                finished_time = time.time()
-            case RDD() as rdd_some:
-                check_partitions(rdd_some)
-                answer = rdd_some.collect()
-                finished_time = time.time()
-                if len(answer) == 0:
-                    df_answer = pd.DataFrame(data=[], columns=result_columns)
-                else:
-                    match answer[0]:
-                        case Row():
-                            df_answer = pd.DataFrame.from_records([x.asDict() for x in answer])
-                        case _:
-                            df_answer = pd.DataFrame.from_records([x._asdict() for x in answer])
-            case ("infeasible", reason):
-                return ("infeasible", reason)
-            case answer:
-                raise ValueError(f"Unexpected return type: {type(answer)}")
-        result = process_answer(
-            challenge=challenge,
-            data_description=data_set.data_description,
-            correct_answer=correct_answer,
-            numerical_tolerance=challenge_method_registration.numerical_tolerance,
-            started_time=started_time,
-            df_answer=df_answer,
-            finished_time=finished_time,
-        )
-    except KeyboardInterrupt:
-        return "interrupted"
-    except Exception as e:
-        logger.error(
-            f"Error in {challenge_method_registration.strategy_name} "
-            f"of {data_set.data_description.size_code}"
-        )
-        raise e
+    rdd_some: RDD
+    match _call_delegate_with_timeout(
+        challenge_method_registration=challenge_method_registration,
+        spark_session=spark_session,
+        exec_params=exec_params,
+        data_set=data_set,
+    ):
+        case PySparkDataFrame() as spark_df:
+            rdd_some = spark_df.rdd
+            check_partitions(rdd_some)
+            df_answer = spark_df.toPandas()
+            finished_time = time.time()
+        case RDD() as rdd_some:
+            check_partitions(rdd_some)
+            answer = rdd_some.collect()
+            finished_time = time.time()
+            if len(answer) == 0:
+                df_answer = pd.DataFrame(data=[], columns=result_columns)
+            else:
+                match answer[0]:
+                    case Row():
+                        df_answer = pd.DataFrame.from_records([x.asDict() for x in answer])
+                    case _:
+                        df_answer = pd.DataFrame.from_records([x._asdict() for x in answer])
+        case ("infeasible", reason):
+            return ("infeasible", reason)
+        case other:
+            raise ValueError(
+                "{strategy_name} unexpected returned a {other_type}"
+                .format(
+                    strategy_name=challenge_method_registration.strategy_name,
+                    other_type=type(other)
+                )
+            )
+    result = process_answer(
+        challenge=challenge,
+        data_description=data_set.data_description,
+        correct_answer=correct_answer,
+        numerical_tolerance=challenge_method_registration.numerical_tolerance,
+        started_time=started_time,
+        df_answer=df_answer,
+        finished_time=finished_time,
+    )
     return result
 
 

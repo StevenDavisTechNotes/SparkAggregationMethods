@@ -146,23 +146,42 @@ def do_test_runs(
                 (index, len(itinerary)))
             logger.info(f"Working on {challenge_method_registration.strategy_name} "
                         f"for {data_set.data_description.num_source_rows}")
-            match run_one_itinerary_step(args, challenge_method_registration, data_set):
-                case ("infeasible", _):
-                    pass
-                case RunResultBase() as run_result:
-                    if not data_set.data_description.debugging_only:
-                        file.write_run_result(challenge_method_registration, run_result)
-                case answer:
-                    raise ValueError(f"Unexpected return type: {type(answer)}")
+            try:
+                match section_run_one_itinerary_step(args, challenge_method_registration, data_set):
+                    case RunResultBase() as run_result:
+                        if not data_set.data_description.debugging_only:
+                            file.write_run_result(challenge_method_registration, run_result)
+                    case ("infeasible", _):
+                        pass
+                    case other:
+                        raise ValueError(
+                            "{strategy_name} unexpected returned a {other_type}"
+                            .format(
+                                strategy_name=challenge_method_registration.strategy_name,
+                                other_type=type(other)
+                            )
+                        )
+            except KeyboardInterrupt as ex:
+                raise ex
+            except Exception as ex:
+                logger.error(
+                    "Error in {strategy_name} for {size_code}: {ex}"
+                    .format(
+                        strategy_name=challenge_method_registration.strategy_name,
+                        size_code=data_set.data_description.size_code,
+                        ex=ex,
+                    )
+                )
+                raise ex
             gc.collect()
             time.sleep(0.1)
 
 
-def run_one_itinerary_step(
+def section_run_one_itinerary_step(
         args: Arguments,
         challenge_method_registration: SectionChallengeMethodPythonSingleThreadedRegistration,
         data_set: SectionDataSetPyST,
-) -> SectionRunResult | tuple[Literal["infeasible"], str] | Literal["interrupted"]:
+) -> SectionRunResult | tuple[Literal["infeasible"], str]:
     startedTime = time.time()
     df_concrete_students: pd.DataFrame
     match challenge_method_registration.delegate(
@@ -232,18 +251,17 @@ def update_challenge_registration():
     )
 
 
-def main():
+def main() -> None:
     logger.info(f"Running {__file__}")
-    try:
-        args = parse_args()
-        update_challenge_registration()
-        do_test_runs(args)
-    except KeyboardInterrupt:
-        logger.warning("Interrupted!")
-        return
+    args = parse_args()
+    update_challenge_registration()
+    do_test_runs(args)
     logger.info("Done!")
 
 
 if __name__ == "__main__":
     setup_logging()
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        logger.warning("Interrupted!")

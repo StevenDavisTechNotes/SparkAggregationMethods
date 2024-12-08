@@ -32,6 +32,9 @@ Look to see what version of Spark and Dask you are going to use, and then work b
    - %SPARK_HOME%\bin
    - %JAVA_HOME%\bin
    - %HADOOP_HOME%\bin
+- Disable ShutdownHookManager logging
+  - Due to a bug in Spark on Windows, the ShutdownHookManager will intermittently fail
+  - .\makefile.ps1 Install-Log4J2 
 - Test
   - java --version
   - python --version

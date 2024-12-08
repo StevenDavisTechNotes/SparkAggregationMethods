@@ -135,6 +135,18 @@ function Search-Spelling() {
 		"--exclude" "venv" 
 }
 
+function Install-Log4J2() {
+	<#
+		.DESCRIPTION
+		Configured the Spark conf\log4j2.properties
+	#>
+	$src_path = Join-Path -Path $env:SPARK_HOME -ChildPath "conf\log4j2.properties.template"
+	$dest_path = Join-Path -Path $env:SPARK_HOME -ChildPath "conf\log4j2.properties"
+	$extra_path = 'log4j2_extra.properties'
+	Copy-Item -Path $src_path -Destination $dest_path -Force 
+	Get-Content -Path $extra_path | Add-Content -Path $dest_path
+}
+
 function Test() {
 	<#
 		.DESCRIPTION

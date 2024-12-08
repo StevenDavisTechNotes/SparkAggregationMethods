@@ -1,5 +1,5 @@
 #!python
-# usage: .\venv\Scripts\activate.ps1; python -O -m src.challenges.deduplication.dedupe_pyspark_runner
+# usage: .\venv\Scripts\activate.ps1; python -O -m src.challenges.deduplication.dedupe_runner_pyspark
 # cSpell: ignore wasb, sparkperftesting, Reqs
 import argparse
 import datetime as dt

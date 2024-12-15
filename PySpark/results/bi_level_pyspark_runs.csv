@@ -72,3 +72,9 @@ bi_level_pyspark_sql_join,sql,900000,1000,14.421589,3,pyspark,2024-10-10T02:20:4
 5.328997850418091,pyspark,2024-10-13T21:19:05.663067,sql,python,3,900000,100,bi_level_pyspark_sql_nested,
 17.956788063049316,pyspark,2024-10-13T21:19:23.794733,fluent,python,3,900000,1000,bi_level_pyspark_df_nested,
 # Added -O flag to the python command
+ elapsed_time,engine,finished_at,interface,language,num_output_rows,num_source_rows,relative_cardinality_between_groupings,strategy_name,
+11.616429567337036,pyspark,2024-12-08T13:43:18.961566,pandas,python,3,900000,10,bi_level_pyspark_df_grp_pandas,
+13.798799276351929,pyspark,2024-12-08T13:43:38.599804,pandas,python,3,900000,10,bi_level_pyspark_df_grp_pandas_numba,
+10.898606538772583,pyspark,2024-12-08T13:43:51.369354,fluent,python,3,900000,10,bi_level_pyspark_df_join,
+7.4943766593933105,pyspark,2024-12-08T13:43:59.743222,fluent,python,3,900000,10,bi_level_pyspark_df_nested,
+7.760527849197388,pyspark,2024-12-08T13:44:08.579114,fluent,python,3,900000,10,bi_level_pyspark_df_window,

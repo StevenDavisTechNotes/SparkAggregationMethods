@@ -162,3 +162,6 @@ bi_level_py_st_pd_grp_numpy,pandas,90,1,0.007014,3,python_single_threaded,2024-1
 0.1281418800354004,python_single_threaded,2024-11-03T08:35:14.476035,pandas,single_threaded,3,900000,100,bi_level_py_st_pd_grp_numpy,
 0.07006597518920898,python_single_threaded,2024-11-03T08:35:14.660342,pandas,single_threaded,3,900000,1,bi_level_py_st_pd_grp_numpy,
 0.07343363761901855,python_single_threaded,2024-11-03T08:35:14.857928,pandas,single_threaded,3,900000,10,bi_level_py_st_pd_grp_numpy,
+ elapsed_time,engine,finished_at,interface,language,num_output_rows,num_source_rows,relative_cardinality_between_groupings,strategy_name,
+0.34026503562927246,python_single_threaded,2024-12-08T13:47:54.831645,pandas,python,3,900000,10,bi_level_py_st_pd_grp_numpy,
+0.2728550434112549,python_single_threaded,2024-12-08T13:47:55.344405,progressive,python,3,900000,10,bi_level_py_st_pd_prog_numpy,

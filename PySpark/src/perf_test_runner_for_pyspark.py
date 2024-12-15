@@ -16,11 +16,11 @@ logger = logging.getLogger(__name__)
 
 def main() -> None:
     logger.info(f"Running {__file__}")
-    vanilla_runner_pyspark.main()
     bi_level_runner_pyspark.main()
     conditional_runner_pyspark.main()
-    section_runner_pyspark.main()
     dedupe_runner_pyspark.main()
+    section_runner_pyspark.main()
+    vanilla_runner_pyspark.main()
     logger.info("Done!")
 
 

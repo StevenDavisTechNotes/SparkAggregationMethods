@@ -39,7 +39,7 @@ function Install-Editable-Packages() {
 	$basePath = Split-Path (Get-Location).Path -Parent
 	foreach ($packageDir in $EditablePackageFolders) {
 		$packagePath = Join-Path $basePath $packageDir
-		Write-Output "pip install -e $packagePath --config-settings editable_mode=compat"
+		Write-Output "pip install --quiet --editable $packagePath --config-settings editable_mode=compat"
 		pip install --quiet --editable $packagePath --config-settings editable_mode=compat
 	}
 }

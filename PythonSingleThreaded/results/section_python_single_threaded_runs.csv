@@ -82,3 +82,7 @@ success,section_py_st_linear_file_read,python,1,49,49,0.000000,1,2024-06-29T23:4
 0.0003509521484375,python_single_threaded,2024-11-03T08:41:33.170850,python,single_threaded,1,49,1,49,success,section_py_st_linear_file_read,
 0.01598358154296875,python_single_threaded,2024-11-03T08:41:33.302676,python,single_threaded,10,490,10,49,success,section_py_st_linear_file_read,
 0.01654529571533203,python_single_threaded,2024-11-03T08:41:33.436213,python,single_threaded,100,4900,100,49,success,section_py_st_linear_file_read,
+ elapsed_time,engine,finished_at,interface,language,num_output_rows,num_source_rows,num_students,section_maximum,status,strategy_name,
+0.24599194526672363,python_single_threaded,2024-12-08T13:47:58.817303,single_threaded,python,1,49,1,49,success,section_py_st_linear_file_read,
+0.0354914665222168,python_single_threaded,2024-12-08T13:47:58.970307,single_threaded,python,10,490,10,49,success,section_py_st_linear_file_read,
+0.04046487808227539,python_single_threaded,2024-12-08T13:47:59.122584,single_threaded,python,100,4900,100,49,success,section_py_st_linear_file_read,

@@ -47,14 +47,11 @@ logger = logging.getLogger(__name__)
 
 DEBUG_ARGS = None if True else (
     []
-    + '--size 3_3_100m'.split()
+    + '--size 3_3_1'.split()
     + '--runs 1'.split()
     # + '--random-seed 1234'.split()
     + ['--no-shuffle']
     + ['--strategy',
-       #    'vanilla_py_st_pd_grp_numpy',
-       #    'vanilla_py_st_pd_grp_numba',
-       #    'vanilla_py_st_pd_prog_numpy',
        #    'vanilla_py_mt_queue_pd_prog_numpy_1_reader',
        'vanilla_py_mt_queue_pd_prog_numpy',
        ]

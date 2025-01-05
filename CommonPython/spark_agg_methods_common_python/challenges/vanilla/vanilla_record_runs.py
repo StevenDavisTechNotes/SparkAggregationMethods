@@ -58,7 +58,7 @@ class VanillaPythonRunResultFileWriter(RunResultFileWriterBase):
             num_output_rows=run_result.num_output_rows,
             finished_at=dt.datetime.now().isoformat(),
 
-            language=SolutionLanguage.PYTHON,
+            language=self.language,
             engine=challenge_method_registration.engine,
             interface=challenge_method_registration.interface,
             strategy_name=challenge_method_registration.strategy_name,

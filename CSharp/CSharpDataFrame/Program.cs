@@ -1,14 +1,33 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using Microsoft.Data.Analysis;
+using Microsoft.Extensions.Logging;
+using System.Text;
+using System;
+using Microsoft.Extensions.DependencyInjection;
+using Challenges.Vanilla.VanillaRunnerCSharpDF;
+using System.Collections.ObjectModel;
 
-Console.WriteLine("Hello, World!");
+using ILoggerFactory factory = LoggerFactory.Create(builder => builder.AddConsole());
+ILogger logger = factory.CreateLogger("Program");
+logger.LogInformation("Running...");
+var serviceProvider =
+    new ServiceCollection()
+    .AddLogging(options =>
+    {
+        options.ClearProviders();
+        options.AddConsole();
+    })
+    .AddSingleton<VanillaRunnerCSharpDF>()
+    .BuildServiceProvider();
 
-PrimitiveDataFrameColumn<DateTime> dateTimes = new PrimitiveDataFrameColumn<DateTime>("DateTimes"); // Default length is 0.
-PrimitiveDataFrameColumn<int> ints = new PrimitiveDataFrameColumn<int>("Ints", 3); // Makes a column of length 3. Filled with nulls initially
-StringDataFrameColumn strings = new StringDataFrameColumn("Strings", 3); // Makes a column of length 3. Filled with nulls initially
-// Append 3 values to dateTimes
-dateTimes.Append(DateTime.Parse("2019/01/01"));
-dateTimes.Append(DateTime.Parse("2019/01/01"));
-dateTimes.Append(DateTime.Parse("2019/01/02"));
-DataFrame df = new DataFrame(dateTimes, ints, strings); // This will throw if the columns are of different lengths
-Console.WriteLine(df);
+var commandLineArguments = new ReadOnlyCollection<string>(args);
+serviceProvider.GetRequiredService<VanillaRunnerCSharpDF>().Main(commandLineArguments);
+// bi_level_runner_py_st.main();  TODO: Implement this
+// conditional_runner_py_st.main();  TODO: Implement this
+// dedupe_runner_py_st.main();  TODO: Implement this
+// section_runner_py_st.main();  TODO: Implement this
+// vanilla_runner_py_st.main();  TODO: Implement this
+
+logger.LogInformation("Done");
+// Return a success code.
+return 0;

@@ -61,7 +61,7 @@ class BiLevelPythonRunResultFileWriter(RunResultFileWriterBase):
 
             relative_cardinality_between_groupings=run_result.relative_cardinality_between_groupings,
 
-            language=SolutionLanguage.PYTHON,
+            language=self.language,
             engine=challenge_method_registration.engine,
             interface=challenge_method_registration.interface,
             strategy_name=challenge_method_registration.strategy_name,

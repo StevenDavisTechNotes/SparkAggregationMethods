@@ -1,16 +1,8 @@
+namespace CSharpDataFrame.Challenges.Vanilla;
+
 using System;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-
-namespace Challenges.Vanilla.VanillaRunnerCSharpDF;
-
-using Microsoft.Data.Analysis;
-using System;
-using System.CommandLine;
-using System.IO;
 using CSharpDataFrame.SharedBetweenChallenges.CommonTypes;
-using CSharpDataFrame.Challenges.SixFieldTestData.SixTestDataRunner;
-using System.CommandLine.Parsing;
 
 public record VanillaRunnerArguments(
     int NumRuns,
@@ -19,7 +11,8 @@ public record VanillaRunnerArguments(
     string[] Sizes,
     string[] StrategyNames,
     SixTestExecutionParameters ExecParams
-) : RunnerArgumentsBase(NumRuns, RandomSeed, Shuffle, Sizes, StrategyNames){
+) : RunnerArgumentsBase(NumRuns, RandomSeed, Shuffle, Sizes, StrategyNames)
+{
     public static VanillaRunnerArguments FromCommandLineArguments(GenericArgumentsBase commandLineArguments)
     {
         return new VanillaRunnerArguments(

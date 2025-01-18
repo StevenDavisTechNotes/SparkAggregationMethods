@@ -4,6 +4,7 @@ using Microsoft.Data.Analysis;
 using Microsoft.Extensions.Logging;
 using CSharpDataFrame.Challenges.SixFieldTestData.SixTestDataTypes;
 using CSharpDataFrame.SharedBetweenChallenges.CommonTypes;
+using CSharpDataFrame.SharedBetweenChallenges.RunnerTypes;
 
 public class SixTestDataRunnerBase : RunnerBase
 {

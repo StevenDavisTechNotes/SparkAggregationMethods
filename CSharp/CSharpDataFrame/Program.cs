@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
-using Challenges.Vanilla.VanillaRunnerCSharpDF;
 using System.CommandLine;
 using CSharpDataFrame.SharedBetweenChallenges.CommonTypes;
 using System.Text.RegularExpressions;
+using CSharpDataFrame.Challenges.Vanilla;
 
 string? DEBUG_ARGUMENTS = """
     --challenges vanilla

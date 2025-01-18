@@ -159,20 +159,19 @@ public record SixTestDataSetWAnswers(
 );
 
 
-public class SixTestDataChallengeMethod : ChallengeMethodBase
+public record SixTestDataChallengeMethod : ChallengeMethodCSharp
 {
     public double NumericalTolerance { get; init; }
 
     public SixTestDataChallengeMethod(
         string strategyName,
-        SolutionLanguage language,
         CalcEngine engine,
         CSharpSolutionInterface solutionInterface,
         bool requiresGpu,
-        double NumericalTolerance
-    ) : base(strategyName, language, engine, solutionInterface, requiresGpu)
+        double numericalTolerance
+    ) : base(strategyName, engine, solutionInterface, requiresGpu)
     {
-        this.NumericalTolerance = NumericalTolerance;
+        this.NumericalTolerance = numericalTolerance;
     }
 }
 

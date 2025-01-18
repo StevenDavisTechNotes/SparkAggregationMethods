@@ -1,6 +1,6 @@
-using System.ComponentModel;
-
 namespace CSharpDataFrame.SharedBetweenChallenges.CommonTypes;
+
+using System.ComponentModel;
 
 static class PerfTestCommonConstants
 {
@@ -21,8 +21,8 @@ public enum CalcEngine
     PARQUET_DOT_NET,
     [Description("df")]
     DATA_FRAME,
-    [Description("csharp")]
-    CSHARP
+    [Description("native")]
+    NATIVE
     // [Description("c_spark")]
     // SPARK_DOT_NET
 }
@@ -50,7 +50,9 @@ public enum CSharpSolutionInterface
     [Description("parquet_column")]
     PARQUET_COLUMN_BASED,
     [Description("msft_data_frame")]
-    MSFT_DATA_FRAME
+    MSFT_DATA_FRAME,
+    [Description("none")]
+    NONE
 }
 
 public static class NumericalToleranceExpectations
@@ -62,7 +64,7 @@ public static class NumericalToleranceExpectations
 }
 
 
-public class ChallengeMethodBase
+public record ChallengeMethodBase
 {
     public string StrategyName { get; }
     public SolutionLanguage Language { get; }
@@ -86,15 +88,20 @@ public class ChallengeMethodBase
     }
 }
 
-public class ChallengeMethodCSharpParquetDotNet : ChallengeMethodBase
+public record ChallengeMethodCSharp : ChallengeMethodBase
 {
-    public ChallengeMethodCSharpParquetDotNet(
+    public ChallengeMethodCSharp(
         string strategyName,
-        SolutionLanguage language,
         CalcEngine engine,
         CSharpSolutionInterface solutionInterface,
         bool requiresGpu
-    ) : base(strategyName, language, engine, solutionInterface, requiresGpu)
+    ) : base(
+        strategyName: strategyName, 
+        language: SolutionLanguage.CSHARP, 
+        engine: engine, 
+        solutionInterface: solutionInterface, 
+        requiresGpu: requiresGpu
+        )
     {
     }
 }

@@ -1,3 +1,5 @@
+namespace CSharpDataFrame.SharedBetweenChallenges.RunnerTypes;
+
 using System.Diagnostics;
 using CSharpDataFrame.SharedBetweenChallenges.CommonTypes;
 

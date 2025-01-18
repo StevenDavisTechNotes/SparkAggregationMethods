@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
 using CSharpDataFrame.SharedBetweenChallenges.CommonTypes;
 
 public class SixTestDataSetDescription

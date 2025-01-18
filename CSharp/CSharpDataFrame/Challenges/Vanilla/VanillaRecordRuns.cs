@@ -1,5 +1,7 @@
-using CSharpDataFrame.SharedBetweenChallenges.CommonTypes;
+namespace CSharpDataFrame.Challenges.Vanilla;
 
+using CSharpDataFrame.SharedBetweenChallenges.CommonTypes;
+using CSharpDataFrame.SharedBetweenChallenges.RunnerTypes;
 using System;
 using System.IO;
 public record VanillaRunResult(
@@ -50,7 +52,9 @@ public class VanillaRunResultFileWriter
     }
 
     public override void WriteRunResult(
-        ChallengeMethodBase challengeMethod, RunResultBase runResult)
+        ChallengeMethodBase challengeMethod,
+        RunResultBase runResult
+    )
     {
         if (runResult is not VanillaRunResult vanillaRunResult)
             throw new ArgumentException("Invalid run result type", nameof(runResult));

@@ -165,6 +165,16 @@ public record RunnerArgumentsBase(
     int NumRuns,
     int? RandomSeed,
     bool Shuffle,
-    List<string> Sizes,
-    List<string> StrategyNames
+    string[] Sizes,
+    string[] StrategyNames
+);
+
+public record GenericArgumentsBase(
+    int NumRuns,
+    int? RandomSeed,
+    bool Shuffle,
+    string[] Sizes,
+    string[] StrategyNames,
+    int? DefaultParallelism,
+    int? NumExecutors
 );

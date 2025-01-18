@@ -195,11 +195,10 @@ public class SixTestSourceDataFilePaths
         SourceFilePathCsv = sourceFilePathCsv;
     }
 
-    public List<string> FilePaths => new List<string>
-    {
+    public string[] FilePaths => [
         SourceFilePathParquetSmallV1Files,
         SourceFilePathParquetSingleFile,
         SourceFilePathCsv
-    };
+    ];
 }
 

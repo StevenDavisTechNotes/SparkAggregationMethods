@@ -34,16 +34,15 @@ public class SixTestSourceDataFilePaths
         SourceFilePathParquetSingleFile = sourceFilePathParquetSingleFile;
         SourceFilePathCsv = sourceFilePathCsv;
     }
-    public List<string> FilePaths
+    public string[] FilePaths
     {
         get
         {
-            return new List<string>
-            {
+            return [
                 SourceFilePathParquetSmallV1Files,
                 SourceFilePathParquetSingleFile,
                 SourceFilePathCsv
-            };
+            ];
         }
     }
 }

@@ -45,24 +45,6 @@ ENGINE = CalcEngine.PYSPARK
 CHALLENGE = Challenge.VANILLA
 
 
-DEBUG_ARGS = None if True else (
-    []
-    + '--size 3_3_10m'.split()
-    + '--runs 1'.split()
-    # + '--random-seed 1234'.split()
-    + ['--no-shuffle']
-    + ['--strategy',
-       #    'vanilla_pyspark_df_grp_builtin',
-       #    'vanilla_pyspark_df_grp_numba',
-       #    'vanilla_pyspark_df_grp_numpy',
-       #    'vanilla_pyspark_df_grp_pandas',
-       #    'vanilla_pyspark_rdd_grp_map',
-       #    'vanilla_pyspark_rdd_mappart',
-       'vanilla_pyspark_rdd_reduce',
-       #    'vanilla_pyspark_sql',
-       ]
-)
-
 
 @dataclass(frozen=True)
 class VanillaDataSetWAnswerPyspark(SixFieldDataSetPyspark):
@@ -84,10 +66,7 @@ def parse_args() -> Arguments:
     parser.add_argument('--size', choices=sizes, default=sizes, nargs="*")
     parser.add_argument('--shuffle', default=True, action=argparse.BooleanOptionalAction)
     parser.add_argument('--strategy', choices=strategy_names, default=strategy_names, nargs="*")
-    if DEBUG_ARGS is None:
-        args = parser.parse_args()
-    else:
-        args = parser.parse_args(DEBUG_ARGS)
+    args = parser.parse_args()
     return Arguments(
         num_runs=args.runs,
         random_seed=args.random_seed,

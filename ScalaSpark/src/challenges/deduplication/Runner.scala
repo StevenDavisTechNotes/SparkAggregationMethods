@@ -1,4 +1,4 @@
-package DedupePerfTest
+package challenges.deduplication
 
 import java.io._
 import scala.collection.immutable.IndexedSeq
@@ -9,8 +9,8 @@ import org.apache.spark.rdd.{ RDD }
 import org.apache.spark.{ SparkConf, SparkContext }
 import org.apache.spark.sql.{ SparkSession, Row, DataFrame, Dataset, Encoder }
 
-import Common.FileHelper
-import Common.MathHelper
+import common.FileHelper
+import common.MathHelper
 import util.control.Breaks._
 
 object LogHolder extends Serializable {
@@ -44,7 +44,7 @@ case class Runner(IsCloudMode: Boolean, OverrideCanAssumeNoDupesPerPartition: Bo
       else SparkSession
         .builder
         .master("local[7, 0]")
-        .config("spark.local.dir", "E:/Temp/SparkTemp")
+        .config("spark.local.dir", sys.env.get("SPARK_SCRATCH_SPACE").getOrElse(new java.io.File(System.getProperty("java.io.tmpdir"), "spark_scratch").getAbsolutePath()))
     val ss: SparkSession =
       builder
         .appName("DedupePerfTest")

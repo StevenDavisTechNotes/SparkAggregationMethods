@@ -54,16 +54,6 @@ CHALLENGE = Challenge.DEDUPLICATION
 MAX_DATA_POINTS_PER_PARTITION: int = 10000
 
 
-DEBUG_ARGS = None if True else (
-    []
-    + '--size 2'.split()
-    + '--runs 0'.split()
-    # + '--random-seed 1234'.split()
-    + ['--no-shuffle']
-    # + ['--strategy',
-    #    'dedupe_pyspark_df_grp_pandas',
-    #    ]
-)
 MaximumProcessableSegment = pow(10, 5)
 
 
@@ -85,10 +75,7 @@ def parse_args() -> Arguments:
     parser.add_argument('--size', choices=sizes, default=default_sizes, nargs="*")
     parser.add_argument('--shuffle', default=True, action=argparse.BooleanOptionalAction)
     parser.add_argument('--strategy', choices=strategy_names, default=strategy_names, nargs="*")
-    if DEBUG_ARGS is None:
-        args = parser.parse_args()
-    else:
-        args = parser.parse_args(DEBUG_ARGS)
+    args = parser.parse_args()
 
     in_cloud_mode = args.cloud_mode
     if in_cloud_mode:

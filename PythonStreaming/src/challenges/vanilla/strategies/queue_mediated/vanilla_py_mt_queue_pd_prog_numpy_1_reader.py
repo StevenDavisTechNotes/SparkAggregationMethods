@@ -105,8 +105,8 @@ def test_main():
             ),
         ),
     )
-    print(df_result)
-    print("Success!")
+    logger.info(df_result)
+    logger.info("Success!")
 
 
 if __name__ == "__main__":

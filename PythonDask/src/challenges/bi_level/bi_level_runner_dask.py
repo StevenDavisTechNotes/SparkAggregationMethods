@@ -45,17 +45,6 @@ CHALLENGE = Challenge.BI_LEVEL
 
 logger = logging.getLogger(__name__)
 
-DEBUG_ARGS = None if True else (
-    []
-    # + '--size 3_3_10'.split()
-    + '--runs 1'.split()
-    # + '--random-seed 1234'.split()
-    + ['--no-shuffle']
-    # + ['--strategy',
-    #    'bi_level_dask_sql_nested_no_gpu',
-    #    ]
-)
-
 
 @dataclass(frozen=True)
 class BiLevelDataSetWAnswerDask(SixTestDataSetDask):
@@ -80,10 +69,7 @@ def parse_args() -> Arguments:
     parser.add_argument('--shuffle', default=True, action=argparse.BooleanOptionalAction)
     parser.add_argument('--have-gpu', default=True, action=argparse.BooleanOptionalAction)
     parser.add_argument('--strategy', choices=strategy_names, default=strategy_names, nargs="*")
-    if DEBUG_ARGS is None:
-        args = parser.parse_args()
-    else:
-        args = parser.parse_args(DEBUG_ARGS)
+    args = parser.parse_args()
     return Arguments(
         have_gpu=args.have_gpu,
         num_runs=args.runs,

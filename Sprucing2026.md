@@ -11,7 +11,7 @@ To make these repositories approachable, professional, and functional for extern
 - [x] **3. Fix the Hardcoded `makefile_python.ps1` Path**
   `PythonStreaming\makefile.ps1` explicitly sources `. C:\Src\GitHub_Hosted\SparkAggMethods2\makefile_python.ps1`. This should use `. ..\makefile_python.ps1` as it correctly does in `PySpark\makefile.ps1` and `PythonDask\makefile.ps1`.
 
-- [ ] **4. Remove Hardcoded Temp Paths in Python Code**
+- [x] **4. Remove Hardcoded Temp Paths in Python Code**
   `PySpark\src\utils\tidy_session_pyspark.py` hardcodes `SPARK_SCRATCH_FOLDER = "D:\\temp\\spark_scratch"`. This will crash for any user without a `D:` drive. It should be made configurable, or updated to use the system's default temporary directory.
 
 - [x] **5. Remove Hardcoded Tool Paths in Scripts**
@@ -23,7 +23,7 @@ To make these repositories approachable, professional, and functional for extern
 - [ ] **7. Complete Empty Modules**
   `PythonSingleThreaded\src\challenges\conditional\conditional_runner_py_st.py` contains only `# TODO: Implement the main function` and is completely empty otherwise. It should either be completed or entirely removed so it is not distracting to readers.
 
-- [ ] **8. Remove Lingering `DEBUG_ARGS` Blocks**
+- [x] **8. Remove Lingering `DEBUG_ARGS` Blocks**
   Almost all runner files (e.g., `dedupe_runner_pyspark.py`, `vanilla_runner_py_stream.py`) contain an unprofessional `DEBUG_ARGS = None if True else (...)` block at the top. This debug harness should be removed in favor of standard CLI arguments or IDE launch configurations.
 
 - [x] **9. Resolve the Untracked `SimpleQueuedPipelines` Directory**
@@ -32,10 +32,10 @@ To make these repositories approachable, professional, and functional for extern
 - [x] **10. Add `ScalaSpark` Documentation**
   While the Python directories have some rudimentary README files, the `ScalaSpark` directory lacks any documentation. It needs basic instructions on how to build, test, and run the Scala code.
 
-- [ ] **11. Standardize Project Structure Between Python and Scala**
+- [x] **11. Standardize Project Structure Between Python and Scala**
   The Python directories organize code neatly under a `src/challenges` structure, whereas the `ScalaSpark` code has `DedupePerfTest` and `VanillaPerfTest` sitting directly at the root. Standardizing the project structure across languages will make the repository significantly more approachable.
 
-- [ ] **12. Replace bare `print()` statements with `logging`**
+- [x] **12. Replace bare `print()` statements with `logging`**
   Production code, such as `PythonStreaming\src\challenges\vanilla\strategies\queue_mediated\vanilla_py_mt_queue_pd_prog_numpy.py`, utilizes bare `print()` statements (e.g., `print(df_result)`, `print("Success!")`). These should be refactored to use the project's standard logger setup (`logger.info()`) to align with the rest of the codebase.
 
 - [ ] **13. Clean Up Commented-Out Code**

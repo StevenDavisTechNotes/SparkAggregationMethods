@@ -1,4 +1,3 @@
-# gc requirements_executor.txt | sort > c:\temp\t.txt
 # pip install -r requirements_executor.txt
 numba
 numpy>=1.14

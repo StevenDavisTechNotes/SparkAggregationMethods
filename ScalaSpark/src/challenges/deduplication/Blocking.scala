@@ -1,4 +1,4 @@
-package DedupePerfTest
+package challenges.deduplication
 
 import org.apache.spark.sql.{DataFrame, SparkSession, Row, Column}
 import org.apache.spark.sql.types.{IntegerType}

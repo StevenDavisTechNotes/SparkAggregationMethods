@@ -1,4 +1,5 @@
 
+import logging
 from typing import cast
 
 import numpy as np
@@ -8,6 +9,8 @@ import pytest
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_domain_logic.merging_samples import (
     calculate_solution_progressively_from_iterable,
 )
+
+logger = logging.getLogger(__name__)
 
 # cSpell: ignore arange, aggfunc
 MAX_BATCH_SIZE: int = 3*3*1000
@@ -77,7 +80,7 @@ def test_different_batch_sizes_should_produce_similar_answers(
             (reference_answer - df_summary)
             .abs().max().max())
         if abs_diff > 1e-12:
-            print(f"batch_size: {batch_size}")
-            print(df_summary)
-            print(reference_answer)
+            logger.error(f"batch_size: {batch_size}")
+            logger.error(df_summary)
+            logger.error(reference_answer)
             assert df_summary.equals(reference_answer)

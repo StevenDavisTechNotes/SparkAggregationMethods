@@ -45,18 +45,6 @@ CHALLENGE = Challenge.VANILLA
 
 logger = logging.getLogger(__name__)
 
-DEBUG_ARGS = None if True else (
-    []
-    + '--size 3_3_1'.split()
-    + '--runs 1'.split()
-    # + '--random-seed 1234'.split()
-    + ['--no-shuffle']
-    + ['--strategy',
-       #    'vanilla_py_mt_queue_pd_prog_numpy_1_reader',
-       'vanilla_py_mt_queue_pd_prog_numpy',
-       ]
-)
-
 
 @dataclass(frozen=True)
 class VanillaDataSetWAnswerPythonStreaming(SixDataSetPythonStreaming):
@@ -78,10 +66,7 @@ def parse_args() -> Arguments:
     parser.add_argument('--size', choices=sizes, default=sizes, nargs="*")
     parser.add_argument('--shuffle', default=True, action=argparse.BooleanOptionalAction)
     parser.add_argument('--strategy', choices=strategy_names, default=strategy_names, nargs="*")
-    if DEBUG_ARGS is None:
-        args = parser.parse_args()
-    else:
-        args = parser.parse_args(DEBUG_ARGS)
+    args = parser.parse_args()
     return Arguments(
         num_runs=args.runs,
         random_seed=args.random_seed,

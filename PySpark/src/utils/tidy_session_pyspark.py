@@ -1,5 +1,6 @@
 import os
 import shutil
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, cast
@@ -9,7 +10,7 @@ from pyspark import SparkContext
 from pyspark.sql import SparkSession
 from spark_agg_methods_common_python.perf_test_common import LOCAL_NUM_EXECUTORS
 
-SPARK_SCRATCH_FOLDER = "D:\\temp\\spark_scratch"
+SPARK_SCRATCH_FOLDER = os.environ.get("SPARK_SCRATCH_SPACE") or os.path.join(tempfile.gettempdir(), "spark_scratch")
 
 
 def get_python_code_root_path() -> str:

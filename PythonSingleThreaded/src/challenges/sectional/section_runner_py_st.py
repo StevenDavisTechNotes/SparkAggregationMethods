@@ -46,16 +46,6 @@ from src.challenges.sectional.section_test_data_types_py_st import (
 
 logger = logging.getLogger(__name__)
 
-DEBUG_ARGS = None if True else (
-    []
-    + '--size 1 10 100 1000 10000'.split()
-    + '--runs 0'.split()
-    # + '--random-seed 1234'.split()
-    # + ['--no-shuffle']
-    # + ['--strategy',
-    #    ]
-)
-
 LANGUAGE = SolutionLanguage.PYTHON
 ENGINE = CalcEngine.SINGLE_THREADED
 CHALLENGE = Challenge.SECTIONAL
@@ -79,10 +69,7 @@ def parse_args() -> Arguments:
     parser.add_argument('--size', choices=sizes, default=sizes, nargs="*")
     parser.add_argument('--shuffle', default=True, action=argparse.BooleanOptionalAction)
     parser.add_argument('--strategy', choices=strategy_names, default=strategy_names, nargs="*")
-    if DEBUG_ARGS is None:
-        args = parser.parse_args()
-    else:
-        args = parser.parse_args(DEBUG_ARGS)
+    args = parser.parse_args()
     return Arguments(
         check_answers=args.check,
         num_runs=args.runs,

@@ -1,4 +1,4 @@
-package DedupePerfTest
+package challenges.deduplication
 
 import org.apache.log4j.Logger
 import org.apache.spark.rdd.{ RDD }
@@ -8,7 +8,7 @@ import org.apache.spark.sql.expressions.{ Window }
 import org.apache.spark.sql.{ functions => func }
 import org.apache.spark.sql.functions.{ col, when, lit }
 import org.apache.spark.sql.types.{ IntegerType, BooleanType }
-import Common.ZipWithIndex
+import common.ZipWithIndex
 
 object dedupe_fluent_windows {
   def run(

@@ -1,4 +1,4 @@
-package VanillaPerfTest
+package challenges.vanilla
 
 import java.io._
 import scala.collection.immutable.IndexedSeq
@@ -8,8 +8,8 @@ import org.apache.spark.rdd.{ RDD }
 import org.apache.spark.{ SparkConf, SparkContext }
 import org.apache.spark.sql.{ SparkSession, Row, DataFrame, Dataset, Encoder }
 
-import Common.FileHelper
-import Common.MathHelper
+import common.FileHelper
+import common.MathHelper
 
 object LogHolder extends Serializable {
   @transient lazy val log = Logger.getLogger(getClass.getName)
@@ -30,7 +30,7 @@ object Runner {
       .config("spark.rpc.numRetries", "0")
       .config("spark.task.maxFailures", "1")
       .config("spark.sql.execution.arrow.enabled", "true")
-      .config("spark.local.dir", "E:/Temp/SparkTemp")
+      .config("spark.local.dir", sys.env.get("SPARK_SCRATCH_SPACE").getOrElse(new java.io.File(System.getProperty("java.io.tmpdir"), "spark_scratch").getAbsolutePath()))
       .enableHiveSupport()
       .getOrCreate()
     LogHolder.log.info("script initialized")

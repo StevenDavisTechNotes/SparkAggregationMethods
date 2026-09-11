@@ -42,18 +42,6 @@ LANGUAGE = SolutionLanguage.PYTHON
 ENGINE = CalcEngine.SINGLE_THREADED
 CHALLENGE = Challenge.BI_LEVEL
 
-DEBUG_ARGS = None if True else (
-    []
-    + '--size 3_3_10'.split()
-    + '--runs 1'.split()
-    # + '--random-seed 1234'.split()
-    + ['--no-shuffle']
-    + ['--strategy',
-       #    'bi_level_py_st_pd_grp_numpy',
-       'bi_level_py_st_pd_prog_numpy',
-       ]
-)
-
 
 @dataclass(frozen=True)
 class Arguments(RunnerArgumentsBase):
@@ -75,10 +63,7 @@ def parse_args() -> Arguments:
     parser.add_argument('--size', choices=sizes, default=sizes, nargs="+")
     parser.add_argument('--shuffle', default=True, action=argparse.BooleanOptionalAction)
     parser.add_argument('--strategy', choices=strategy_names, default=strategy_names, nargs="*")
-    if DEBUG_ARGS is None:
-        args = parser.parse_args()
-    else:
-        args = parser.parse_args(DEBUG_ARGS)
+    args = parser.parse_args()
     return Arguments(
         num_runs=args.runs,
         random_seed=args.random_seed,

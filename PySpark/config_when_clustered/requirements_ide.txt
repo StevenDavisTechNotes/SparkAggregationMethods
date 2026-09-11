@@ -1,4 +1,3 @@
-# gc requirements_ide.txt | sort > c:\temp\t.txt
 # pip install -r requirements_ide.txt
 #- beautifulsoup4 
 #- bottleneck 

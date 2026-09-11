@@ -1,4 +1,4 @@
-package DedupePerfTest
+package challenges.deduplication
 
 import java.security.MessageDigest
 import java.math.BigInteger

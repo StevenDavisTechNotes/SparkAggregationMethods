@@ -1,4 +1,4 @@
-package DedupePerfTest
+package challenges.deduplication
 
 import org.apache.spark.sql.expressions.MutableAggregationBuffer
 import org.apache.spark.sql.expressions.UserDefinedAggregateFunction

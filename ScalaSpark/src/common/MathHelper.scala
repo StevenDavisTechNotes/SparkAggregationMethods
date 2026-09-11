@@ -1,4 +1,4 @@
-package Common
+package common
 
 object MathHelper {
   // from https://grokbase.com/t/gg/scala-user/12bptz4gmc/pow-for-int

@@ -1,7 +1,7 @@
-package VanillaPerfTest
+package challenges.vanilla
 
 import org.apache.spark.sql.{types => DataTypes}
-import Common.MathHelper._
+import common.MathHelper._
 
 final case class DataPoint(
     var id: Long, 

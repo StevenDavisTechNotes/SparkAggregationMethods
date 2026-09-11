@@ -42,20 +42,6 @@ from src.utils.tidy_session_pyspark import TidySparkSession
 logger = logging.getLogger(__name__)
 
 
-DEBUG_ARGS = None if True else (
-    []
-    + '--size 3_3_10'.split()
-    + '--runs 1'.split()
-    # + '--random-seed 1234'.split()
-    + ['--no-shuffle']
-    + ['--strategy',
-       #    'bi_level_pyspark_rdd_grp_map',
-       #    'bi_level_pyspark_rdd_map_part',
-       #    'bi_level_pyspark_rdd_reduce_1',
-       'bi_level_pyspark_rdd_reduce_2',
-       ]
-)
-
 LANGUAGE = SolutionLanguage.PYTHON
 ENGINE = CalcEngine.PYSPARK
 CHALLENGE = Challenge.BI_LEVEL
@@ -81,10 +67,7 @@ def parse_args() -> Arguments:
     parser.add_argument('--size', choices=sizes, default=sizes, nargs="*")
     parser.add_argument('--shuffle', default=True, action=argparse.BooleanOptionalAction)
     parser.add_argument('--strategy', choices=strategy_names, default=strategy_names, nargs="*")
-    if DEBUG_ARGS is None:
-        args = parser.parse_args()
-    else:
-        args = parser.parse_args(DEBUG_ARGS)
+    args = parser.parse_args()
     return Arguments(
         num_runs=args.runs,
         random_seed=args.random_seed,

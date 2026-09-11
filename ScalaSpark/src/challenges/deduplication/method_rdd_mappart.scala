@@ -1,4 +1,4 @@
-package DedupePerfTest
+package challenges.deduplication
 
 import scala.collection.mutable.{ HashMap, ListBuffer }
 import org.apache.spark.rdd.{ RDD }

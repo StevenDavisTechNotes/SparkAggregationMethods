@@ -1,4 +1,4 @@
-package Common
+package common
 
 import org.apache.spark.sql.{ DataFrame, Dataset }
 import org.apache.spark.sql.types.{ LongType, StructField, StructType }

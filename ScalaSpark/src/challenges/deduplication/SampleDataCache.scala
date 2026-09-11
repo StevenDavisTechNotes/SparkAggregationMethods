@@ -1,4 +1,4 @@
-package DedupePerfTest
+package challenges.deduplication
 
 import java.io.File
 import java.io.PrintWriter
@@ -76,7 +76,11 @@ object SampleDataCache {
 
     val filenames = (letters.zipWithIndex.map {
       case (letter, sourceId) => {
-        var filePath = if (isCloudMode) "adl:///sparkperftesting" else "e:/temp/sparkperftesting"
+        var filePath = if (isCloudMode) "adl:///sparkperftesting" else {
+          sys.env.get("SPARK_PERF_TESTING_DATA_LOCATION").getOrElse(
+            new java.io.File(System.getProperty("java.io.tmpdir"), "spark_test_data").getAbsolutePath()
+          )
+        }
         filePath += f"/Field$letter$numPeople%d.csv"
         val file = new File(filePath)
         if (!file.exists) {

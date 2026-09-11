@@ -9,4 +9,4 @@ if (Test-Path '..\bin\python\venv_executor.zip') {
     Remove-Item '..\bin\python\venv_executor.zip'
 }
 Set-Location venv_executor
-& 'C:\program files\7-zip\7z.exe' 'a' '-tzip' -'mx=3' '..\..\bin\python\venv_executor.zip' '.'
+Compress-Archive -Path '.\*' -DestinationPath '..\..\bin\python\venv_executor.zip'

@@ -1,8 +1,12 @@
-# Helpful Notes
+# PySpark Aggregation Methods
+
+> **Note**: This is a sub-project of the [Spark Aggregation Methods](../README.md) repository. Please refer to the parent repository for a full overview of the benchmarking project.
+
+## Helpful Notes
 
 <!-- cSpell: ignore -->
 
-## Installing PySpark on Windows
+### Installing PySpark on Windows
 
 Look to see what version of Spark and Dask you are going to use, and then work backwards to what supported Python/JDK you can use.
 
@@ -18,7 +22,7 @@ Look to see what version of Spark and Dask you are going to use, and then work b
     - `D:\Programs\Java\jdk-17`
 - Hadoop for Windows
   - Download [https://github.com/cdarlint/winutils/tree/master/hadoop-3.3.5/bin]
-  - Sve to `D:\Programs\hadoop-3.3.5\bin`
+  - Save to `D:\Programs\hadoop-3.3.5\bin`
 - Update requirements.txt
   - `pyspark[pandas_on_spark,sql]==3.4.3`
 - Edit Environment Variables for Your Account

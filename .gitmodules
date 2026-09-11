@@ -1,0 +1,3 @@
+[submodule "SimpleQueuedPipelines"]
+	path = SimpleQueuedPipelines
+	url = git@github.com:StevenDavisTechNotes/simple_queued_pipelines.git

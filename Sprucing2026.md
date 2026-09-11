@@ -44,5 +44,5 @@ To make these repositories approachable, professional, and functional for extern
 - [ ] **14. Generalize Installation Instructions**
   `PySpark\readme.md` instructs users to install dependencies to highly specific local drives (e.g., `D:\Programs\spark-3.4.3-bin-hadoop3`). These instructions should be generalized (e.g., `<YOUR_INSTALL_DIR>\spark...` or `C:\path\to\...`) to be universally applicable.
 
-- [ ] **15. Correct Typos in Documentation**
+- [x] **15. Correct Typos in Documentation**
   `PySpark\readme.md` contains obvious typos, such as "Sve to D:\Programs\hadoop-3.3.5\bin" instead of "Save to". A brief proofreading/spellchecker pass over all documentation and comments would increase the professional polish of the repo.

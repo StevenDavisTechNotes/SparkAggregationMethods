@@ -27,7 +27,7 @@ case class Runner(IsCloudMode: Boolean, OverrideCanAssumeNoDupesPerPartition: Bo
   val CanAssumeNoDupesPerPartition = if (IsCloudMode) false else this.OverrideCanAssumeNoDupesPerPartition
   val NumExecutors = if (Debugging) 1 else if (IsCloudMode) 40 else 7
   val DefaultParallelism = if (IsCloudMode) 2 * NumExecutors else 16
-  val SufflePartitions = DefaultParallelism
+  val ShufflePartitions = DefaultParallelism
   val MaximumProcessableSegment = MathHelper.pow(10, 5)
   val log = Logger.getLogger(getClass.getName)
 
@@ -48,7 +48,7 @@ case class Runner(IsCloudMode: Boolean, OverrideCanAssumeNoDupesPerPartition: Bo
     val ss: SparkSession =
       builder
         .appName("DedupePerfTest")
-        .config("spark.sql.shuffle.partitions", SufflePartitions)
+        .config("spark.sql.shuffle.partitions", ShufflePartitions)
         .config("spark.default.parallelism", DefaultParallelism)
         .config("spark.ui.enabled", "false")
         .config("spark.rdd.compress", "false")

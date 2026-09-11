@@ -11,7 +11,7 @@
 Look to see what version of Spark and Dask you are going to use, and then work backwards to what supported Python/JDK you can use.
 
 - Spark
-  - (Download)(https://spark.apache.org/downloads.html)
+  - [Download](https://spark.apache.org/downloads.html)
     - Pre-built for Apache Hadoop 3.3 and later
     - Unzip to `C:\Programs\Spark\spark-3.5.9-bin-hadoop3`
 - Python 3.13
@@ -25,7 +25,7 @@ Look to see what version of Spark and Dask you are going to use, and then work b
     - Install to a folder without spaces in the name
       - `C:\Programs\Java\jdk-17`
 - Hadoop for Windows
-  - Download [https://github.com/cdarlint/winutils/tree/master/hadoop-3.3.5/bin]
+  - Download [winutils](https://github.com/cdarlint/winutils/tree/master/hadoop-3.3.5/bin)
   - Save to `D:\Programs\hadoop-3.3.5\bin`
 - Update requirements.txt
   - `pyspark[pandas_on_spark,sql]==3.4.3`
@@ -36,10 +36,10 @@ Look to see what version of Spark and Dask you are going to use, and then work b
   - PYSPARK_HADOOP_VERSION = 3
   - PYSPARK_PYTHON = python
   - SPARK_HOME = D:\Programs\spark-3.4.3-bin-hadoop3
- - Add to the PATH
-   - %SPARK_HOME%\bin
-   - %JAVA_HOME%\bin
-   - %HADOOP_HOME%\bin
+  - Add to the PATH
+    - %SPARK_HOME%\bin
+    - %JAVA_HOME%\bin
+    - %HADOOP_HOME%\bin
 - Disable ShutdownHookManager logging
   - Due to a bug in Spark on Windows, the ShutdownHookManager will intermittently fail
   - .\makefile.ps1 Install-Log4J2 

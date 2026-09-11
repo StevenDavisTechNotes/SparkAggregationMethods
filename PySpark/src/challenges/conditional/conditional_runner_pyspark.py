@@ -132,7 +132,7 @@ def prepare_data_sets(
 
 
 class ConditionalPysparkRunResultFileWriter(ConditionalPythonRunResultFileWriter):
-    RUN_LOG_FILE_PATH: str = os.path.abspath('results/conditional_pyspark_runs.csv')
+    RUN_LOG_FILE_PATH: str = 'results/conditional_pyspark_runs.csv'
 
     def __init__(self):
         super().__init__(

@@ -126,7 +126,7 @@ def prepare_data_sets(
 
 
 class VanillaPysparkRunResultFileWriter(VanillaPythonRunResultFileWriter):
-    RUN_LOG_FILE_PATH: str = os.path.abspath('results/vanilla_pyspark_runs.csv')
+    RUN_LOG_FILE_PATH: str = 'results/vanilla_pyspark_runs.csv'
 
     def __init__(self):
         super().__init__(

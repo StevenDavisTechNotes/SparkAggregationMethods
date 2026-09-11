@@ -117,7 +117,7 @@ def prepare_data_sets(
 
 
 class BiLevelDaskRunResultFileWriter(BiLevelPythonRunResultFileWriter):
-    RUN_LOG_FILE_PATH: str = os.path.abspath('results/bi_level_dask_runs.csv')
+    RUN_LOG_FILE_PATH: str = 'results/bi_level_dask_runs.csv'
 
     def __init__(self):
         super().__init__(

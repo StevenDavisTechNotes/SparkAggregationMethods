@@ -5,10 +5,10 @@ To make these repositories approachable, professional, and functional for extern
 - [x] **1. Missing Root Documentation**
   The repository root (`C:\src\SparkAggregationMethods`) lacks a top-level `README.md`. A comprehensive README is necessary to orient external parties to the multiple sub-projects (`PySpark`, `PythonDask`, `PythonSingleThreaded`, `ScalaSpark`, etc.), explain the overall goals, and link out to sub-project documentation.
 
-- [ ] **2. Remove Hardcoded Local Paths in JSON Configurations**
+- [x] **2. Remove Hardcoded Local Paths in JSON Configurations**
   The configuration files (`results/challenge_strategy_registration.json` within PySpark, PythonDask, and PythonSingleThreaded) contain hardcoded local paths (e.g., `C:\Src\GitHub_Hosted\SparkAggMethods2\...`). These absolute paths will immediately break when an external user runs the code and should be converted to relative paths.
 
-- [ ] **3. Fix the Hardcoded `makefile_python.ps1` Path**
+- [x] **3. Fix the Hardcoded `makefile_python.ps1` Path**
   `PythonStreaming\makefile.ps1` explicitly sources `. C:\Src\GitHub_Hosted\SparkAggMethods2\makefile_python.ps1`. This should use `. ..\makefile_python.ps1` as it correctly does in `PySpark\makefile.ps1` and `PythonDask\makefile.ps1`.
 
 - [ ] **4. Remove Hardcoded Temp Paths in Python Code**

@@ -118,7 +118,7 @@ def prepare_data_sets(
 
 
 class SectionPythonSTRunResultFileWriter(SectionPythonRunResultFileWriter):
-    RUN_LOG_FILE_PATH: str = os.path.abspath('results/section_python_single_threaded_runs.csv')
+    RUN_LOG_FILE_PATH: str = 'results/section_python_single_threaded_runs.csv'
 
     def __init__(self):
         super().__init__(

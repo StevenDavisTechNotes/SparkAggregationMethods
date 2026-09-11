@@ -13,13 +13,17 @@ Look to see what version of Spark and Dask you are going to use, and then work b
 - Spark
   - (Download)(https://spark.apache.org/downloads.html)
     - Pre-built for Apache Hadoop 3.3 and later
-    - Unzip to `D:\Programs\spark-3.4.3-bin-hadoop3`
-- Python 3.11
+    - Unzip to `C:\Programs\Spark\spark-3.5.9-bin-hadoop3`
+- Python 3.13
   - https://www.python.org/downloads/
 - Java JDK 17
-  - https://www.oracle.com/java/technologies/downloads/#java17
-  - Install to a folder without spaces in the same
-    - `D:\Programs\Java\jdk-17`
+  - https://learn.microsoft.com/en-us/java/openjdk/download#openjdk-17
+    - Install for all users
+    - Create JAVA_HOME environment variable
+  - Old
+    - https://www.oracle.com/java/technologies/downloads/#java17
+    - Install to a folder without spaces in the name
+      - `C:\Programs\Java\jdk-17`
 - Hadoop for Windows
   - Download [https://github.com/cdarlint/winutils/tree/master/hadoop-3.3.5/bin]
   - Save to `D:\Programs\hadoop-3.3.5\bin`

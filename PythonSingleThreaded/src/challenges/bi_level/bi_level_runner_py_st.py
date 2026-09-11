@@ -111,7 +111,7 @@ def prepare_data_sets(
 
 
 class BiLevelPythonSTRunResultFileWriter(BiLevelPythonRunResultFileWriter):
-    RUN_LOG_FILE_PATH: str = os.path.abspath('results/bi_level_python_single_threaded_runs.csv')
+    RUN_LOG_FILE_PATH: str = 'results/bi_level_python_single_threaded_runs.csv'
 
     def __init__(self):
         super().__init__(

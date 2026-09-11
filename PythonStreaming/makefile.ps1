@@ -6,7 +6,7 @@ $EditablePackageFolders = @(
 	"CommonPython"
 )
 
-. C:\Src\GitHub_Hosted\SparkAggMethods2\makefile_python.ps1
+. ..\makefile_python.ps1
 
 if ($args.Length -eq 0) {
 	& $DefaultScriptCommand

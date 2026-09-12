@@ -35,6 +35,9 @@ To compare syntax and performance, the challenges are implemented across several
 
 Each engine has its own specific dependencies and setup instructions. Navigate to the specific sub-project folder for detailed instructions:
 
+1. **Simple Queued Pipelines**:
+   * Run `git submodule add git@github.com:StevenDavisTechNotes/simple_queued_pipelines.git SimpleQueuedPipelines`
+
 1. **Python Environments**: 
    * Navigate to the target directory (e.g., `cd PySpark`).
    * Review the local `readme.md` for specific requirements (e.g., Spark, Hadoop, JDK versions).

@@ -46,3 +46,33 @@ To make these repositories approachable, professional, and functional for extern
 
 - [x] **15. Correct Typos in Documentation**
   `PySpark\readme.md` contains obvious typos, such as "Sve to D:\Programs\hadoop-3.3.5\bin" instead of "Save to". A brief proofreading/spellchecker pass over all documentation and comments would increase the professional polish of the repo.
+
+- [ ] **16. Add a Scala Build System (`sbt` or `Maven`)**
+  The `ScalaSpark` directory currently contains raw `.scala` source files without a build configuration. Adding a standard `build.sbt` or `pom.xml` will allow external contributors to compile and run the code from the command line without needing a specific IDE setup.
+
+- [ ] **17. Automate Dataset Generation**
+  The test runners depend on specific datasets (e.g., 10m row parquet files). A unified, documented bootstrap script (e.g., `generate_all_test_data.py`) should be created at the root level so new users can generate all necessary data with a single command.
+
+- [ ] **18. Consolidate and Unify Python Makefiles**
+  Every Python sub-project currently has its own `makefile.ps1` and `quick_test_run.ps1`. These should be consolidated into a single root-level task runner (such as a standard `Makefile`, `Justfile`, or `Invoke` script) to eliminate duplicated script logic.
+
+- [ ] **19. Create a Master Benchmark Runner Script**
+  Users currently have to `cd` into each framework directory to run its benchmarks. A master script should be implemented at the repository root to automatically trigger the benchmarks sequentially across all engines (PySpark, Dask, Single-Threaded, Scala).
+
+- [ ] **20. Provide a Dockerfile or DevContainer Environment**
+  The project has complex local setup requirements on Windows (specific Java JDKs, Hadoop `winutils`, Spark versions). Providing a `.devcontainer` or `Dockerfile` would give new contributors a ready-to-use, isolated environment, drastically lowering the barrier to entry.
+
+- [ ] **21. Standardize Python Dependency Management**
+  The repository has many scattered `requirements.txt` and `requirements_frozen.txt` files. Migrating to a modern dependency management tool like `uv`, `Poetry`, or a centralized `pyproject.toml` will make environment management much more robust.
+
+- [ ] **22. Add an Automated CI/CD Pipeline (GitHub Actions)**
+  There are no automated checks. Setting up a basic GitHub Actions workflow to run `py_compile`, linting, and basic unit tests on PRs will prevent the introduction of regressions or typos.
+
+- [ ] **23. Integrate Python Linting and Formatting (Pre-commit)**
+  To maintain a professional standard, tools like `ruff` or `black` + `isort` should be enforced via a `.pre-commit-config.yaml` to ensure consistent code styling across the hundreds of Python files.
+
+- [ ] **24. Enforce Static Type Checking (MyPy)**
+  The common harness uses advanced Python typing (`Generics`, `TypeVars`, etc.), but there is no strict static type checking enforced. Running `mypy` against the codebase will harden these core utilities against bugs.
+
+- [ ] **25. Add Open Source Community Standard Files**
+  To be fully approachable as an open-source reference, the root directory should include a `CONTRIBUTING.md`, an explicit `LICENSE` file, and optionally an issue template.

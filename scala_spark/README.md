@@ -21,7 +21,14 @@ We use `sbt` as the build tool for the Scala projects.
    ```bash
    sbt compile
    ```
-3. Run the performance test suites:
+3. Run the automated tests:
    ```bash
-   sbt run
+   sbt test
+   ```
+   There are currently no Scala test sources, so this is a placeholder that
+   passes vacuously.
+4. Run a challenge (each has its own entry point, so pick one):
+   ```bash
+   sbt "runMain challenges.vanilla.Runner"
+   sbt "runMain challenges.deduplication.IDERunner"
    ```

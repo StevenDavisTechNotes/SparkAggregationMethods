@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "python-single-threaded"
+version = "0.0.1"
+description = "Python Single Threaded aggregation methods"
+requires-python = "==3.13.*"
+dependencies = [
+    "spark_agg_methods_common_python",
+    "pyarrow"
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "flake8",
+    "autopep8",
+    "isort",
+    "ty",
+    "pre-commit"
+]
+
+[tool.uv.sources]
+spark_agg_methods_common_python = { path = "..", editable = true }
+

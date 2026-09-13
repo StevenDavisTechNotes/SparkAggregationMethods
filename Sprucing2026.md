@@ -32,8 +32,13 @@ To make these repositories approachable, professional, and functional for extern
 - [x] **10. Add `scala_spark` Documentation**
   While the Python directories have some rudimentary README files, the `scala_spark` directory lacks any documentation. It needs basic instructions on how to build, test, and run the Scala code.
 
-- [x] **11. Standardize Project Structure Between Python and Scala**
+- [ ] **11. Standardize Project Structure Between Python and Scala**
   The Python directories organize code neatly under a `src/challenges` structure, whereas the `scala_spark` code has `DedupePerfTest` and `VanillaPerfTest` sitting directly at the root. Standardizing the project structure across languages will make the repository significantly more approachable.
+  Note: `scala_spark/build.sbt` now points sbt at `scala_spark/src/challenges/...`
+  and `scala_spark/src/common/` so the project actually builds, but that
+  location is non-standard relative to sbt convention (`src/main/scala/`) —
+  deliberately, to mirror the Python `src/challenges/...` layout. Full
+  alignment with sbt convention remains open.
 
 - [x] **12. Replace bare `print()` statements with `logging`**
   Production code, such as `python_free_threaded\src\challenges\vanilla\strategies\queue_mediated\vanilla_py_ft_queue_pd_prog_numpy.py`, utilizes bare `print()` statements (e.g., `print(df_result)`, `print("Success!")`). These should be refactored to use the project's standard logger setup (`logger.info()`) to align with the rest of the codebase.

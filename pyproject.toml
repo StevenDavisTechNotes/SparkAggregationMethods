@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "spark_agg_methods_common_python"
+version = "0.0.1"
+description = "Common python utilities and aggregation logic"
+requires-python = "==3.10.*"
+dependencies = [
+    "numpy",
+    "pandas",
+    "prettyprinter",
+    "psutil",
+    "pydantic",
+    "pytest",
+    "pytz",
+    "typing-extensions"
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "flake8",
+    "autopep8",
+    "isort",
+    "ty",
+    "pre-commit",
+    "pyarrow"
+]
+
+[tool.setuptools.packages.find]
+where = ["common_python"]
+
+[tool.isort]
+multi_line_output = 5
+include_trailing_comma = true
+force_grid_wrap = 0
+line_length = 120
+
+

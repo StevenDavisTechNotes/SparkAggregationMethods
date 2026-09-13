@@ -23,30 +23,77 @@ The project implements solutions for five distinct aggregation patterns. Each ch
 
 To compare syntax and performance, the challenges are implemented across several different computation engines, separated into their respective top-level directories:
 
-* **`PySpark`**: Apache Spark implementations using the Python API (RDDs, DataFrames, Pandas UDFs).
-* **`ScalaSpark`**: Apache Spark implementations using the native Scala API (RDDs, Datasets/DataFrames, UDAFs).
-* **`PythonDask`**: Parallel computing using the Dask framework (Dask DataFrames, Dask Bags).
-* **`PythonSingleThreaded`**: Baseline implementations using standard single-threaded Python (Pandas, Numpy) for comparison against distributed frameworks.
-* **`PythonStreaming`**: Python implementations utilizing multi-threading and queues for stream processing.
+* **`py_spark`**: Apache Spark implementations using the Python API (RDDs, DataFrames, Pandas UDFs).
+* **`scala_spark`**: Apache Spark implementations using the native Scala API (RDDs, Datasets/DataFrames, UDAFs).
+* **`python_dask`**: Parallel computing using the Dask framework (Dask DataFrames, Dask Bags).
+* **`python_single_threaded`**: Baseline implementations using standard single-threaded Python (Pandas, Numpy) for comparison against distributed frameworks.
+* **`python_free_threaded`**: Python implementations utilizing multi-threading and queues for stream processing.
 
-*Note: The `CommonPython` folder contains shared utilities, types, and test harness code used across the Python-based engines.*
+*Note: The `common_python` folder contains shared utilities, types, and test harness code used across the Python-based engines.*
 
 ## 🛠 Getting Started
 
-Each engine has its own specific dependencies and setup instructions. Navigate to the specific sub-project folder for detailed instructions:
+We use **`uv`** for blazing-fast Python dependency management and **`sbt`** for compiling Scala projects.
 
-1. **Simple Queued Pipelines**:
-   * Run `git submodule add git@github.com:StevenDavisTechNotes/simple_queued_pipelines.git SimpleQueuedPipelines`
+### 1. Prerequisites
+- **Python environments**: Install `uv`.
+- **Scala environment**: Install `sbt` and Java JDK 17.
 
-1. **Python Environments**: 
-   * Navigate to the target directory (e.g., `cd PySpark`).
-   * Review the local `readme.md` for specific requirements (e.g., Spark, Hadoop, JDK versions).
-   * Use the included `makefile.ps1` or run the setup scripts to initialize the virtual environment and install dependencies from `requirements.txt`.
-   * Run the performance tests using the respective runner scripts (e.g., `python -m src.perf_test_runner_for_pyspark`).
+### 2. Python Environments (`uv`)
+Because this repository tests against radically different Python capabilities (legacy Spark vs modern free-threading), the projects cannot share a single workspace lockfile. You must sync the environments for the specific projects you wish to run:
 
-2. **Scala Environment**:
-   * Navigate to `cd ScalaSpark`.
-   * Open the project in IntelliJ IDEA or compile/run using your preferred Scala build tool (e.g., sbt or Maven, depending on local configuration).
+```bash
+(
+   uv sync && 
+   cd admin && uv sync && cd .. && 
+   cd py_spark && uv sync && cd .. && 
+   cd python_dask && uv sync && cd .. && 
+   cd python_free_threaded && uv sync && cd .. && 
+   cd python_single_threaded && uv sync && cd .. && 
+   cd simple_queued_pipelines && uv sync && cd ..
+)
+```
+This automatically handles the different Python requirements across our projects:
+- `py_spark` targets **Python 3.10** for native compatibility with Spark 3.5.9.
+- `python_dask` targets **Python 3.12** for compatibility with the `dask-sql` ecosystem.
+- `admin` and `python_single_threaded` target standard **Python 3.13**.
+- `python_free_threaded` and `simple_queued_pipelines` target **Python 3.13t (free-threaded)** to leverage true multi-threading without the GIL. (This is enforced via local `.python-version` files).
+
+
+### 3. Scala Environment (`sbt`)
+- Install sbt from `https://www.scala-sbt.org/download/`
+- The `scala_spark` directory contains our native Scala implementations.
+```bash
+cd scala_spark
+sbt compile
+sbt test  # no Scala test sources yet, so this passes vacuously
+sbt "runMain challenges.vanilla.Runner"
+sbt "runMain challenges.deduplication.IDERunner"
+```
+
+### 4. Simple Queued Pipelines (Submodule)
+If the `simple_queued_pipelines` directory is empty, pull the git submodule:
+```bash
+git submodule update --init --recursive
+```
+
+### 5. Code Standards (`pre-commit`)
+We use `pre-commit` to automatically run formatting (`isort`, `autopep8`) and linting (`flake8`, `ty`) before you commit code.
+To install the pre-commit hooks into your local git repository, run:
+```bash
+uv run pre-commit install && cd simple_queued_pipelines && uv run pre-commit install && cd ..
+```
+
+To manually run all test suites across every sub-project at once, you can use the master test runner:
+```bash
+uv run python scripts/run_all_tests.py
+```
+
+To run a specific performance test in a sub-project, use `uv run` locally:
+```bash
+cd py_spark
+uv run python -m src.perf_test_runner_for_pyspark
+```
 
 ## 📊 Results
 
@@ -55,3 +102,4 @@ When you execute the performance test runners (e.g., `perf_test_runner_for_dask.
 ## 📝 License
 
 Please refer to the `LICENSE` file in the root directory for usage and distribution terms.
+

@@ -1,0 +1,27 @@
+[project]
+name = "python-dask"
+version = "0.0.1"
+description = "Python Dask aggregation methods"
+requires-python = ">=3.12"
+dependencies = [
+    "dask[dataframe]",
+    "dask[distributed]",
+    "dask-sql",
+    "pyarrow",
+    "pandas",
+    "numpy",
+    "spark_agg_methods_common_python"
+]
+
+[tool.uv.sources]
+spark_agg_methods_common_python = { path = "..", editable = true }
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "flake8",
+    "autopep8",
+    "isort",
+    "ty",
+    "pre-commit"
+]

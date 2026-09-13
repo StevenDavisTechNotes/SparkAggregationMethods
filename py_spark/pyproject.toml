@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "python-pyspark"
+version = "0.0.1"
+description = "PySpark aggregation methods"
+requires-python = "==3.10.*"
+dependencies = [
+    "pyspark==3.5.9",
+    "findspark",
+    "spark_agg_methods_common_python",
+    "networkx"
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "flake8",
+    "autopep8",
+    "isort",
+    "ty",
+    "pre-commit"
+]
+
+[tool.uv.sources]
+spark_agg_methods_common_python = { path = "..", editable = true }

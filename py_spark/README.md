@@ -37,9 +37,11 @@ Look to see what version of Spark and Dask you are going to use, and then work b
     - %SPARK_HOME%\bin
     - %JAVA_HOME%\bin
     - %HADOOP_HOME%\bin
-- Disable ShutdownHookManager logging
+- Install log4j2 config
   - Due to a bug in Spark on Windows, the ShutdownHookManager will intermittently fail
-  - `.\install_log4j2.ps1`
+  - `.\install_log4j2.ps1` copies the log4j2 template into place; the extra
+    suppression lines are currently disabled (see the script) pending a test
+    of whether they're still needed
 - Python Environment Setup
   - The Python dependencies are managed by `uv` at the repository root.
   - From the root directory, simply run `uv sync`.

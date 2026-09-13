@@ -97,7 +97,7 @@ class DedupeUDAF(
   }
 }
 
-object method_udaf {
+object MethodUDAF {
   def run(
     generatedDataSet:             
       GeneratedDataSet,

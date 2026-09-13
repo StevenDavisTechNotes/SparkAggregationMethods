@@ -7,7 +7,7 @@ import org.apache.spark.sql.functions.{ udf }
 import DedupePerfTest._
 import scala.reflect.api.materializeTypeTag
 
-object method_fluent_nested_withCol {
+object MethodFluentNestedWithCol {
   def run(
     generatedDataSet: GeneratedDataSet,
     NumExecutors:     Int,

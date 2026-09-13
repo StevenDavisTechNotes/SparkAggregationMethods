@@ -7,7 +7,7 @@ import org.apache.spark.sql.functions.{ udf }
 import DedupePerfTest._
 import scala.reflect.api.materializeTypeTag
 
-object method_rdd_groupby {
+object MethodRDDGroupBy {
   def run(
     generatedDataSet: GeneratedDataSet,
     NumExecutors:     Int,

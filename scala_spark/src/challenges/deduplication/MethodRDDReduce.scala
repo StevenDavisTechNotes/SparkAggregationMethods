@@ -4,7 +4,7 @@ import scala.collection.{ mutable }
 import org.apache.spark.rdd.{ RDD }
 import org.apache.spark.sql.{ SparkSession, DataFrame, Dataset, Row }
 
-object method_rdd_reduce {
+object MethodRDDReduce {
   def addRowToRows(
       lrows: mutable.ListBuffer[Record], 
       rrow: Record, nInitialLRows: Int): 

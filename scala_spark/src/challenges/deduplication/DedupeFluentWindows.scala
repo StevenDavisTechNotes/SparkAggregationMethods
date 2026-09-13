@@ -10,7 +10,7 @@ import org.apache.spark.sql.functions.{ col, when, lit }
 import org.apache.spark.sql.types.{ IntegerType, BooleanType }
 import common.ZipWithIndex
 
-object dedupe_fluent_windows {
+object DedupeFluentWindows {
   def run(
     generatedDataSet:             GeneratedDataSet,
     NumExecutors:                 Int,

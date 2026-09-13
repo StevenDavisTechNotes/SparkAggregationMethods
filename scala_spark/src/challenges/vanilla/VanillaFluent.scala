@@ -9,7 +9,7 @@ import org.apache.spark.sql.expressions.scalalang.typed.{
   avg => typedMean,
   sum => typedSum}
 
-object vanilla_fluent {
+object VanillaFluent {
   def run(
       dataSize: Long, 
       listData: IndexedSeq[DataPoint], 

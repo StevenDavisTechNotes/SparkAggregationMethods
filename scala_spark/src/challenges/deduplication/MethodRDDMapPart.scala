@@ -5,7 +5,7 @@ import org.apache.spark.rdd.{ RDD }
 import org.apache.spark.sql.{ SparkSession, DataFrame, Dataset, Row }
 import org.apache.spark.{ HashPartitioner }
 
-object method_rdd_mappart {
+object MethodRDDMapPart {
   def run(
     generatedDataSet: GeneratedDataSet,
     NumExecutors:     Int,

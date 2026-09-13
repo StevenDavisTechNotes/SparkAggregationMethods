@@ -4,7 +4,7 @@ import org.apache.spark.rdd.{RDD}
 import org.apache.spark.{SparkContext}
 import org.apache.spark.sql.{SparkSession, DataFrame, Dataset}
 
-object vanilla_rdd_grpmap {
+object VanillaRDDGrpMap {
   def run(
       dataSize: Long, 
       listData: IndexedSeq[DataPoint], 

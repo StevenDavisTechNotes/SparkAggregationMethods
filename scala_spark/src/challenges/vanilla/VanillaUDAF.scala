@@ -61,7 +61,7 @@ class MyVarianceUDAF extends UserDefinedAggregateFunction {
   }
 }
 
-object vanilla_udaf {
+object VanillaUDAF {
   def run(
       dataSize: Long, 
       listData: IndexedSeq[DataPoint], 

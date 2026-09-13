@@ -7,7 +7,7 @@ import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.{ Encoder, Encoders }
 import scala.collection.mutable.ListBuffer
 
-object method_aggregator {
+object MethodAggregator {
   class Dedupe(canAssumeNoDupesPerPartition: Boolean)
     extends Aggregator[Record, ListBuffer[Record], Seq[Record]]
     with Serializable {

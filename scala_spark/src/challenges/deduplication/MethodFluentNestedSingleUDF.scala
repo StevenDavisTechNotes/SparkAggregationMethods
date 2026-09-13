@@ -6,7 +6,7 @@ import org.apache.spark.sql.{ SparkSession, DataFrame, Dataset, Row }
 import org.apache.spark.sql.functions.{ udf }
 //import scala.reflect.api.materializeTypeTag
 
-object method_fluent_nested_singleudf {
+object MethodFluentNestedSingleUDF {
   def run(
     generatedDataSet: GeneratedDataSet,
     NumExecutors:     Int,

@@ -1,52 +1,10 @@
 {
-  "executionEnvironments": [
-    {
-      "root": "SimpleQueuedPipelines/simple_queued_pipelines", 
-      "pythonVersion": "3.13",
-      "pythonPlatform": "Windows",
-    },
-    {
-      "root": "CommonPython/spark_agg_methods_common_python", 
-      "pythonVersion": "3.13",
-      "pythonPlatform": "Windows",
-    },
-    {
-      "extraPaths": [ "CommonPython/spark_agg_methods_common_python" ],
-      "root": "Admin/src", 
-      "pythonVersion": "3.13",
-      "pythonPlatform": "Windows",
-    },
-    {
-      "extraPaths": [ "CommonPython/spark_agg_methods_common_python" ],
-      "root": "PySpark/src" ,
-      "pythonVersion": "3.11",
-      "pythonPlatform": "Windows",
-    },
-    {
-      "extraPaths": [ "CommonPython/spark_agg_methods_common_python" ],
-      "root": "PythonDask/src" ,
-      "pythonVersion": "3.12",
-      "pythonPlatform": "Windows",
-    },
-    {
-      "extraPaths": [ 
-        "SimpleQueuedPipelines/simple_queued_pipelines",
-        "CommonPython/spark_agg_methods_common_python",
-      ],
-      "root": "PythonSingleThreaded/src" ,
-      "pythonVersion": "3.13",
-      "pythonPlatform": "Windows",
-    },
-    {
-      "extraPaths": [ 
-        "SimpleQueuedPipelines/simple_queued_pipelines",
-        "CommonPython/spark_agg_methods_common_python",
-       ],
-      "root": "PythonStreaming/src" ,
-      "pythonVersion": "3.13",
-      "pythonPlatform": "Windows",
-    }
+  "extraPaths": [
+    "common_python"
   ],
-  "autoSearchPaths": false,
-  "typeCheckingMode": "standard",
+  "exclude": [
+    "**/venv",
+    "**/.venv",
+    "**/__pycache__"
+  ]
 }

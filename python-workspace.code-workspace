@@ -1,12 +1,26 @@
 {
-	"folders": [		
-		{ "path": "SimpleQueuedPipelines" },
-		{ "path": "CommonPython" },
-		{ "path": "Admin" },
-		{ "path": "PySpark" },
-		{ "path": "PythonDask" },
-		{ "path": "PythonSingleThreaded" },
-		{ "path": "PythonStreaming" },
+	"folders": [
+		{
+			"path": "simple_queued_pipelines"
+		},
+		{
+			"path": "common_python"
+		},
+		{
+			"path": "admin"
+		},
+		{
+			"path": "py_spark"
+		},
+		{
+			"path": "python_dask"
+		},
+		{
+			"path": "python_free_threaded"
+		},
+		{
+			"path": "python_single_threaded"
+		},
 	],
 	"settings": {
 		"[python]": {
@@ -20,11 +34,9 @@
 			"source.formatOnSave": "explicit"
 		},
 		"powershell.scriptAnalysis.settingsPath": "./PSScriptAnalyzerSettings.psd1",
-		"python.analysis.autoFormatStrings": false,
-		"python.languageServer": "Pylance",
 		"search.exclude": {
-			"/venv": true
+			"**/.venv": true
 		},
-		"powershell.cwd": "CommonPython"
+		"powershell.cwd": "common_python"
 	}
 }

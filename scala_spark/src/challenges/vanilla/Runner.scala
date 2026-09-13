@@ -54,12 +54,12 @@ object Runner {
     import ss.implicits._
 
     val methodList = List(
-      ComputationMethod("vanilla_sql", "sql", vanilla_sql.run),
-      ComputationMethod("vanilla_fluent", "sql", vanilla_fluent.run),
-      ComputationMethod("vanilla_udaf", "sql", vanilla_udaf.run),
-      ComputationMethod("vanilla_rdd_grpmap", "rdd", vanilla_rdd_grpmap.run),
-      ComputationMethod("vanilla_rdd_reduce", "rdd", vanilla_rdd_reduce.run),
-      ComputationMethod("vanilla_rdd_mappart", "rdd", vanilla_rdd_mappart.run))
+      ComputationMethod("vanilla_sql", "sql", VanillaSQL.run),
+      ComputationMethod("vanilla_fluent", "sql", VanillaFluent.run),
+      ComputationMethod("vanilla_udaf", "sql", VanillaUDAF.run),
+      ComputationMethod("vanilla_rdd_grpmap", "rdd", VanillaRDDGrpMap.run),
+      ComputationMethod("vanilla_rdd_reduce", "rdd", VanillaRDDReduce.run),
+      ComputationMethod("vanilla_rdd_mappart", "rdd", VanillaRDDMapPart.run))
 
     val numGrp1 = 3
     val numGrp2 = 3

@@ -88,14 +88,14 @@ case class Runner(IsCloudMode: Boolean, OverrideCanAssumeNoDupesPerPartition: Bo
 
     var methodList =
       Seq(
-        ComputationMethod("dedupe_fluent_windows", "df", dedupe_fluent_windows.run),
-        ComputationMethod("fluent_nested_withCol", "df", method_fluent_nested_withCol.run),
-        ComputationMethod("fluent_nested_singleudf", "df", method_fluent_nested_singleudf.run),
-        ComputationMethod("rdd_groupby", "rdd", method_rdd_groupby.run),
-        ComputationMethod("rdd_reduce", "rdd", method_rdd_reduce.run),
-        ComputationMethod("rdd_mappart", "rdd", method_rdd_mappart.run),
-        ComputationMethod("aggregator", "df", method_aggregator.run),
-        ComputationMethod("udaf", "df", method_udaf.run))
+        ComputationMethod("dedupe_fluent_windows", "df", DedupeFluentWindows.run),
+        ComputationMethod("fluent_nested_withCol", "df", MethodFluentNestedWithCol.run),
+        ComputationMethod("fluent_nested_singleudf", "df", MethodFluentNestedSingleUDF.run),
+        ComputationMethod("rdd_groupby", "rdd", MethodRDDGroupBy.run),
+        ComputationMethod("rdd_reduce", "rdd", MethodRDDReduce.run),
+        ComputationMethod("rdd_mappart", "rdd", MethodRDDMapPart.run),
+        ComputationMethod("aggregator", "df", MethodAggregator.run),
+        ComputationMethod("udaf", "df", MethodUDAF.run))
 
     var srcDfListListSize = List(
       MathHelper.pow(10, 1),

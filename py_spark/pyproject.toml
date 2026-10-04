@@ -5,23 +5,25 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "python-pyspark"
 version = "0.0.1"
-description = "PySpark aggregation methods"
+description = "Aggregation challenge solutions using PySpark"
 requires-python = "==3.10.*"
 dependencies = [
-    "pyspark==3.5.9",
     "findspark",
+    "networkx",
+    "numba>=0.68.0",
+    "pyarrow>=25.0.1",
+    "pyspark==3.5.9",
     "spark_agg_methods_common_python",
-    "networkx"
 ]
 
 [dependency-groups]
 dev = [
-    "pytest",
-    "flake8",
     "autopep8",
+    "flake8",
     "isort",
+    "pre-commit",
+    "pytest",
     "ty",
-    "pre-commit"
 ]
 
 [tool.uv.sources]

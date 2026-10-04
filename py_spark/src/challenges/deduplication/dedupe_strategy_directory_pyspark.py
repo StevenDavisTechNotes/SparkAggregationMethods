@@ -1,11 +1,6 @@
-from spark_agg_methods_common_python.perf_test_common import (
-    CalcEngine, SolutionInterfacePySpark, SolutionLanguage,
-)
+from spark_agg_methods_common_python.perf_test_common import CalcEngine, SolutionInterfacePySpark, SolutionLanguage
 from spark_agg_methods_common_python.utils.inspection import name_of_function
-
-from src.challenges.deduplication.dedupe_test_data_types_pyspark import (
-    DedupeChallengeMethodPythonPysparkRegistration,
-)
+from src.challenges.deduplication.dedupe_test_data_types_pyspark import DedupeChallengeMethodPythonPysparkRegistration
 from src.challenges.deduplication.strategies.using_pyspark.dedupe_pyspark_df_nested_pandas import (
     dedupe_pyspark_df_nested_pandas,
 )
@@ -15,18 +10,12 @@ from src.challenges.deduplication.strategies.using_pyspark.dedupe_pyspark_df_nes
 from src.challenges.deduplication.strategies.using_pyspark.dedupe_pyspark_df_nested_w_col import (
     dedupe_pyspark_df_nested_w_col,
 )
-from src.challenges.deduplication.strategies.using_pyspark.dedupe_pyspark_df_window import (
-    dedupe_pyspark_df_window,
-)
-from src.challenges.deduplication.strategies.using_pyspark.dedupe_pyspark_rdd_grp import (
-    dedupe_pyspark_rdd_grp,
-)
+from src.challenges.deduplication.strategies.using_pyspark.dedupe_pyspark_df_window import dedupe_pyspark_df_window
+from src.challenges.deduplication.strategies.using_pyspark.dedupe_pyspark_rdd_grp import dedupe_pyspark_rdd_grp
 from src.challenges.deduplication.strategies.using_pyspark.dedupe_pyspark_rdd_map_part import (
     dedupe_pyspark_rdd_map_part,
 )
-from src.challenges.deduplication.strategies.using_pyspark.dedupe_pyspark_rdd_reduce import (
-    dedupe_pyspark_rdd_reduce,
-)
+from src.challenges.deduplication.strategies.using_pyspark.dedupe_pyspark_rdd_reduce import dedupe_pyspark_rdd_reduce
 
 DEDUPE_STRATEGY_REGISTRY_PYSPARK: list[DedupeChallengeMethodPythonPysparkRegistration] = [
     DedupeChallengeMethodPythonPysparkRegistration(

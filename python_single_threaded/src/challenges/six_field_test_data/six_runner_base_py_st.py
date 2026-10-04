@@ -3,19 +3,13 @@ import time
 from typing import Literal
 
 import pandas as pd
-from spark_agg_methods_common_python.challenges.six_field_test_data.six_runner_base import (
-    process_answer,
-)
+from spark_agg_methods_common_python.challenges.six_field_test_data.six_runner_base import process_answer
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
     Challenge, SixTestExecutionParameters,
 )
-from spark_agg_methods_common_python.perf_test_common import (
-    NumericalToleranceExpectations, RunResultBase,
-)
-
+from spark_agg_methods_common_python.perf_test_common import NumericalToleranceExpectations, RunResultBase
 from src.challenges.six_field_test_data.six_test_data_for_py_st import (
-    ChallengeMethodPythonSingleThreadedRegistration, SixDataSetPythonST,
-    TChallengePythonSTAnswer,
+    ChallengeMethodPythonSingleThreadedRegistration, SixDataSetPythonST, TChallengePythonSTAnswer,
 )
 
 logger = logging.getLogger(__name__)

@@ -7,10 +7,7 @@ from pyspark.sql import Row
 from spark_agg_methods_common_python.challenges.deduplication.dedupe_test_data_types import (
     DedupeDataSetDescription, name_hash,
 )
-
-from src.challenges.deduplication.dedupe_test_data_types_pyspark import (
-    RecordSparseStruct,
-)
+from src.challenges.deduplication.dedupe_test_data_types_pyspark import RecordSparseStruct
 from src.utils.tidy_session_pyspark import TidySparkSession
 
 

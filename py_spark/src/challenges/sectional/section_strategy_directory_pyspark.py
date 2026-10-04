@@ -1,23 +1,12 @@
-from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import (
-    SolutionScale,
-)
-from spark_agg_methods_common_python.perf_test_common import (
-    CalcEngine, SolutionInterfacePySpark, SolutionLanguage,
-)
+from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import SolutionScale
+from spark_agg_methods_common_python.perf_test_common import CalcEngine, SolutionInterfacePySpark, SolutionLanguage
 from spark_agg_methods_common_python.utils.inspection import name_of_function
-
-from src.challenges.sectional.section_test_data_types_pyspark import (
-    SectionChallengeMethodPysparkRegistration,
-)
-from src.challenges.sectional.strategies.using_pyspark.section_pyspark_df_join_grp import (
-    section_join_groupby,
-)
+from src.challenges.sectional.section_test_data_types_pyspark import SectionChallengeMethodPysparkRegistration
+from src.challenges.sectional.strategies.using_pyspark.section_pyspark_df_join_grp import section_join_groupby
 from src.challenges.sectional.strategies.using_pyspark.section_pyspark_df_prep_grp_csv import (
     section_pyspark_df_prep_grp_csv,
 )
-from src.challenges.sectional.strategies.using_pyspark.section_pyspark_df_prep_txt import (
-    section_pyspark_df_prep_txt,
-)
+from src.challenges.sectional.strategies.using_pyspark.section_pyspark_df_prep_txt import section_pyspark_df_prep_txt
 from src.challenges.sectional.strategies.using_pyspark.section_pyspark_rdd_join_mappart import (
     section_pyspark_rdd_join_mappart,
 )

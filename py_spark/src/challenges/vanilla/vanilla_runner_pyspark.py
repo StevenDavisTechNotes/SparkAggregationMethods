@@ -21,20 +21,17 @@ from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types 
     DATA_SIZES_LIST_VANILLA, VANILLA_RESULT_COLUMNS, VanillaDataSetDescription,
 )
 from spark_agg_methods_common_python.perf_test_common import (
-    ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge,
-    RunnerArgumentsBase, RunResultBase, SolutionLanguage, assemble_itinerary,
+    ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge, RunnerArgumentsBase, RunResultBase,
+    SolutionLanguage, assemble_itinerary,
 )
 from spark_agg_methods_common_python.utils.platform import setup_logging
-
 from src.challenges.six_field_test_data.six_runner_base_pyspark import (
     six_run_one_step_in_pyspark_itinerary, six_spark_config_base,
 )
 from src.challenges.six_field_test_data.six_test_data_for_pyspark import (
     SixFieldDataSetPyspark, six_prepare_data_set_pyspark,
 )
-from src.challenges.vanilla.vanilla_strategy_directory_pyspark import (
-    VANILLA_STRATEGY_REGISTRY_PYSPARK,
-)
+from src.challenges.vanilla.vanilla_strategy_directory_pyspark import VANILLA_STRATEGY_REGISTRY_PYSPARK
 from src.utils.tidy_session_pyspark import TidySparkSession
 
 logger = logging.getLogger(__name__)

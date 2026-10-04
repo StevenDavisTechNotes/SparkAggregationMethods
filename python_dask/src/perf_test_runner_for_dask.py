@@ -4,7 +4,6 @@
 import logging
 
 from spark_agg_methods_common_python.utils.platform import setup_logging
-
 from src.challenges.bi_level import bi_level_runner_dask
 from src.challenges.conditional import conditional_runner_dask
 from src.challenges.vanilla import vanilla_runner_dask

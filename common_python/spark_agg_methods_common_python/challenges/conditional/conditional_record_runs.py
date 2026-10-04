@@ -3,9 +3,8 @@ import os
 from dataclasses import dataclass
 
 from spark_agg_methods_common_python.perf_test_common import (
-    CalcEngine, ChallengeMethodRegistrationBase, PersistedRunResultBase,
-    RunResultBase, RunResultFileWriterBase, SolutionLanguage,
-    TSolutionInterface,
+    CalcEngine, ChallengeMethodRegistrationBase, PersistedRunResultBase, RunResultBase, RunResultFileWriterBase,
+    SolutionLanguage, TSolutionInterface,
 )
 
 

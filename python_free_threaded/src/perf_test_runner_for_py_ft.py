@@ -4,7 +4,6 @@
 import logging
 
 from spark_agg_methods_common_python.utils.platform import setup_logging
-
 from src.challenges.vanilla import vanilla_runner_py_ft
 
 logger = logging.getLogger(__name__)

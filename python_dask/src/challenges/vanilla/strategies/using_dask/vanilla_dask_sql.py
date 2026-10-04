@@ -5,10 +5,7 @@ from dask_sql import Context
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
     SixTestExecutionParameters,
 )
-
-from src.challenges.six_field_test_data.six_test_data_for_dask import (
-    SixTestDataSetDask, TChallengeAnswerPythonDask,
-)
+from src.challenges.six_field_test_data.six_test_data_for_dask import SixTestDataSetDask, TChallengeAnswerPythonDask
 
 # pyright: reportArgumentType=false
 # pyright: reportCallIssue=false

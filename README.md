@@ -33,13 +33,54 @@ To compare syntax and performance, the challenges are implemented across several
 
 ## 🛠 Getting Started
 
-We use **`uv`** for blazing-fast Python dependency management and **`sbt`** for compiling Scala projects.
+We use **`uv`** for Python dependency management and **`sbt`** for compiling Scala projects.
 
 ### 1. Prerequisites
-- **Python environments**: Install `uv`.
-- **Scala environment**: Install `sbt` and Java JDK 17.
 
-### 2. Python Environments (`uv`)
+* **Python environments**: Install `uv`.
+* **Scala environment**: Install `sbt` and Java JDK 17.
+
+### 2. Code Architecture
+
+#### Git Repos
+
+```bash
+git clone git@github.com:StevenDavisTechNotes/SparkAggregationMethods.git .
+git clone git@github.com:StevenDavisTechNotes/simple_queued_pipelines.git simple_queued_pipelines
+git submodule update --init --recursive
+```
+
+#### Python VENV
+
+| Path | Version | Description | Version Limitation |
+| ------ | --------- | --------- | --------- |
+| . | 3.10 | Pre-commit | LCD |
+| admin | 3.13 | Pre-and-post test processing | None |
+| py_spark | 3.10 | PySpark implementations w/wo GPU | Spark 3.5.9 |
+| python_dask | 3.12 | Dask implementations | `dask-sql` |
+| python_free_threaded | 3.13t | Multi-threaded implementations | GIL removed >= 3.13 |
+| python_single_threaded | 3.13 | numpy w/wo GPU | Match python_free_threaded w GIL |
+| simple_queued_pipelines | 3.13t | Reusable components used by python_free_threaded | GIL removed >= 3.13 |
+
+#### Python Projects
+
+| Path | PYTHONROOT | Description |
+| ------ | --------- | --------- |
+| . | N/A | Not a project |
+| admin | src | Pre-and-post test processing |
+| common_python | spark_agg_methods_common_python | types, utilities, test harness framework |
+| py_spark | 3.10 | PySpark implementations w/wo GPU |
+| python_dask | src | Dask implementations |
+| python_free_threaded | src | Multi-threaded implementations |
+| python_single_threaded | src | numpy w/wo GPU |
+| simple_queued_pipelines | simple_queued_pipelines | Reusable components used by python_free_threaded |
+
+#### VSCode Usage
+
+Primary entrypoint is `python-workspace.code-workspace`.
+
+### 3. Buliding Python Environments (`uv`)
+
 Because this repository tests against radically different Python capabilities (legacy Spark vs modern free-threading), the projects cannot share a single workspace lockfile. You must sync the environments for the specific projects you wish to run:
 
 ```bash
@@ -48,21 +89,29 @@ Because this repository tests against radically different Python capabilities (l
    cd admin && uv sync && cd .. && 
    cd py_spark && uv sync && cd .. && 
    cd python_dask && uv sync && cd .. && 
-   cd python_free_threaded && uv sync && cd .. && 
    cd python_single_threaded && uv sync && cd .. && 
-   cd simple_queued_pipelines && uv sync && cd ..
+   cd simple_queued_pipelines && uv sync && cd .. &&
+   cd python_free_threaded && uv sync && cd .. && 
+   echo "Environments updated"
 )
+
+uv run pyclean --debrise admin challenge_base common_python py_spark python_dask python_free_threaded python_single_threaded simple_queued_pipelines 
+
 ```
+
 This automatically handles the different Python requirements across our projects:
-- `py_spark` targets **Python 3.10** for native compatibility with Spark 3.5.9.
-- `python_dask` targets **Python 3.12** for compatibility with the `dask-sql` ecosystem.
-- `admin` and `python_single_threaded` target standard **Python 3.13**.
-- `python_free_threaded` and `simple_queued_pipelines` target **Python 3.13t (free-threaded)** to leverage true multi-threading without the GIL. (This is enforced via local `.python-version` files).
 
+* `py_spark` targets **Python 3.10** for native compatibility with Spark 3.5.9.
+* `python_dask` targets **Python 3.12** for compatibility with the `dask-sql` ecosystem.
+* `admin` and `python_single_threaded` target standard **Python 3.13**.
+* `python_free_threaded` and `simple_queued_pipelines` target **Python 3.13t (free-threaded)** to leverage true multi-threading without the GIL. (This is enforced via local `.python-version` files).
 
-### 3. Scala Environment (`sbt`)
-- Install sbt from `https://www.scala-sbt.org/download/`
-- The `scala_spark` directory contains our native Scala implementations.
+### 4. Building Scala Environment (`sbt`)
+
+* Install sbt from `https://www.scala-sbt.org/download/`
+
+* The `scala_spark` directory contains our native Scala implementations.
+
 ```bash
 cd scala_spark
 sbt compile
@@ -71,25 +120,26 @@ sbt "runMain challenges.vanilla.Runner"
 sbt "runMain challenges.deduplication.IDERunner"
 ```
 
-### 4. Simple Queued Pipelines (Submodule)
-If the `simple_queued_pipelines` directory is empty, pull the git submodule:
-```bash
-git submodule update --init --recursive
-```
-
 ### 5. Code Standards (`pre-commit`)
+
 We use `pre-commit` to automatically run formatting (`isort`, `autopep8`) and linting (`flake8`, `ty`) before you commit code.
 To install the pre-commit hooks into your local git repository, run:
+
 ```bash
 uv run pre-commit install && cd simple_queued_pipelines && uv run pre-commit install && cd ..
+uv run pre-commit run --all-files
+uv run pre-commit run --hook-type pre-push --all-files
+
 ```
 
 To manually run all test suites across every sub-project at once, you can use the master test runner:
+
 ```bash
-uv run python scripts/run_all_tests.py
+uv run python scripts/run_all.py --pytest
 ```
 
 To run a specific performance test in a sub-project, use `uv run` locally:
+
 ```bash
 cd py_spark
 uv run python -m src.perf_test_runner_for_pyspark
@@ -102,4 +152,3 @@ When you execute the performance test runners (e.g., `perf_test_runner_for_dask.
 ## 📝 License
 
 Please refer to the `LICENSE` file in the root directory for usage and distribution terms.
-

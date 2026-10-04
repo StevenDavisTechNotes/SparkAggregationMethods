@@ -5,27 +5,21 @@ import queue
 from typing import Generator
 
 import pandas as pd
-from simple_queued_pipelines.single_channel.sc_execution_graph import (
-    execute_single_channel_linear_execution_graph_with_four_stages,
-)
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_domain_logic.merging_samples import (
     SixProgressiveBatchSampleStatistics, calculate_solutions_from_summary,
 )
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
-    SixTestDataSetDescription, SixTestExecutionParameters,
-    six_derive_source_test_data_file_path,
+    SixTestDataSetDescription, SixTestExecutionParameters, six_derive_source_test_data_file_path,
 )
-from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types import (
-    DATA_SIZES_LIST_VANILLA,
-)
-from spark_agg_methods_common_python.perf_test_common import (
-    LOCAL_NUM_EXECUTORS, Challenge,
-)
+from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types import DATA_SIZES_LIST_VANILLA
+from spark_agg_methods_common_python.perf_test_common import LOCAL_NUM_EXECUTORS, Challenge
 from spark_agg_methods_common_python.utils.platform import setup_logging
-
 from src.challenges.six_field_test_data.six_test_data_for_py_ft import (
-    SixDataSetDataPythonFreeThreaded, SixDataSetPythonFreeThreaded,
-    TChallengePythonStreamAnswer,
+    SixDataSetDataPythonFreeThreaded, SixDataSetPythonFreeThreaded, TChallengePythonStreamAnswer,
+)
+
+from simple_queued_pipelines.single_channel.sc_execution_graph import (
+    execute_single_channel_linear_execution_graph_with_four_stages,
 )
 
 # usage: python -m src.challenges.vanilla.strategies.queue_mediated.vanilla_py_ft_queue_pd_prog_numpy_1_reader

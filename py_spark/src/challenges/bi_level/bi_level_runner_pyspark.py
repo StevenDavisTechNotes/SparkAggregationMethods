@@ -15,21 +15,17 @@ from spark_agg_methods_common_python.challenges.bi_level.bi_level_record_runs im
     BiLevelPythonRunResultFileWriter, BiLevelRunResult,
 )
 from spark_agg_methods_common_python.challenges.bi_level.bi_level_test_data_types import (
-    BI_LEVEL_RESULT_COLUMNS, DATA_SIZES_LIST_BI_LEVEL,
-    BiLevelDataSetDescription,
+    BI_LEVEL_RESULT_COLUMNS, DATA_SIZES_LIST_BI_LEVEL, BiLevelDataSetDescription,
 )
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
     SixTestExecutionParameters, fetch_six_data_set_answer,
 )
 from spark_agg_methods_common_python.perf_test_common import (
-    ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge,
-    RunnerArgumentsBase, RunResultBase, SolutionLanguage, assemble_itinerary,
+    ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge, RunnerArgumentsBase, RunResultBase,
+    SolutionLanguage, assemble_itinerary,
 )
 from spark_agg_methods_common_python.utils.platform import setup_logging
-
-from src.challenges.bi_level.bi_level_strategy_directory_pyspark import (
-    BI_LEVEL_STRATEGY_REGISTRY_PYSPARK,
-)
+from src.challenges.bi_level.bi_level_strategy_directory_pyspark import BI_LEVEL_STRATEGY_REGISTRY_PYSPARK
 from src.challenges.six_field_test_data.six_runner_base_pyspark import (
     six_run_one_step_in_pyspark_itinerary, six_spark_config_base,
 )

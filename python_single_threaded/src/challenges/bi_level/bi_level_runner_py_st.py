@@ -21,17 +21,12 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_dat
     SixTestExecutionParameters, fetch_six_data_set_answer,
 )
 from spark_agg_methods_common_python.perf_test_common import (
-    ELAPSED_TIME_COLUMN_NAME, CalcEngine, Challenge, RunnerArgumentsBase,
-    RunResultBase, SolutionLanguage, assemble_itinerary,
+    ELAPSED_TIME_COLUMN_NAME, CalcEngine, Challenge, RunnerArgumentsBase, RunResultBase, SolutionLanguage,
+    assemble_itinerary,
 )
 from spark_agg_methods_common_python.utils.platform import setup_logging
-
-from src.challenges.bi_level.bi_level_strategy_directory_py_st import (
-    BI_LEVEL_STRATEGY_REGISTRY_PYTHON_SINGLE_THREADED,
-)
-from src.challenges.six_field_test_data.six_runner_base_py_st import (
-    run_one_step_in_python_single_threaded_itinerary,
-)
+from src.challenges.bi_level.bi_level_strategy_directory_py_st import BI_LEVEL_STRATEGY_REGISTRY_PYTHON_SINGLE_THREADED
+from src.challenges.six_field_test_data.six_runner_base_py_st import run_one_step_in_python_single_threaded_itinerary
 from src.challenges.six_field_test_data.six_test_data_for_py_st import (
     SixDataSetPythonST, six_prepare_data_set_python_single_threaded,
 )

@@ -22,27 +22,20 @@ from spark_agg_methods_common_python.challenges.deduplication.dedupe_record_runs
     DedupePythonRunResultFileWriter, DedupeRunResult,
 )
 from spark_agg_methods_common_python.challenges.deduplication.dedupe_test_data_types import (
-    DATA_SIZE_LIST_DEDUPE, DEDUPE_SOURCE_CODES, DedupeDataSetDescription,
-    dedupe_derive_source_test_data_file_paths,
+    DATA_SIZE_LIST_DEDUPE, DEDUPE_SOURCE_CODES, DedupeDataSetDescription, dedupe_derive_source_test_data_file_paths,
 )
 from spark_agg_methods_common_python.perf_test_common import (
-    ELAPSED_TIME_COLUMN_NAME, CalcEngine, Challenge,
-    NumericalToleranceExpectations, RunnerArgumentsBase, SolutionLanguage,
-    assemble_itinerary,
+    ELAPSED_TIME_COLUMN_NAME, CalcEngine, Challenge, NumericalToleranceExpectations, RunnerArgumentsBase,
+    SolutionLanguage, assemble_itinerary,
 )
 from spark_agg_methods_common_python.utils.platform import setup_logging
 from spark_agg_methods_common_python.utils.utils import int_divide_round_up
-
-from src.challenges.deduplication.dedupe_strategy_directory_pyspark import (
-    DEDUPE_STRATEGY_REGISTRY_PYSPARK,
-)
+from src.challenges.deduplication.dedupe_strategy_directory_pyspark import DEDUPE_STRATEGY_REGISTRY_PYSPARK
 from src.challenges.deduplication.dedupe_test_data_types_pyspark import (
-    DedupeChallengeMethodPythonPysparkRegistration, DedupeDataSetPySpark,
-    DedupeExecutionParametersPyspark, RecordSparseStruct,
+    DedupeChallengeMethodPythonPysparkRegistration, DedupeDataSetPySpark, DedupeExecutionParametersPyspark,
+    RecordSparseStruct,
 )
-from src.challenges.deduplication.domain_logic.dedupe_expected_results_pyspark import (
-    verify_correctness,
-)
+from src.challenges.deduplication.domain_logic.dedupe_expected_results_pyspark import verify_correctness
 from src.utils.tidy_session_pyspark import TidySparkSession
 
 logger = logging.getLogger(__name__)

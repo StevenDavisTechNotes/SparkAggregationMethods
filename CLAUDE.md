@@ -96,9 +96,10 @@ uv run python -O -m src.challenges.vanilla.vanilla_runner_dask --runs 0
 cd admin; uv run python -m src.summarize_test_results
 
 # Repo-wide checks (what pre-commit runs)
-uv run python scripts/run_all_tests.py
-uv run python scripts/run_all_flake8.py
-uv run python scripts/run_all_autopep8.py
+uv run python scripts/run_all.py --pytest
+uv run python scripts/run_all.py --flake8
+uv run python scripts/run_all.py --autopep8
+# No tool flag = all three; --exclude <project> (repeatable) skips a sub-project
 
 # Scala
 cd scala_spark; sbt compile; sbt test
@@ -227,7 +228,7 @@ current state is intentional:
   per-project layout.
 - Only `common_python`, `py_spark`, and `simple_queued_pipelines` currently
   contain `*_test.py` files. The other projects are in the sweep but collect
-  nothing, which `scripts/run_all_tests.py` tolerates by accepting pytest exit
+  nothing, which `scripts/run_all.py --pytest` tolerates by accepting pytest exit
   code 5. New strategies mostly arrive untested.
 - Several runners are still unimplemented and commented out with
   `# TODO: Implement this` (Dask dedupe and sectional, single-threaded dedupe,

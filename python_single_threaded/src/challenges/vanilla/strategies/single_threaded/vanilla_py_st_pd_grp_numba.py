@@ -5,13 +5,10 @@ import pandas as pd
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
     SixTestExecutionParameters,
 )
-
-from src.challenges.six_field_test_data.six_test_data_for_py_st import (
-    SixDataSetPythonST, TChallengePythonSTAnswer,
-)
+from src.challenges.six_field_test_data.six_test_data_for_py_st import SixDataSetPythonST, TChallengePythonSTAnswer
 
 try:
-    import numba  # pyright: ignore[reportMissingImports]
+    import numba
 
     @numba.jit(numba.float64(numba.float64[:]), nopython=True)
     def my_numba_mean(C: numpy.ndarray) -> numpy.float64:
@@ -30,10 +27,10 @@ try:
         assert numba is not None
         n = len(E)
         accE2: float = 0.
-        for i in numba.prange(n):  # ty: ignore[not-iterable]
+        for i in numba.prange(n):
             accE2 += E[i] ** 2
         accE: float = 0.
-        for i in numba.prange(n):  # ty: ignore[not-iterable]
+        for i in numba.prange(n):
             accE += E[i]
         var: float = accE2 / n - (accE / n)**2
         return var

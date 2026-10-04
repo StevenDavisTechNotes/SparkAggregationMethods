@@ -1,12 +1,8 @@
 from spark_agg_methods_common_python.perf_test_common import (
-    CalcEngine, NumericalToleranceExpectations,
-    SolutionInterfacePythonFreeThreaded, SolutionLanguage,
+    CalcEngine, NumericalToleranceExpectations, SolutionInterfacePythonFreeThreaded, SolutionLanguage,
 )
 from spark_agg_methods_common_python.utils.inspection import name_of_function
-
-from src.challenges.six_field_test_data.six_test_data_for_py_ft import (
-    ChallengeMethodPythonFreeThreadedRegistration,
-)
+from src.challenges.six_field_test_data.six_test_data_for_py_ft import ChallengeMethodPythonFreeThreadedRegistration
 from src.challenges.vanilla.strategies.queue_mediated.vanilla_py_ft_queue_pd_prog_numpy import (
     vanilla_py_ft_queue_pd_prog_numpy,
 )

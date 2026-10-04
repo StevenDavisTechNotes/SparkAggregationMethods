@@ -5,10 +5,7 @@ import pandas as pd
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
     SixTestExecutionParameters,
 )
-
-from src.challenges.six_field_test_data.six_test_data_for_py_st import (
-    SixDataSetPythonST, TChallengePythonSTAnswer,
-)
+from src.challenges.six_field_test_data.six_test_data_for_py_st import SixDataSetPythonST, TChallengePythonSTAnswer
 
 
 def bi_level_py_st_pd_grp_numpy(

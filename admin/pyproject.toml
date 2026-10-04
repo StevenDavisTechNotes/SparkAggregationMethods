@@ -5,24 +5,24 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "admin"
 version = "0.0.1"
-description = "Admin tools for SparkAggregationMethods"
+description = "Tooling for generating test data and analyzing test results"
 requires-python = "==3.13.*"
 dependencies = [
+    "numpy",
+    "pandas",
     "pyarrow",
     "scipy",
-    "pandas",
-    "numpy",
-    "spark_agg_methods_common_python"
+    "spark_agg_methods_common_python",
 ]
 
 [dependency-groups]
 dev = [
-    "pytest",
-    "flake8",
     "autopep8",
+    "flake8",
     "isort",
+    "pre-commit",
+    "pytest",
     "ty",
-    "pre-commit"
 ]
 
 [tool.uv.sources]

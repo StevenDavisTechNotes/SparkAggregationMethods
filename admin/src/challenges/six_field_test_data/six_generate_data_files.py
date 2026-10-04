@@ -6,9 +6,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import pyarrow.parquet
-from spark_agg_methods_common_python.challenges.bi_level.bi_level_test_data_types import (
-    DATA_SIZES_LIST_BI_LEVEL,
-)
+from spark_agg_methods_common_python.challenges.bi_level.bi_level_test_data_types import DATA_SIZES_LIST_BI_LEVEL
 from spark_agg_methods_common_python.challenges.conditional.conditional_test_data_types import (
     DATA_SIZES_LIST_CONDITIONAL,
 )
@@ -16,13 +14,10 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_domain_l
     calculate_solutions_progressively,
 )
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
-    SIX_TEST_SOURCE_DATA_PYARROW_SCHEMA, TARGET_PARQUET_BATCH_SIZE,
-    SixTestDataSetDescription, six_derive_expected_answer_data_file_paths_csv,
-    six_derive_source_test_data_file_path,
+    SIX_TEST_SOURCE_DATA_PYARROW_SCHEMA, TARGET_PARQUET_BATCH_SIZE, SixTestDataSetDescription,
+    six_derive_expected_answer_data_file_paths_csv, six_derive_source_test_data_file_path,
 )
-from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types import (
-    DATA_SIZES_LIST_VANILLA,
-)
+from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types import DATA_SIZES_LIST_VANILLA
 from spark_agg_methods_common_python.perf_test_common import Challenge
 
 # cSpell: ignore arange, aggfunc
@@ -68,9 +63,12 @@ def _generate_source_data_file_for_size(
         i_batch_end = min(i_batch_start + TARGET_PARQUET_BATCH_SIZE, num_data_points)
         batch_size = i_batch_end - i_batch_start
         batch_range = range(i_batch_start, i_batch_end)
+        id_range = np.arange(
+            start=i_batch_start, stop=i_batch_end, dtype=np.int32
+        )  # pyright: ignore # ty: ignore[no-matching-overload]
         df = pd.DataFrame(
             data={
-                "id": np.arange(start=i_batch_start, stop=i_batch_end, dtype=np.int32),
+                "id": id_range,
                 "grp": np.array([i // num_grp_2 % num_grp_1 for i in batch_range], dtype=np.int32),
                 "subgrp": np.array([i % num_grp_2 for i in batch_range], dtype=np.int32),
             },

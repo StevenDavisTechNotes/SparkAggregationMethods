@@ -1,16 +1,11 @@
 # cSpell: ignore nopython, prange
 import numpy as np
 import pandas as pd
-from spark_agg_methods_common_python.challenges.bi_level.bi_level_test_data_types import (
-    BI_LEVEL_RESULT_COLUMNS,
-)
+from spark_agg_methods_common_python.challenges.bi_level.bi_level_test_data_types import BI_LEVEL_RESULT_COLUMNS
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
     SixTestExecutionParameters,
 )
-
-from src.challenges.bi_level.bi_level_test_data_types_pyspark import (
-    PysparkPostAggregationSchema,
-)
+from src.challenges.bi_level.bi_level_test_data_types_pyspark import PysparkPostAggregationSchema
 from src.challenges.six_field_test_data.six_test_data_for_pyspark import (
     SixFieldDataSetPyspark, TSixFieldChallengePendingAnswerPythonPyspark,
 )
@@ -36,10 +31,10 @@ try:
         assert numba is not None
         n = len(E)
         accE2 = 0.
-        for i in numba.prange(n):  # ty: ignore[not-iterable]
+        for i in numba.prange(n):
             accE2 += E[i] ** 2
         accE = 0.
-        for i in numba.prange(n):  # ty: ignore[not-iterable]
+        for i in numba.prange(n):
             accE += E[i]
         return accE2 / n - (accE / n)**2  # pyright: ignore
 

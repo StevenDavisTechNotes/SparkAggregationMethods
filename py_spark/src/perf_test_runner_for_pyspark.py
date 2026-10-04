@@ -4,7 +4,6 @@
 import logging
 
 from spark_agg_methods_common_python.utils.platform import setup_logging
-
 from src.challenges.bi_level import bi_level_runner_pyspark
 from src.challenges.conditional import conditional_runner_pyspark
 from src.challenges.deduplication import dedupe_runner_pyspark

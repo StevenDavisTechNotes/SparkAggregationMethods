@@ -2,7 +2,6 @@ import pyspark.sql.functions as func
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
     SixTestExecutionParameters,
 )
-
 from src.challenges.six_field_test_data.six_test_data_for_pyspark import (
     SixFieldDataSetPyspark, TSixFieldChallengePendingAnswerPythonPyspark,
 )

@@ -21,20 +21,13 @@ from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types 
     DATA_SIZES_LIST_VANILLA, VanillaDataSetDescription,
 )
 from spark_agg_methods_common_python.perf_test_common import (
-    ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge,
-    RunnerArgumentsBase, RunResultBase, SolutionLanguage, assemble_itinerary,
+    ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge, RunnerArgumentsBase, RunResultBase,
+    SolutionLanguage, assemble_itinerary,
 )
 from spark_agg_methods_common_python.utils.platform import setup_logging
-
-from src.challenges.six_field_test_data.six_runner_dask_base import (
-    six_run_one_step_in_dask_itinerary,
-)
-from src.challenges.six_field_test_data.six_test_data_for_dask import (
-    SixTestDataSetDask, six_prepare_data_set_dask,
-)
-from src.challenges.vanilla.vanilla_strategy_directory_dask import (
-    VANILLA_STRATEGY_REGISTRY_DASK,
-)
+from src.challenges.six_field_test_data.six_runner_dask_base import six_run_one_step_in_dask_itinerary
+from src.challenges.six_field_test_data.six_test_data_for_dask import SixTestDataSetDask, six_prepare_data_set_dask
+from src.challenges.vanilla.vanilla_strategy_directory_dask import VANILLA_STRATEGY_REGISTRY_DASK
 
 LANGUAGE = SolutionLanguage.PYTHON
 ENGINE = CalcEngine.DASK

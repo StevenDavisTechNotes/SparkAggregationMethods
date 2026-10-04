@@ -17,34 +17,25 @@ from spark_agg_methods_common_python.challenge_strategy_registry import (
     ChallengeResultLogFileRegistration, ChallengeStrategyRegistration,
     update_challenge_strategy_registration_single_repo,
 )
-from spark_agg_methods_common_python.challenges.sectional.section_persist_test_data import (
-    AnswerFileSectional,
-)
+from spark_agg_methods_common_python.challenges.sectional.section_persist_test_data import AnswerFileSectional
 from spark_agg_methods_common_python.challenges.sectional.section_record_runs import (
     SectionPythonRunResultFileWriter, SectionRunResult,
 )
 from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import (
-    DATA_SIZE_LIST_SECTIONAL, SECTION_SIZE_MAXIMUM, SectionDataSetDescription,
-    StudentSummary, section_derive_source_test_data_file_path,
-    section_verify_correctness,
+    DATA_SIZE_LIST_SECTIONAL, SECTION_SIZE_MAXIMUM, SectionDataSetDescription, StudentSummary,
+    section_derive_source_test_data_file_path, section_verify_correctness,
 )
 from spark_agg_methods_common_python.perf_test_common import (
-    ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge,
-    NumericalToleranceExpectations, RunnerArgumentsBase, SolutionLanguage,
-    assemble_itinerary,
+    ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge, NumericalToleranceExpectations,
+    RunnerArgumentsBase, SolutionLanguage, assemble_itinerary,
 )
-from spark_agg_methods_common_python.utils.pandas_helpers import (
-    make_pd_dataframe_from_list_of_named_tuples,
-)
+from spark_agg_methods_common_python.utils.pandas_helpers import make_pd_dataframe_from_list_of_named_tuples
 from spark_agg_methods_common_python.utils.platform import setup_logging
 from spark_agg_methods_common_python.utils.utils import int_divide_round_up
-
-from src.challenges.sectional.section_strategy_directory_pyspark import (
-    SECTIONAL_STRATEGY_REGISTRY_PYSPARK,
-)
+from src.challenges.sectional.section_strategy_directory_pyspark import SECTIONAL_STRATEGY_REGISTRY_PYSPARK
 from src.challenges.sectional.section_test_data_types_pyspark import (
-    MAXIMUM_PROCESSABLE_SEGMENT, SectionChallengeMethodPysparkRegistration,
-    SectionDataSetPyspark, SectionExecutionParametersPyspark,
+    MAXIMUM_PROCESSABLE_SEGMENT, SectionChallengeMethodPysparkRegistration, SectionDataSetPyspark,
+    SectionExecutionParametersPyspark,
 )
 from src.utils.tidy_session_pyspark import TidySparkSession
 

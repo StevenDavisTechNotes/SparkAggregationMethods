@@ -1,11 +1,8 @@
 from spark_agg_methods_common_python.perf_test_common import (
-    CalcEngine, NumericalToleranceExpectations, SolutionInterfaceScalaSpark,
-    SolutionLanguage,
+    CalcEngine, NumericalToleranceExpectations, SolutionInterfaceScalaSpark, SolutionLanguage,
 )
-
 from src.challenges.six_field_test_data.six_test_data_for_pyspark import (
-    SixFieldChallengeMethodScalaSparkRegistration,
-    TSixFieldChallengePendingAnswerPythonPyspark,
+    SixFieldChallengeMethodScalaSparkRegistration, TSixFieldChallengePendingAnswerPythonPyspark,
 )
 
 

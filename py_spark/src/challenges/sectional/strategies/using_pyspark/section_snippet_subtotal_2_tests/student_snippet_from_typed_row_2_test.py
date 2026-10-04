@@ -1,7 +1,6 @@
 from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import (
     NUM_DEPARTMENTS, ClassLine, StudentHeader, TrimesterFooter, TrimesterHeader,
 )
-
 from src.challenges.sectional.domain_logic.section_snippet_subtotal_type import (
     FIRST_LAST_NEITHER, StudentSnippet2, student_snippet_from_typed_row_2,
 )

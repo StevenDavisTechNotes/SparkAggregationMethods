@@ -5,21 +5,24 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "python-single-threaded"
 version = "0.0.1"
-description = "Python Single Threaded aggregation methods"
+description = "Baseline implementations for the aggregation challenges using single-threaded Python with and without GPU acceleration"
 requires-python = "==3.13.*"
 dependencies = [
+    "numba>=0.68.0",
+    "numpy>=2.5.3",
+    "pandas>=3.0.5",
+    "pyarrow",
     "spark_agg_methods_common_python",
-    "pyarrow"
 ]
 
 [dependency-groups]
 dev = [
-    "pytest",
-    "flake8",
     "autopep8",
+    "flake8",
     "isort",
+    "pre-commit",
+    "pytest",
     "ty",
-    "pre-commit"
 ]
 
 [tool.uv.sources]

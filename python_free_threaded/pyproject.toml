@@ -1,26 +1,32 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "python-free-threaded"
 version = "0.0.1"
-description = "Python Free-Threaded methods"
-requires-python = ">=3.13"
+description = "Solutions to the aggregation challenges using multi-threading managed by queues"
+requires-python = "==3.13.*"
 dependencies = [
-    "pandas",
     "numpy",
+    "pandas",
+    "simple-queued-pipelines",
     "spark_agg_methods_common_python",
-    "simple-queued-pipelines"
 ]
-
-[tool.uv.sources]
-spark_agg_methods_common_python = { path = "..", editable = true }
-simple-queued-pipelines = { path = "../simple_queued_pipelines", editable = true }
-
 
 [dependency-groups]
 dev = [
-    "pytest",
-    "flake8",
     "autopep8",
+    "flake8",
     "isort",
+    "pre-commit",
+    "pytest",
     "ty",
-    "pre-commit"
 ]
+
+[tool.ty.environment]
+extra-paths = ["../common_python"]
+
+[tool.uv.sources]
+simple_queued_pipelines = { path = "../simple_queued_pipelines", editable = true }
+spark_agg_methods_common_python = { path = "..", editable = true }

@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "spark_agg_methods_common_python"
 version = "0.0.1"
-description = "Common python utilities and aggregation logic"
+description = "shared utilities, type definitions, and the common test harness framework"
 requires-python = "==3.10.*"
 dependencies = [
     "numpy",
@@ -15,22 +15,25 @@ dependencies = [
     "pydantic",
     "pytest",
     "pytz",
-    "typing-extensions"
+    "typing-extensions",
 ]
 
 [dependency-groups]
 dev = [
-    "pytest",
-    "flake8",
     "autopep8",
+    "flake8",
     "isort",
-    "ty",
     "pre-commit",
-    "pyarrow"
+    "pyarrow",
+    "pytest",
+    "ty",
 ]
 
 [tool.setuptools.packages.find]
-where = ["common_python"]
+where = [
+    "common_python",
+    "simple_queued_pipelines",
+]
 
 [tool.isort]
 multi_line_output = 5

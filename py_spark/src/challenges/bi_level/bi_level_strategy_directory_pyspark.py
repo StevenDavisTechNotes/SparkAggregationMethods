@@ -1,42 +1,22 @@
 from spark_agg_methods_common_python.perf_test_common import (
-    CalcEngine, NumericalToleranceExpectations, SolutionInterfacePySpark,
-    SolutionLanguage,
+    CalcEngine, NumericalToleranceExpectations, SolutionInterfacePySpark, SolutionLanguage,
 )
 from spark_agg_methods_common_python.utils.inspection import name_of_function
-
 from src.challenges.bi_level.strategies.using_pyspark.bi_level_pyspark_df_grp_pandas import (
     bi_level_pyspark_df_grp_pandas,
 )
 from src.challenges.bi_level.strategies.using_pyspark.bi_level_pyspark_df_grp_pandas_numba import (
     bi_level_pyspark_df_grp_pandas_numba,
 )
-from src.challenges.bi_level.strategies.using_pyspark.bi_level_pyspark_df_join import (
-    bi_level_pyspark_df_join,
-)
-from src.challenges.bi_level.strategies.using_pyspark.bi_level_pyspark_df_nested import (
-    bi_level_pyspark_df_nested,
-)
-from src.challenges.bi_level.strategies.using_pyspark.bi_level_pyspark_df_window import (
-    bi_level_pyspark_df_window,
-)
-from src.challenges.bi_level.strategies.using_pyspark.bi_level_pyspark_rdd_grp_map import (
-    bi_level_pyspark_rdd_grp_map,
-)
-from src.challenges.bi_level.strategies.using_pyspark.bi_level_pyspark_rdd_map_part import (
-    bi_level_pyspark_rdd_map_part,
-)
-from src.challenges.bi_level.strategies.using_pyspark.bi_level_pyspark_rdd_reduce_1 import (
-    bi_level_pyspark_rdd_reduce_1,
-)
-from src.challenges.bi_level.strategies.using_pyspark.bi_level_pyspark_rdd_reduce_2 import (
-    bi_level_pyspark_rdd_reduce_2,
-)
-from src.challenges.bi_level.strategies.using_pyspark.bi_level_pyspark_sql_join import (
-    bi_level_pyspark_sql_join,
-)
-from src.challenges.bi_level.strategies.using_pyspark.bi_level_pyspark_sql_nested import (
-    bi_level_pyspark_sql_nested,
-)
+from src.challenges.bi_level.strategies.using_pyspark.bi_level_pyspark_df_join import bi_level_pyspark_df_join
+from src.challenges.bi_level.strategies.using_pyspark.bi_level_pyspark_df_nested import bi_level_pyspark_df_nested
+from src.challenges.bi_level.strategies.using_pyspark.bi_level_pyspark_df_window import bi_level_pyspark_df_window
+from src.challenges.bi_level.strategies.using_pyspark.bi_level_pyspark_rdd_grp_map import bi_level_pyspark_rdd_grp_map
+from src.challenges.bi_level.strategies.using_pyspark.bi_level_pyspark_rdd_map_part import bi_level_pyspark_rdd_map_part
+from src.challenges.bi_level.strategies.using_pyspark.bi_level_pyspark_rdd_reduce_1 import bi_level_pyspark_rdd_reduce_1
+from src.challenges.bi_level.strategies.using_pyspark.bi_level_pyspark_rdd_reduce_2 import bi_level_pyspark_rdd_reduce_2
+from src.challenges.bi_level.strategies.using_pyspark.bi_level_pyspark_sql_join import bi_level_pyspark_sql_join
+from src.challenges.bi_level.strategies.using_pyspark.bi_level_pyspark_sql_nested import bi_level_pyspark_sql_nested
 from src.challenges.six_field_test_data.six_test_data_for_pyspark import (
     SixFieldChallengeMethodPythonPysparkRegistration,
 )

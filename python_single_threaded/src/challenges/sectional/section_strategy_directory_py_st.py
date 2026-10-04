@@ -1,11 +1,6 @@
-from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import (
-    SolutionScale,
-)
-from spark_agg_methods_common_python.perf_test_common import (
-    CalcEngine, SolutionInterfacePythonST, SolutionLanguage,
-)
+from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import SolutionScale
+from spark_agg_methods_common_python.perf_test_common import CalcEngine, SolutionInterfacePythonST, SolutionLanguage
 from spark_agg_methods_common_python.utils.inspection import name_of_function
-
 from src.challenges.sectional.section_test_data_types_py_st import (
     SectionChallengeMethodPythonSingleThreadedRegistration,
 )

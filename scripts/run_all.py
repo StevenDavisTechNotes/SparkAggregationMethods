@@ -1,6 +1,6 @@
-"""Run autopep8, flake8 and/or pytest across every Python sub-project.
+"""Run autopep8, flake8, ty and/or pytest across every Python sub-project.
 
-Select tools with --autopep8, --flake8, --pytest (default: all three when none is given).
+Select tools with --autopep8, --flake8, --ty, --pytest (default: all four when none is given).
 Skip sub-projects with --exclude <project_root> (repeatable).
 """
 import argparse
@@ -78,12 +78,22 @@ def _flake8_command(project: PythonProject) -> list[str]:
     ]
 
 
+def _ty_command(project: PythonProject) -> list[str]:
+    return [
+        "uv", "run", "python", "-m", "ty", "check",
+        "--extra-search-path", "../common_python",
+        "--extra-search-path", "../simple_queued_pipelines",
+        project.python_root,
+    ]
+
+
 def _pytest_command(project: PythonProject) -> list[str]:
     return ["uv", "run", "python", "-m", "pytest", project.python_root]
 
 
 AUTOPEP8 = Tool("autopep8", _autopep8_command)
 FLAKE8 = Tool("flake8", _flake8_command)
+TY = Tool("ty", _ty_command)
 PYTEST = Tool("pytest", _pytest_command, ok_return_codes=(0, PYTEST_NO_TESTS_COLLECTED))
 
 
@@ -91,6 +101,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--autopep8", action="store_true", help="Run autopep8 --in-place")
     parser.add_argument("--flake8", action="store_true", help="Run flake8")
+    parser.add_argument("--ty", action="store_true", help="Run ty check")
     parser.add_argument("--pytest", action="store_true", help="Run pytest")
     parser.add_argument(
         "--exclude",
@@ -101,8 +112,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Sub-project folder to skip for every selected tool (repeatable)",
     )
     args = parser.parse_args(argv)
-    if not (args.autopep8 or args.flake8 or args.pytest):
-        args.autopep8 = args.flake8 = args.pytest = True
+    if not (args.autopep8 or args.flake8 or args.ty or args.pytest):
+        args.autopep8 = args.flake8 = args.ty = args.pytest = True
     return args
 
 
@@ -125,8 +136,14 @@ def run_tool(tool: Tool, exclude: list[str], env: dict[str, str]) -> list[str]:
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
-    tools = [tool for tool, selected in ((AUTOPEP8, args.autopep8), (FLAKE8, args.flake8), (PYTEST, args.pytest))
-             if selected]
+    tools = [
+        tool for tool, selected in (
+            (AUTOPEP8, args.autopep8),
+            (FLAKE8, args.flake8),
+            (TY, args.ty),
+            (PYTEST, args.pytest),
+        )
+        if selected]
 
     env = child_env()
     failures = {tool.name: run_tool(tool, args.exclude, env) for tool in tools}

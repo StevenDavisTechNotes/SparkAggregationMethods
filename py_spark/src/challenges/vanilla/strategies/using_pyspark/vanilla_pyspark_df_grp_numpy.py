@@ -1,3 +1,5 @@
+from typing import cast
+
 import numpy
 import pandas as pd
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
@@ -34,12 +36,15 @@ def inner_agg_method(
     C = dfPartition['C']
     D = dfPartition['D']
     E = dfPartition['E']
-    return pd.DataFrame([[
-        group_key,
-        subgroup_key,
-        numpy.mean(C),
-        numpy.max(D),
-        numpy.var(E),
-        numpy.inner(E, E) / E.count()
-        - (numpy.sum(E) / E.count())**2,
-    ]], columns=VANILLA_RESULT_COLUMNS)  # ty: ignore[invalid-argument-type]
+    return pd.DataFrame(
+        [[
+            group_key,
+            subgroup_key,
+            numpy.mean(C),
+            numpy.max(D),
+            numpy.var(E),
+            numpy.inner(E, E) / E.count()
+            - (numpy.sum(E) / E.count())**2,
+        ]],
+        columns=cast(pd.Index, VANILLA_RESULT_COLUMNS),
+    )

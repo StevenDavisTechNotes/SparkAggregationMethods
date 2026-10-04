@@ -1,3 +1,5 @@
+from typing import cast
+
 import pandas as pd
 import pyspark.sql.functions as func
 import pyspark.sql.types as DataTypes
@@ -10,6 +12,8 @@ from src.challenges.deduplication.dedupe_test_data_types_pyspark import (
 )
 from src.utils.spark_helpers import zip_dataframe_with_index
 from src.utils.tidy_session_pyspark import TidySparkSession
+
+COLUMNS = ["RowId", "SourceId", "FirstName", "LastName", "ZipCode", "SecretKey"]
 
 
 def dedupe_pyspark_df_nested_pandas(
@@ -53,32 +57,23 @@ def inner_agg_method(
 def find_matches(
         df: pd.DataFrame,
 ) -> pd.DataFrame:
-    toMatch = df[['RowId', 'SourceId', 'FirstName',
-                  'LastName', 'ZipCode', 'SecretKey']]
-    toMatchLeft = (
+    toMatch = df.loc[:, COLUMNS]
+    toMatchLeft = cast(
+        pd.DataFrame,
         toMatch
-        .rename(  # pyright: ignore[reportGeneralTypeIssues]
+        .rename(
             index=str,
-            columns={
-                "RowId": "RowIdL",
-                "SourceId": "SourceIdL",
-                'FirstName': 'FirstNameL',
-                'LastName': 'LastNameL',
-                'ZipCode': 'ZipCodeL',
-                'SecretKey': 'SecretKeyL'
-            }))
-    toMatchRight = (
+            columns={c: c + "L" for c in COLUMNS}
+        )
+    )
+    toMatchRight = cast(
+        pd.DataFrame,
         toMatch
-        .rename(  # pyright: ignore[reportGeneralTypeIssues]
+        .rename(
             index=str,
-            columns={
-                "RowId": "RowIdR",
-                "SourceId": "SourceIdR",
-                'FirstName': 'FirstNameR',
-                'LastName': 'LastNameR',
-                'ZipCode': 'ZipCodeR',
-                'SecretKey': 'SecretKeyR'
-            }))
+            columns={c: c + "R" for c in COLUMNS}
+        )
+    )
     toMatch = None
     matched: pd.DataFrame
     matched = toMatchLeft.assign(key=0).merge(
@@ -95,8 +90,8 @@ def find_matches(
     badMatches = matched.loc[matched.SecretKeyL != matched.SecretKeyR]
     if badMatches.size != 0:
         raise Exception(
-            f"Bad match in BlockingKey {df['BlockingKey'].iloc[0]}")
-    matched = matched.loc[:, ['RowIdL', 'RowIdR']]
+            f'Bad match in BlockingKey {df["BlockingKey"].iloc[0]}')
+    matched = matched.loc[:, ["RowIdL", "RowIdR"]]
     return matched
 
 
@@ -106,7 +101,7 @@ def find_components(
     import networkx
     G1 = networkx.Graph()
     G1.add_edges_from([(x[0], x[1]) for x in matched.values])
-    return list(networkx.connected_components(G1))
+    return list(networkx.connected_components(G1))  # pyright: ignore[reportReturnType]
 
 
 def combine_components(
@@ -117,7 +112,7 @@ def combine_components(
             column: pd.Series,
     ) -> str | None:
         lst = column.values.tolist()
-        lst = [int(x) for x in lst if x is not None]
+        lst = [int(x) for x in lst if x is not None]  # pyright: ignore[reportArgumentType]
         value = min(lst) if len(lst) > 0 else None
         value = str(value) if value is not None else None
         return value
@@ -127,48 +122,48 @@ def combine_components(
         members: pd.DataFrame = df.loc[df.RowId.isin(constituentRowIds)]
 
         valuedNames: pd.DataFrame = members.copy(deep=False)
-        valuedNames['sortOrder'] = \
+        valuedNames["sortOrder"] = \
             valuedNames.apply(lambda x: (
                 -(
-                    (2 if len(x['LastName'] or "") > 0 else 0) +
-                    (1 if len(x['FirstName'] or "") > 0 else 0)),
-                x['LastName'], x['FirstName']), axis=1)
+                    (2 if len(x["LastName"] or "") > 0 else 0) +
+                    (1 if len(x["FirstName"] or "") > 0 else 0)),
+                x["LastName"], x["FirstName"]), axis=1)
         bestNameRec = (
             valuedNames
-            .sort_values(by='sortOrder', ascending=True)  # pyright: ignore[reportGeneralTypeIssues)]
+            .sort_values(by="sortOrder", ascending=True)  # pyright: ignore[reportGeneralTypeIssues)]
             .head(1)
-            .loc[:, ['FirstName', 'LastName']]
+            .loc[:, ["FirstName", "LastName"]]
         )
 
         valuedAddresses = members.copy(deep=False)
-        valuedAddresses['sortOrder'] = \
+        valuedAddresses["sortOrder"] = \
             valuedAddresses.apply(lambda x: (
                 -(
-                    (1 if len(x['StreetAddress'] or "") > 0 else 0) +
-                    (2 if len(x['City'] or "") > 0 else 0) +
-                    (4 if len(x['ZipCode'] or "") > 0 else 0)),
-                x['LastName'], x['FirstName']), axis=1)
+                    (1 if len(x["StreetAddress"] or "") > 0 else 0) +
+                    (2 if len(x["City"] or "") > 0 else 0) +
+                    (4 if len(x["ZipCode"] or "") > 0 else 0)),
+                x["LastName"], x["FirstName"]), axis=1)
         bestAddressRec = (
             valuedNames
-            .sort_values(by='sortOrder', ascending=True)  # pyright: ignore[reportGeneralTypeIssues)]
+            .sort_values(by="sortOrder", ascending=True)  # pyright: ignore[reportGeneralTypeIssues)]
             .head(1)
-            .loc[:, ['StreetAddress', 'City', 'ZipCode']]
+            .loc[:, ["StreetAddress", "City", "ZipCode"]]
         )
 
         aggRec = bestNameRec \
             .join(bestAddressRec)
-        aggRec['RowId'] = members.RowId.min()
-        aggRec['SecretKey'] = members.SecretKey.max()
+        aggRec["RowId"] = members.RowId.min()
+        aggRec["SecretKey"] = members.SecretKey.max()
         # would love to use DataFrame.aggregate, but nullable ints are not supported
-        aggRec['FieldA'] = convert_str_int_to_min(members.FieldA)
-        aggRec['FieldB'] = convert_str_int_to_min(members.FieldB)
-        aggRec['FieldC'] = convert_str_int_to_min(members.FieldC)
-        aggRec['FieldD'] = convert_str_int_to_min(members.FieldD)
-        aggRec['FieldE'] = convert_str_int_to_min(members.FieldE)
-        aggRec['FieldF'] = convert_str_int_to_min(members.FieldF)
+        aggRec["FieldA"] = convert_str_int_to_min(members.FieldA)
+        aggRec["FieldB"] = convert_str_int_to_min(members.FieldB)
+        aggRec["FieldC"] = convert_str_int_to_min(members.FieldC)
+        aggRec["FieldD"] = convert_str_int_to_min(members.FieldD)
+        aggRec["FieldE"] = convert_str_int_to_min(members.FieldE)
+        aggRec["FieldF"] = convert_str_int_to_min(members.FieldF)
         mergedValues = pd.concat([mergedValues, aggRec], sort=False)
 
     mergedValues = mergedValues \
-        .drop(['RowId', 'SourceId', 'BlockingKey'], axis=1) \
+        .drop(["RowId", "SourceId", "BlockingKey"], axis=1) \
         .reset_index(drop=True)
     return mergedValues

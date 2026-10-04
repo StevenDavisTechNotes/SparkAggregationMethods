@@ -1,4 +1,5 @@
 import math
+from typing import cast
 
 import pandas as pd
 from spark_agg_methods_common_python.challenges.conditional.conditional_test_data_types import (
@@ -48,16 +49,19 @@ def my_var(
 def inner_agg_method(
         dfPartition: pd.DataFrame,
 ) -> pd.DataFrame:
-    group_key = dfPartition['grp'].iloc[0]
-    subgroup_key = dfPartition['subgrp'].iloc[0]
+    group_key = dfPartition["grp"].iloc[0]
+    subgroup_key = dfPartition["subgrp"].iloc[0]
     C = dfPartition['C']
     D = dfPartition['D']
-    negE = dfPartition[dfPartition["E"] < 0]['E']
-    return pd.DataFrame([[
-        group_key,
-        subgroup_key,
-        C.mean(),
-        D.max(),
-        negE.var(ddof=0),
-        negE.agg(my_var),
-    ]], columns=GROUP_BY_COLUMNS + AGGREGATION_COLUMNS_4)  # ty: ignore[invalid-argument-type]
+    negE = dfPartition.loc[dfPartition["E"] < 0, "E"]
+    return pd.DataFrame(
+        [[
+            group_key,
+            subgroup_key,
+            C.mean(),
+            D.max(),
+            negE.var(ddof=0),
+            negE.agg(my_var),
+        ]],
+        columns=cast(pd.Index, GROUP_BY_COLUMNS + AGGREGATION_COLUMNS_4),
+    )

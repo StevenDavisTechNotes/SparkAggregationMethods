@@ -48,14 +48,15 @@ def vanilla_dask_ddf_grp_udaf(
         finalize=ddof_0_do_finalize,
     )
     dd_grouped = df.groupby([df.grp, df.subgrp])
-    dd2_main = (
+    dd2_main = cast(
+        DaskDataFrame,
         dd_grouped
         .aggregate(
             mean_of_C=('C', 'mean'),
             max_of_D=('D', 'max'),
             # var_of_E=('E', 'var(ddof=0)'),  # doesn't respect ddof=0
             var_of_E2=('E', custom_var_ddof_0),
-        )
+        ),
     )
     dd2_just_var_of_E = dd_grouped["E"].var(ddof=0).to_frame('var_of_E')
     df2 = (

@@ -1,16 +1,23 @@
-"""Run autopep8, flake8, ty and/or pytest across every Python sub-project.
+"""Run autopep8, flake8, ty, pytest and/or pyright across every Python sub-project.
 
-Select tools with --autopep8, --flake8, --ty, --pytest (default: all four when none is given).
+Select tools with --autopep8, --flake8, --ty, --pytest, --pyright (default: all but pyright when none is given).
 Skip sub-projects with --exclude <project_root> (repeatable).
 """
 import argparse
 import os
+import shutil
 import subprocess
 import sys
 from configparser import ConfigParser
 from dataclasses import dataclass
+from functools import cache
 from pathlib import Path
 from typing import Callable, NamedTuple
+
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    import tomli as tomllib
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
@@ -53,7 +60,7 @@ def read_setup_cfg_int(section: str, key: str) -> int:
 class Tool:
     name: str
     build_command: Callable[[PythonProject], list[str]]
-    ok_return_codes: tuple[int, ...] = (0,)
+    ok_return_codes: tuple[int, ...]
 
 
 def _autopep8_command(project: PythonProject) -> list[str]:
@@ -78,23 +85,115 @@ def _flake8_command(project: PythonProject) -> list[str]:
     ]
 
 
+def _find_project_dir(start: Path) -> Path:
+    """Nearest directory at or above `start` holding a pyproject.toml, the way `uv run` discovers its project."""
+    for directory in (start, *start.parents):
+        if (directory / "pyproject.toml").is_file():
+            return directory
+    raise FileNotFoundError(f"No pyproject.toml at or above {start}")
+
+
+def _read_pyproject(project_dir: Path) -> dict:
+    with open(project_dir / "pyproject.toml", "rb") as f:
+        return tomllib.load(f)
+
+
+def _packaged_source_roots(project_dir: Path) -> list[Path]:
+    """Directories that `[tool.setuptools.packages.find] where` exposes as import roots; empty when unset."""
+    find = _read_pyproject(project_dir).get("tool", {}).get("setuptools", {}).get("packages", {}).get("find", {})
+    return [(project_dir / where).resolve() for where in find.get("where", [])]
+
+
+def _extra_search_paths(project: PythonProject) -> list[Path]:
+    """Import roots that ty cannot see through an editable install, derived from `[tool.uv.sources]`.
+
+    Setuptools' editable finder is invisible to static analysis, so each path source contributes the import roots
+    it packages (its `[tool.setuptools.packages.find] where`), or its own directory when it declares none. The
+    project's own packaging roots count too, so `common_python` resolves its own package under its own venv.
+    """
+    project_dir = _find_project_dir(REPO_ROOT / project.project_root)
+    roots = _packaged_source_roots(project_dir)
+    sources = _read_pyproject(project_dir).get("tool", {}).get("uv", {}).get("sources", {})
+    for source in sources.values():
+        if "path" in source:
+            source_dir = (project_dir / source["path"]).resolve()
+            roots.extend(_packaged_source_roots(source_dir) or [source_dir])
+    return list(dict.fromkeys(roots))
+
+
 def _ty_command(project: PythonProject) -> list[str]:
+    extra_search_paths = [
+        argument
+        for path in _extra_search_paths(project)
+        for argument in ("--extra-search-path", str(path))
+    ]
     return [
         "uv", "run", "python", "-m", "ty", "check",
-        "--extra-search-path", "../common_python",
-        "--extra-search-path", "../simple_queued_pipelines",
+        *extra_search_paths,
+        project.python_root,
+    ]
+
+
+@cache
+def _pyright_executable() -> str:
+    """Locate the globally installed (npm) pyright, even when npm's global bin folder is not on PATH."""
+    found = shutil.which("pyright")
+    if found is None:
+        npm = shutil.which("npm")
+        if npm is not None:
+            prefix = subprocess.run([npm, "prefix", "-g"], capture_output=True, text=True, check=True).stdout.strip()
+            found = shutil.which("pyright", path=prefix if sys.platform == "win32" else str(Path(prefix) / "bin"))
+    if found is None:
+        raise FileNotFoundError("pyright not found; install it with `npm install -g pyright`")
+    return found
+
+
+def _venv_python(project: PythonProject) -> Path:
+    """Interpreter of the project's own uv venv, which pyright needs to resolve third-party imports."""
+    venv = _find_project_dir(REPO_ROOT / project.project_root) / ".venv"
+    return venv / "Scripts" / "python.exe" if sys.platform == "win32" else venv / "bin" / "python"
+
+
+def _pyright_command(project: PythonProject) -> list[str]:
+    return [
+        _pyright_executable(),
+        "--pythonpath", str(_venv_python(project)),
         project.python_root,
     ]
 
 
 def _pytest_command(project: PythonProject) -> list[str]:
-    return ["uv", "run", "python", "-m", "pytest", project.python_root]
+    return [
+        "uv", "run", "python", "-m", "pytest",
+        project.python_root,
+    ]
 
 
-AUTOPEP8 = Tool("autopep8", _autopep8_command)
-FLAKE8 = Tool("flake8", _flake8_command)
-TY = Tool("ty", _ty_command)
-PYTEST = Tool("pytest", _pytest_command, ok_return_codes=(0, PYTEST_NO_TESTS_COLLECTED))
+AUTOPEP8 = Tool(
+    name="autopep8",
+    build_command=_autopep8_command,
+    ok_return_codes=(0,),
+)
+FLAKE8 = Tool(
+    name="flake8",
+    build_command=_flake8_command,
+    ok_return_codes=(0,),
+)
+TY = Tool(
+    name="ty",
+    build_command=_ty_command,
+    ok_return_codes=(0,),
+)
+PYTEST = Tool(
+    name="pytest",
+    build_command=_pytest_command,
+    ok_return_codes=(0, PYTEST_NO_TESTS_COLLECTED),
+)
+PYRIGHT = Tool(
+    name="pyright",
+    build_command=_pyright_command,
+    ok_return_codes=(0,),
+)
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -103,6 +202,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--flake8", action="store_true", help="Run flake8")
     parser.add_argument("--ty", action="store_true", help="Run ty check")
     parser.add_argument("--pytest", action="store_true", help="Run pytest")
+    parser.add_argument("--pyright", action="store_true", help="Run global npm pyright (opt-in, not a default)")
     parser.add_argument(
         "--exclude",
         action="append",
@@ -112,7 +212,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Sub-project folder to skip for every selected tool (repeatable)",
     )
     args = parser.parse_args(argv)
-    if not (args.autopep8 or args.flake8 or args.ty or args.pytest):
+    # pyright is opt-in: it depends on a global npm install, unlike the uv-managed tools.
+    if not (args.autopep8 or args.flake8 or args.ty or args.pytest or args.pyright):
         args.autopep8 = args.flake8 = args.ty = args.pytest = True
     return args
 
@@ -142,6 +243,7 @@ def main(argv: list[str] | None = None) -> int:
             (FLAKE8, args.flake8),
             (TY, args.ty),
             (PYTEST, args.pytest),
+            (PYRIGHT, args.pyright),
         )
         if selected]
 

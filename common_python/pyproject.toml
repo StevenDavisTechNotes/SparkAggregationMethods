@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "spark_agg_methods_common_python"
+version = "0.0.1"
+description = "shared utilities, type definitions, and the common test harness framework"
+requires-python = "==3.10.*"
+dependencies = [
+    "numpy",
+    "pandas",
+    "prettyprinter",
+    "psutil",
+    "pydantic",
+    "pytest",
+    "pytz",
+    "typing-extensions",
+]
+
+[dependency-groups]
+dev = [
+    "autopep8",
+    "flake8",
+    "isort",
+    "pre-commit",
+    "pyarrow",
+    "pytest",
+    "tomli; python_version < '3.11'",
+    "ty",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["spark_agg_methods_common_python*"]

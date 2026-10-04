@@ -36,7 +36,7 @@ def section_pyspark_rdd_prep_mappart(
         .repartitionAndSortWithinPartitions(
             numPartitions=target_num_partitions,
             partitionFunc=lambda x: x[0],
-        )  # ty: ignore[invalid-argument-type]
+        )  # ty: ignore[invalid-argument-type] # pyright: ignore[reportCallIssue]
         .values()
         .mapPartitions(aggregate_typed_rows_to_grades)
         .sortBy(lambda x: x.StudentId)

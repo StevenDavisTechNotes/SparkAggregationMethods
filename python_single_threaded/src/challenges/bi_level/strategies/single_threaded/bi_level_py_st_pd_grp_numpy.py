@@ -19,7 +19,7 @@ def bi_level_py_st_pd_grp_numpy(
         df
         .groupby(by=["grp"])
         .apply(inner_agg_method)
-        .sort_values(by=["grp"])
+        .sort_values(by=["grp"])  # pyright: ignore[reportCallIssue]
         .reset_index(drop=False)
     )
     return df_result
@@ -34,7 +34,7 @@ def inner_agg_method(
     return pd.Series({
         "mean_of_C": numpy.mean(C),
         "max_of_D": numpy.max(D),
-        "avg_var_of_E": sub_group_e.var(ddof=0).mean(),
+        "avg_var_of_E": sub_group_e.var(ddof=0).mean(),  # pyright: ignore[reportAttributeAccessIssue]
         "avg_var_of_E2": cast(
             pd.Series,
             sub_group_e

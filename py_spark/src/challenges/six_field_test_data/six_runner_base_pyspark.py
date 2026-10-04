@@ -1,5 +1,5 @@
 import time
-from typing import Literal
+from typing import Literal, cast
 
 import pandas as pd
 from pyspark import RDD
@@ -72,7 +72,10 @@ def six_run_one_step_in_pyspark_itinerary(
             answer = rdd_some.collect()
             finished_time = time.time()
             if len(answer) == 0:
-                df_answer = pd.DataFrame(data=[], columns=result_columns)  # ty: ignore[invalid-argument-type]
+                df_answer = pd.DataFrame(
+                    data=[],
+                    columns=cast(pd.Index, result_columns),
+                )
             else:
                 match answer[0]:
                     case Row():

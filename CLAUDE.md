@@ -21,14 +21,14 @@ Challenges (`Challenge` enum in `perf_test_common.py`): `vanilla`, `bilevel`,
 
 ## Repository layout
 
-Everything below lives under the repo root, which is also the `uv` project for
-the shared `spark_agg_methods_common_python` package.
+Everything below lives under the repo root, which is also the `uv` project that
+packages the shared `spark_agg_methods_common_python` package for the other sub-projects.
 
 | Directory | Purpose | Python |
 | --- | --- | --- |
 | `.` | Root `uv` project; also packages `common_python/` | 3.10 |
 | `admin/` | Whole-repo tooling (data generation, result summarization). Nothing imports it. | 3.14 |
-| `common_python/` | Shared types, test harness, registry, domain logic. Package name `spark_agg_methods_common_python`. | root env |
+| `common_python/` | Shared types, test harness, registry, domain logic. Package name `spark_agg_methods_common_python`. | 3.10 |
 | `py_spark/` | PySpark implementations | 3.10 (Spark 3.5.9) |
 | `python_dask/` | Dask implementations | 3.12 (`dask-sql`) |
 | `python_single_threaded/` | Pandas / plain Python baselines | 3.14 |
@@ -43,11 +43,13 @@ Each Python sub-project is its **own `uv` project** with its own `pyproject.toml
 versions differ that much. Sub-projects depend on the shared package via
 `spark_agg_methods_common_python = { path = "..", editable = true }`.
 
-`common_python/` is the exception: it has no `pyproject.toml` of its own and runs
-against the **root** project and venv, which is what packages it.
-
-Note the naming split: directories are `snake_case`, but the git repositories are
-`SparkAggregationMethods` and `simple_queued_pipelines`.
+`common_python/` is also its own `uv` project: its `pyproject.toml` is derived from
+the root one (same name, dependencies and dev group, but `where = ["."]`; it deliberately
+has no `[tool.isort]`, since isort finds the root one by walking up), and it has
+its own `uv.lock` and `.venv`. The root project still packages `common_python/` (plus
+`simple_queued_pipelines/`), which is what the other sub-projects' `path = ".."` source
+installs, so a dependency change to the shared package must be made in **both**
+`pyproject.toml` files.
 
 ## Environment
 
@@ -99,7 +101,11 @@ cd admin; uv run python -m src.summarize_test_results
 uv run python scripts/run_all.py --pytest
 uv run python scripts/run_all.py --flake8
 uv run python scripts/run_all.py --autopep8
-# No tool flag = all three; --exclude <project> (repeatable) skips a sub-project
+uv run python scripts/run_all.py --ty
+# pyright is opt-in (not run by pre-commit, not in the default set); uses the global npm install
+# (`npm install -g pyright`) with each project's own .venv
+uv run python scripts/run_all.py --pyright
+# No tool flag = autopep8, flake8, ty and pytest; --exclude <project> (repeatable) skips a sub-project
 
 # Scala
 cd scala_spark; sbt compile; sbt test
@@ -124,7 +130,7 @@ shared vocabulary: the `Challenge`, `CalcEngine`, `SolutionLanguage`, and
 
 ### Anatomy of a challenge directory
 
-```
+```txt
 <engine>/src/challenges/<challenge>/
     <challenge>_runner_<engine>.py             # CLI entry point + result logging
     <challenge>_strategy_directory_<engine>.py # the strategy registry list
@@ -172,7 +178,10 @@ generated output — change the strategy directory, not the JSON.
 - **Line length 120** (`setup.cfg` for flake8/pycodestyle, `[tool.isort]` in the
   root `pyproject.toml`), max complexity 10.
 - **isort** with `multi_line_output = 5` and trailing commas. Import order matters
-  to pre-commit; let the tool sort rather than hand-editing.
+  to pre-commit; let the tool sort rather than hand-editing. The only config is the root
+  `[tool.isort]` (plus the submodule's own copy); isort finds it by walking up from each file, so
+  do not pass `--settings-file pyproject.toml` in a sub-project's `.vscode/settings.json`: that
+  resolves to the sub-project's section-less `pyproject.toml` and silently falls back to isort defaults.
 - **Formatting** is `autopep8`, not black.
 - **Type checking** is `ty` at commit time; `pyrightconfig.json` files exist for
   the IDE.

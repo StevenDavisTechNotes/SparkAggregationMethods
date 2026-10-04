@@ -26,6 +26,7 @@ dev = [
     "pre-commit",
     "pyarrow",
     "pytest",
+    "tomli; python_version < '3.11'",
     "ty",
 ]
 

@@ -1,3 +1,5 @@
+from typing import cast
+
 import pandas as pd
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
     SixTestExecutionParameters,
@@ -36,11 +38,14 @@ def inner_agg_method(
     var_of_E2 = (
         (E * E).sum() / E.count()
         - (E.sum() / E.count())**2)
-    return pd.DataFrame([[
-        group_key,
-        subgroup_key,
-        C.mean(),
-        D.max(),
-        E.var(ddof=0),
-        var_of_E2,
-    ]], columns=VANILLA_RESULT_COLUMNS)  # ty: ignore[invalid-argument-type]
+    return pd.DataFrame(
+        [[
+            group_key,
+            subgroup_key,
+            C.mean(),
+            D.max(),
+            E.var(ddof=0),
+            var_of_E2,
+        ]],
+        columns=cast(pd.Index, VANILLA_RESULT_COLUMNS),
+    )

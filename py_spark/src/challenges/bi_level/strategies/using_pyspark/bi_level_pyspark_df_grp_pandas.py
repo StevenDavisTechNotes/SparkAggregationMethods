@@ -35,15 +35,18 @@ def inner_agg_method(
     col_c = dfPartition['C']
     col_d = dfPartition['D']
     sub_group_e = dfPartition.groupby('subgrp')['E']
-    return pd.DataFrame([[
-        group_key,
-        col_c.mean(),
-        col_d.max(),
-        sub_group_e.var(ddof=0).mean(),
-        cast(pd.Series,
-             sub_group_e
-             .agg(lambda col_e:
-                  ((col_e * col_e).sum() / col_e.count() -
-                   (col_e.sum() / col_e.count())**2)))
-        .mean(),
-    ]], columns=BI_LEVEL_RESULT_COLUMNS)  # ty: ignore[invalid-argument-type]
+    return pd.DataFrame(
+        [[
+            group_key,
+            col_c.mean(),
+            col_d.max(),
+            sub_group_e.var(ddof=0).mean(),
+            cast(pd.Series,
+                 sub_group_e
+                 .agg(lambda col_e:
+                      ((col_e * col_e).sum() / col_e.count() -
+                       (col_e.sum() / col_e.count())**2)))
+            .mean(),
+        ]],
+        columns=cast(pd.Index, BI_LEVEL_RESULT_COLUMNS),
+    )

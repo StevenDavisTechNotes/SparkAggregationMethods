@@ -33,10 +33,10 @@
 		"editor.codeActionsOnSave": {
 			"source.formatOnSave": "explicit"
 		},
+		"python.analysis.diagnosticMode": "workspace",
 		"powershell.scriptAnalysis.settingsPath": "./PSScriptAnalyzerSettings.psd1",
 		"search.exclude": {
 			"**/.venv": true
-		},
-		"powershell.cwd": "common_python"
+		}
 	}
 }

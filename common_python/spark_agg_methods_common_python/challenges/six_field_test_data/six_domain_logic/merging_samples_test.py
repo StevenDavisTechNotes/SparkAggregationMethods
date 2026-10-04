@@ -53,8 +53,8 @@ def reference_answer(
         cond_var_e = cast(float, cond_df_group_e.var(ddof=0))
         uncond_var_e = cast(float, uncond_df_group_e.var(ddof=0))
         rows.append({
-            "grp": int(grp),
-            "subgrp": int(subgrp),
+            "grp": int(grp),  # pyright: ignore[reportArgumentType]
+            "subgrp": int(subgrp),  # pyright: ignore[reportArgumentType]
             "mean_of_C": mean_c,
             "max_of_D": max_d,
             "cond_var_of_E": cond_var_e,

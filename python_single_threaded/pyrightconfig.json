@@ -2,7 +2,9 @@
   "include": [
     "src"
   ],
-  "autoSearchPaths": false,
+  "extraPaths": [
+    "../common_python"
+  ],
   "pythonVersion": "3.10",
   "typeCheckingMode": "standard",
 }

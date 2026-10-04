@@ -1,4 +1,6 @@
 # cSpell: ignore nopython, prange
+from typing import cast
+
 import numpy as np
 import pandas as pd
 from spark_agg_methods_common_python.challenges.conditional.conditional_test_data_types import (
@@ -18,7 +20,7 @@ try:
 
     @numba.jit(numba.float64(numba.float64[:]), nopython=True)
     def my_numba_mean(C: np.ndarray) -> np.float64:
-        return np.mean(C)
+        return np.mean(C)  # pyright: ignore[reportReturnType]
 
     @numba.jit(numba.float64(numba.float64[:]), nopython=True)
     def my_numba_max(C: np.ndarray) -> np.float64:
@@ -26,7 +28,7 @@ try:
 
     @numba.jit(numba.float64(numba.float64[:]), nopython=True)
     def my_numba_var(C: np.ndarray) -> np.float64:
-        return np.var(C)
+        return np.var(C)  # pyright: ignore[reportReturnType]
 
     @numba.jit(numba.float64(numba.float64[:]), parallel=True, nopython=True)
     def my_loop_lift_var(E: np.ndarray) -> float:
@@ -73,11 +75,14 @@ def inner_agg_method(
     C = np.array(dfPartition['C'])
     D = np.array(dfPartition['D'])
     posE = np.array(dfPartition[dfPartition.E < 0]['E'])
-    return pd.DataFrame([[
-        group_key,
-        subgroup_key,
-        my_numba_mean(C),
-        my_numba_max(D),
-        my_numba_var(posE),
-        my_loop_lift_var(posE),
-    ]], columns=GROUP_BY_COLUMNS + AGGREGATION_COLUMNS_4)  # ty: ignore[invalid-argument-type]
+    return pd.DataFrame(
+        [[
+            group_key,
+            subgroup_key,
+            my_numba_mean(C),
+            my_numba_max(D),
+            my_numba_var(posE),
+            my_loop_lift_var(posE),
+        ]],
+        columns=cast(pd.Index, GROUP_BY_COLUMNS + AGGREGATION_COLUMNS_4),
+    )

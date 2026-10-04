@@ -1,6 +1,9 @@
 {
   "include": ["src"],
-  "autoSearchPaths": false,
+  "extraPaths": [
+    "../common_python",
+    "../simple_queued_pipelines"
+  ],
   "pythonVersion": "3.14",
   "typeCheckingMode": "standard",
 }

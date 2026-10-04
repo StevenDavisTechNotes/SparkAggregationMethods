@@ -1,11 +1,11 @@
 $folders = @(
-    "simple_queued_pipelines",
-    "common_python",
     "admin",
+    "common_python",
     "py_spark",
     "python_dask",
     "python_free_threaded",
-    "python_single_threaded"
+    "python_single_threaded",
+    "simple_queued_pipelines"
 )
 $cmd = "&{. .\.venv\Scripts\activate.ps1}"
 $cmd = "echo open"

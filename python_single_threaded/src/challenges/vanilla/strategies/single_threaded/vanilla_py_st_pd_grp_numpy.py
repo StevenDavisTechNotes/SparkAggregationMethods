@@ -17,7 +17,7 @@ def vanilla_py_st_pd_grp_numpy(
         df
         .groupby(by=["grp", "subgrp"])
         .apply(inner_agg_method)
-        .sort_values(by=["grp", "subgrp"])
+        .sort_values(by=["grp", "subgrp"])  # pyright: ignore[reportCallIssue]
         .reset_index(drop=False)
     )
     return df_result

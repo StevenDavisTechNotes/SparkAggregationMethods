@@ -1,5 +1,7 @@
 {
-  "autoSearchPaths": false,
+  "extraPaths": [
+    "../common_python"
+  ],
   "include": [
     "src"
   ],

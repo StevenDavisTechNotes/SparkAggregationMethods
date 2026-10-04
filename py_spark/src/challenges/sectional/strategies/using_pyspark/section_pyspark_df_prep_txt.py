@@ -1,8 +1,11 @@
+from typing import Any
+
 import pyspark.sql.types as DataTypes
 from pyspark.sql import Row
 from spark_agg_methods_common_python.challenges.sectional.domain_logic.section_data_parsers import (
     identify_section_using_intermediate_file,
 )
+from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import StudentSummary
 from src.challenges.sectional.domain_logic.section_data_parsers_pyspark import row_to_student_summary
 from src.challenges.sectional.section_test_data_types_pyspark import (
     SectionDataSetPyspark, SectionExecutionParametersPyspark, SparseLineSchema, TChallengePythonPysparkAnswer,
@@ -11,6 +14,10 @@ from src.challenges.sectional.strategies.using_pyspark.section_pyspark_rdd_prep_
     section_pyspark_rdd_prep_shared,
 )
 from src.utils.tidy_session_pyspark import TidySparkSession
+
+
+def student_id_accessor(x: StudentSummary) -> Any:
+    return x.StudentId
 
 
 def section_pyspark_df_prep_txt(
@@ -31,16 +38,17 @@ def section_pyspark_df_prep_txt(
         SparseLineSchema.fields)
 
     interFileName = identify_section_using_intermediate_file(filename)
-    rdd = sc.textFile(interFileName, data_set.target_num_partitions) \
-        .zipWithIndex() \
+    rdd = (
+        sc.textFile(interFileName, data_set.target_num_partitions)
+        .zipWithIndex()
         .map(parse_line_to_row_with_line_no)
+    )
     df = spark.createDataFrame(rdd, SparseLineWithSectionIdLineNoSchema)
     df = section_pyspark_rdd_prep_shared(df, exec_params, section_maximum)
     rdd = (
         df.rdd
         .map(row_to_student_summary)
-        # pyright: ignore[reportArgumentType]  # ty: ignore[invalid-argument-type]
-        .sortBy(keyfunc=lambda x: x.StudentId)
+        .sortBy(keyfunc=student_id_accessor)
     )
     return rdd
 

@@ -1,4 +1,5 @@
 import os
+from typing import Any
 
 import pyspark.sql.types as DataTypes
 from pyspark import RDD
@@ -12,6 +13,10 @@ from src.challenges.sectional.strategies.using_pyspark.section_pyspark_rdd_prep_
     section_pyspark_rdd_prep_shared,
 )
 from src.utils.tidy_session_pyspark import TidySparkSession
+
+
+def student_id_accessor(x: StudentSummary) -> Any:
+    return x.StudentId
 
 
 def section_pyspark_df_prep_grp_csv(
@@ -37,8 +42,7 @@ def section_pyspark_df_prep_grp_csv(
     rdd: RDD[StudentSummary] = (
         df.rdd
         .map(row_to_student_summary)
-        # pyright: ignore[reportArgumentType]  # ty: ignore[invalid-argument-type]
-        .sortBy(keyfunc=lambda x: x.StudentId)
+        .sortBy(keyfunc=student_id_accessor)
     )
     return rdd
 

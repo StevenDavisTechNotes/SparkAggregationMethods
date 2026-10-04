@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "python-single-threaded"
 version = "0.0.1"
 description = "Baseline implementations for the aggregation challenges using single-threaded Python with and without GPU acceleration"
-requires-python = "==3.13.*"
+requires-python = "==3.14.*"
 dependencies = [
     "numba>=0.68.0",
     "numpy>=2.5.3",

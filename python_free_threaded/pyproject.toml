@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "python-free-threaded"
 version = "0.0.1"
 description = "Solutions to the aggregation challenges using multi-threading managed by queues"
-requires-python = "==3.13.*"
+requires-python = "==3.14.*"
 dependencies = [
     "numpy",
     "pandas",

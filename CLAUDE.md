@@ -27,13 +27,13 @@ the shared `spark_agg_methods_common_python` package.
 | Directory | Purpose | Python |
 | --- | --- | --- |
 | `.` | Root `uv` project; also packages `common_python/` | 3.10 |
-| `admin/` | Whole-repo tooling (data generation, result summarization). Nothing imports it. | 3.13 |
+| `admin/` | Whole-repo tooling (data generation, result summarization). Nothing imports it. | 3.14 |
 | `common_python/` | Shared types, test harness, registry, domain logic. Package name `spark_agg_methods_common_python`. | root env |
 | `py_spark/` | PySpark implementations | 3.10 (Spark 3.5.9) |
 | `python_dask/` | Dask implementations | 3.12 (`dask-sql`) |
-| `python_single_threaded/` | Pandas / plain Python baselines | 3.13 |
-| `python_free_threaded/` | Threaded + queue-mediated implementations | 3.13t (GIL-free) |
-| `simple_queued_pipelines/` | Git submodule: streaming pipeline components | 3.13t |
+| `python_single_threaded/` | Pandas / plain Python baselines | 3.14 |
+| `python_free_threaded/` | Threaded + queue-mediated implementations | 3.14t (GIL-free) |
+| `simple_queued_pipelines/` | Git submodule: streaming pipeline components | 3.14t |
 | `scala_spark/` | Scala Spark implementations (`sbt`) | JDK 17 |
 | `scripts/` | Repo-wide lint/test runners invoked by pre-commit | root env |
 | `results/` | Consolidated, summarized benchmark output | — |

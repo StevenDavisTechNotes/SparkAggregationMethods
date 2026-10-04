@@ -8,7 +8,7 @@ This directory explores how the aggregation challenges can be solved using Pytho
 
 The dependencies are managed by `uv` using the `pyproject.toml` file in this directory.
 
-> **Note**: This directory contains a local `.python-version` file specifying `3.13t`. When you run `uv` commands in this folder, `uv` will automatically fetch and use the **free-threaded** (GIL-free) build of Python 3.13 to enable true multi-threading.
+> **Note**: This directory contains a local `.python-version` file specifying `3.14t`. When you run `uv` commands in this folder, `uv` will automatically fetch and use the **free-threaded** (GIL-free) build of Python 3.14 to enable true multi-threading.
 
 - From this directory, simply run `uv sync`.
 - To execute a runner, use:

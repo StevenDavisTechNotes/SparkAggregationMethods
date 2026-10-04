@@ -55,12 +55,12 @@ git submodule update --init --recursive
 | Path | Version | Description | Version Limitation |
 | ------ | --------- | --------- | --------- |
 | . | 3.10 | Pre-commit | LCD |
-| admin | 3.13 | Pre-and-post test processing | None |
+| admin | 3.14 | Pre-and-post test processing | None |
 | py_spark | 3.10 | PySpark implementations w/wo GPU | Spark 3.5.9 |
 | python_dask | 3.12 | Dask implementations | `dask-sql` |
-| python_free_threaded | 3.13t | Multi-threaded implementations | GIL removed >= 3.13 |
-| python_single_threaded | 3.13 | numpy w/wo GPU | Match python_free_threaded w GIL |
-| simple_queued_pipelines | 3.13t | Reusable components used by python_free_threaded | GIL removed >= 3.13 |
+| python_free_threaded | 3.14t | Multi-threaded implementations | GIL removed; PyO3 (Rust) wheels require >= 3.14t |
+| python_single_threaded | 3.14 | numpy w/wo GPU | Match python_free_threaded w GIL |
+| simple_queued_pipelines | 3.14t | Reusable components used by python_free_threaded | GIL removed; PyO3 (Rust) wheels require >= 3.14t |
 
 #### Python Projects
 
@@ -103,8 +103,8 @@ This automatically handles the different Python requirements across our projects
 
 * `py_spark` targets **Python 3.10** for native compatibility with Spark 3.5.9.
 * `python_dask` targets **Python 3.12** for compatibility with the `dask-sql` ecosystem.
-* `admin` and `python_single_threaded` target standard **Python 3.13**.
-* `python_free_threaded` and `simple_queued_pipelines` target **Python 3.13t (free-threaded)** to leverage true multi-threading without the GIL. (This is enforced via local `.python-version` files).
+* `admin` and `python_single_threaded` target standard **Python 3.14**.
+* `python_free_threaded` and `simple_queued_pipelines` target **Python 3.14t (free-threaded)** to leverage true multi-threading without the GIL. (This is enforced via local `.python-version` files).
 
 ### 4. Building Scala Environment (`sbt`)
 

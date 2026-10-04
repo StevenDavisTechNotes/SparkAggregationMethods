@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "admin"
 version = "0.0.1"
 description = "Tooling for generating test data and analyzing test results"
-requires-python = "==3.13.*"
+requires-python = "==3.14.*"
 dependencies = [
     "numpy",
     "pandas",

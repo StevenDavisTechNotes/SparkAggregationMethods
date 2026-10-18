@@ -14,8 +14,8 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_domain_l
     calculate_solutions_progressively,
 )
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
-    SIX_TEST_SOURCE_DATA_PYARROW_SCHEMA, TARGET_PARQUET_BATCH_SIZE, SixTestDataSetDescription,
-    six_derive_expected_answer_data_file_paths_csv, six_derive_source_test_data_file_path,
+    TARGET_PARQUET_BATCH_SIZE, SixTestDataSetDescription, six_derive_expected_answer_data_file_paths_csv,
+    six_derive_source_test_data_file_path,
 )
 from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types import DATA_SIZES_LIST_VANILLA
 from spark_agg_methods_common_python.perf_test_common import Challenge
@@ -23,6 +23,19 @@ from spark_agg_methods_common_python.perf_test_common import Challenge
 # cSpell: ignore arange, aggfunc
 
 logger = logging.getLogger(__name__)
+
+
+SIX_TEST_SOURCE_DATA_PYARROW_SCHEMA = pyarrow.schema([
+    pyarrow.field("id", pyarrow.int32()),
+    pyarrow.field("grp", pyarrow.int32()),
+    pyarrow.field("subgrp", pyarrow.int32()),
+    pyarrow.field("A", pyarrow.int32()),
+    pyarrow.field("B", pyarrow.int32()),
+    pyarrow.field("C", pyarrow.float64()),
+    pyarrow.field("D", pyarrow.float64()),
+    pyarrow.field("E", pyarrow.float64()),
+    pyarrow.field("F", pyarrow.float64()),
+])
 
 
 def _remove_data_files_for_size(

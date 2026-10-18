@@ -131,19 +131,45 @@ To install the pre-commit hooks into your local git repository, run:
 ```bash
 uv run pre-commit install && cd simple_queued_pipelines && uv run pre-commit install && cd ..
 uv run pre-commit run --all-files
-uv run pre-commit run --hook-type pre-push --all-files
+uv run pre-commit run --hook-stage pre-push --all-files
 
 ```
 
-To manually run all test suites across every sub-project at once, you can use the master test runner:
+To run the code-quality tools across every Python sub-project at once, use `scripts/run_all.py`. It runs each selected tool in turn over every sub-project (`admin`, `common_python`, `py_spark`, `python_dask`, `python_free_threaded`, `python_single_threaded`, `simple_queued_pipelines`), each through that project's own `uv` environment, and prints which folders failed.
 
 ```bash
+uv run python scripts/run_all.py [--autopep8] [--flake8] [--ty] [--pytest] [--pyright] [--exclude PROJECT ...]
+```
+
+| Option | Description |
+| ------ | --------- |
+| `--autopep8` | Run `autopep8 --in-place --recursive` (rewrites files; line length read from `setup.cfg`). |
+| `--flake8` | Run `flake8` (line length read from `setup.cfg`). |
+| `--ty` | Run `ty check`, with extra search paths derived from each project's `[tool.uv.sources]`. |
+| `--pytest` | Run `pytest`. Exit code 5 (no tests collected) is treated as success, since several sub-projects have no tests yet. |
+| `--pyright` | Run the globally installed (npm) `pyright` against each project's own `.venv`. Opt-in only: it is never part of the default set. |
+| `--exclude PROJECT` | Skip a sub-project for every selected tool. Repeatable. `PROJECT` must be one of the sub-project folders listed above. |
+| `-h`, `--help` | Show usage and exit. |
+
+Tool selection:
+
+* With no tool flag, `autopep8`, `flake8`, `ty` and `pytest` run (in that order). `pyright` is not included.
+* With one or more tool flags, only those tools run. Tools always run in the order `autopep8`, `flake8`, `ty`, `pytest`, `pyright`, regardless of flag order.
+* The exit code is `0` if every tool passes in every non-excluded project, otherwise `1`. A failure in one project does not stop the remaining projects or tools; failures are summarized at the end.
+
+Pyright requires a global npm install (`npm install -g pyright`).
+
+```bash
+# Default set: autopep8, flake8, ty, pytest
+uv run python scripts/run_all.py
+
+# Only the test suites
 uv run python scripts/run_all.py --pytest
-```
 
-Pyright is available as an opt-in check (it is not part of `pre-commit` or the default tool set). It uses a global npm install (`npm install -g pyright`) and each project's own `.venv`:
+# Lint and type check, skipping two sub-projects
+uv run python scripts/run_all.py --flake8 --ty --exclude py_spark --exclude python_dask
 
-```bash
+# Opt-in pyright check
 uv run python scripts/run_all.py --pyright
 ```
 

@@ -1,0 +1,42 @@
+{
+    "python": {
+        "python_free_threaded": {
+            "vanilla": {
+                "result_file_path": "results/vanilla_python_free_threaded_runs.csv",
+                "regressor_column_name": "num_source_rows",
+                "elapsed_time_column_name": "elapsed_time",
+                "strategies": [
+                    {
+                        "language": "python",
+                        "engine": "python_free_threaded",
+                        "challenge": "vanilla",
+                        "interface": "queues",
+                        "strategy_name": "vanilla_py_ft_queue_pd_prog_numpy",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "python_free_threaded",
+                        "challenge": "vanilla",
+                        "interface": "queues",
+                        "strategy_name": "vanilla_py_ft_queue_pd_prog_numpy_1_reader",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    }
+                ],
+                "expected_regressor_values": [
+                    9,
+                    90,
+                    900,
+                    9000,
+                    90000,
+                    900000,
+                    9000000,
+                    90000000,
+                    900000000
+                ]
+            }
+        }
+    }
+}

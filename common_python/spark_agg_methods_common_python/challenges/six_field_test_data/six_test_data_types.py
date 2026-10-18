@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from typing import Any, NamedTuple
 
 import pandas as pd
-import pyarrow
 from spark_agg_methods_common_python.perf_test_common import (
     LOCAL_TEST_DATA_FILE_LOCATION, Challenge, ChallengeMethodRegistrationBase, DataSetDescriptionBase,
     ExecutionParametersBase, NumericalToleranceExpectations, TChallengeMethodDelegate, TSolutionInterface,
@@ -29,19 +28,6 @@ class DataPointNT(NamedTuple):
     D: float
     E: float
     F: float
-
-
-SIX_TEST_SOURCE_DATA_PYARROW_SCHEMA = pyarrow.schema([
-    pyarrow.field("id", pyarrow.int32()),
-    pyarrow.field("grp", pyarrow.int32()),
-    pyarrow.field("subgrp", pyarrow.int32()),
-    pyarrow.field("A", pyarrow.int32()),
-    pyarrow.field("B", pyarrow.int32()),
-    pyarrow.field("C", pyarrow.float64()),
-    pyarrow.field("D", pyarrow.float64()),
-    pyarrow.field("E", pyarrow.float64()),
-    pyarrow.field("F", pyarrow.float64()),
-])
 
 
 @dataclass(frozen=True)

@@ -1,5 +1,5 @@
-import os
 import re
+from pathlib import Path
 
 from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import (
     ClassLine, StudentHeader, TrimesterFooter, TrimesterHeader,
@@ -25,18 +25,20 @@ def parse_line_to_types(
 
 
 def identify_section_using_intermediate_file(
-        src_file_path: str,
-) -> str:
-    dest_file_path = f"{LOCAL_TEST_DATA_FILE_LOCATION}/temp.csv"
-    if os.path.exists(dest_file_path):
-        os.unlink(dest_file_path)
+        src_file_path: Path,
+) -> Path:
+    dest_file_path = LOCAL_TEST_DATA_FILE_LOCATION / "temp.csv"
+    dest_file_path.unlink(missing_ok=True)
     extra_type_pattern = re.compile("^S,")
     section_id = -1
-    with open(dest_file_path, "w") as out_fh:
-        with open(src_file_path, "r") as in_fh:
+    with dest_file_path.open("w") as out_fh:
+        with src_file_path.open("r") as in_fh:
             for line in in_fh:
                 if extra_type_pattern.match(line):
                     section_id += 1
-                assert section_id >= 0
+                if section_id < 0:
+                    raise ValueError(
+                        f"First line must start a section, found: {line}"
+                    )
                 out_fh.write(f"{section_id},{line}")
     return dest_file_path

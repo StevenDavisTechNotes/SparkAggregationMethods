@@ -145,7 +145,7 @@ class SixTestSourceDataFilePaths():
 
 
 def six_derive_source_test_data_directory_path() -> Path:
-    return Path(LOCAL_TEST_DATA_FILE_LOCATION) / "SixField_Test_Data"
+    return LOCAL_TEST_DATA_FILE_LOCATION / "SixField_Test_Data"
 
 
 def six_derive_expected_answer_data_file_paths_csv(

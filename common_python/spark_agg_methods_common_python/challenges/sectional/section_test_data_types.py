@@ -1,6 +1,5 @@
 import calendar
 import datetime as dt
-import typing
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
@@ -94,7 +93,6 @@ class SectionDataSetDescription(DataSetDescriptionBase):
     @classmethod
     def regressor_field_name(cls) -> str:
         regressor_field_name = "num_students"
-        assert regressor_field_name in typing.get_type_hints(cls)
         return regressor_field_name
 
 
@@ -157,7 +155,7 @@ def add_months_to_date_retracting(
 
 
 def section_test_data_file_root() -> Path:
-    return Path(LOCAL_TEST_DATA_FILE_LOCATION) / "Section_Test_Data"
+    return LOCAL_TEST_DATA_FILE_LOCATION / "Section_Test_Data"
 
 
 def section_derive_source_test_data_file_path(

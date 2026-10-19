@@ -1,4 +1,3 @@
-import typing
 from typing import NamedTuple
 
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import SixTestDataSetDescription
@@ -33,11 +32,10 @@ class ConditionalDataSetDescription(SixTestDataSetDescription):
     @classmethod
     def regressor_field_name(cls) -> str:
         regressor_field_name = "num_source_rows"
-        assert regressor_field_name in typing.get_type_hints(cls)
         return regressor_field_name
 
 
-DATA_SIZES_LIST_CONDITIONAL_MAXIMAL = [
+DATA_SIZE_LIST_CONDITIONAL_MAXIMAL = [
     ConditionalDataSetDescription(
         size_code=code,
         num_grp_1=3,
@@ -56,8 +54,8 @@ DATA_SIZES_LIST_CONDITIONAL_MAXIMAL = [
         (10 ** 8, "3_3_100m"),
     ]
 ]
-DATA_SIZES_LIST_CONDITIONAL_MINIMAL = [
-    x for x in DATA_SIZES_LIST_CONDITIONAL_MAXIMAL if x.points_per_index <= 100
+DATA_SIZE_LIST_CONDITIONAL_MINIMAL = [
+    x for x in DATA_SIZE_LIST_CONDITIONAL_MAXIMAL if x.points_per_index <= 100
 ]
 
 

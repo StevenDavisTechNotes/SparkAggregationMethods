@@ -39,7 +39,8 @@ def make_pd_dataframe_from_list_of_named_tuples(
     *,
     row_type: type,
 ) -> pd.DataFrame:
-    assert is_a_namedtuple_subclass(row_type)
+    if not is_a_namedtuple_subclass(row_type):
+        raise TypeError(f"{row_type} is not a NamedTuple subclass")
     schema = get_type_hints(row_type)
     df = pd.DataFrame(
         {
@@ -58,7 +59,8 @@ def make_pd_dataframe_from_list_of_dataclasses(
     *,
     row_type: type,
 ) -> pd.DataFrame:
-    assert is_dataclass(row_type)
+    if not is_dataclass(row_type):
+        raise TypeError(f"{row_type} is not a dataclass")
     schema = get_type_hints(row_type)
     df = pd.DataFrame(
         {

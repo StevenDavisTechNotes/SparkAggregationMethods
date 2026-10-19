@@ -15,7 +15,7 @@ from spark_agg_methods_common_python.challenges.bi_level.bi_level_record_runs im
     BiLevelPythonRunResultFileWriter, BiLevelRunResult,
 )
 from spark_agg_methods_common_python.challenges.bi_level.bi_level_test_data_types import (
-    DATA_SIZES_LIST_BI_LEVEL_MAXIMAL, DATA_SIZES_LIST_BI_LEVEL_MINIMAL, BiLevelDataSetDescription,
+    DATA_SIZE_LIST_BI_LEVEL_MAXIMAL, DATA_SIZE_LIST_BI_LEVEL_MINIMAL, BiLevelDataSetDescription,
 )
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
     SixTestExecutionParameters, fetch_six_data_set_answer,
@@ -48,8 +48,8 @@ class BiLevelDataSetWAnswerPythonST(SixDataSetPythonST):
 
 
 def parse_args() -> Arguments:
-    sizes_max = [x.size_code for x in DATA_SIZES_LIST_BI_LEVEL_MAXIMAL]
-    sizes_min = [x.size_code for x in DATA_SIZES_LIST_BI_LEVEL_MINIMAL]
+    sizes_max = [x.size_code for x in DATA_SIZE_LIST_BI_LEVEL_MAXIMAL]
+    sizes_min = [x.size_code for x in DATA_SIZE_LIST_BI_LEVEL_MINIMAL]
     strategy_names = sorted(x.strategy_name for x in BI_LEVEL_STRATEGY_REGISTRY_PYTHON_SINGLE_THREADED)
 
     parser = argparse.ArgumentParser()
@@ -92,7 +92,7 @@ def prepare_data_sets(
             ),
             answer=fetch_six_data_set_answer(CHALLENGE, size),
         )
-        for size in DATA_SIZES_LIST_BI_LEVEL_MAXIMAL
+        for size in DATA_SIZE_LIST_BI_LEVEL_MAXIMAL
         if size.size_code in args.sizes
     ]
     return data_sets
@@ -178,7 +178,7 @@ def update_challenge_registration():
             elapsed_time_column_name=ELAPSED_TIME_COLUMN_NAME,
             expected_regressor_values=[
                 x.regressor_value
-                for x in DATA_SIZES_LIST_BI_LEVEL_MAXIMAL
+                for x in DATA_SIZE_LIST_BI_LEVEL_MAXIMAL
                 if not x.debugging_only
             ],
             strategies=[

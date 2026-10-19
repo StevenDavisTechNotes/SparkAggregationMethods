@@ -5,8 +5,8 @@ from spark_agg_methods_common_python.challenges.sectional.section_test_data_type
 from spark_agg_methods_common_python.utils.utils import int_divide_round_up
 from src.challenges.sectional.domain_logic.section_data_parsers_pyspark import rdd_typed_with_index_factory
 from src.challenges.sectional.domain_logic.section_snippet_subtotal_type import (
-    FIRST_LAST_FIRST, FIRST_LAST_LAST, FIRST_LAST_NEITHER, CompletedStudent, StudentSnippet2, complete_snippets_2,
-    grade_summary, marge_snippets_2, student_snippet_from_typed_row_2,
+    FIRST_LAST_FIRST, FIRST_LAST_LAST, FIRST_LAST_NEITHER, CompletedStudent, StudentSnippet2, build_initial_snippet_2,
+    complete_snippets_2, grade_summary, marge_snippets_2, student_snippet_from_typed_row_2,
 )
 from src.challenges.sectional.section_test_data_types_pyspark import (
     SectionDataSetPyspark, SectionExecutionParametersPyspark, TChallengePythonPysparkAnswer,
@@ -60,21 +60,26 @@ def section_mappart_partials_logic(
 
     rdd_start: RDD[StudentSnippet2] = (
         sc.parallelize([
-            StudentSnippet2(
-                FirstLastFlag=FIRST_LAST_FIRST,
-                FirstLineIndex=-1,
-                LastLineIndex=-1)],
-            numSlices=1)
+            build_initial_snippet_2(
+                first_last_flag=FIRST_LAST_FIRST,
+                line_index=-1,
+            )
+        ],
+            numSlices=1,
+        )
         .union(
             rdd_orig
             .map(lambda x: student_snippet_from_typed_row_2(x.Index, x.Value)))
         .union(
             sc.parallelize([
-                StudentSnippet2(
-                    FirstLastFlag=FIRST_LAST_LAST,
-                    FirstLineIndex=num_lines_in_orig,
-                    LastLineIndex=num_lines_in_orig)],
-                numSlices=1))
+                build_initial_snippet_2(
+                    first_last_flag=FIRST_LAST_LAST,
+                    line_index=num_lines_in_orig,
+                )
+            ],
+                numSlices=1,
+            )
+        )
     )
     data_to_process: tuple[RDD[StudentSnippet2], int, RDD[CompletedStudent]] \
         = (rdd_start, num_lines_in_orig + 2, rdd_accumulative_completed)

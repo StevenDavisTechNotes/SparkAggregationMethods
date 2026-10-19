@@ -22,7 +22,7 @@ def section_join_groupby(
     sectionMaximum = data_set.section_maximum
 
     rdd = sc.textFile(
-        data_set.source_data_file_path,
+        str(data_set.source_data_file_path),
         data_set.target_num_partitions,
     )
 

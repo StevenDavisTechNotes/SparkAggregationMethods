@@ -89,10 +89,10 @@ cd admin; uv run python -m src.generate_data_files
 cd python_dask; uv run python -O -m src.perf_test_runner_for_dask
 
 # Run one challenge, small sizes, single pass (see quick_test_run.ps1)
-uv run python -O -m src.challenges.vanilla.vanilla_runner_dask --runs 1 --no-shuffle --size 3_3_1 3_3_10
+uv run python -m src.challenges.vanilla.vanilla_runner_dask --runs 1 --no-shuffle --size 3_3_1 3_3_10
 
 # Refresh the strategy registry without benchmarking (see update_challenge_registry.ps1)
-uv run python -O -m src.challenges.vanilla.vanilla_runner_dask --runs 0
+uv run python -m src.challenges.vanilla.vanilla_runner_dask --runs 0
 
 # Summarize accumulated results into results/*.csv
 cd admin; uv run python -m src.summarize_test_results
@@ -175,6 +175,10 @@ generated output — change the strategy directory, not the JSON.
 
 ## Conventions
 
+Detailed Python and Scala style (layout, naming, typing, paths, logging, CLI patterns) is in
+[`instructions/coding_standards.md`](instructions/coding_standards.md); read it before writing
+new code. The rules below are the ones the tooling enforces or that are easy to get wrong.
+
 - **Line length 120** (`setup.cfg` for flake8/pycodestyle, `[tool.isort]` in the
   root `pyproject.toml`), max complexity 10.
 - **isort** with `multi_line_output = 5` and trailing commas. Import order matters
@@ -227,7 +231,7 @@ excluded). On push: the full test suite.
 
 ## In-flight work and known rough edges
 
-This repo is mid-way through a cleanup pass; `Sprucing2026.md` is the live
+This repo is mid-way through a cleanup pass; `instructions/Sprucing2026.md` is the live
 checklist. When touching these areas, expect breakage rather than assuming the
 current state is intentional:
 

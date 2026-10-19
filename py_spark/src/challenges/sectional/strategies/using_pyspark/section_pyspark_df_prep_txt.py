@@ -39,7 +39,7 @@ def section_pyspark_df_prep_txt(
 
     interFileName = identify_section_using_intermediate_file(filename)
     rdd = (
-        sc.textFile(interFileName, data_set.target_num_partitions)
+        sc.textFile(str(interFileName), data_set.target_num_partitions)
         .zipWithIndex()
         .map(parse_line_to_row_with_line_no)
     )

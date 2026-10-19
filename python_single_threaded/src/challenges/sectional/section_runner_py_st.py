@@ -5,7 +5,6 @@ import argparse
 import datetime as dt
 import gc
 import logging
-import os
 import time
 from dataclasses import dataclass
 from typing import Literal
@@ -92,7 +91,8 @@ def prepare_data_sets(
         if data_description.size_code not in args.sizes:
             continue
         file_path = section_derive_source_test_data_file_path(data_description)
-        assert os.path.exists(file_path)
+        if not file_path.exists():
+            raise FileNotFoundError(f"Missing file {file_path}")
         correct_answer = AnswerFileSectional.read_answer_file_sectional(data_description)
         datasets.append(
             SectionDataSetPyST(

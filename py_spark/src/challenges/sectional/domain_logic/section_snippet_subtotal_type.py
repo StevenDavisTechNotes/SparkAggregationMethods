@@ -25,13 +25,13 @@ class StudentSnippet2(NamedTuple):
     FirstLastFlag: int
     FirstLineIndex: int
     LastLineIndex: int
+    Credits: list[int]
+    WeightedGradeTotal: list[int]
     StudentId: int | None = None
     StudentName: str | None = None
     FirstTrimesterDate: str | None = None
     LastTrimesterDate: str | None = None
     LastMajor: int | None = None
-    Credits: list[int] | None = None
-    WeightedGradeTotal: list[int] | None = None
 
 
 class CompletedStudent(NamedTuple):
@@ -61,7 +61,8 @@ def student_snippet_from_typed_row_1(
                 Credits=credits,
                 WeightedGradeTotal=weightedGradeTotal,
                 FirstLineIndex=lineIndex,
-                LastLineIndex=lineIndex)
+                LastLineIndex=lineIndex,
+            )
         case TrimesterHeader():
             return StudentSnippet1(
                 StudentId=None,
@@ -72,7 +73,8 @@ def student_snippet_from_typed_row_1(
                 Credits=credits,
                 WeightedGradeTotal=weightedGradeTotal,
                 FirstLineIndex=lineIndex,
-                LastLineIndex=lineIndex)
+                LastLineIndex=lineIndex,
+            )
         case ClassLine():
             credits[rec.Dept] += rec.Credits
             weightedGradeTotal[rec.Dept] += rec.Credits * rec.Grade
@@ -85,7 +87,8 @@ def student_snippet_from_typed_row_1(
                 Credits=credits,
                 WeightedGradeTotal=weightedGradeTotal,
                 FirstLineIndex=lineIndex,
-                LastLineIndex=lineIndex)
+                LastLineIndex=lineIndex,
+            )
         case TrimesterFooter():
             return StudentSnippet1(
                 StudentId=None,
@@ -96,7 +99,8 @@ def student_snippet_from_typed_row_1(
                 Credits=credits,
                 WeightedGradeTotal=weightedGradeTotal,
                 FirstLineIndex=lineIndex,
-                LastLineIndex=lineIndex)
+                LastLineIndex=lineIndex,
+            )
         case _:
             raise Exception("Unknown parsed row type")
 
@@ -119,7 +123,8 @@ def student_snippet_from_typed_row_2(
                 WeightedGradeTotal=weightedGradeTotal,
                 FirstLastFlag=FIRST_LAST_NEITHER,
                 FirstLineIndex=lineIndex,
-                LastLineIndex=lineIndex)
+                LastLineIndex=lineIndex,
+            )
         case TrimesterHeader():
             return StudentSnippet2(
                 StudentId=None,
@@ -131,7 +136,8 @@ def student_snippet_from_typed_row_2(
                 WeightedGradeTotal=weightedGradeTotal,
                 FirstLastFlag=FIRST_LAST_NEITHER,
                 FirstLineIndex=lineIndex,
-                LastLineIndex=lineIndex)
+                LastLineIndex=lineIndex,
+            )
         case ClassLine():
             credits[rec.Dept] += rec.Credits
             weightedGradeTotal[rec.Dept] += rec.Credits * rec.Grade
@@ -145,7 +151,8 @@ def student_snippet_from_typed_row_2(
                 WeightedGradeTotal=weightedGradeTotal,
                 FirstLastFlag=FIRST_LAST_NEITHER,
                 FirstLineIndex=lineIndex,
-                LastLineIndex=lineIndex)
+                LastLineIndex=lineIndex,
+            )
         case TrimesterFooter():
             return StudentSnippet2(
                 StudentId=None,
@@ -157,17 +164,31 @@ def student_snippet_from_typed_row_2(
                 WeightedGradeTotal=weightedGradeTotal,
                 FirstLastFlag=FIRST_LAST_NEITHER,
                 FirstLineIndex=lineIndex,
-                LastLineIndex=lineIndex)
+                LastLineIndex=lineIndex,
+            )
         case _:
             raise Exception("Unknown parsed row type")
+
+
+def build_initial_snippet_2(
+        first_last_flag: int,
+        line_index: int,
+) -> StudentSnippet2:
+    return StudentSnippet2(
+        FirstLastFlag=first_last_flag,
+        FirstLineIndex=line_index,
+        LastLineIndex=line_index,
+        Credits=[0 for x in range(0, NUM_DEPARTMENTS)],
+        WeightedGradeTotal=[0 for x in range(0, NUM_DEPARTMENTS)],
+    )
 
 
 def completed_from_snippet_1(
         lhs: StudentSnippet1,
 ) -> CompletedStudent:
-    assert lhs.StudentId is not None
-    assert lhs.StudentName is not None
-    assert lhs.LastMajor is not None
+    if lhs.StudentId is None or lhs.StudentName is None or lhs.LastMajor is None:
+        raise ValueError(
+            f"Student snippet lines {lhs.FirstLineIndex}-{lhs.LastLineIndex} has no header or footer")
     return CompletedStudent(
         StudentId=lhs.StudentId,
         StudentName=lhs.StudentName,
@@ -175,17 +196,16 @@ def completed_from_snippet_1(
         Credits=lhs.Credits,
         WeightedGradeTotal=lhs.WeightedGradeTotal,
         FirstLineIndex=lhs.FirstLineIndex,
-        LastLineIndex=lhs.LastLineIndex)
+        LastLineIndex=lhs.LastLineIndex,
+    )
 
 
 def completed_from_snippet_2(
         lhs: StudentSnippet2,
 ) -> CompletedStudent:
-    assert lhs.StudentId is not None
-    assert lhs.StudentName is not None
-    assert lhs.LastMajor is not None
-    assert lhs.Credits is not None
-    assert lhs.WeightedGradeTotal is not None
+    if lhs.StudentId is None or lhs.StudentName is None or lhs.LastMajor is None:
+        raise ValueError(
+            f"Student snippet lines {lhs.FirstLineIndex}-{lhs.LastLineIndex} has no header or footer")
     return CompletedStudent(
         StudentId=lhs.StudentId,
         StudentName=lhs.StudentName,
@@ -193,7 +213,8 @@ def completed_from_snippet_2(
         Credits=lhs.Credits,
         WeightedGradeTotal=lhs.WeightedGradeTotal,
         FirstLineIndex=lhs.FirstLineIndex,
-        LastLineIndex=lhs.LastLineIndex)
+        LastLineIndex=lhs.LastLineIndex,
+    )
 
 
 def marge_snippets_2(
@@ -202,13 +223,11 @@ def marge_snippets_2(
 ) -> StudentSnippet2:
     assert lhs.LastLineIndex + 1 == rhs.FirstLineIndex
     credits = [
-        (0 if lhs.Credits is None else lhs.Credits[dept])
-        + (0 if rhs.Credits is None else rhs.Credits[dept])
+        lhs.Credits[dept] + rhs.Credits[dept]
         for dept in range(0, NUM_DEPARTMENTS)
     ]
     weightedGradeTotal = [
-        (0 if lhs.WeightedGradeTotal is None else lhs.WeightedGradeTotal[dept])
-        + (0 if rhs.WeightedGradeTotal is None else rhs.WeightedGradeTotal[dept])
+        lhs.WeightedGradeTotal[dept] + rhs.WeightedGradeTotal[dept]
         for dept in range(0, NUM_DEPARTMENTS)
     ]
     return StudentSnippet2(
@@ -227,7 +246,8 @@ def marge_snippets_2(
         WeightedGradeTotal=weightedGradeTotal,
         FirstLastFlag=FIRST_LAST_NEITHER,
         FirstLineIndex=lhs.FirstLineIndex,
-        LastLineIndex=rhs.LastLineIndex)
+        LastLineIndex=rhs.LastLineIndex,
+    )
 
 
 def complete_snippets_2(
@@ -270,14 +290,14 @@ def merge_snippet_lists_1(
                 lhs.WeightedGradeTotal[dept] + rhs.WeightedGradeTotal[dept]
                 for dept in range(0, NUM_DEPARTMENTS)],
             FirstLineIndex=lhs.FirstLineIndex,
-            LastLineIndex=rhs.LastLineIndex)
+            LastLineIndex=rhs.LastLineIndex,
+        )
     return lh_group
 
 
 def grade_summary(
         x: CompletedStudent
 ) -> StudentSummary:
-    assert x.LastMajor is not None
     return StudentSummary(
         StudentId=x.StudentId,
         StudentName=x.StudentName,

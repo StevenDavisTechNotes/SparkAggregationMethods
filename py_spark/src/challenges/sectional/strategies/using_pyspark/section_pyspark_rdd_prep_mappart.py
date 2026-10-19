@@ -23,13 +23,14 @@ def section_pyspark_rdd_prep_mappart(
         return "infeasible", "Too slow"
     sc = spark_session.spark_context
     filename = data_set.source_data_file_path
+    filename_str = str(filename)
     target_num_partitions = data_set.target_num_partitions
 
     interFileName = identify_section_using_intermediate_file(filename)
     rdd1: RDD[tuple[tuple[int, int], TypedLine]] = (
-        sc.textFile(interFileName, target_num_partitions)
+        sc.textFile(str(interFileName), target_num_partitions)
         .zipWithIndex()
-        .map(lambda pair: parse_line_to_types_with_line_no(filename, pair[1], pair[0]))
+        .map(lambda pair: parse_line_to_types_with_line_no(filename_str, pair[1], pair[0]))
     )
     rdd: RDD[StudentSummary] = (
         rdd1

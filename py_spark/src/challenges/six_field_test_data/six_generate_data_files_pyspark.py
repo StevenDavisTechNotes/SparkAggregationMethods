@@ -5,16 +5,16 @@ from pathlib import Path
 
 import pyarrow.parquet
 from spark_agg_methods_common_python.challenges.bi_level.bi_level_test_data_types import (
-    DATA_SIZES_LIST_BI_LEVEL_MAXIMAL, DATA_SIZES_LIST_BI_LEVEL_MINIMAL,
+    DATA_SIZE_LIST_BI_LEVEL_MAXIMAL, DATA_SIZE_LIST_BI_LEVEL_MINIMAL,
 )
 from spark_agg_methods_common_python.challenges.conditional.conditional_test_data_types import (
-    DATA_SIZES_LIST_CONDITIONAL_MAXIMAL, DATA_SIZES_LIST_CONDITIONAL_MINIMAL,
+    DATA_SIZE_LIST_CONDITIONAL_MAXIMAL, DATA_SIZE_LIST_CONDITIONAL_MINIMAL,
 )
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
     SixTestDataSetDescription, six_derive_source_test_data_file_path,
 )
 from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types import (
-    DATA_SIZES_LIST_VANILLA_MAXIMAL, DATA_SIZES_LIST_VANILLA_MINIMAL,
+    DATA_SIZE_LIST_VANILLA_MAXIMAL, DATA_SIZE_LIST_VANILLA_MINIMAL,
 )
 from src.utils.tidy_session_pyspark import TidySparkSession
 
@@ -40,7 +40,7 @@ def six_remove_source_data_file_for_size_pyspark(
         final_source_file_paths.source_file_path_parquet_small_v1_files,
         temp_source_file_paths.source_file_path_parquet_small_v1_files
     ]:
-        if os.path.exists(path):
+        if path.exists():
             shutil.rmtree(path)
 
 
@@ -60,11 +60,11 @@ def six_generate_source_data_file_for_size_pyspark(
     write_folder_path = temp_source_file_paths.source_file_path_parquet_small_v1_files
 
     if (
-        os.path.exists(write_folder_path)
+        write_folder_path.exists()
         and sum([len(files) for r, d, files in os.walk(write_folder_path)]) > 0
     ):
         return
-    if not os.path.exists(read_file_path):
+    if not read_file_path.exists():
         logger.error(f"Missing {read_file_path}")
         exit(1)
     six_remove_source_data_file_for_size_pyspark(data_description)
@@ -79,8 +79,7 @@ def six_generate_source_data_file_for_size_pyspark(
             compression="zstd",
         )
     source_file.close()
-    os.rename(
-        temp_source_file_paths.source_file_path_parquet_small_v1_files,
+    temp_source_file_paths.source_file_path_parquet_small_v1_files.replace(
         final_source_file_paths.source_file_path_parquet_small_v1_files,
     )
 
@@ -92,13 +91,13 @@ def six_generate_data_files_pyspark(
         minimal: bool = False,
 ) -> None:
     data_sizes = (
-        DATA_SIZES_LIST_BI_LEVEL_MINIMAL
-        + DATA_SIZES_LIST_CONDITIONAL_MINIMAL
-        + DATA_SIZES_LIST_VANILLA_MINIMAL
+        DATA_SIZE_LIST_BI_LEVEL_MINIMAL
+        + DATA_SIZE_LIST_CONDITIONAL_MINIMAL
+        + DATA_SIZE_LIST_VANILLA_MINIMAL
         if minimal else
-        DATA_SIZES_LIST_BI_LEVEL_MAXIMAL
-        + DATA_SIZES_LIST_CONDITIONAL_MAXIMAL
-        + DATA_SIZES_LIST_VANILLA_MAXIMAL
+        DATA_SIZE_LIST_BI_LEVEL_MAXIMAL
+        + DATA_SIZE_LIST_CONDITIONAL_MAXIMAL
+        + DATA_SIZE_LIST_VANILLA_MAXIMAL
     )
     if overwrite:
         for size in data_sizes:

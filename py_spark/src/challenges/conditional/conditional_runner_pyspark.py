@@ -15,7 +15,7 @@ from spark_agg_methods_common_python.challenges.conditional.conditional_record_r
     ConditionalPythonRunResultFileWriter, ConditionalRunResult,
 )
 from spark_agg_methods_common_python.challenges.conditional.conditional_test_data_types import (
-    AGGREGATION_COLUMNS_3, DATA_SIZES_LIST_CONDITIONAL_MAXIMAL, DATA_SIZES_LIST_CONDITIONAL_MINIMAL, GROUP_BY_COLUMNS,
+    AGGREGATION_COLUMNS_3, DATA_SIZE_LIST_CONDITIONAL_MAXIMAL, DATA_SIZE_LIST_CONDITIONAL_MINIMAL, GROUP_BY_COLUMNS,
     ConditionalDataSetDescription,
 )
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
@@ -53,8 +53,8 @@ class Arguments(RunnerArgumentsBase):
 
 
 def parse_args() -> Arguments:
-    sizes_max = [x.size_code for x in DATA_SIZES_LIST_CONDITIONAL_MAXIMAL]
-    sizes_min = [x.size_code for x in DATA_SIZES_LIST_CONDITIONAL_MINIMAL]
+    sizes_max = [x.size_code for x in DATA_SIZE_LIST_CONDITIONAL_MAXIMAL]
+    sizes_min = [x.size_code for x in DATA_SIZE_LIST_CONDITIONAL_MINIMAL]
     strategy_names = sorted(x.strategy_name for x in CONDITIONAL_STRATEGY_REGISTRY_PYSPARK)
 
     parser = argparse.ArgumentParser()
@@ -103,7 +103,7 @@ def prepare_data_sets(
                 spark_logger=spark_session.logger,
             ),
         )
-        for size in DATA_SIZES_LIST_CONDITIONAL_MAXIMAL
+        for size in DATA_SIZE_LIST_CONDITIONAL_MAXIMAL
         if size.size_code in args.sizes
     ]
     return data_sets
@@ -199,7 +199,7 @@ def update_challenge_registration():
             elapsed_time_column_name=ELAPSED_TIME_COLUMN_NAME,
             expected_regressor_values=[
                 x.regressor_value
-                for x in DATA_SIZES_LIST_CONDITIONAL_MAXIMAL
+                for x in DATA_SIZE_LIST_CONDITIONAL_MAXIMAL
                 if not x.debugging_only
             ],
             strategies=[

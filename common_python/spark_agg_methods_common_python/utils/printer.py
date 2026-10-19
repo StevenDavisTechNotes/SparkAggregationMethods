@@ -1,6 +1,7 @@
 import io
 import os
 import re
+from pathlib import Path
 from typing import Any, TextIO, cast
 
 import prettyprinter
@@ -51,8 +52,8 @@ def pprint(
 
 def pick_file_path(
         suffix: str,
-) -> str:
-    return os.path.join(os.environ["TMP"], f"LastUnitTestData{suffix}.py")
+) -> Path:
+    return Path(os.environ["TMP"]) / f"LastUnitTestData{suffix}.py"
 
 
 re_match_dt_1: re.Pattern[str] | None = None

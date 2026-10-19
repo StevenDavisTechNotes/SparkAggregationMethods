@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 from typing import Any
 
 import pyspark.sql.types as DataTypes
@@ -37,7 +37,7 @@ def section_pyspark_df_prep_grp_csv(
     intermediate_file_nameFileName = convert_to_row_csv(filename)
     df = spark.read.format("csv") \
         .schema(SparseLineWithSectionIdLineNoSchema) \
-        .load(intermediate_file_nameFileName)
+        .load(str(intermediate_file_nameFileName))
     df = section_pyspark_rdd_prep_shared(df, exec_params, section_maximum)
     rdd: RDD[StudentSummary] = (
         df.rdd
@@ -48,15 +48,14 @@ def section_pyspark_df_prep_grp_csv(
 
 
 def convert_to_row_csv(
-        srcFilename: str,
-) -> str:
-    destFilename = f"{LOCAL_TEST_DATA_FILE_LOCATION}/temp.csv"
-    if os.path.exists(destFilename):
-        os.unlink(destFilename)
+        srcFilename: Path,
+) -> Path:
+    destFilename = LOCAL_TEST_DATA_FILE_LOCATION / "temp.csv"
+    destFilename.unlink(missing_ok=True)
     studentId = None
-    with open(destFilename, "w") as out_fh:
+    with destFilename.open("w") as out_fh:
         lineNumber = 0
-        with open(srcFilename, "r") as in_fh:
+        with srcFilename.open("r") as in_fh:
             for line in in_fh:
                 lineNumber += 1
                 row = parse_line_to_row(line.strip())

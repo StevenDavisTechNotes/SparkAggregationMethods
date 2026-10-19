@@ -57,7 +57,7 @@ def section_pyspark_rdd_reduce_asymm_part(
     file_path = data_set.source_data_file_path
     target_num_partitions = data_set.target_num_partitions
     maximum_processable_segment = exec_params.maximum_processable_segment
-    rdd1: RDD[str] = sc.textFile(file_path, minPartitions=target_num_partitions)
+    rdd1: RDD[str] = sc.textFile(str(file_path), minPartitions=target_num_partitions)
     rdd2: RDD[tuple[str, int]] = rdd1.zipWithIndex()
     rdd13: RDD[LabeledTypedRow] = rdd2 \
         .map(lambda x: LabeledTypedRow(Index=x[1], Value=parse_line_to_types(x[0])))

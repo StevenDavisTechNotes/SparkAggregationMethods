@@ -74,8 +74,10 @@ def merge_registries(registries: Iterable[ChallengeRegistryFileType]) -> Challen
                 if engine not in result[language]:
                     result[language][engine] = dict()
                 for challenge, registration in challenges.items():
-                    msg = f"Duplicate challenge {challenge} for {language} and {engine}"
-                    assert challenge not in result[language][engine], msg
+                    if challenge in result[language][engine]:
+                        raise ValueError(
+                            f"Duplicate challenge {challenge} for {language} and {engine}"
+                        )
                     result[language][engine][challenge] = registration
     return result
 

@@ -10,17 +10,20 @@ from pyspark import SparkContext
 from pyspark.sql import SparkSession
 from spark_agg_methods_common_python.perf_test_common import LOCAL_NUM_EXECUTORS
 
-SPARK_SCRATCH_FOLDER = os.environ.get("SPARK_SCRATCH_SPACE") or os.path.join(tempfile.gettempdir(), "spark_scratch")
+SPARK_SCRATCH_FOLDER: Path = Path(
+    os.environ.get("SPARK_SCRATCH_SPACE")
+    or Path(tempfile.gettempdir()) / "spark_scratch"
+)
 
 
-def get_python_code_root_path() -> str:
-    return str(Path(os.path.abspath(__file__)).parent.parent.parent)
+def get_python_code_root_path() -> Path:
+    return Path(__file__).resolve().parent.parent.parent
 
 
 @dataclass(frozen=True)
 class OpenSparkSession:
-    python_interpreter_path: str
-    python_src_code_path: str
+    python_interpreter_path: Path
+    python_src_code_path: Path
     spark_session: SparkSession
     spark_context: SparkContext
     log: Any
@@ -29,17 +32,17 @@ class OpenSparkSession:
 def open_spark_session(
         config_dict: dict[str, Any],
         enable_hive_support: bool,
-        spark_scratch_folder: str,
+        spark_scratch_folder: Path,
         local_num_executors: int,
 ) -> OpenSparkSession:
     findspark.init()
     python_code_root_path = get_python_code_root_path()
     python_src_code_path = python_code_root_path
     import sys
-    path_to_python_interpreter = sys.executable
-    os.environ["PYSPARK_PYTHON"] = path_to_python_interpreter
-    os.environ["PYSPARK_DRIVER_PYTHON"] = path_to_python_interpreter
-    os.environ["SPARK_LOCAL_DIRS"] = spark_scratch_folder
+    path_to_python_interpreter = Path(sys.executable)
+    os.environ["PYSPARK_PYTHON"] = str(path_to_python_interpreter)
+    os.environ["PYSPARK_DRIVER_PYTHON"] = str(path_to_python_interpreter)
+    os.environ["SPARK_LOCAL_DIRS"] = str(spark_scratch_folder)
     spark = (
         # cSpell: disable
         SparkSession
@@ -47,7 +50,7 @@ def open_spark_session(
         .appName("PerfTestApp")  # pyright: ignore[reportAttributeAccessIssue]
         .master(f"local[{local_num_executors}]")
         .config("spark.hadoop.mapreduce.fileoutputcommitter.algorithm.version", 2)
-        .config("spark.pyspark.python", path_to_python_interpreter)
+        .config("spark.pyspark.python", str(path_to_python_interpreter))
         .config("spark.rdd.compress", "false")
         .config("spark.sql.execution.arrow.pyspark.enabled", "true")
         .config("spark.ui.enabled", "false")
@@ -62,10 +65,7 @@ def open_spark_session(
     log4jLogger = cast(Any, sc)._jvm.org.apache.log4j
     log = log4jLogger.LogManager.getLogger(__name__)
     log.info("script initialized")
-    sc.setCheckpointDir(
-        os.path.join(
-            spark_scratch_folder,
-            "SectionAggCheckpoint"))
+    sc.setCheckpointDir(str(spark_scratch_folder / "SectionAggCheckpoint"))
     return OpenSparkSession(
         python_interpreter_path=path_to_python_interpreter,
         python_src_code_path=python_src_code_path,
@@ -76,9 +76,9 @@ def open_spark_session(
 
 
 class TidySparkSession:
-    python_code_root_path: str
-    python_interpreter_path: str
-    python_src_code_path: str
+    python_code_root_path: Path
+    python_interpreter_path: Path
+    python_src_code_path: Path
     spark: SparkSession
     spark_context: SparkContext
     logger: Any
@@ -109,9 +109,8 @@ class TidySparkSession:
         self.spark.stop()
 
     def create_scratch_folder(self) -> None:
-        if os.path.exists(SPARK_SCRATCH_FOLDER) is False:
-            os.mkdir(SPARK_SCRATCH_FOLDER)
+        SPARK_SCRATCH_FOLDER.mkdir(parents=True, exist_ok=True)
 
     def clean_up_scratch_folder(self) -> None:
-        for item in Path(SPARK_SCRATCH_FOLDER).iterdir():
+        for item in SPARK_SCRATCH_FOLDER.iterdir():
             shutil.rmtree(item)

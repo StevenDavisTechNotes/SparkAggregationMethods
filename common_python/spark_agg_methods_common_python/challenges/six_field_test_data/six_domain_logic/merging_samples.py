@@ -195,7 +195,9 @@ def calculate_solutions_from_summary(
     num_grp_2 = data_size.num_grp_2
     repetition = data_size.points_per_index
     correct_num_data_points = num_grp_1 * num_grp_2 * repetition
-    assert correct_num_data_points == num_data_points_visited
+    if correct_num_data_points != num_data_points_visited:
+        raise ValueError(
+            f"Not incorrect num_data_points_visited {correct_num_data_points} != {num_data_points_visited}")
     result: dict[Challenge, pd.DataFrame] = dict()
     if include_bi_level:
         df_bi_level_answer: pd.DataFrame

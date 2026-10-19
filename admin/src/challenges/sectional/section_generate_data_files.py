@@ -67,7 +67,7 @@ def _generate_source_data_file_for_size(
                 gpa = trimester_weighted_grades / trimester_credits
                 f.write(f"TF,{major},{gpa},{trimester_credits}\n")
     final_file_name.parent.mkdir(parents=True, exist_ok=True)
-    temp_file_name.rename(final_file_name)
+    temp_file_name.replace(final_file_name)
 
 
 def _generate_answer_file(data_description: SectionDataSetDescription) -> None:

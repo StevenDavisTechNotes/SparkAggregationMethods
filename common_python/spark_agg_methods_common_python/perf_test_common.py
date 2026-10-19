@@ -6,6 +6,7 @@ from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass
 from dataclasses import fields as dataclass_fields
 from enum import Enum
+from pathlib import Path
 from typing import Callable, Generic, TextIO, TypeVar
 
 from spark_agg_methods_common_python.utils.utils import set_random_seed
@@ -13,8 +14,10 @@ from spark_agg_methods_common_python.utils.utils import set_random_seed
 logger = logging.getLogger(__name__)
 
 ELAPSED_TIME_COLUMN_NAME: str = "elapsed_time"
-LOCAL_TEST_DATA_FILE_LOCATION = os.environ.get(
-    "SPARK_PERF_TESTING_DATA_LOCATION") or os.path.join(tempfile.gettempdir(), "spark_test_data")
+LOCAL_TEST_DATA_FILE_LOCATION: Path = Path(
+    os.environ.get("SPARK_PERF_TESTING_DATA_LOCATION")
+    or Path(tempfile.gettempdir()) / "spark_test_data"
+)
 LOCAL_NUM_EXECUTORS = 5
 
 

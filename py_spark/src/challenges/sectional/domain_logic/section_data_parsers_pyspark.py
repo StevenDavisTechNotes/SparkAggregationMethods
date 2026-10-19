@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from pyspark import RDD
 from pyspark.sql import DataFrame as PySparkDataFrame
 from pyspark.sql import Row
@@ -42,11 +44,11 @@ def parse_line_to_row(
 
 def df_sparse_rows_factory(
         spark_session: TidySparkSession,
-        filename: str,
+        filename: Path,
         numPartitions: int | None = None
 ) -> PySparkDataFrame:
     rdd1: RDD[str] = spark_session.spark_context.textFile(
-        filename, minPartitions=(numPartitions or 1))
+        str(filename), minPartitions=(numPartitions or 1))
     rdd2: RDD[Row] = rdd1 \
         .map(parse_line_to_row)
     df = spark_session.spark.createDataFrame(rdd2, SparseLineSchema)
@@ -55,11 +57,11 @@ def df_sparse_rows_factory(
 
 def rdd_typed_with_index_factory(
         spark_session: TidySparkSession,
-        filename: str,
+        filename: Path,
         numPartitions: int | None = None
 ) -> RDD[LabeledTypedRow]:
     rdd = spark_session.spark_context.textFile(
-        filename, minPartitions=(numPartitions or 1))
+        str(filename), minPartitions=(numPartitions or 1))
     rddTypedWithIndex = rdd \
         .map(parse_line_to_types) \
         .zipWithIndex() \

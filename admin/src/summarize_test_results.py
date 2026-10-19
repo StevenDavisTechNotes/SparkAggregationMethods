@@ -2,6 +2,7 @@ import io
 import logging
 import os
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, cast
 
 import pandas as pd  # type: ignore[unresolved-import]
@@ -38,7 +39,7 @@ class SummarizedPerformanceOfMethodAtDataSize:
 
 def read_run_result_file(
         *,
-        log_file_path: str | None,
+        log_file_path: Path | None,
         key_columns: list[str],
         regressor_column: str,
         dependent_variable_column: str,
@@ -53,7 +54,7 @@ def read_run_result_file(
             dependent_variable_column: float,
         }
     )
-    if log_file_path is None or not os.path.exists(log_file_path):
+    if log_file_path is None or not log_file_path.exists():
         return empty_results
     results: list[pd.DataFrame] = []
     results.append(empty_results)
@@ -73,7 +74,7 @@ def read_run_result_file(
         df_segment = pd.read_csv(io.StringIO("\n".join(segment)), header=0)
         return df_segment
 
-    with open(log_file_path, "r") as f:
+    with log_file_path.open("r") as f:
         segment: list[str] = []
         for i_line, line in enumerate(f):
             line = line.rstrip()
@@ -183,7 +184,7 @@ def analyze_run_results():
                 regressor_column_name = challenge_result_log_registration.regressor_column_name
                 elapsed_time_column_name = challenge_result_log_registration.elapsed_time_column_name
                 df = read_run_result_file(
-                    log_file_path=result_file_path,
+                    log_file_path=Path(result_file_path),
                     key_columns=common_key_fields + [regressor_column_name],
                     regressor_column=regressor_column_name,
                     dependent_variable_column=challenge_result_log_registration.elapsed_time_column_name,

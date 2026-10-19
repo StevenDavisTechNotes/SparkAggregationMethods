@@ -5,10 +5,10 @@ import numpy as np
 import pandas as pd
 import pyarrow.parquet
 from spark_agg_methods_common_python.challenges.bi_level.bi_level_test_data_types import (
-    DATA_SIZES_LIST_BI_LEVEL_MAXIMAL, DATA_SIZES_LIST_BI_LEVEL_MINIMAL,
+    DATA_SIZE_LIST_BI_LEVEL_MAXIMAL, DATA_SIZE_LIST_BI_LEVEL_MINIMAL,
 )
 from spark_agg_methods_common_python.challenges.conditional.conditional_test_data_types import (
-    DATA_SIZES_LIST_CONDITIONAL_MAXIMAL, DATA_SIZES_LIST_CONDITIONAL_MINIMAL,
+    DATA_SIZE_LIST_CONDITIONAL_MAXIMAL, DATA_SIZE_LIST_CONDITIONAL_MINIMAL,
 )
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_domain_logic.merging_samples import (
     calculate_solutions_progressively,
@@ -18,7 +18,7 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_dat
     six_derive_source_test_data_directory_path, six_derive_source_test_data_file_path,
 )
 from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types import (
-    DATA_SIZES_LIST_VANILLA_MAXIMAL, DATA_SIZES_LIST_VANILLA_MINIMAL,
+    DATA_SIZE_LIST_VANILLA_MAXIMAL, DATA_SIZE_LIST_VANILLA_MINIMAL,
 )
 from spark_agg_methods_common_python.perf_test_common import CHALLENGES_SIX_DATA
 
@@ -99,12 +99,12 @@ def _generate_source_data_file_for_size(
             logger.info(f"Creating {final_source_file_paths.source_file_path_csv}")
             with temp_source_file_paths.source_file_path_csv.open("wb") as fh:
                 df.to_csv(fh, index=False)
-            temp_source_file_paths.source_file_path_csv.rename(
+            temp_source_file_paths.source_file_path_csv.replace(
                 final_source_file_paths.source_file_path_csv)
         as_pyarrow_table = pyarrow.table(df)
         parquet_file_modern.write_table(as_pyarrow_table)
     parquet_file_modern.close()
-    temp_source_file_paths.source_file_path_parquet_single_file.rename(
+    temp_source_file_paths.source_file_path_parquet_single_file.replace(
         final_source_file_paths.source_file_path_parquet_single_file)
 
 
@@ -141,13 +141,18 @@ def six_generate_data_files(
     if overwrite:
         six_generate_data_files_remove()
     data_descriptions = (
-        DATA_SIZES_LIST_BI_LEVEL_MINIMAL
-        + DATA_SIZES_LIST_CONDITIONAL_MINIMAL
-        + DATA_SIZES_LIST_VANILLA_MINIMAL
+        [
+            *DATA_SIZE_LIST_BI_LEVEL_MINIMAL,
+            *DATA_SIZE_LIST_CONDITIONAL_MINIMAL,
+            *DATA_SIZE_LIST_VANILLA_MINIMAL,
+        ]
         if minimal else
-        DATA_SIZES_LIST_BI_LEVEL_MAXIMAL
-        + DATA_SIZES_LIST_CONDITIONAL_MAXIMAL
-        + DATA_SIZES_LIST_VANILLA_MAXIMAL
+        [
+
+            *DATA_SIZE_LIST_BI_LEVEL_MAXIMAL,
+            *DATA_SIZE_LIST_CONDITIONAL_MAXIMAL,
+            *DATA_SIZE_LIST_VANILLA_MAXIMAL,
+        ]
     )
     for data_description in data_descriptions:
         _generate_source_data_file_for_size(data_description)

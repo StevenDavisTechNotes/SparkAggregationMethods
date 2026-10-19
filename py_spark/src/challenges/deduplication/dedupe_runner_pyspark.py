@@ -285,7 +285,12 @@ def run_one_itinerary_step(
     elapsed_time = finished_at - startedTime
     num_people_found = len(found_people)
     success = verify_correctness(data_set.data_description, found_people, spark_session)
-    assert success is True
+    if not success:
+        raise ValueError(
+            "Got incorrect result for"
+            f" {challenge_method_registration.strategy_name}"
+            f" on {data_set.data_description.size_code}"
+        )
     data_description = data_set.data_description
     result = DedupeRunResult(
         status="success" if success else "failure",

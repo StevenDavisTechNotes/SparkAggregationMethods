@@ -12,8 +12,8 @@ $modules = @(
 . .\.venv\Scripts\activate.ps1
 $registryFailures = @()
 foreach ($module in $modules) {
-    Write-Output "[$project] python -O -m $module --runs 0"
-    python -O -m $module --runs 0
+    Write-Output "[$project] python -m $module --runs 0"
+    python -m $module --runs 0
     if ($LASTEXITCODE -ne 0) {
         Write-Warning "[$project] FAILED (exit code $LASTEXITCODE): $module"
         $registryFailures += $module

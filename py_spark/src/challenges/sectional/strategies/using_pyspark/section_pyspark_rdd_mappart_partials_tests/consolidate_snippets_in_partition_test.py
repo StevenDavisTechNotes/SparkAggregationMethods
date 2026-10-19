@@ -855,8 +855,8 @@ def student_history_leader():
         FirstTrimesterDate=None,
         LastTrimesterDate=None,
         LastMajor=None,
-        Credits=None,
-        WeightedGradeTotal=None,
+        Credits=[0, 0, 0, 0],
+        WeightedGradeTotal=[0, 0, 0, 0],
         FirstLineIndex=-1,
         LastLineIndex=-1
     )
@@ -871,8 +871,8 @@ def student_history_trailer():
         FirstTrimesterDate=None,
         LastTrimesterDate=None,
         LastMajor=None,
-        Credits=None,
-        WeightedGradeTotal=None,
+        Credits=[0, 0, 0, 0],
+        WeightedGradeTotal=[0, 0, 0, 0],
         FirstLineIndex=49,
         LastLineIndex=49
     )

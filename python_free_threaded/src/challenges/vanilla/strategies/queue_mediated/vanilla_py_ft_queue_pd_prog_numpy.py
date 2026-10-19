@@ -1,7 +1,6 @@
-import glob
 import logging
-import os
 import queue
+from pathlib import Path
 
 import pandas as pd
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_domain_logic.merging_samples import (
@@ -10,7 +9,7 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_domain_l
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
     SixTestExecutionParameters, six_derive_source_test_data_file_path,
 )
-from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types import DATA_SIZES_LIST_VANILLA_MAXIMAL
+from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types import DATA_SIZE_LIST_VANILLA_MAXIMAL
 from spark_agg_methods_common_python.perf_test_common import LOCAL_NUM_EXECUTORS, Challenge
 from spark_agg_methods_common_python.utils.platform import setup_logging
 from src.challenges.six_field_test_data.six_test_data_for_py_ft import (
@@ -50,11 +49,9 @@ def vanilla_py_ft_queue_pd_prog_numpy(
         source_file_folder = six_derive_source_test_data_file_path(
             data_description=data_set.data_description,
         ).source_file_path_parquet_small_v1_files
-        par_files = glob.glob(os.path.join(source_file_folder, "*.parquet"))
-        for par_file_path in par_files:
-            yield par_file_path
+        yield from source_file_folder.glob("*.parquet")
 
-    def read_file(par_file_path: str) -> pd.DataFrame:
+    def read_file(par_file_path: Path) -> pd.DataFrame:
         df = pd.read_parquet(path=par_file_path)
         return df
 
@@ -86,7 +83,7 @@ def vanilla_py_ft_queue_pd_prog_numpy(
 
 
 def test_main():
-    data_size = DATA_SIZES_LIST_VANILLA_MAXIMAL[0]
+    data_size = DATA_SIZE_LIST_VANILLA_MAXIMAL[0]
     source_file_names = six_derive_source_test_data_file_path(
         data_description=data_size,
     ).source_file_path_parquet_single_file

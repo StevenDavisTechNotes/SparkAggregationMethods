@@ -1,6 +1,5 @@
 import hashlib
 import math
-import typing
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -48,7 +47,6 @@ class DedupeDataSetDescription(DataSetDescriptionBase):
     @classmethod
     def regressor_field_name(cls) -> str:
         regressor_field_name = "num_source_rows"
-        assert regressor_field_name in typing.get_type_hints(cls)
         return regressor_field_name
 
 
@@ -85,7 +83,7 @@ DATA_SIZE_LIST_DEDUPE_MINIMAL = dedupe_generate_data_set_list(minimal=True)
 
 
 def dedupe_derive_source_test_data_file_path_root() -> Path:
-    return Path(LOCAL_TEST_DATA_FILE_LOCATION) / "Dedupe_Test_Data"
+    return LOCAL_TEST_DATA_FILE_LOCATION / "Dedupe_Test_Data"
 
 
 def dedupe_derive_source_test_data_file_paths(

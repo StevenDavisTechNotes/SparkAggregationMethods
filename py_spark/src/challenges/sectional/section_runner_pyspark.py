@@ -5,7 +5,6 @@ import argparse
 import datetime as dt
 import gc
 import logging
-import os
 import time
 from dataclasses import dataclass
 from typing import Iterable, Literal
@@ -101,7 +100,8 @@ def prepare_data_sets(
         num_students = data_description.num_students
         file_path = section_derive_source_test_data_file_path(data_description)
         data_size = num_students * SECTION_SIZE_MAXIMUM
-        assert os.path.exists(file_path)
+        if not file_path.exists():
+            raise FileNotFoundError(f"Missing file {file_path}")
         src_num_partitions = max(
             exec_params.default_parallelism,
             int_divide_round_up(
@@ -118,7 +118,7 @@ def prepare_data_sets(
                 section_maximum=SECTION_SIZE_MAXIMUM,
                 # for SectionDataSetPyspark
                 maximum_processable_segment=exec_params.maximum_processable_segment,
-                source_data_file_path=str(file_path),
+                source_data_file_path=file_path,
                 target_num_partitions=src_num_partitions,
             ))
     return datasets
@@ -207,11 +207,12 @@ def run_one_itinerary_step(
             logger.info(f"output rdd has {df.rdd.getNumPartitions()} partitions")
             rdd = df.rdd
             found_students = df.toPandas()
-        case RDD() as rdd:
-            logger.info(f"output rdd has {rdd.getNumPartitions()} partitions")
-            count = rdd.count()
+        case RDD() as case_rdd:
+            logger.info(f"output rdd has {case_rdd.getNumPartitions()} partitions")
+            count = case_rdd.count()
             logger.info("Got a count", count)
-            found_students = rdd.toLocalIterator()
+            found_students = case_rdd.toLocalIterator()
+            rdd = case_rdd  # otherwise confuses static code analysis
         case pd.DataFrame() as df:
             found_students = df
         case list() as iter_tuple:

@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Literal, Protocol
 
 import pandas as pd
@@ -40,7 +41,7 @@ SparseLineSchema = DataTypes.StructType([
 @dataclass(frozen=True)
 class SectionDataSetPyspark(SectionDataSetBase):
     maximum_processable_segment: int
-    source_data_file_path: str
+    source_data_file_path: Path
     target_num_partitions: int
 
 

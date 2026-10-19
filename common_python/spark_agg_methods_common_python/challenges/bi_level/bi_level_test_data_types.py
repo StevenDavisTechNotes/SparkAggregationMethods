@@ -1,5 +1,3 @@
-import typing
-
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import SixTestDataSetDescription
 
 GROUP_BY_COLUMNS = ["grp"]
@@ -32,11 +30,10 @@ class BiLevelDataSetDescription(SixTestDataSetDescription):
     @classmethod
     def regressor_field_name(cls) -> str:
         regressor_field_name = "relative_cardinality_between_groupings"
-        assert regressor_field_name in typing.get_type_hints(cls)
         return regressor_field_name
 
 
-DATA_SIZES_LIST_BI_LEVEL_MAXIMAL = [
+DATA_SIZE_LIST_BI_LEVEL_MAXIMAL = [
     BiLevelDataSetDescription(
         size_code="3_3_10", num_grp_1=3, num_grp_2=3, points_per_index=10**1),
     BiLevelDataSetDescription(
@@ -48,6 +45,6 @@ DATA_SIZES_LIST_BI_LEVEL_MAXIMAL = [
     BiLevelDataSetDescription(
         size_code="3_3k_100", num_grp_1=3, num_grp_2=3 * 10 ** 3, points_per_index=10**2),
 ]
-DATA_SIZES_LIST_BI_LEVEL_MINIMAL = [
-    x for x in DATA_SIZES_LIST_BI_LEVEL_MAXIMAL if x.points_per_index <= 100
+DATA_SIZE_LIST_BI_LEVEL_MINIMAL = [
+    x for x in DATA_SIZE_LIST_BI_LEVEL_MAXIMAL if x.points_per_index <= 100
 ]

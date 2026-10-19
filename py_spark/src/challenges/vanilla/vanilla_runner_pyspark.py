@@ -18,7 +18,7 @@ from spark_agg_methods_common_python.challenges.vanilla.vanilla_record_runs impo
     VanillaPythonRunResultFileWriter, VanillaRunResult,
 )
 from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types import (
-    DATA_SIZES_LIST_VANILLA_MAXIMAL, DATA_SIZES_LIST_VANILLA_MINIMAL, VANILLA_RESULT_COLUMNS, VanillaDataSetDescription,
+    DATA_SIZE_LIST_VANILLA_MAXIMAL, DATA_SIZE_LIST_VANILLA_MINIMAL, VANILLA_RESULT_COLUMNS, VanillaDataSetDescription,
 )
 from spark_agg_methods_common_python.perf_test_common import (
     ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge, RunnerArgumentsBase, RunResultBase,
@@ -52,8 +52,8 @@ class Arguments(RunnerArgumentsBase):
 
 
 def parse_args() -> Arguments:
-    sizes_max = [x.size_code for x in DATA_SIZES_LIST_VANILLA_MAXIMAL]
-    sizes_min = [x.size_code for x in DATA_SIZES_LIST_VANILLA_MINIMAL]
+    sizes_max = [x.size_code for x in DATA_SIZE_LIST_VANILLA_MAXIMAL]
+    sizes_min = [x.size_code for x in DATA_SIZE_LIST_VANILLA_MINIMAL]
     strategy_names = sorted(x.strategy_name for x in VANILLA_STRATEGY_REGISTRY_PYSPARK)
 
     parser = argparse.ArgumentParser()
@@ -102,7 +102,7 @@ def prepare_data_sets(
                 spark_logger=spark_session.logger,
             ),
         )
-        for size in DATA_SIZES_LIST_VANILLA_MAXIMAL
+        for size in DATA_SIZE_LIST_VANILLA_MAXIMAL
         if size.size_code in args.sizes
     ]
     return data_sets
@@ -192,7 +192,7 @@ def update_challenge_registration():
             elapsed_time_column_name=ELAPSED_TIME_COLUMN_NAME,
             expected_regressor_values=[
                 x.regressor_value
-                for x in DATA_SIZES_LIST_VANILLA_MAXIMAL
+                for x in DATA_SIZE_LIST_VANILLA_MAXIMAL
                 if not x.debugging_only
             ],
             strategies=[

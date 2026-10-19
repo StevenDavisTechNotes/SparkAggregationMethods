@@ -51,7 +51,11 @@ class VanillaPythonRunResultFileWriter(RunResultFileWriterBase):
             run_result: RunResultBase,
     ) -> None:
         assert isinstance(run_result, VanillaRunResult)
-        assert self.engine == challenge_method_registration.engine
+        if self.engine != challenge_method_registration.engine:
+            raise ValueError(
+                f"Writer for engine {self.engine} cannot record a result for engine "
+                f"{challenge_method_registration.engine}"
+            )
         self._persist_run_result(VanillaPersistedRunResult(
             num_source_rows=run_result.num_source_rows,
             elapsed_time=run_result.elapsed_time,

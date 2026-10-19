@@ -19,7 +19,7 @@ def section_pyspark_rdd_mappart_single_threaded(
     sc = spark_session.spark_context
     if data_set.data_description.num_source_rows > exec_params.maximum_processable_segment:
         raise ValueError("Single thread mapPartitions is limited to 1 segment")
-    rdd = sc.textFile(data_set.source_data_file_path, minPartitions=1)
+    rdd = sc.textFile(str(data_set.source_data_file_path), minPartitions=1)
     rdd = (
         rdd
         .map(parse_line_to_types)

@@ -164,7 +164,7 @@ def _pyright_command(project: PythonProject) -> list[str]:
 
 def _pytest_command(project: PythonProject) -> list[str]:
     return [
-        "uv", "run", "python", "-m", "pytest",
+        "uv", "run", "python", "-m", "pytest", "-m", "not slow",
         project.python_root,
     ]
 

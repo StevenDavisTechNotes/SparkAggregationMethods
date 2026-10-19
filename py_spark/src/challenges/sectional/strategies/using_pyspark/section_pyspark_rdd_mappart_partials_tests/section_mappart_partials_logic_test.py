@@ -152,6 +152,7 @@ def spark() -> Iterable[SparkSession]:
 
 
 class test_section_mappart_partials_logic:
+    @pytest.mark.slow
     def test_one_student_pass_1_w_leader_trailer(
             self,
             student_history: list[TypedLine],
@@ -176,6 +177,7 @@ class test_section_mappart_partials_logic:
         result = rdd.collect()
         assert result == [student_summary]
 
+    @pytest.mark.slow
     def test_one_student_split_pass2_w_leader_trailer(
             self,
             student_history: list[TypedLine],

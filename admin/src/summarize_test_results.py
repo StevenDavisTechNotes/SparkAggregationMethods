@@ -18,7 +18,7 @@ from spark_agg_methods_common_python.utils.platform import setup_logging
 
 
 logger = logging.getLogger(__name__)
-FINAL_REPORT_FILE_PATH = '../results/{challenge}_results.csv'
+FINAL_REPORT_FILE_PATH = "../results/{challenge}_results.csv"
 
 
 @dataclass(frozen=True)
@@ -63,27 +63,27 @@ def read_run_result_file(
     ) -> pd.DataFrame | None:
         num_lines = len(segment)
         if num_lines == 0:
-            # haven't read the first line yet
+            # have not read the first line yet
             return None
         if len(segment) <= 1:
             # header with no lines
             return None
         # take the blank off the header
         segment[0] = segment[0].strip()
-        df_segment = pd.read_csv(io.StringIO('\n'.join(segment)), header=0)
+        df_segment = pd.read_csv(io.StringIO("\n".join(segment)), header=0)
         return df_segment
 
-    with open(log_file_path, 'r') as f:
+    with open(log_file_path, "r") as f:
         segment: list[str] = []
         for i_line, line in enumerate(f):
             line = line.rstrip()
-            if line.startswith('#'):
+            if line.startswith("#"):
                 logger.info(f"Excluding line: {line} at {i_line}")
                 continue
-            if line.find(',') < 0:
+            if line.find(",") < 0:
                 logger.info(f"Excluding line: {line} at {i_line}")
                 continue
-            if line.startswith(' '):
+            if line.startswith(" "):
                 match parse_segment(segment):
                     case None:
                         pass
@@ -99,7 +99,7 @@ def read_run_result_file(
     df = pd.concat(objs=results)
     df = (
         df
-        .drop(columns=[col for col in df.columns if col.startswith('Unnamed:')])
+        .drop(columns=[col for col in df.columns if col.startswith("Unnamed:")])
         .reset_index(drop=True)
     )
     return df
@@ -173,7 +173,7 @@ def analyze_run_results():
         for language in challenge_result_log_registrations:
             for engine in challenge_result_log_registrations[language]:
                 if challenge not in challenge_result_log_registrations[language][engine]:
-                    logger.warning(f"Didn't find {challenge} in {language} {engine} registration")
+                    logger.warning(f"Did not find {challenge} in {language} {engine} registration")
                     continue
                 challenge_result_log_registration = challenge_result_log_registrations[language][engine][challenge]
                 challenge_result_log_registration_by_strategy_name = {
@@ -210,7 +210,7 @@ def analyze_run_results():
                     src_df=df,
                     challenge_result_log_registration=challenge_result_log_registration,
                 )
-                group_iterator = cast(Any, df.groupby(by=['strategy_name', regressor_column_name]))
+                group_iterator = cast(Any, df.groupby(by=["strategy_name", regressor_column_name]))
                 for (strategy_name, regressor_value), group in group_iterator:
                     if strategy_name not in challenge_result_log_registration_by_strategy_name:
                         logger.warning(
@@ -240,7 +240,7 @@ def print_summary(
     if len(summary_status) > 0:
         logger.info(f"Summarizing challenge: {challenge}")
         df = pd.DataFrame(summary_status)
-        df = df.sort_values(by=['challenge', 'language', 'interface', 'strategy_name'])
+        df = df.sort_values(by=["challenge", "language", "interface", "strategy_name"])
         df.to_csv(file_report_file_path, index=False)
 
 

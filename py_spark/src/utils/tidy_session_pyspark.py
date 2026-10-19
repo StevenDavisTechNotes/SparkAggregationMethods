@@ -46,7 +46,7 @@ def open_spark_session(
         .builder
         .appName("PerfTestApp")  # pyright: ignore[reportAttributeAccessIssue]
         .master(f"local[{local_num_executors}]")
-        .config('spark.hadoop.mapreduce.fileoutputcommitter.algorithm.version', 2)
+        .config("spark.hadoop.mapreduce.fileoutputcommitter.algorithm.version", 2)
         .config("spark.pyspark.python", path_to_python_interpreter)
         .config("spark.rdd.compress", "false")
         .config("spark.sql.execution.arrow.pyspark.enabled", "true")

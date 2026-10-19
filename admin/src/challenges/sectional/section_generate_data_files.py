@@ -1,15 +1,15 @@
 import datetime as dt
 import logging
-import os
 import random
-from pathlib import Path
+import shutil
 
 from spark_agg_methods_common_python.challenges.sectional.section_nospark_logic import section_nospark_logic
 from spark_agg_methods_common_python.challenges.sectional.section_persist_test_data import AnswerFileSectional
 from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import (
-    DATA_SIZE_LIST_SECTIONAL, NUM_CLASSES_PER_TRIMESTER, NUM_DEPARTMENTS, NUM_TRIMESTERS, SectionDataSetDescription,
-    StudentSummary, add_months_to_date_retracting, section_derive_expected_answer_data_file_path,
-    section_derive_source_test_data_file_path,
+    DATA_SIZE_LIST_SECTIONAL_MAXIMAL, DATA_SIZE_LIST_SECTIONAL_MINIMAL, NUM_CLASSES_PER_TRIMESTER, NUM_DEPARTMENTS,
+    NUM_TRIMESTERS, SectionDataSetDescription, StudentSummary, add_months_to_date_retracting,
+    section_derive_expected_answer_data_file_path, section_derive_source_test_data_file_path,
+    section_test_data_file_root,
 )
 from spark_agg_methods_common_python.utils.pandas_helpers import make_pd_dataframe_from_list_of_named_tuples
 from spark_agg_methods_common_python.utils.platform import setup_logging
@@ -26,10 +26,8 @@ def _remove_data_files_for_size(
     answer_file_path = section_derive_expected_answer_data_file_path(
         data_description=data_description,
     )
-    if os.path.exists(source_file_path):
-        os.unlink(source_file_path)
-    if os.path.exists(answer_file_path):
-        os.unlink(answer_file_path)
+    source_file_path.unlink(missing_ok=True)
+    answer_file_path.unlink(missing_ok=True)
 
 
 def _generate_source_data_file_for_size(
@@ -39,16 +37,15 @@ def _generate_source_data_file_for_size(
         data_description, temp_file=False)
     temp_file_name = section_derive_source_test_data_file_path(
         data_description, temp_file=True)
-    if os.path.exists(final_file_name):
+    if final_file_name.exists():
         return
-    if os.path.exists(temp_file_name):
-        os.unlink(temp_file_name)
+    temp_file_name.unlink(missing_ok=True)
     num_students = data_description.num_students
     num_trimesters = NUM_TRIMESTERS
     num_departments = NUM_DEPARTMENTS
     num_classes_per_trimester = NUM_CLASSES_PER_TRIMESTER
-    Path(temp_file_name).parent.mkdir(parents=True, exist_ok=True)
-    with open(temp_file_name, "w") as f:
+    temp_file_name.parent.mkdir(parents=True, exist_ok=True)
+    with temp_file_name.open("w") as f:
         logger.info(f"Creating {final_file_name}")
         for student_id in range(1, num_students + 1):
             f.write(f"S,{student_id},John{student_id}\n")
@@ -69,14 +66,15 @@ def _generate_source_data_file_for_size(
                     trimester_weighted_grades += grade * credits
                 gpa = trimester_weighted_grades / trimester_credits
                 f.write(f"TF,{major},{gpa},{trimester_credits}\n")
-    Path(final_file_name).parent.mkdir(parents=True, exist_ok=True)
-    os.rename(temp_file_name, final_file_name)
+    final_file_name.parent.mkdir(parents=True, exist_ok=True)
+    temp_file_name.rename(final_file_name)
 
 
 def _generate_answer_file(data_description: SectionDataSetDescription) -> None:
     answer_file_path = section_derive_expected_answer_data_file_path(data_description)
-    if os.path.exists(answer_file_path):
+    if answer_file_path.exists():
         return
+    logger.info(f"Creating {answer_file_path}")
     answer_iterable = section_nospark_logic(
         data_description=data_description,
     )
@@ -87,12 +85,23 @@ def _generate_answer_file(data_description: SectionDataSetDescription) -> None:
     AnswerFileSectional.write_answer_file_sectional(data_description, df)
 
 
+def sectional_generate_data_files_remove():
+    root_path = section_test_data_file_root()
+    if root_path.exists():
+        shutil.rmtree(root_path)
+
+
 def sectional_generate_data_files(
         *,
-        make_new_files: bool,
+        overwrite: bool = False,
+        minimal: bool = False,
 ) -> None:
-    data_descriptions = DATA_SIZE_LIST_SECTIONAL
-    if make_new_files:
+    data_descriptions = (
+        DATA_SIZE_LIST_SECTIONAL_MINIMAL
+        if minimal else
+        DATA_SIZE_LIST_SECTIONAL_MAXIMAL
+    )
+    if overwrite:
         for data_description in data_descriptions:
             _remove_data_files_for_size(data_description)
     for data_description in data_descriptions:
@@ -102,7 +111,7 @@ def sectional_generate_data_files(
 
 def main():
     logger.info(f"Running {__file__}")
-    sectional_generate_data_files(make_new_files=False)
+    sectional_generate_data_files()
     logger.info("Done!")
 
 

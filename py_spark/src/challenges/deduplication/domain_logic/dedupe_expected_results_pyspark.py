@@ -88,33 +88,33 @@ def verify_first_name(row: Row, i: int) -> None:
 
 
 def verify_last_name(row: Row, i: int) -> None:
-    if f'LLLLLLA{i}_{name_hash(i)}' != row.LastName:
-        raise Exception(f'{i}: LLLLLLA{i}_{name_hash(i)} != {row.LastName}')
+    if f"LLLLLLA{i}_{name_hash(i)}" != row.LastName:
+        raise Exception(f"{i}: LLLLLLA{i}_{name_hash(i)} != {row.LastName}")
 
 
 def verify_street_address(row: Row, i: int) -> None:
-    if f'{i} Main St' != row.StreetAddress:
-        raise Exception(f'{i} Main St != row.StreetAddress')
+    if f"{i} Main St" != row.StreetAddress:
+        raise Exception(f"{i} Main St != row.StreetAddress")
 
 
 def verify_city(row: Row, i: int) -> None:
-    if 'Plaineville ME' != row.City:
-        raise Exception(f'{i}: Plaineville ME != {row.City}')
+    if "Plaineville ME" != row.City:
+        raise Exception(f"{i}: Plaineville ME != {row.City}")
 
 
 def verify_zip_code(row: Row, i: int) -> None:
-    if f'{(i-1) % 100:05d}' != row.ZipCode:
-        raise Exception(f'{(i-1) % 100:05d} != {row.ZipCode}')
+    if f"{(i-1) % 100:05d}" != row.ZipCode:
+        raise Exception(f"{(i-1) % 100:05d} != {row.ZipCode}")
 
 
 def verify_secret_key(row: Row, i: int) -> None:
     if i != row.SecretKey:
-        raise Exception(f'{i}: {i} != SecretKey={row.SecretKey}')
+        raise Exception(f"{i}: {i} != SecretKey={row.SecretKey}")
 
 
 def verify_column_a(row: Row, i: int) -> None:
-    if f'{i*2}' != row.FieldA:
-        raise Exception(f'{i}: {i*2} != FieldA={row.FieldA}')
+    if f"{i*2}" != row.FieldA:
+        raise Exception(f"{i}: {i*2} != FieldA={row.FieldA}")
 
 
 def verify_column_b(num_sources: int, num_b_records: int, row: Row, i: int) -> None:
@@ -123,8 +123,8 @@ def verify_column_b(num_sources: int, num_b_records: int, row: Row, i: int) -> N
             raise Exception(
                 "{i}: row.FieldB is not None, NumSources={NumSources}, NumBRecords={NumBRecords}")
     else:
-        if f'{i*3}' != row.FieldB:
-            raise Exception(f'{i}: {i*3} != FieldB={row.FieldB}')
+        if f"{i*3}" != row.FieldB:
+            raise Exception(f"{i}: {i*3} != FieldB={row.FieldB}")
 
 
 def verify_column_c(num_sources: int, row: Row, i: int) -> None:
@@ -133,8 +133,8 @@ def verify_column_c(num_sources: int, row: Row, i: int) -> None:
             raise Exception(
                 "{i}: row.FieldC is not None, NumSources={NumSources}")
     else:
-        if f'{i*5}' != row.FieldC:
-            raise Exception(f'{i}: {i*5} != FieldC={row.FieldC}')
+        if f"{i*5}" != row.FieldC:
+            raise Exception(f"{i}: {i*5} != FieldC={row.FieldC}")
 
 
 def verify_column_d(num_sources: int, row: Row, i: int) -> None:
@@ -143,8 +143,8 @@ def verify_column_d(num_sources: int, row: Row, i: int) -> None:
             raise Exception(
                 "{i}: row.FieldD is not None, NumSources={NumSources}")
     else:
-        if f'{i*7}' != row.FieldD:
-            raise Exception(f'{i}: {i*7} != FieldD={row.FieldD}')
+        if f"{i*7}" != row.FieldD:
+            raise Exception(f"{i}: {i*7} != FieldD={row.FieldD}")
 
 
 def verify_column_e(num_sources: int, row: Row, i: int) -> None:
@@ -153,8 +153,8 @@ def verify_column_e(num_sources: int, row: Row, i: int) -> None:
             raise Exception(
                 "{i}: row.FieldE is not None, NumSources={NumSources}")
     else:
-        if f'{i*11}' != row.FieldE:
-            raise Exception(f'{i}: {i*11} != FieldE={row.FieldE}')
+        if f"{i*11}" != row.FieldE:
+            raise Exception(f"{i}: {i*11} != FieldE={row.FieldE}")
 
 
 def verify_column_f(num_sources: int, row: Row, i: int) -> None:
@@ -163,8 +163,8 @@ def verify_column_f(num_sources: int, row: Row, i: int) -> None:
             raise Exception(
                 "{i}: row.FieldF is not None, NumSources={NumSources}")
     else:
-        if f'{i*13}' != row.FieldF:
-            raise Exception(f'{i}: {i*13} != FieldF={row.FieldF}')
+        if f"{i*13}" != row.FieldF:
+            raise Exception(f"{i}: {i*13} != FieldF={row.FieldF}")
 
 
 def count_in_a_partition(

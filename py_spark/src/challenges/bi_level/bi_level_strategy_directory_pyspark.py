@@ -23,7 +23,7 @@ from src.challenges.six_field_test_data.six_test_data_for_pyspark import (
 
 BI_LEVEL_STRATEGY_REGISTRY_PYSPARK: list[SixFieldChallengeMethodPythonPysparkRegistration] = [
     SixFieldChallengeMethodPythonPysparkRegistration(
-        strategy_name_2018='bi_sql_join',
+        strategy_name_2018="bi_sql_join",
         strategy_name=name_of_function(bi_level_pyspark_sql_join),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.PYSPARK,
@@ -33,7 +33,7 @@ BI_LEVEL_STRATEGY_REGISTRY_PYSPARK: list[SixFieldChallengeMethodPythonPysparkReg
         delegate=bi_level_pyspark_sql_join
     ),
     SixFieldChallengeMethodPythonPysparkRegistration(
-        strategy_name_2018='bi_fluent_join',
+        strategy_name_2018="bi_fluent_join",
         strategy_name=name_of_function(bi_level_pyspark_df_join),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.PYSPARK,
@@ -43,7 +43,7 @@ BI_LEVEL_STRATEGY_REGISTRY_PYSPARK: list[SixFieldChallengeMethodPythonPysparkReg
         delegate=bi_level_pyspark_df_join
     ),
     SixFieldChallengeMethodPythonPysparkRegistration(
-        strategy_name_2018='bi_pandas',
+        strategy_name_2018="bi_pandas",
         strategy_name=name_of_function(bi_level_pyspark_df_grp_pandas),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.PYSPARK,
@@ -53,7 +53,7 @@ BI_LEVEL_STRATEGY_REGISTRY_PYSPARK: list[SixFieldChallengeMethodPythonPysparkReg
         delegate=bi_level_pyspark_df_grp_pandas
     ),
     SixFieldChallengeMethodPythonPysparkRegistration(
-        strategy_name_2018='bi_pandas_numba',
+        strategy_name_2018="bi_pandas_numba",
         strategy_name=name_of_function(bi_level_pyspark_df_grp_pandas_numba),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.PYSPARK,
@@ -63,7 +63,7 @@ BI_LEVEL_STRATEGY_REGISTRY_PYSPARK: list[SixFieldChallengeMethodPythonPysparkReg
         delegate=bi_level_pyspark_df_grp_pandas_numba
     ),
     SixFieldChallengeMethodPythonPysparkRegistration(
-        strategy_name_2018='bi_sql_nested',
+        strategy_name_2018="bi_sql_nested",
         strategy_name=name_of_function(bi_level_pyspark_sql_nested),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.PYSPARK,
@@ -73,7 +73,7 @@ BI_LEVEL_STRATEGY_REGISTRY_PYSPARK: list[SixFieldChallengeMethodPythonPysparkReg
         delegate=bi_level_pyspark_sql_nested
     ),
     SixFieldChallengeMethodPythonPysparkRegistration(
-        strategy_name_2018='bi_fluent_nested',
+        strategy_name_2018="bi_fluent_nested",
         strategy_name=name_of_function(bi_level_pyspark_df_nested),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.PYSPARK,
@@ -83,7 +83,7 @@ BI_LEVEL_STRATEGY_REGISTRY_PYSPARK: list[SixFieldChallengeMethodPythonPysparkReg
         delegate=bi_level_pyspark_df_nested
     ),
     SixFieldChallengeMethodPythonPysparkRegistration(
-        strategy_name_2018='bi_fluent_window',
+        strategy_name_2018="bi_fluent_window",
         strategy_name=name_of_function(bi_level_pyspark_df_window),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.PYSPARK,
@@ -93,7 +93,7 @@ BI_LEVEL_STRATEGY_REGISTRY_PYSPARK: list[SixFieldChallengeMethodPythonPysparkReg
         delegate=bi_level_pyspark_df_window
     ),
     SixFieldChallengeMethodPythonPysparkRegistration(
-        strategy_name_2018='bi_rdd_grpmap',
+        strategy_name_2018="bi_rdd_grpmap",
         strategy_name=name_of_function(bi_level_pyspark_rdd_grp_map),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.PYSPARK,
@@ -103,7 +103,7 @@ BI_LEVEL_STRATEGY_REGISTRY_PYSPARK: list[SixFieldChallengeMethodPythonPysparkReg
         delegate=bi_level_pyspark_rdd_grp_map
     ),
     SixFieldChallengeMethodPythonPysparkRegistration(
-        strategy_name_2018='bi_rdd_reduce1',
+        strategy_name_2018="bi_rdd_reduce1",
         strategy_name=name_of_function(bi_level_pyspark_rdd_reduce_1),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.PYSPARK,
@@ -113,7 +113,7 @@ BI_LEVEL_STRATEGY_REGISTRY_PYSPARK: list[SixFieldChallengeMethodPythonPysparkReg
         delegate=bi_level_pyspark_rdd_reduce_1
     ),
     SixFieldChallengeMethodPythonPysparkRegistration(
-        strategy_name_2018='bi_rdd_reduce2',
+        strategy_name_2018="bi_rdd_reduce2",
         strategy_name=name_of_function(bi_level_pyspark_rdd_reduce_2),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.PYSPARK,
@@ -123,7 +123,7 @@ BI_LEVEL_STRATEGY_REGISTRY_PYSPARK: list[SixFieldChallengeMethodPythonPysparkReg
         delegate=bi_level_pyspark_rdd_reduce_2
     ),
     SixFieldChallengeMethodPythonPysparkRegistration(
-        strategy_name_2018='bi_rdd_mappart',
+        strategy_name_2018="bi_rdd_mappart",
         strategy_name=name_of_function(bi_level_pyspark_rdd_map_part),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.PYSPARK,

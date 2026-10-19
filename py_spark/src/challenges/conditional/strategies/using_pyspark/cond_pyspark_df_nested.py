@@ -18,7 +18,7 @@ def cond_pyspark_df_nested(
         return "infeasible", "More than 2 hours to run"
     df_src = data_set.data.open_source_data_as_df(spark_session)
     df_inter = df_src\
-        .withColumn('cond', func.when(df_src.E < 0, -1).otherwise(1))
+        .withColumn("cond", func.when(df_src.E < 0, -1).otherwise(1))
     df_inter = (
         df_inter
         .groupBy(df_inter.grp, df_inter.subgrp, df_inter.cond)
@@ -46,8 +46,8 @@ def cond_pyspark_df_nested(
                      .otherwise(0)).alias("cond_var_of_E"))
     )
     df_inter = df_inter \
-        .withColumn('mean_of_C', df_inter.sum_of_C / df_inter.uncond_count)
-    df_result = df_inter.select('grp', 'subgrp', 'mean_of_C', 'mean_of_C2', 'wrong_mean_of_C',
-                                'max_of_D', 'cond_var_of_E')
+        .withColumn("mean_of_C", df_inter.sum_of_C / df_inter.uncond_count)
+    df_result = df_inter.select("grp", "subgrp", "mean_of_C", "mean_of_C2", "wrong_mean_of_C",
+                                "max_of_D", "cond_var_of_E")
     df_result = df_result.orderBy(df_result.grp, df_result.subgrp)
     return df_result

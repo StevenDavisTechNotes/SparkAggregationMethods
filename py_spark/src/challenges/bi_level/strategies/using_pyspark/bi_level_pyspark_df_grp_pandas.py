@@ -31,10 +31,10 @@ def bi_level_pyspark_df_grp_pandas(
 def inner_agg_method(
         dfPartition: pd.DataFrame
 ) -> pd.DataFrame:
-    group_key = dfPartition['grp'].iloc[0]
-    col_c = dfPartition['C']
-    col_d = dfPartition['D']
-    sub_group_e = dfPartition.groupby('subgrp')['E']
+    group_key = dfPartition["grp"].iloc[0]
+    col_c = dfPartition["C"]
+    col_d = dfPartition["D"]
+    sub_group_e = dfPartition.groupby("subgrp")["E"]
     return pd.DataFrame(
         [[
             group_key,

@@ -12,7 +12,7 @@ ENGINE = CalcEngine.SINGLE_THREADED
 
 
 class ConditionalPythonSTRunResultFileWriter(ConditionalPythonRunResultFileWriter):
-    RUN_LOG_FILE_PATH: str = 'results/conditional_python_single_threaded_runs.csv'
+    RUN_LOG_FILE_PATH: str = "results/conditional_python_single_threaded_runs.csv"
 
     def __init__(self):
         super().__init__(

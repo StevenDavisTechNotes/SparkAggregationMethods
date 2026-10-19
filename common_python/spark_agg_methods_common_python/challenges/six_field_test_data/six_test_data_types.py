@@ -1,6 +1,6 @@
 import logging
-import os
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, NamedTuple
 
 import pandas as pd
@@ -130,13 +130,13 @@ class SixTestDataChallengeMethodRegistrationBase(
 
 @dataclass(frozen=True)
 class SixTestSourceDataFilePaths():
-    source_directory_path: str
-    source_file_path_parquet_small_v1_files: str
-    source_file_path_parquet_single_file: str
-    source_file_path_csv: str
+    source_directory_path: Path
+    source_file_path_parquet_small_v1_files: Path
+    source_file_path_parquet_single_file: Path
+    source_file_path_csv: Path
 
     @property
-    def file_paths(self) -> list[str]:
+    def file_paths(self) -> list[Path]:
         return [
             self.source_file_path_parquet_small_v1_files,
             self.source_file_path_parquet_single_file,
@@ -144,20 +144,24 @@ class SixTestSourceDataFilePaths():
         ]
 
 
+def six_derive_source_test_data_directory_path() -> Path:
+    return Path(LOCAL_TEST_DATA_FILE_LOCATION) / "SixField_Test_Data"
+
+
 def six_derive_expected_answer_data_file_paths_csv(
         data_description: SixTestDataSetDescription,
         *,
         temp_file: bool = False,
-) -> dict[Challenge, str]:
+) -> dict[Challenge, Path]:
     num_grp_1 = data_description.num_grp_1
     num_grp_2 = data_description.num_grp_2
     repetition = data_description.points_per_index
     temp_postfix = "_temp" if temp_file else ""
     answer_file_names = {
-        challenge: os.path.join(
-            LOCAL_TEST_DATA_FILE_LOCATION,
-            "SixField_Test_Data",
-            f"{challenge}_answer_data_{num_grp_1}_{num_grp_2}_{repetition}{temp_postfix}.csv")
+        challenge: (
+            six_derive_source_test_data_directory_path()
+            / f"{challenge}_answer_data_{num_grp_1}_{num_grp_2}_{repetition}{temp_postfix}.csv"
+        )
         for challenge in SIX_TEST_CHALLENGES
     }
     return answer_file_names
@@ -172,19 +176,13 @@ def six_derive_source_test_data_file_path(
     num_grp_2 = data_description.num_grp_2
     repetition = data_description.points_per_index
     temp_postfix = "_temp" if temp_file else ""
-    source_directory_path = os.path.join(
-        LOCAL_TEST_DATA_FILE_LOCATION,
-        "SixField_Test_Data",
-    )
-    stem = os.path.join(
-        source_directory_path,
-        f"six_field_source_data_{num_grp_1}_{num_grp_2}_{repetition}{temp_postfix}",
-    )
+    source_directory_path = six_derive_source_test_data_directory_path()
+    stem = f"six_field_source_data_{num_grp_1}_{num_grp_2}_{repetition}{temp_postfix}"
     return SixTestSourceDataFilePaths(
         source_directory_path=source_directory_path,
-        source_file_path_parquet_small_v1_files=f"{stem}_spark",
-        source_file_path_parquet_single_file=f"{stem}_modern.parquet",
-        source_file_path_csv=f"{stem}.csv",
+        source_file_path_parquet_small_v1_files=source_directory_path / f"{stem}_spark",
+        source_file_path_parquet_single_file=source_directory_path / f"{stem}_modern.parquet",
+        source_file_path_csv=source_directory_path / f"{stem}.csv",
     )
 
 

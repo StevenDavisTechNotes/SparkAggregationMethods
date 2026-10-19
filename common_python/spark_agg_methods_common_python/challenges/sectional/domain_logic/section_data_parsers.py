@@ -10,15 +10,15 @@ from spark_agg_methods_common_python.perf_test_common import LOCAL_TEST_DATA_FIL
 def parse_line_to_types(
         line: str,
 ) -> StudentHeader | TrimesterHeader | ClassLine | TrimesterFooter:
-    fields = line.rstrip().split(',')
-    if fields[0] == 'S':
+    fields = line.rstrip().split(",")
+    if fields[0] == "S":
         return StudentHeader(StudentId=int(fields[1]), StudentName=fields[2])
-    if fields[0] == 'TH':
-        return TrimesterHeader(Date=fields[1], WasAbroad=(fields[2] == 'True'))
-    if fields[0] == 'C':
+    if fields[0] == "TH":
+        return TrimesterHeader(Date=fields[1], WasAbroad=(fields[2] == "True"))
+    if fields[0] == "C":
         return ClassLine(Dept=int(fields[1]), Credits=int(
             fields[2]), Grade=int(fields[3]))
-    if fields[0] == 'TF':
+    if fields[0] == "TF":
         return TrimesterFooter(Major=int(fields[1]), GPA=float(
             fields[2]), Credits=int(fields[3]))
     raise Exception("Malformed data " + line)

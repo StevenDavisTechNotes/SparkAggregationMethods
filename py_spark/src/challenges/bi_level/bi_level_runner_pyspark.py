@@ -15,7 +15,8 @@ from spark_agg_methods_common_python.challenges.bi_level.bi_level_record_runs im
     BiLevelPythonRunResultFileWriter, BiLevelRunResult,
 )
 from spark_agg_methods_common_python.challenges.bi_level.bi_level_test_data_types import (
-    BI_LEVEL_RESULT_COLUMNS, DATA_SIZES_LIST_BI_LEVEL, BiLevelDataSetDescription,
+    BI_LEVEL_RESULT_COLUMNS, DATA_SIZES_LIST_BI_LEVEL_MAXIMAL, DATA_SIZES_LIST_BI_LEVEL_MINIMAL,
+    BiLevelDataSetDescription,
 )
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
     SixTestExecutionParameters, fetch_six_data_set_answer,
@@ -53,21 +54,30 @@ class Arguments(RunnerArgumentsBase):
 
 
 def parse_args() -> Arguments:
-    sizes = [x.size_code for x in DATA_SIZES_LIST_BI_LEVEL]
+    sizes_max = [x.size_code for x in DATA_SIZES_LIST_BI_LEVEL_MAXIMAL]
+    sizes_min = [x.size_code for x in DATA_SIZES_LIST_BI_LEVEL_MINIMAL]
     strategy_names = sorted(x.strategy_name for x in BI_LEVEL_STRATEGY_REGISTRY_PYSPARK)
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--random-seed', type=int)
-    parser.add_argument('--runs', type=int, default=1)
-    parser.add_argument('--size', choices=sizes, default=sizes, nargs="*")
-    parser.add_argument('--shuffle', default=True, action=argparse.BooleanOptionalAction)
-    parser.add_argument('--strategy', choices=strategy_names, default=strategy_names, nargs="*")
+    parser.add_argument("--random-seed", type=int)
+    parser.add_argument("--runs", type=int, default=1)
+    parser.add_argument("--size-minimal", default=False, action=argparse.BooleanOptionalAction)
+    parser.add_argument("--size", choices=sizes_max, nargs="+")
+    parser.add_argument("--shuffle", default=True, action=argparse.BooleanOptionalAction)
+    parser.add_argument("--strategy", choices=strategy_names, default=strategy_names, nargs="*")
     args = parser.parse_args()
+
+    if args.size is not None:
+        sizes = args.size
+    elif args.size_minimal:
+        sizes = sizes_min
+    else:
+        sizes = sizes_max
     return Arguments(
         num_runs=args.runs,
         random_seed=args.random_seed,
         shuffle=args.shuffle,
-        sizes=args.size,
+        sizes=sizes,
         strategy_names=args.strategy,
         exec_params=SixTestExecutionParameters(
             default_parallelism=2 * LOCAL_NUM_EXECUTORS,
@@ -94,14 +104,14 @@ def prepare_data_sets(
                 spark_logger=spark_session.logger,
             ),
         )
-        for size in DATA_SIZES_LIST_BI_LEVEL
+        for size in DATA_SIZES_LIST_BI_LEVEL_MAXIMAL
         if size.size_code in args.sizes
     ]
     return data_sets
 
 
 class BiLevelPysparkRunResultFileWriter(BiLevelPythonRunResultFileWriter):
-    RUN_LOG_FILE_PATH: str = 'results/bi_level_pyspark_runs.csv'
+    RUN_LOG_FILE_PATH: str = "results/bi_level_pyspark_runs.csv"
 
     def __init__(self):
         super().__init__(
@@ -193,7 +203,7 @@ def update_challenge_registration():
             elapsed_time_column_name=ELAPSED_TIME_COLUMN_NAME,
             expected_regressor_values=[
                 x.regressor_value
-                for x in DATA_SIZES_LIST_BI_LEVEL
+                for x in DATA_SIZES_LIST_BI_LEVEL_MAXIMAL
                 if not x.debugging_only
             ],
             strategies=[

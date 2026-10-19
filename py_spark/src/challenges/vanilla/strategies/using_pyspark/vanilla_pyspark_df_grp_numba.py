@@ -63,11 +63,11 @@ def vanilla_pyspark_df_grp_numba(
 def inner_agg_method(
         dfPartition: pd.DataFrame,
 ) -> pd.DataFrame:
-    group_key = dfPartition['grp'].iloc[0]
-    subgroup_key = dfPartition['subgrp'].iloc[0]
-    C = numpy.array(dfPartition['C'])
-    D = numpy.array(dfPartition['D'])
-    E = numpy.array(dfPartition['E'])
+    group_key = dfPartition["grp"].iloc[0]
+    subgroup_key = dfPartition["subgrp"].iloc[0]
+    C = numpy.array(dfPartition["C"])
+    D = numpy.array(dfPartition["D"])
+    E = numpy.array(dfPartition["E"])
     return pd.DataFrame(
         [[
             group_key,

@@ -43,7 +43,7 @@ class DedupePythonRunResultFileWriter(RunResultFileWriterBase):
             persisted_row_type=DedupePersistedRunResult,
         )
 
-    def __enter__(self) -> 'DedupePythonRunResultFileWriter':
+    def __enter__(self) -> "DedupePythonRunResultFileWriter":
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):

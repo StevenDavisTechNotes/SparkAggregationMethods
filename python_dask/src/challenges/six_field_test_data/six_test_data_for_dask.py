@@ -30,9 +30,9 @@ class SixTestDataSetDataDask:
         read_parquet = dask.dataframe.read_parquet
         df_src = cast(DaskDataFrame, read_parquet(
             self. source_file_path_parquet,
-            engine='pyarrow',
+            engine="pyarrow",
         ))
-        df_src = df_src.set_index('id', npartitions=self.src_num_partitions)
+        df_src = df_src.set_index("id", npartitions=self.src_num_partitions)
         return df_src
 
     def open_source_data_as_bag(self) -> DaskBag:
@@ -117,5 +117,5 @@ def six_prepare_data_set_dask(
         src_num_partitions=src_num_partitions,
         agg_tgt_num_partitions_1_level=num_grp_1,
         agg_tgt_num_partitions_2_level=num_grp_1 * num_grp_2,
-        source_file_path_parquet=source_file_paths.source_file_path_parquet_single_file,
+        source_file_path_parquet=str(source_file_paths.source_file_path_parquet_single_file),
     )

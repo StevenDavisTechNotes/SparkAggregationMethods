@@ -20,7 +20,7 @@ def cond_pyspark_sql_join(
     spark.catalog.dropTempView("example_data")
     df_src = data_set.data.open_source_data_as_df(spark_session)
     df_src.createTempView("example_data")
-    df = spark.sql('''
+    df = spark.sql("""
     SELECT
         unconditional.grp, unconditional.subgrp,
         mean_of_C, max_of_D, cond_var_of_E
@@ -60,5 +60,5 @@ def cond_pyspark_sql_join(
         ON unconditional.grp = conditional.grp
             AND unconditional.subgrp = conditional.subgrp
     ORDER BY grp, subgrp
-    ''')
+    """)
     return df

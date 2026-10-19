@@ -31,11 +31,11 @@ def vanilla_pyspark_df_grp_numpy(
 def inner_agg_method(
         dfPartition: pd.DataFrame,
 ) -> pd.DataFrame:
-    group_key = dfPartition['grp'].iloc[0]
-    subgroup_key = dfPartition['subgrp'].iloc[0]
-    C = dfPartition['C']
-    D = dfPartition['D']
-    E = dfPartition['E']
+    group_key = dfPartition["grp"].iloc[0]
+    subgroup_key = dfPartition["subgrp"].iloc[0]
+    C = dfPartition["C"]
+    D = dfPartition["D"]
+    E = dfPartition["E"]
     return pd.DataFrame(
         [[
             group_key,

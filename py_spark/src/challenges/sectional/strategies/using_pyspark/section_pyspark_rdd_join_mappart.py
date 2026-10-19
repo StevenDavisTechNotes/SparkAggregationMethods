@@ -34,7 +34,7 @@ def section_pyspark_rdd_join_mappart(
         .map(lambda x: (x.Index, x.Value.__class__.__name__, x.Value)))
     rdd8: RDD[tuple[int, str, TypedLine]] = (
         rdd2
-        .filter(lambda x: x[1] == 'StudentHeader')
+        .filter(lambda x: x[1] == "StudentHeader")
     )
     rdd9: RDD[tuple[tuple[int, str, TypedLine], int]] = (
         rdd8

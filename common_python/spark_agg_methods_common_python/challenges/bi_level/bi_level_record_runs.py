@@ -39,7 +39,7 @@ class BiLevelPythonRunResultFileWriter(RunResultFileWriterBase):
             persisted_row_type=BiLevelPersistedRunResult,
         )
 
-    def __enter__(self) -> 'BiLevelPythonRunResultFileWriter':
+    def __enter__(self) -> "BiLevelPythonRunResultFileWriter":
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):

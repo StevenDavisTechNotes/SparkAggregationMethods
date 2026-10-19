@@ -2,7 +2,7 @@ from typing import Callable, Iterable, TypeVar, cast
 
 from pyspark import RDD, StorageLevel
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 def non_commutative_tree_aggregate(

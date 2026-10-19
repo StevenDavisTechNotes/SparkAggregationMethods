@@ -39,7 +39,7 @@ class ConditionalPythonRunResultFileWriter(RunResultFileWriterBase):
             persisted_row_type=ConditionalPersistedRunResult,
         )
 
-    def __enter__(self) -> 'ConditionalPythonRunResultFileWriter':
+    def __enter__(self) -> "ConditionalPythonRunResultFileWriter":
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):

@@ -42,7 +42,7 @@ def vanilla_dask_ddf_grp_udaf(
         return "infeasible", "Unknown reason"
     df: DaskDataFrame = data_set.data.open_source_data_as_ddf()
     custom_var_ddof_0 = groupby.Aggregation(
-        name='custom_var_ddof_0',
+        name="custom_var_ddof_0",
         chunk=ddof_0_do_chunk,
         agg=ddof_0_do_agg,
         finalize=ddof_0_do_finalize,
@@ -52,19 +52,19 @@ def vanilla_dask_ddf_grp_udaf(
         DaskDataFrame,
         dd_grouped
         .aggregate(
-            mean_of_C=('C', 'mean'),
-            max_of_D=('D', 'max'),
-            # var_of_E=('E', 'var(ddof=0)'),  # doesn't respect ddof=0
-            var_of_E2=('E', custom_var_ddof_0),
+            mean_of_C=("C", "mean"),
+            max_of_D=("D", "max"),
+            # var_of_E=("E", "var(ddof=0)"),  # doesn"t respect ddof=0
+            var_of_E2=("E", custom_var_ddof_0),
         ),
     )
-    dd2_just_var_of_E = dd_grouped["E"].var(ddof=0).to_frame('var_of_E')
+    dd2_just_var_of_E = dd_grouped["E"].var(ddof=0).to_frame("var_of_E")
     df2 = (
         pd.merge(
             left=dd2_main.compute(),
             right=dd2_just_var_of_E.compute(),
             on=GROUP_BY_COLUMNS,
-            how='inner',
+            how="inner",
         )
         .reset_index(drop=False)
     )

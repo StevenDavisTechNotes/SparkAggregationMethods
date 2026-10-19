@@ -65,16 +65,16 @@ def convert_to_row_csv(
                 assert studentId is not None
                 out_fh.write(",".join([
                     studentId, str(lineNumber), row.Type,
-                    str(row.StudentId) if row.StudentId is not None else '',
-                    row.StudentName if row.StudentName is not None else '',
-                    row.Date if row.Date is not None else '',
-                    str(row.WasAbroad) if row.WasAbroad is not None else '',
-                    str(row.Dept) if row.Dept is not None else '',
-                    str(row.ClassCredits) if row.ClassCredits is not None else '',
-                    str(row.ClassGrade) if row.ClassGrade is not None else '',
-                    str(row.Major) if row.Major is not None else '',
-                    str(row.TriGPA) if row.TriGPA is not None else '',
-                    str(row.TriCredits) if row.TriCredits is not None else '',
+                    str(row.StudentId) if row.StudentId is not None else "",
+                    row.StudentName if row.StudentName is not None else "",
+                    row.Date if row.Date is not None else "",
+                    str(row.WasAbroad) if row.WasAbroad is not None else "",
+                    str(row.Dept) if row.Dept is not None else "",
+                    str(row.ClassCredits) if row.ClassCredits is not None else "",
+                    str(row.ClassGrade) if row.ClassGrade is not None else "",
+                    str(row.Major) if row.Major is not None else "",
+                    str(row.TriGPA) if row.TriGPA is not None else "",
+                    str(row.TriCredits) if row.TriCredits is not None else "",
                     "\n"
                 ]))
     return destFilename

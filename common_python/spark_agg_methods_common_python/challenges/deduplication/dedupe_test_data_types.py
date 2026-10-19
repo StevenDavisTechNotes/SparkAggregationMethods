@@ -1,16 +1,17 @@
 import hashlib
 import math
-import os
 import typing
 from dataclasses import dataclass
+from pathlib import Path
 
 from spark_agg_methods_common_python.perf_test_common import (
     LOCAL_TEST_DATA_FILE_LOCATION, DataSetDescriptionBase, ExecutionParametersBase,
 )
 from spark_agg_methods_common_python.utils.utils import always_true
 
-MAX_EXPONENT = 5
-DEDUPE_SOURCE_CODES: list[str] = ['A', 'B', 'C', 'D', 'E', 'F']
+MAX_EXPONENT_MAXIMAL = 5
+MAX_EXPONENT_MINIMAL = 2
+DEDUPE_SOURCE_CODES: list[str] = ["A", "B", "C", "D", "E", "F"]
 
 
 class DedupeDataSetDescription(DataSetDescriptionBase):
@@ -32,7 +33,7 @@ class DedupeDataSetDescription(DataSetDescriptionBase):
         size_code = (
             str(logical_data_size)
             if logical_data_size < 1000 else
-            f'{logical_data_size//1000}k'
+            f"{logical_data_size//1000}k"
         )
         super().__init__(
             debugging_only=debugging_only,
@@ -62,33 +63,45 @@ class DedupeExecutionParametersBase(ExecutionParametersBase):
     can_assume_no_dupes_per_partition: bool
 
 
-DATA_SIZE_LIST_DEDUPE = [
-    DedupeDataSetDescription(
-        num_people=num_people,
-        num_b_recs=num_b_recs,
-        num_sources=num_sources,
-    )
-    for num_people in [10**x for x in range(0, MAX_EXPONENT + 1)]
-    for num_sources in [2, 3, 6]
-    if always_true(num_b_recs := max(1, 2 * num_people // 100))
-]
+def dedupe_generate_data_set_list(
+        *,
+        minimal: bool,
+):
+    max_exponent = MAX_EXPONENT_MINIMAL if minimal else MAX_EXPONENT_MAXIMAL
+    return [
+        DedupeDataSetDescription(
+            num_people=num_people,
+            num_b_recs=num_b_recs,
+            num_sources=num_sources,
+        )
+        for num_people in [10**x for x in range(0, max_exponent + 1)]
+        for num_sources in [2, 3, 6]
+        if always_true(num_b_recs := max(1, 2 * num_people // 100))
+    ]
+
+
+DATA_SIZE_LIST_DEDUPE_MAXIMAL = dedupe_generate_data_set_list(minimal=False)
+DATA_SIZE_LIST_DEDUPE_MINIMAL = dedupe_generate_data_set_list(minimal=True)
+
+
+def dedupe_derive_source_test_data_file_path_root() -> Path:
+    return Path(LOCAL_TEST_DATA_FILE_LOCATION) / "Dedupe_Test_Data"
 
 
 def dedupe_derive_source_test_data_file_paths(
         data_description: DedupeDataSetDescription,
         *,
         temp_file: bool = False,
-) -> dict[str, str]:
-    root_path = os.path.join(
-        LOCAL_TEST_DATA_FILE_LOCATION,
-        "Dedupe_Test_Data",
-    )
+) -> dict[str, Path]:
+    root_path = dedupe_derive_source_test_data_file_path_root()
     num_people = data_description.num_people
     temp_postfix = "_temp" if temp_file else ""
     return {
-        source_code: root_path
-        + "/dedupe_field_%d" % (num_people)
-        + "/dedupe_field_%s_%d%s.csv" % (source_code, num_people, temp_postfix)
+        source_code: (
+            root_path
+            / ("dedupe_field_%d" % (num_people))
+            / ("dedupe_field_%s_%d%s.csv" % (source_code, num_people, temp_postfix))
+        )
         for source_code in DEDUPE_SOURCE_CODES
     }
 
@@ -96,4 +109,4 @@ def dedupe_derive_source_test_data_file_paths(
 def name_hash(
         i: int,
 ) -> str:
-    return hashlib.sha512(str(i).encode('utf8')).hexdigest()
+    return hashlib.sha512(str(i).encode("utf8")).hexdigest()

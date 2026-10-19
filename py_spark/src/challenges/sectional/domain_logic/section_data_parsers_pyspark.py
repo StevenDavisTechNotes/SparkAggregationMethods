@@ -12,26 +12,26 @@ from src.utils.tidy_session_pyspark import TidySparkSession
 def parse_line_to_row(
         line: str,
 ) -> Row:
-    fields = line.split(',')
-    if fields[0] == 'S':
+    fields = line.split(",")
+    if fields[0] == "S":
         return Row(Type=fields[0],
                    StudentId=int(fields[1]), StudentName=fields[2],
                    Date=None, WasAbroad=None,
                    Dept=None, ClassCredits=None, ClassGrade=None,
                    Major=None, TriGPA=None, TriCredits=None)
-    if fields[0] == 'TH':
+    if fields[0] == "TH":
         return Row(Type=fields[0],
                    StudentId=None, StudentName=None,
-                   Date=fields[1], WasAbroad=(fields[2] == 'True'),
+                   Date=fields[1], WasAbroad=(fields[2] == "True"),
                    Dept=None, ClassCredits=None, ClassGrade=None,
                    Major=None, TriGPA=None, TriCredits=None)
-    if fields[0] == 'C':
+    if fields[0] == "C":
         return Row(Type=fields[0],
                    StudentId=None, StudentName=None,
                    Date=None, WasAbroad=None,
                    Dept=int(fields[1]), ClassCredits=int(fields[2]), ClassGrade=int(fields[3]),
                    Major=None, TriGPA=None, TriCredits=None)
-    if fields[0] == 'TF':
+    if fields[0] == "TF":
         return Row(Type=fields[0],
                    StudentId=None, StudentName=None,
                    Date=None, WasAbroad=None,

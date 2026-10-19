@@ -24,6 +24,6 @@ def cond_pyspark_df_null(
              func.var_pop(func.when(df_src.E < 0, df_src.E))
              .alias("cond_var_of_E"))
     )
-    df = df_inter.select('grp', 'subgrp', 'mean_of_C', 'max_of_D', 'cond_var_of_E')
+    df = df_inter.select("grp", "subgrp", "mean_of_C", "max_of_D", "cond_var_of_E")
     df = df.orderBy(df.grp, df.subgrp)
     return df

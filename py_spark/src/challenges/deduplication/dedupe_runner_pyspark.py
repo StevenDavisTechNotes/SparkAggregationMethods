@@ -22,7 +22,8 @@ from spark_agg_methods_common_python.challenges.deduplication.dedupe_record_runs
     DedupePythonRunResultFileWriter, DedupeRunResult,
 )
 from spark_agg_methods_common_python.challenges.deduplication.dedupe_test_data_types import (
-    DATA_SIZE_LIST_DEDUPE, DEDUPE_SOURCE_CODES, DedupeDataSetDescription, dedupe_derive_source_test_data_file_paths,
+    DATA_SIZE_LIST_DEDUPE_MAXIMAL, DATA_SIZE_LIST_DEDUPE_MINIMAL, DEDUPE_SOURCE_CODES, DedupeDataSetDescription,
+    dedupe_derive_source_test_data_file_paths,
 )
 from spark_agg_methods_common_python.perf_test_common import (
     ELAPSED_TIME_COLUMN_NAME, CalcEngine, Challenge, NumericalToleranceExpectations, RunnerArgumentsBase,
@@ -55,19 +56,28 @@ class Arguments(RunnerArgumentsBase):
 
 
 def parse_args() -> Arguments:
-    sizes = [x.size_code for x in DATA_SIZE_LIST_DEDUPE]
-    default_sizes = [x.size_code for x in DATA_SIZE_LIST_DEDUPE if not x.debugging_only]
+    sizes_all = [x.size_code for x in DATA_SIZE_LIST_DEDUPE_MAXIMAL]
+    sizes_normal = [x.size_code for x in DATA_SIZE_LIST_DEDUPE_MAXIMAL if not x.debugging_only]
+    sizes_min = [x.size_code for x in DATA_SIZE_LIST_DEDUPE_MINIMAL]
     strategy_names = sorted(x.strategy_name for x in DEDUPE_STRATEGY_REGISTRY_PYSPARK)
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--assume-no-dupes-per-partition', default=True, action=argparse.BooleanOptionalAction)
-    parser.add_argument('--cloud-mode', default=False, action=argparse.BooleanOptionalAction)
-    parser.add_argument('--random-seed', type=int)
-    parser.add_argument('--runs', type=int, default=1)
-    parser.add_argument('--size', choices=sizes, default=default_sizes, nargs="*")
-    parser.add_argument('--shuffle', default=True, action=argparse.BooleanOptionalAction)
-    parser.add_argument('--strategy', choices=strategy_names, default=strategy_names, nargs="*")
+    parser.add_argument("--assume-no-dupes-per-partition", default=True, action=argparse.BooleanOptionalAction)
+    parser.add_argument("--cloud-mode", default=False, action=argparse.BooleanOptionalAction)
+    parser.add_argument("--random-seed", type=int)
+    parser.add_argument("--runs", type=int, default=1)
+    parser.add_argument("--size-minimal", default=False, action=argparse.BooleanOptionalAction)
+    parser.add_argument("--size", choices=sizes_all, nargs="+")
+    parser.add_argument("--shuffle", default=True, action=argparse.BooleanOptionalAction)
+    parser.add_argument("--strategy", choices=strategy_names, default=strategy_names, nargs="*")
     args = parser.parse_args()
+
+    if args.size is not None:
+        sizes = args.size
+    elif args.size_minimal:
+        sizes = sizes_min
+    else:
+        sizes = sizes_normal
 
     in_cloud_mode = args.cloud_mode
     if in_cloud_mode:
@@ -83,7 +93,7 @@ def parse_args() -> Arguments:
         num_runs=args.runs,
         random_seed=args.random_seed,
         shuffle=args.shuffle,
-        sizes=args.size,
+        sizes=sizes,
         strategy_names=args.strategy,
         exec_params=DedupeExecutionParametersPyspark(
             in_cloud_mode=in_cloud_mode,
@@ -102,7 +112,7 @@ def prepare_data_sets(
     spark = spark_session.spark
 
     all_data_sets: list[DedupeDataSetPySpark] = []
-    target_data_size_list = [x for x in DATA_SIZE_LIST_DEDUPE if x.size_code in data_size_code_list]
+    target_data_size_list = [x for x in DATA_SIZE_LIST_DEDUPE_MAXIMAL if x.size_code in data_size_code_list]
     for target_data_size in sorted(target_data_size_list, key=lambda x: x.num_people):
         source_data_file_names = dedupe_derive_source_test_data_file_paths(target_data_size)
         single_source_data_frames: list[PySparkDataFrame]
@@ -110,7 +120,7 @@ def prepare_data_sets(
             single_source_data_frames = [
                 (spark.read
                  .csv(
-                     source_data_file_names[source_code],
+                     str(source_data_file_names[source_code]),
                      schema=RecordSparseStruct)
                  .coalesce(1)
                  .withColumn("SourceId", func.lit(i_source)))
@@ -120,7 +130,7 @@ def prepare_data_sets(
             single_source_data_frames = [
                 (spark.read
                  .csv(
-                     source_data_file_names[source_code],
+                     str(source_data_file_names[source_code]),
                      schema=RecordSparseStruct)
                  .withColumn("SourceId", func.lit(i_source)))
                 for i_source, source_code in enumerate(DEDUPE_SOURCE_CODES)
@@ -137,7 +147,7 @@ def prepare_data_sets(
             6: combine_sources(6),
         }
         if exec_params.can_assume_no_dupes_per_partition is False:
-            # then scramble since we can't assume no duplicates
+            # then scramble since we cannot assume no duplicates
             quantized_data_sets = {
                 k: df.repartition(exec_params.num_executors)
                 for k, df in quantized_data_sets.items()
@@ -166,7 +176,7 @@ def prepare_data_sets(
 
 
 class DedupePysparkRunResultFileWriter(DedupePythonRunResultFileWriter):
-    RUN_LOG_FILE_PATH: str = 'results/dedupe_pyspark_runs.csv'
+    RUN_LOG_FILE_PATH: str = "results/dedupe_pyspark_runs.csv"
 
     def __init__(self):
         super().__init__(
@@ -304,7 +314,7 @@ def update_challenge_registration():
             elapsed_time_column_name=ELAPSED_TIME_COLUMN_NAME,
             expected_regressor_values=[
                 x.regressor_value
-                for x in DATA_SIZE_LIST_DEDUPE
+                for x in DATA_SIZE_LIST_DEDUPE_MAXIMAL
                 if not x.debugging_only
             ],
             strategies=[

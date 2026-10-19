@@ -38,7 +38,7 @@ class ProgressiveVariance:
         >>> inc_mean_var.update(np.array([-3, 5, 2, 6]))
         (4.0, 9.777777777777779)
 
-    along axis 0 (it's useful when you want to compute online the mean and variance of each feature
+    along axis 0 (it"s useful when you want to compute online the mean and variance of each feature
     with many divided batches)::
 
         inc_mean_var = IncrementalMeanVarianceFromBatch(axis=0)

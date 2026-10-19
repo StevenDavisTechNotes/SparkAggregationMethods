@@ -17,7 +17,7 @@ def bi_level_pyspark_sql_join(
 
     spark.catalog.dropTempView("example_data")
     df_src.createTempView("example_data")
-    df = spark.sql('''
+    df = spark.sql("""
     SELECT
         level1.grp,
         LAST(level1.mean_of_C) mean_of_C,
@@ -44,5 +44,5 @@ def bi_level_pyspark_sql_join(
             ON level1.grp = level2.grp
     GROUP BY level1.grp
     ORDER BY level1.grp
-    ''')
+    """)
     return df

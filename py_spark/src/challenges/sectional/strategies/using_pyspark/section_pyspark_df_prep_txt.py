@@ -58,11 +58,11 @@ def parse_line_to_row_with_line_no(
 ) -> Row:
     lineNumber = int(arg[1])
     line = arg[0]
-    fields = line.split(',')
+    fields = line.split(",")
     sectionId = int(fields[0])
     fields = fields[1:]
     lineType = fields[0]
-    if lineType == 'S':
+    if lineType == "S":
         return Row(
             SectionId=sectionId, LineNumber=lineNumber,
             Type=fields[0],
@@ -70,15 +70,15 @@ def parse_line_to_row_with_line_no(
             Date=None, WasAbroad=None,
             Dept=None, ClassCredits=None, ClassGrade=None,
             Major=None, TriGPA=None, TriCredits=None)
-    if lineType == 'TH':
+    if lineType == "TH":
         return Row(
             SectionId=sectionId, LineNumber=lineNumber,
             Type=fields[0],
             StudentId=None, StudentName=None,
-            Date=fields[1], WasAbroad=(fields[2] == 'True'),
+            Date=fields[1], WasAbroad=(fields[2] == "True"),
             Dept=None, ClassCredits=None, ClassGrade=None,
             Major=None, TriGPA=None, TriCredits=None)
-    if lineType == 'C':
+    if lineType == "C":
         return Row(
             SectionId=sectionId, LineNumber=lineNumber,
             Type=fields[0],
@@ -86,7 +86,7 @@ def parse_line_to_row_with_line_no(
             Date=None, WasAbroad=None,
             Dept=int(fields[1]), ClassCredits=int(fields[2]), ClassGrade=int(fields[3]),
             Major=None, TriGPA=None, TriCredits=None)
-    if lineType == 'TF':
+    if lineType == "TF":
         return Row(
             SectionId=sectionId, LineNumber=lineNumber,
             Type=fields[0],

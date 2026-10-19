@@ -30,11 +30,11 @@ def vanilla_pyspark_df_grp_pandas(
 def inner_agg_method(
         dfPartition: pd.DataFrame,
 ) -> pd.DataFrame:
-    group_key = dfPartition['grp'].iloc[0]
-    subgroup_key = dfPartition['subgrp'].iloc[0]
-    C = dfPartition['C']
-    D = dfPartition['D']
-    E = dfPartition['E']
+    group_key = dfPartition["grp"].iloc[0]
+    subgroup_key = dfPartition["subgrp"].iloc[0]
+    C = dfPartition["C"]
+    D = dfPartition["D"]
+    E = dfPartition["E"]
     var_of_E2 = (
         (E * E).sum() / E.count()
         - (E.sum() / E.count())**2)

@@ -15,7 +15,7 @@ def vanilla_pyspark_sql(
     df = data_set.data.open_source_data_as_df(spark_session)
     spark_session.spark.catalog.dropTempView("example_data")
     df.createTempView("example_data")
-    df = spark_session.spark.sql('''
+    df = spark_session.spark.sql("""
     SELECT
         grp, subgrp, AVG(C) mean_of_C, MAX(D) max_of_D,
         VAR_POP(E) var_of_E,
@@ -27,5 +27,5 @@ def vanilla_pyspark_sql(
         example_data
     GROUP BY grp, subgrp
     ORDER BY grp, subgrp
-    ''')
+    """)
     return df

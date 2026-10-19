@@ -19,7 +19,7 @@ from src.challenges.deduplication.strategies.using_pyspark.dedupe_pyspark_rdd_re
 
 DEDUPE_STRATEGY_REGISTRY_PYSPARK: list[DedupeChallengeMethodPythonPysparkRegistration] = [
     DedupeChallengeMethodPythonPysparkRegistration(
-        strategy_name_2018='dedupe_pandas',
+        strategy_name_2018="dedupe_pandas",
         strategy_name=name_of_function(dedupe_pyspark_df_nested_pandas),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.PYSPARK,
@@ -28,7 +28,7 @@ DEDUPE_STRATEGY_REGISTRY_PYSPARK: list[DedupeChallengeMethodPythonPysparkRegistr
         delegate=dedupe_pyspark_df_nested_pandas,
     ),
     DedupeChallengeMethodPythonPysparkRegistration(
-        strategy_name_2018='dedupe_fluent_nested_python',
+        strategy_name_2018="dedupe_fluent_nested_python",
         strategy_name=name_of_function(dedupe_pyspark_df_nested_python),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.PYSPARK,
@@ -37,7 +37,7 @@ DEDUPE_STRATEGY_REGISTRY_PYSPARK: list[DedupeChallengeMethodPythonPysparkRegistr
         delegate=dedupe_pyspark_df_nested_python,
     ),
     DedupeChallengeMethodPythonPysparkRegistration(
-        strategy_name_2018='dedupe_fluent_nested_withCol',
+        strategy_name_2018="dedupe_fluent_nested_withCol",
         strategy_name=name_of_function(dedupe_pyspark_df_nested_w_col),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.PYSPARK,
@@ -46,7 +46,7 @@ DEDUPE_STRATEGY_REGISTRY_PYSPARK: list[DedupeChallengeMethodPythonPysparkRegistr
         delegate=dedupe_pyspark_df_nested_w_col,
     ),
     DedupeChallengeMethodPythonPysparkRegistration(
-        strategy_name_2018='dedupe_fluent_windows',
+        strategy_name_2018="dedupe_fluent_windows",
         strategy_name=name_of_function(dedupe_pyspark_df_window),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.PYSPARK,
@@ -55,7 +55,7 @@ DEDUPE_STRATEGY_REGISTRY_PYSPARK: list[DedupeChallengeMethodPythonPysparkRegistr
         delegate=dedupe_pyspark_df_window,
     ),
     DedupeChallengeMethodPythonPysparkRegistration(
-        strategy_name_2018='dedupe_rdd_groupby',
+        strategy_name_2018="dedupe_rdd_groupby",
         strategy_name=name_of_function(dedupe_pyspark_rdd_grp),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.PYSPARK,
@@ -64,7 +64,7 @@ DEDUPE_STRATEGY_REGISTRY_PYSPARK: list[DedupeChallengeMethodPythonPysparkRegistr
         delegate=dedupe_pyspark_rdd_grp,
     ),
     DedupeChallengeMethodPythonPysparkRegistration(
-        strategy_name_2018='dedupe_rdd_mappart',
+        strategy_name_2018="dedupe_rdd_mappart",
         strategy_name=name_of_function(dedupe_pyspark_rdd_map_part),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.PYSPARK,
@@ -73,7 +73,7 @@ DEDUPE_STRATEGY_REGISTRY_PYSPARK: list[DedupeChallengeMethodPythonPysparkRegistr
         delegate=dedupe_pyspark_rdd_map_part,
     ),
     DedupeChallengeMethodPythonPysparkRegistration(
-        strategy_name_2018='dedupe_rdd_reduce',
+        strategy_name_2018="dedupe_rdd_reduce",
         strategy_name=name_of_function(dedupe_pyspark_rdd_reduce),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.PYSPARK,

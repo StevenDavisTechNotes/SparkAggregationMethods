@@ -10,7 +10,7 @@ from src.challenges.sectional.strategies.single_threaded.section_py_st_linear_fi
 
 SECTIONAL_STRATEGY_REGISTRY_PYTHON_SINGLE_THREADED: list[SectionChallengeMethodPythonSingleThreadedRegistration] = [
     SectionChallengeMethodPythonSingleThreadedRegistration(
-        strategy_name_2018='section_nospark_single_threaded',
+        strategy_name_2018="section_nospark_single_threaded",
         strategy_name=name_of_function(section_py_st_linear_file_read),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.SINGLE_THREADED,

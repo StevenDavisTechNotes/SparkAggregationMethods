@@ -38,7 +38,7 @@ class SectionPythonRunResultFileWriter(RunResultFileWriterBase):
             persisted_row_type=SectionPersistedRunResult,
         )
 
-    def __enter__(self) -> 'SectionPythonRunResultFileWriter':
+    def __enter__(self) -> "SectionPythonRunResultFileWriter":
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):

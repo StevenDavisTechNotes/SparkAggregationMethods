@@ -46,18 +46,18 @@ def section_join_groupby(
         dfStudentHeaders
         .withColumn("FirstSHLineNumber", dfStudentHeaders.LineNumber)
         .withColumn("NextSHLineNumber", func.lead(dfStudentHeaders.LineNumber).over(window))
-        .select('StudentId', 'StudentName', 'FirstSHLineNumber', 'NextSHLineNumber'))
+        .select("StudentId", "StudentName", "FirstSHLineNumber", "NextSHLineNumber"))
     dfStudentHeaders = (
         dfStudentHeaders
         .na.fill({"NextSHLineNumber": NumRows}))
     df = (
         df
-        .drop('StudentId', 'StudentName')
+        .drop("StudentId", "StudentName")
         .join(dfStudentHeaders,
               (dfStudentHeaders.FirstSHLineNumber <= df.LineNumber) &
               (dfStudentHeaders.NextSHLineNumber > df.LineNumber)
               )
-        .drop('FirstSHLineNumber', 'NextSHLineNumber'))
+        .drop("FirstSHLineNumber", "NextSHLineNumber"))
     window = (
         Window
         .partitionBy(df.StudentId)
@@ -65,44 +65,44 @@ def section_join_groupby(
         .rowsBetween(-sectionMaximum, sectionMaximum))
     df = (
         df
-        .withColumn('LastMajor', func.last(df.Major).over(window)))
+        .withColumn("LastMajor", func.last(df.Major).over(window)))
     df = (
         df
         .groupBy(df.StudentId, df.Dept)
         .agg(
-            func.max(df.StudentName).alias('StudentName'),
-            func.count(df.LineNumber).alias('SourceLines'),
-            func.first(df.LastMajor).alias('LastMajor'),
-            func.sum(df.ClassCredits).alias('DeptCredits'),
+            func.max(df.StudentName).alias("StudentName"),
+            func.count(df.LineNumber).alias("SourceLines"),
+            func.first(df.LastMajor).alias("LastMajor"),
+            func.sum(df.ClassCredits).alias("DeptCredits"),
             func.sum(df.ClassCredits *
-                     df.ClassGrade).alias('DeptWeightedGradeTotal')
+                     df.ClassGrade).alias("DeptWeightedGradeTotal")
         ))
     df = (
         df
         .groupBy(df.StudentId)
         .agg(
-            func.max(df.StudentName).alias('StudentName'),
-            func.sum(df.SourceLines).alias('SourceLines'),
-            func.first(df.LastMajor).alias('Major'),
-            func.sum(df.DeptCredits).alias('TotalCredits'),
-            func.sum(df.DeptWeightedGradeTotal).alias('WeightedGradeTotal'),
-            func.sum(func.when(df.Dept == df.LastMajor, df.DeptCredits)).alias('MajorCredits'),
+            func.max(df.StudentName).alias("StudentName"),
+            func.sum(df.SourceLines).alias("SourceLines"),
+            func.first(df.LastMajor).alias("Major"),
+            func.sum(df.DeptCredits).alias("TotalCredits"),
+            func.sum(df.DeptWeightedGradeTotal).alias("WeightedGradeTotal"),
+            func.sum(func.when(df.Dept == df.LastMajor, df.DeptCredits)).alias("MajorCredits"),
             func.sum(func.when(df.Dept == df.LastMajor, df.DeptWeightedGradeTotal)).alias(
-                'MajorWeightedGradeTotal')
+                "MajorWeightedGradeTotal")
         ))
     df = (
         df
-        .fillna({'MajorCredits': 0, 'MajorWeightedGradeTotal': 0}))
+        .fillna({"MajorCredits": 0, "MajorWeightedGradeTotal": 0}))
     df = (
         df
         .withColumn(
-            'GPA',
+            "GPA",
             df.WeightedGradeTotal
             / func.when(df.TotalCredits > 0, df.TotalCredits).otherwise(1))
         .drop(df.WeightedGradeTotal)
         .drop(df.TotalCredits)
         .withColumn(
-            'MajorGPA',
+            "MajorGPA",
             df.MajorWeightedGradeTotal
             / func.when(df.MajorCredits > 0, df.MajorCredits).otherwise(1))
         .drop(df.MajorWeightedGradeTotal)

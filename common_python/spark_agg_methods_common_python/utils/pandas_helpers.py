@@ -8,7 +8,7 @@ TNamedTupleBased = TypeVar("TNamedTupleBased", bound=tuple)
 
 
 def is_a_namedtuple_subclass(t_type: type) -> bool:
-    return issubclass(t_type, tuple) and hasattr(t_type, '_fields')
+    return issubclass(t_type, tuple) and hasattr(t_type, "_fields")
 
 
 def make_empty_pd_dataframe_from_schema(

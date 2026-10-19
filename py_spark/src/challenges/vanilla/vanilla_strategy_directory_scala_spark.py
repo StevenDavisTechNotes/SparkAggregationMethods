@@ -12,8 +12,8 @@ def ScalaSparkMethodPlaceholder() -> TSixFieldChallengePendingAnswerPythonPyspar
 
 VANILLA_STRATEGY_REGISTRY_SCALA = [
     SixFieldChallengeMethodScalaSparkRegistration(
-        strategy_name_2018='vanilla_pyspark_sql',
-        strategy_name='vanilla_sc_spark_sql',
+        strategy_name_2018="vanilla_pyspark_sql",
+        strategy_name="vanilla_sc_spark_sql",
         language=SolutionLanguage.SCALA,
         engine=CalcEngine.SCALA_SPARK,
         interface=SolutionInterfaceScalaSpark.SPARK_SQL,
@@ -22,8 +22,8 @@ VANILLA_STRATEGY_REGISTRY_SCALA = [
         delegate=ScalaSparkMethodPlaceholder,
     ),
     SixFieldChallengeMethodScalaSparkRegistration(
-        strategy_name_2018='vanilla_fluent',
-        strategy_name='vanilla_sc_spark_fluent',
+        strategy_name_2018="vanilla_fluent",
+        strategy_name="vanilla_sc_spark_fluent",
         language=SolutionLanguage.SCALA,
         engine=CalcEngine.SCALA_SPARK,
         interface=SolutionInterfaceScalaSpark.SPARK_SQL,
@@ -32,8 +32,8 @@ VANILLA_STRATEGY_REGISTRY_SCALA = [
         delegate=ScalaSparkMethodPlaceholder,
     ),
     SixFieldChallengeMethodScalaSparkRegistration(
-        strategy_name_2018='vanilla_udaf',
-        strategy_name='vanilla_sc_spark_udaf',
+        strategy_name_2018="vanilla_udaf",
+        strategy_name="vanilla_sc_spark_udaf",
         language=SolutionLanguage.SCALA,
         engine=CalcEngine.SCALA_SPARK,
         interface=SolutionInterfaceScalaSpark.SPARK_SQL,
@@ -42,8 +42,8 @@ VANILLA_STRATEGY_REGISTRY_SCALA = [
         delegate=ScalaSparkMethodPlaceholder,
     ),
     SixFieldChallengeMethodScalaSparkRegistration(
-        strategy_name_2018='vanilla_rdd_grpmap',
-        strategy_name='vanilla_sc_spark_rdd_grpmap',
+        strategy_name_2018="vanilla_rdd_grpmap",
+        strategy_name="vanilla_sc_spark_rdd_grpmap",
         language=SolutionLanguage.SCALA,
         engine=CalcEngine.SCALA_SPARK,
         interface=SolutionInterfaceScalaSpark.SPARK_RDD,
@@ -52,8 +52,8 @@ VANILLA_STRATEGY_REGISTRY_SCALA = [
         delegate=ScalaSparkMethodPlaceholder,
     ),
     SixFieldChallengeMethodScalaSparkRegistration(
-        strategy_name_2018='vanilla_rdd_reduce',
-        strategy_name='vanilla_sc_spark_rdd_reduce',
+        strategy_name_2018="vanilla_rdd_reduce",
+        strategy_name="vanilla_sc_spark_rdd_reduce",
         language=SolutionLanguage.SCALA,
         engine=CalcEngine.SCALA_SPARK,
         interface=SolutionInterfaceScalaSpark.SPARK_RDD,
@@ -62,8 +62,8 @@ VANILLA_STRATEGY_REGISTRY_SCALA = [
         delegate=ScalaSparkMethodPlaceholder,
     ),
     SixFieldChallengeMethodScalaSparkRegistration(
-        strategy_name_2018='vanilla_rdd_mappart',
-        strategy_name='vanilla_sc_spark_rdd_mappart',
+        strategy_name_2018="vanilla_rdd_mappart",
+        strategy_name="vanilla_sc_spark_rdd_mappart",
         language=SolutionLanguage.SCALA,
         engine=CalcEngine.SCALA_SPARK,
         interface=SolutionInterfaceScalaSpark.SPARK_RDD,

@@ -70,11 +70,11 @@ def cond_pyspark_df_grp_pandas_numba(
 def inner_agg_method(
         dfPartition: pd.DataFrame,
 ) -> pd.DataFrame:
-    group_key = dfPartition['grp'].iloc[0]
-    subgroup_key = dfPartition['subgrp'].iloc[0]
-    C = np.array(dfPartition['C'])
-    D = np.array(dfPartition['D'])
-    posE = np.array(dfPartition[dfPartition.E < 0]['E'])
+    group_key = dfPartition["grp"].iloc[0]
+    subgroup_key = dfPartition["subgrp"].iloc[0]
+    C = np.array(dfPartition["C"])
+    D = np.array(dfPartition["D"])
+    posE = np.array(dfPartition[dfPartition.E < 0]["E"])
     return pd.DataFrame(
         [[
             group_key,

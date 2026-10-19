@@ -107,9 +107,9 @@ def _packaged_source_roots(project_dir: Path) -> list[Path]:
 def _extra_search_paths(project: PythonProject) -> list[Path]:
     """Import roots that ty cannot see through an editable install, derived from `[tool.uv.sources]`.
 
-    Setuptools' editable finder is invisible to static analysis, so each path source contributes the import roots
+    Setuptools" editable finder is invisible to static analysis, so each path source contributes the import roots
     it packages (its `[tool.setuptools.packages.find] where`), or its own directory when it declares none. The
-    project's own packaging roots count too, so `common_python` resolves its own package under its own venv.
+    project"s own packaging roots count too, so `common_python` resolves its own package under its own venv.
     """
     project_dir = _find_project_dir(REPO_ROOT / project.project_root)
     roots = _packaged_source_roots(project_dir)
@@ -136,7 +136,7 @@ def _ty_command(project: PythonProject) -> list[str]:
 
 @cache
 def _pyright_executable() -> str:
-    """Locate the globally installed (npm) pyright, even when npm's global bin folder is not on PATH."""
+    """Locate the globally installed (npm) pyright, even when npm"s global bin folder is not on PATH."""
     found = shutil.which("pyright")
     if found is None:
         npm = shutil.which("npm")
@@ -149,7 +149,7 @@ def _pyright_executable() -> str:
 
 
 def _venv_python(project: PythonProject) -> Path:
-    """Interpreter of the project's own uv venv, which pyright needs to resolve third-party imports."""
+    """Interpreter of the project"s own uv venv, which pyright needs to resolve third-party imports."""
     venv = _find_project_dir(REPO_ROOT / project.project_root) / ".venv"
     return venv / "Scripts" / "python.exe" if sys.platform == "win32" else venv / "bin" / "python"
 
@@ -224,10 +224,10 @@ def run_tool(tool: Tool, exclude: list[str], env: dict[str, str]) -> list[str]:
     for project in PYTHON_PROJECTS:
         folder = project.project_root
         if folder in exclude:
-            print(f"\n{'='*50}\nSkipping {tool.name} in {folder}\n{'='*50}", flush=True)
+            print(f'\n{"="*50}\nSkipping {tool.name} in {folder}\n{"="*50}', flush=True)
             continue
 
-        print(f"\n{'='*50}\nRunning {tool.name} in {folder}\n{'='*50}", flush=True)
+        print(f'\n{"="*50}\nRunning {tool.name} in {folder}\n{"="*50}', flush=True)
         result = subprocess.run(tool.build_command(project), cwd=REPO_ROOT / folder, env=env)
         if result.returncode not in tool.ok_return_codes:
             failed_folders.append(folder)
@@ -253,9 +253,9 @@ def main(argv: list[str] | None = None) -> int:
     failed = {name: folders for name, folders in failures.items() if folders}
     if failed:
         for name, folders in failed.items():
-            print(f"\n{name} failed in: {', '.join(folders)}", file=sys.stderr)
+            print(f'\n{name} failed in: {", ".join(folders)}', file=sys.stderr)
         return 1
-    print(f"\n{', '.join(failures)} passed successfully in all projects!")
+    print(f'\n{", ".join(failures)} passed successfully in all projects!')
     return 0
 
 

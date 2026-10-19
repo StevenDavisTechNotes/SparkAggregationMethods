@@ -17,7 +17,7 @@ def bi_level_pyspark_sql_nested(
 
     spark.catalog.dropTempView("example_data")
     df_src.createTempView("example_data")
-    df = spark.sql('''
+    df = spark.sql("""
     SELECT
             grp,
             SUM(sub_sum_of_C) / SUM(sub_count) as mean_of_C,
@@ -41,5 +41,5 @@ def bi_level_pyspark_sql_nested(
             GROUP BY grp, subgrp) level2
     GROUP BY grp
     ORDER BY grp
-    ''')
+    """)
     return df

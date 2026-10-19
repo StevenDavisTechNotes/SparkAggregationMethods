@@ -12,68 +12,75 @@ from spark_agg_methods_common_python.utils.utils import set_random_seed
 
 logger = logging.getLogger(__name__)
 
-ELAPSED_TIME_COLUMN_NAME: str = 'elapsed_time'
+ELAPSED_TIME_COLUMN_NAME: str = "elapsed_time"
 LOCAL_TEST_DATA_FILE_LOCATION = os.environ.get(
     "SPARK_PERF_TESTING_DATA_LOCATION") or os.path.join(tempfile.gettempdir(), "spark_test_data")
 LOCAL_NUM_EXECUTORS = 5
 
 
 class SolutionLanguage(str, Enum):
-    PYTHON = 'python'
-    SCALA = 'scala'
+    PYTHON = "python"
+    SCALA = "scala"
 
 
 class CalcEngine(str, Enum):
-    DASK = 'dask'
-    FREE_THREADED = 'python_free_threaded'
-    PYSPARK = 'pyspark'
-    SCALA_SPARK = 'sc_spark'
-    SINGLE_THREADED = 'python_single_threaded'
+    DASK = "dask"
+    FREE_THREADED = "python_free_threaded"
+    PYSPARK = "pyspark"
+    SCALA_SPARK = "sc_spark"
+    SINGLE_THREADED = "python_single_threaded"
 
 
 class Challenge(str, Enum):
-    VANILLA = 'vanilla'
-    BI_LEVEL = 'bilevel'
-    CONDITIONAL = 'conditional'
-    SECTIONAL = 'sectional'
-    DEDUPLICATION = 'deduplication'
+    VANILLA = "vanilla"
+    BI_LEVEL = "bilevel"
+    CONDITIONAL = "conditional"
+    SECTIONAL = "sectional"
+    DEDUPLICATION = "deduplication"
+
+
+CHALLENGES_SIX_DATA = [
+    Challenge.BI_LEVEL,
+    Challenge.CONDITIONAL,
+    Challenge.VANILLA,
+]
 
 
 class SolutionInterfaceInvalid(str, Enum):
-    INVALID = 'invalid'
+    INVALID = "invalid"
 
 
 class SolutionInterfaceDask(str, Enum):
-    DASK_BAG = 'bag'
-    DASK_DATAFRAME = 'ddf'
-    DASK_SQL = 'sql'
+    DASK_BAG = "bag"
+    DASK_DATAFRAME = "ddf"
+    DASK_SQL = "sql"
 
 
 class SolutionInterfacePythonST(str, Enum):
-    PANDAS = 'pandas'
-    PROGRESSIVE = 'progressive'
-    SINGLE_THREADED = 'single_threaded'
-    # QUEUES = 'queues'
+    PANDAS = "pandas"
+    PROGRESSIVE = "progressive"
+    SINGLE_THREADED = "single_threaded"
+    # QUEUES = "queues"
 
 
 class SolutionInterfacePythonFreeThreaded(str, Enum):
-    # PANDAS = 'pandas'
-    # PROGRESSIVE = 'progressive'
-    # SINGLE_THREADED = 'single_threaded'
-    QUEUES = 'queues'
+    # PANDAS = "pandas"
+    # PROGRESSIVE = "progressive"
+    # SINGLE_THREADED = "single_threaded"
+    QUEUES = "queues"
 
 
 class SolutionInterfacePySpark(str, Enum):
-    PYSPARK_RDD = 'rdd'
-    PYSPARK_DATAFRAME_SQL = 'sql'
-    PYSPARK_DATAFRAME_FLUENT = 'fluent'
-    PYSPARK_DATAFRAME_PANDAS = 'pandas'
+    PYSPARK_RDD = "rdd"
+    PYSPARK_DATAFRAME_SQL = "sql"
+    PYSPARK_DATAFRAME_FLUENT = "fluent"
+    PYSPARK_DATAFRAME_PANDAS = "pandas"
 
 
 class SolutionInterfaceScalaSpark(str, Enum):
-    SPARK_RDD = 'rdd'
-    SPARK_SQL = 'sql'
-    SPARK_DATAFRAME_PANDAS = 'pandas'
+    SPARK_RDD = "rdd"
+    SPARK_SQL = "sql"
+    SPARK_DATAFRAME_PANDAS = "pandas"
 
 
 class NumericalToleranceExpectations(Enum):
@@ -97,7 +104,7 @@ SolutionInterfacePython = (
     | SolutionInterfacePySpark
 )
 TSolutionInterface = TypeVar(
-    'TSolutionInterface',
+    "TSolutionInterface",
     SolutionInterfaceInvalid,
     SolutionInterfaceDask,
     SolutionInterfacePythonST,
@@ -107,7 +114,7 @@ TSolutionInterface = TypeVar(
     SolutionInterfacePython,
     SolutionInterface,
 )
-TChallengeMethodDelegate = TypeVar('TChallengeMethodDelegate', bound=Callable)
+TChallengeMethodDelegate = TypeVar("TChallengeMethodDelegate", bound=Callable)
 
 
 @dataclass(frozen=True)
@@ -184,7 +191,7 @@ class RunResultFileWriterBase(Generic[TSolutionInterface], ABC):
             engine: CalcEngine,
             persisted_row_type: type
     ):
-        self.file = open(log_file_path, mode='at+')
+        self.file = open(log_file_path, mode="at+")
         self.language = language
         self.engine = engine
         self.persisted_row_type = persisted_row_type
@@ -193,9 +200,9 @@ class RunResultFileWriterBase(Generic[TSolutionInterface], ABC):
     def write_header(
             self,
     ) -> None:
-        header = ' '+','.join(sorted(
+        header = " "+",".join(sorted(
             [x.name for x in dataclass_fields(self.persisted_row_type)]  # ty: ignore[invalid-argument-type]
-        ))+','
+        ))+","
         if __debug__:
             logger.info(f"Skipping writing header {header}")
         else:
@@ -215,10 +222,10 @@ class RunResultFileWriterBase(Generic[TSolutionInterface], ABC):
             persisted_result_row: PersistedRunResultBase[TSolutionInterface],
     ) -> None:
         dict_result = asdict(persisted_result_row)
-        line = ','.join(
+        line = ",".join(
             str(getattr(persisted_result_row, field_name))
             for field_name in sorted(dict_result)
-        )+','
+        )+","
         if __debug__:
             logger.info(f"Skipping writing line {line}")
         else:

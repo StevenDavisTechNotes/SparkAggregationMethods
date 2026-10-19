@@ -28,12 +28,12 @@ def df_full():
         },
         dtype=np.int32,
     )
-    df['A'] = np.random.randint(1, repetition + 1, MAX_BATCH_SIZE, dtype=np.int32)
-    df['B'] = np.random.randint(1, repetition + 1, MAX_BATCH_SIZE, dtype=np.int32)
-    df['C'] = np.random.uniform(1, 10, MAX_BATCH_SIZE)
-    df['D'] = np.random.uniform(1, 10, MAX_BATCH_SIZE)
-    df['E'] = np.random.normal(0, 10, MAX_BATCH_SIZE)
-    df['F'] = np.random.normal(1, 10, MAX_BATCH_SIZE)
+    df["A"] = np.random.randint(1, repetition + 1, MAX_BATCH_SIZE, dtype=np.int32)
+    df["B"] = np.random.randint(1, repetition + 1, MAX_BATCH_SIZE, dtype=np.int32)
+    df["C"] = np.random.uniform(1, 10, MAX_BATCH_SIZE)
+    df["D"] = np.random.uniform(1, 10, MAX_BATCH_SIZE)
+    df["E"] = np.random.normal(0, 10, MAX_BATCH_SIZE)
+    df["F"] = np.random.normal(1, 10, MAX_BATCH_SIZE)
     return df
 
 
@@ -42,12 +42,12 @@ def reference_answer(
     df_full: pd.DataFrame,
 ) -> pd.DataFrame:
     rows: list[dict[str, int | float]] = []
-    for np_key, df_group in df_full.groupby(by=['grp', 'subgrp']):
+    for np_key, df_group in df_full.groupby(by=["grp", "subgrp"]):
         grp, subgrp = np_key  # type: ignore
-        df_group_c = df_group.loc[:, 'C']
-        df_group_d = df_group.loc[:, 'D']
-        cond_df_group_e = df_group.loc[df_group["E"] < 0, 'E']
-        uncond_df_group_e = df_group.loc[:, 'E']
+        df_group_c = df_group.loc[:, "C"]
+        df_group_d = df_group.loc[:, "D"]
+        cond_df_group_e = df_group.loc[df_group["E"] < 0, "E"]
+        uncond_df_group_e = df_group.loc[:, "E"]
         mean_c: float = df_group_c.mean()
         max_d: float = df_group_d.max()
         cond_var_e = cast(float, cond_df_group_e.var(ddof=0))

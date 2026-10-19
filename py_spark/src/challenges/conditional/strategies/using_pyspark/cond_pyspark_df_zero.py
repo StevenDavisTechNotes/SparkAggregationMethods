@@ -34,7 +34,7 @@ def cond_pyspark_df_zero(
                               df.cond_sum_of_E_squared / df.cond_count
                               - (df.cond_sum_of_E / df.cond_count)**2))
     df = df\
-        .select('grp', 'subgrp', 'mean_of_C', 'max_of_D', 'cond_var_of_E')
+        .select("grp", "subgrp", "mean_of_C", "max_of_D", "cond_var_of_E")
     df = df\
         .orderBy(df.grp, df.subgrp)
     return df

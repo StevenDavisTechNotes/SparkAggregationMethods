@@ -51,8 +51,8 @@ def inner_agg_method(
 ) -> pd.DataFrame:
     group_key = dfPartition["grp"].iloc[0]
     subgroup_key = dfPartition["subgrp"].iloc[0]
-    C = dfPartition['C']
-    D = dfPartition['D']
+    C = dfPartition["C"]
+    D = dfPartition["D"]
     negE = dfPartition.loc[dfPartition["E"] < 0, "E"]
     return pd.DataFrame(
         [[

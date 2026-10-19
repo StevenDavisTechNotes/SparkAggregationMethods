@@ -61,5 +61,5 @@ def six_prepare_data_set_python_free_threaded(
         data_description=data_description,
     )
     return SixDataSetDataPythonFreeThreaded(
-        source_file_path_parquet=source_file_paths.source_file_path_parquet_single_file,
+        source_file_path_parquet=str(source_file_paths.source_file_path_parquet_single_file),
     )

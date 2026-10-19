@@ -18,7 +18,7 @@ from src.challenges.vanilla.strategies.using_pyspark.vanilla_pyspark_sql import 
 
 VANILLA_STRATEGY_REGISTRY_PYSPARK: list[SixFieldChallengeMethodPythonPysparkRegistration] = [
     SixFieldChallengeMethodPythonPysparkRegistration(
-        strategy_name_2018='vanilla_sql',
+        strategy_name_2018="vanilla_sql",
         strategy_name=name_of_function(vanilla_pyspark_sql),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.PYSPARK,
@@ -28,7 +28,7 @@ VANILLA_STRATEGY_REGISTRY_PYSPARK: list[SixFieldChallengeMethodPythonPysparkRegi
         delegate=vanilla_pyspark_sql
     ),
     SixFieldChallengeMethodPythonPysparkRegistration(
-        strategy_name_2018='vanilla_fluent',
+        strategy_name_2018="vanilla_fluent",
         strategy_name=name_of_function(vanilla_pyspark_df_grp_builtin),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.PYSPARK,
@@ -38,7 +38,7 @@ VANILLA_STRATEGY_REGISTRY_PYSPARK: list[SixFieldChallengeMethodPythonPysparkRegi
         delegate=vanilla_pyspark_df_grp_builtin,
     ),
     SixFieldChallengeMethodPythonPysparkRegistration(
-        strategy_name_2018='vanilla_pandas',
+        strategy_name_2018="vanilla_pandas",
         strategy_name=name_of_function(vanilla_pyspark_df_grp_pandas),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.PYSPARK,
@@ -48,7 +48,7 @@ VANILLA_STRATEGY_REGISTRY_PYSPARK: list[SixFieldChallengeMethodPythonPysparkRegi
         delegate=vanilla_pyspark_df_grp_pandas,
     ),
     SixFieldChallengeMethodPythonPysparkRegistration(
-        strategy_name_2018='vanilla_pandas_numpy',
+        strategy_name_2018="vanilla_pandas_numpy",
         strategy_name=name_of_function(vanilla_pyspark_df_grp_numpy),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.PYSPARK,
@@ -58,7 +58,7 @@ VANILLA_STRATEGY_REGISTRY_PYSPARK: list[SixFieldChallengeMethodPythonPysparkRegi
         delegate=vanilla_pyspark_df_grp_numpy,
     ),
     SixFieldChallengeMethodPythonPysparkRegistration(
-        strategy_name_2018='vanilla_pandas_numba',
+        strategy_name_2018="vanilla_pandas_numba",
         strategy_name=name_of_function(vanilla_pyspark_df_grp_numba),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.PYSPARK,
@@ -68,7 +68,7 @@ VANILLA_STRATEGY_REGISTRY_PYSPARK: list[SixFieldChallengeMethodPythonPysparkRegi
         delegate=vanilla_pyspark_df_grp_numba,
     ),
     SixFieldChallengeMethodPythonPysparkRegistration(
-        strategy_name_2018='vanilla_rdd_grpmap',
+        strategy_name_2018="vanilla_rdd_grpmap",
         strategy_name=name_of_function(vanilla_pyspark_rdd_grp_map),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.PYSPARK,
@@ -78,7 +78,7 @@ VANILLA_STRATEGY_REGISTRY_PYSPARK: list[SixFieldChallengeMethodPythonPysparkRegi
         delegate=vanilla_pyspark_rdd_grp_map,
     ),
     SixFieldChallengeMethodPythonPysparkRegistration(
-        strategy_name_2018='vanilla_rdd_reduce',
+        strategy_name_2018="vanilla_rdd_reduce",
         strategy_name=name_of_function(vanilla_pyspark_rdd_reduce),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.PYSPARK,
@@ -88,7 +88,7 @@ VANILLA_STRATEGY_REGISTRY_PYSPARK: list[SixFieldChallengeMethodPythonPysparkRegi
         delegate=vanilla_pyspark_rdd_reduce,
     ),
     SixFieldChallengeMethodPythonPysparkRegistration(
-        strategy_name_2018='vanilla_rdd_mappart',
+        strategy_name_2018="vanilla_rdd_mappart",
         strategy_name=name_of_function(vanilla_pyspark_rdd_mappart),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.PYSPARK,

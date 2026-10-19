@@ -3,7 +3,7 @@ from typing import TypeVar
 MATCH_THRESHOLD = 0.9
 # must be 0.4316546762589928 < MATCH_THRESHOLD < 0.9927007299270073 @ 10k
 
-T = TypeVar('T', bound=float | str)
+T = TypeVar("T", bound=float | str)
 
 
 def min_not_null(

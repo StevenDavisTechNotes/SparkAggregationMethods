@@ -4,14 +4,18 @@ import shutil
 from pathlib import Path
 
 import pyarrow.parquet
-from spark_agg_methods_common_python.challenges.bi_level.bi_level_test_data_types import DATA_SIZES_LIST_BI_LEVEL
+from spark_agg_methods_common_python.challenges.bi_level.bi_level_test_data_types import (
+    DATA_SIZES_LIST_BI_LEVEL_MAXIMAL, DATA_SIZES_LIST_BI_LEVEL_MINIMAL,
+)
 from spark_agg_methods_common_python.challenges.conditional.conditional_test_data_types import (
-    DATA_SIZES_LIST_CONDITIONAL,
+    DATA_SIZES_LIST_CONDITIONAL_MAXIMAL, DATA_SIZES_LIST_CONDITIONAL_MINIMAL,
 )
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
     SixTestDataSetDescription, six_derive_source_test_data_file_path,
 )
-from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types import DATA_SIZES_LIST_VANILLA
+from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types import (
+    DATA_SIZES_LIST_VANILLA_MAXIMAL, DATA_SIZES_LIST_VANILLA_MINIMAL,
+)
 from src.utils.tidy_session_pyspark import TidySparkSession
 
 # cSpell: ignore arange, aggfunc
@@ -70,7 +74,7 @@ def six_generate_source_data_file_for_size_pyspark(
         df = py_table.to_pandas()
         spark_df = spark_session.spark.createDataFrame(df)
         spark_df.write.parquet(
-            write_folder_path,
+            str(write_folder_path),
             mode="append",
             compression="zstd",
         )
@@ -83,14 +87,20 @@ def six_generate_source_data_file_for_size_pyspark(
 
 def six_generate_data_files_pyspark(
         spark_session: TidySparkSession,
-        make_new_files: bool,
+        *,
+        overwrite: bool = False,
+        minimal: bool = False,
 ) -> None:
     data_sizes = (
-        DATA_SIZES_LIST_BI_LEVEL
-        + DATA_SIZES_LIST_CONDITIONAL
-        + DATA_SIZES_LIST_VANILLA
+        DATA_SIZES_LIST_BI_LEVEL_MINIMAL
+        + DATA_SIZES_LIST_CONDITIONAL_MINIMAL
+        + DATA_SIZES_LIST_VANILLA_MINIMAL
+        if minimal else
+        DATA_SIZES_LIST_BI_LEVEL_MAXIMAL
+        + DATA_SIZES_LIST_CONDITIONAL_MAXIMAL
+        + DATA_SIZES_LIST_VANILLA_MAXIMAL
     )
-    if make_new_files:
+    if overwrite:
         for size in data_sizes:
             six_remove_source_data_file_for_size_pyspark(
                 data_description=size,

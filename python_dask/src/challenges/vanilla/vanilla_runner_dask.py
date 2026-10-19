@@ -18,7 +18,7 @@ from spark_agg_methods_common_python.challenges.vanilla.vanilla_record_runs impo
     VanillaPythonRunResultFileWriter, VanillaRunResult,
 )
 from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types import (
-    DATA_SIZES_LIST_VANILLA, VanillaDataSetDescription,
+    DATA_SIZES_LIST_VANILLA_MAXIMAL, DATA_SIZES_LIST_VANILLA_MINIMAL, VanillaDataSetDescription,
 )
 from spark_agg_methods_common_python.perf_test_common import (
     ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge, RunnerArgumentsBase, RunResultBase,
@@ -48,23 +48,32 @@ class Arguments(RunnerArgumentsBase):
 
 
 def parse_args() -> Arguments:
-    sizes = [x.size_code for x in DATA_SIZES_LIST_VANILLA]
+    sizes_max = [x.size_code for x in DATA_SIZES_LIST_VANILLA_MAXIMAL]
+    sizes_min = [x.size_code for x in DATA_SIZES_LIST_VANILLA_MINIMAL]
     strategy_names = sorted(x.strategy_name for x in VANILLA_STRATEGY_REGISTRY_DASK)
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--random-seed', type=int)
-    parser.add_argument('--runs', type=int, default=1)
-    parser.add_argument('--size', choices=sizes, default=sizes, nargs="*")
-    parser.add_argument('--shuffle', default=True, action=argparse.BooleanOptionalAction)
-    parser.add_argument('--have-gpu', default=True, action=argparse.BooleanOptionalAction)
-    parser.add_argument('--strategy', choices=strategy_names, default=strategy_names, nargs="*")
+    parser.add_argument("--random-seed", type=int)
+    parser.add_argument("--runs", type=int, default=1)
+    parser.add_argument("--size-minimal", default=False, action=argparse.BooleanOptionalAction)
+    parser.add_argument("--size", choices=sizes_max, nargs="+")
+    parser.add_argument("--shuffle", default=True, action=argparse.BooleanOptionalAction)
+    parser.add_argument("--have-gpu", default=True, action=argparse.BooleanOptionalAction)
+    parser.add_argument("--strategy", choices=strategy_names, default=strategy_names, nargs="*")
     args = parser.parse_args()
+
+    if args.size is not None:
+        sizes = args.size
+    elif args.size_minimal:
+        sizes = sizes_min
+    else:
+        sizes = sizes_max
     return Arguments(
         have_gpu=args.have_gpu,
         num_runs=args.runs,
         random_seed=args.random_seed,
         shuffle=args.shuffle,
-        sizes=args.size,
+        sizes=sizes,
         strategy_names=args.strategy,
         exec_params=SixTestExecutionParameters(
             default_parallelism=2 * LOCAL_NUM_EXECUTORS,
@@ -85,14 +94,14 @@ def prepare_data_sets(
             ),
             answer=fetch_six_data_set_answer(CHALLENGE, size),
         )
-        for size in DATA_SIZES_LIST_VANILLA
+        for size in DATA_SIZES_LIST_VANILLA_MAXIMAL
         if size.size_code in args.sizes
     ]
     return data_sets
 
 
 class VanillaDaskRunResultFileWriter(VanillaPythonRunResultFileWriter):
-    RUN_LOG_FILE_PATH: str = 'results/vanilla_dask_runs.csv'
+    RUN_LOG_FILE_PATH: str = "results/vanilla_dask_runs.csv"
 
     def __init__(self):
         super().__init__(
@@ -174,7 +183,7 @@ def update_challenge_registration():
             elapsed_time_column_name=ELAPSED_TIME_COLUMN_NAME,
             expected_regressor_values=[
                 x.regressor_value
-                for x in DATA_SIZES_LIST_VANILLA
+                for x in DATA_SIZES_LIST_VANILLA_MAXIMAL
                 if not x.debugging_only
             ],
             strategies=[

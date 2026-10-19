@@ -55,21 +55,21 @@ def dedupe_pyspark_df_window(
         .filter(func.col("df1.RowId") == func.col("df2.RowId"))
     df = df \
         .select(
-            func.col('df1.BlockingKey').alias('BlockingKey'),
-            func.col('df1.RowId').alias('RowId'),
-            func.col('df1.FirstName').alias('FirstName'),
-            func.col('df1.LastName').alias('LastName'),
-            func.col('df1.StreetAddress').alias('StreetAddress'),
-            func.col('df1.City').alias('City'),
-            func.col('df1.ZipCode').alias('ZipCode'),
-            func.col('df1.SecretKey').alias('SecretKey'),
-            func.col('df1.FieldA').alias('FieldA'),
-            func.col('df1.FieldB').alias('FieldB'),
-            func.col('df1.FieldC').alias('FieldC'),
-            func.col('df1.FieldD').alias('FieldD'),
-            func.col('df1.FieldE').alias('FieldE'),
-            func.col('df1.FieldF').alias('FieldF'),
-            func.col('df1.SourceId').alias('SourceId'),
+            func.col("df1.BlockingKey").alias("BlockingKey"),
+            func.col("df1.RowId").alias("RowId"),
+            func.col("df1.FirstName").alias("FirstName"),
+            func.col("df1.LastName").alias("LastName"),
+            func.col("df1.StreetAddress").alias("StreetAddress"),
+            func.col("df1.City").alias("City"),
+            func.col("df1.ZipCode").alias("ZipCode"),
+            func.col("df1.SecretKey").alias("SecretKey"),
+            func.col("df1.FieldA").alias("FieldA"),
+            func.col("df1.FieldB").alias("FieldB"),
+            func.col("df1.FieldC").alias("FieldC"),
+            func.col("df1.FieldD").alias("FieldD"),
+            func.col("df1.FieldE").alias("FieldE"),
+            func.col("df1.FieldF").alias("FieldF"),
+            func.col("df1.SourceId").alias("SourceId"),
             df.GroupId) \
         .repartition(numPartitions, df.GroupId)
     df = df \

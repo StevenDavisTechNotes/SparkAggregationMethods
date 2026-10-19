@@ -22,7 +22,7 @@ def install_extras(
 
 
 install_extras(
-    include=['requests', 'dataclasses'])
+    include=["requests", "dataclasses"])
 
 
 def pprint(
@@ -52,7 +52,7 @@ def pprint(
 def pick_file_path(
         suffix: str,
 ) -> str:
-    return os.path.join(os.environ['TMP'], f"LastUnitTestData{suffix}.py")
+    return os.path.join(os.environ["TMP"], f"LastUnitTestData{suffix}.py")
 
 
 re_match_dt_1: re.Pattern[str] | None = None
@@ -63,7 +63,7 @@ def pretty_print_to_string(
         fh: TextIO,
 ) -> None:
     global re_match_dt_1
-    with io.StringIO(newline='\n') as intermediateStream:
+    with io.StringIO(newline="\n") as intermediateStream:
         pprint(
             rows,
             stream=intermediateStream)
@@ -88,5 +88,5 @@ def print_text(
         src: str,
         suffix: str = "",
 ) -> None:
-    with open(pick_file_path(suffix), "w", encoding='utf8') as fh:
+    with open(pick_file_path(suffix), "w", encoding="utf8") as fh:
         print(src, file=fh)

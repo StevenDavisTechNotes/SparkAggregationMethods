@@ -64,10 +64,10 @@ def bi_level_pyspark_df_grp_pandas_numba(
 def inner_agg_method(
         dfPartition: pd.DataFrame,
 ) -> pd.DataFrame:
-    group_key = dfPartition['grp'].iloc[0]
-    C = np.array(dfPartition['C'])
-    D = np.array(dfPartition['D'])
-    sub_group_E = dfPartition.groupby('subgrp')['E']
+    group_key = dfPartition["grp"].iloc[0]
+    C = np.array(dfPartition["C"])
+    D = np.array(dfPartition["D"])
+    sub_group_E = dfPartition.groupby("subgrp")["E"]
     return pd.DataFrame(
         [[
             group_key,

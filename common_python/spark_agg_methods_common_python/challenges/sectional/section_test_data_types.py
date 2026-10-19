@@ -1,9 +1,9 @@
 import calendar
 import datetime as dt
-import os
 import typing
 from dataclasses import dataclass
 from enum import Enum
+from pathlib import Path
 from typing import Literal, NamedTuple
 
 import pandas as pd
@@ -16,15 +16,16 @@ NUM_TRIMESTERS = 8
 NUM_CLASSES_PER_TRIMESTER = 4
 NUM_DEPARTMENTS = 4
 SECTION_SIZE_MAXIMUM = (1 + NUM_TRIMESTERS * (1 + NUM_CLASSES_PER_TRIMESTER + 1))
-LARGEST_EXPONENT_SECTIONAL = 7  # some can operate at 8 or above
+LARGEST_EXPONENT_SECTIONAL_MAXIMAL = 7  # some can operate at 8 or above
+LARGEST_EXPONENT_SECTIONAL_MINIMAL = 2  # some can operate at 8 or above
 
 
 class SolutionScale(str, Enum):
-    WHOLE_FILE = 'whole_file'
-    WHOLE_SECTION = 'whole_section'
-    THREE_ROWS = 'three_rows'
-    FINAL_SUMMARIES = 'final_summaries'
-    SINGLE_LINE = 'singleline'
+    WHOLE_FILE = "whole_file"
+    WHOLE_SECTION = "whole_section"
+    THREE_ROWS = "three_rows"
+    FINAL_SUMMARIES = "final_summaries"
+    SINGLE_LINE = "singleline"
 
 
 class StudentHeader(NamedTuple):
@@ -104,14 +105,23 @@ class SectionDataSetBase():
     correct_answer: pd.DataFrame
 
 
-DATA_SIZE_LIST_SECTIONAL = [
-    SectionDataSetDescription(
-        i_scale=i_scale,
-        num_students=10**i_scale,
-        section_size_max=SECTION_SIZE_MAXIMUM,
-    )
-    for i_scale in range(0, LARGEST_EXPONENT_SECTIONAL + 1)
-]
+def sectional_generate_data_set_list(
+        *,
+        minimal: bool,
+):
+    exponent = LARGEST_EXPONENT_SECTIONAL_MINIMAL if minimal else LARGEST_EXPONENT_SECTIONAL_MAXIMAL
+    return [
+        SectionDataSetDescription(
+            i_scale=i_scale,
+            num_students=10**i_scale,
+            section_size_max=SECTION_SIZE_MAXIMUM,
+        )
+        for i_scale in range(0,  exponent + 1)
+    ]
+
+
+DATA_SIZE_LIST_SECTIONAL_MAXIMAL = sectional_generate_data_set_list(minimal=False)
+DATA_SIZE_LIST_SECTIONAL_MINIMAL = sectional_generate_data_set_list(minimal=True)
 
 
 @dataclass(frozen=True)
@@ -146,17 +156,20 @@ def add_months_to_date_retracting(
     return dt.date(year, month, min(d.day, num_days))
 
 
+def section_test_data_file_root() -> Path:
+    return Path(LOCAL_TEST_DATA_FILE_LOCATION) / "Section_Test_Data"
+
+
 def section_derive_source_test_data_file_path(
         data_description: SectionDataSetDescription,
         *,
         temp_file: bool = False,
-) -> str:
+) -> Path:
     num_students = data_description.num_students
     temp_postfix = "_temp" if temp_file else ""
-    return os.path.join(
-        LOCAL_TEST_DATA_FILE_LOCATION,
-        "Section_Test_Data",
-        f"section_source_data_{num_students}{temp_postfix}.csv"
+    return (
+        section_test_data_file_root()
+        / f"section_source_data_{num_students}{temp_postfix}.csv"
     )
 
 
@@ -164,13 +177,12 @@ def section_derive_expected_answer_data_file_path(
         data_description: SectionDataSetDescription,
         *,
         temp_file: bool = False,
-) -> str:
+) -> Path:
     num_students = data_description.num_students
     temp_postfix = "_temp" if temp_file else ""
-    return os.path.join(
-        LOCAL_TEST_DATA_FILE_LOCATION,
-        "Section_Test_Data",
-        f"section_answer_data_{num_students}{temp_postfix}.parquet"
+    return (
+        section_test_data_file_root()
+        / f"section_answer_data_{num_students}{temp_postfix}.parquet"
     )
 
 

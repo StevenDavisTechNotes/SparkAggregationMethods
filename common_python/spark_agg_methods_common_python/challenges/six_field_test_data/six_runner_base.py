@@ -31,14 +31,14 @@ def process_answer(
         finished_time: float,
 ) -> RunResultBase:
     if challenge == Challenge.BI_LEVEL:
-        if 'avg_var_of_E2' not in df_answer:
-            df_answer['avg_var_of_E2'] = df_answer['avg_var_of_E']
+        if "avg_var_of_E2" not in df_answer:
+            df_answer["avg_var_of_E2"] = df_answer["avg_var_of_E"]
     elif challenge == Challenge.CONDITIONAL:
-        if 'cond_var_of_E2' not in df_answer:
-            df_answer['cond_var_of_E2'] = df_answer['cond_var_of_E']
+        if "cond_var_of_E2" not in df_answer:
+            df_answer["cond_var_of_E2"] = df_answer["cond_var_of_E"]
     elif challenge == Challenge.VANILLA:
-        if 'var_of_E2' not in df_answer:
-            df_answer['var_of_E2'] = df_answer['var_of_E']
+        if "var_of_E2" not in df_answer:
+            df_answer["var_of_E2"] = df_answer["var_of_E"]
     else:
         raise ValueError(f"Unexpected challenge: {challenge}")
     abs_diff = float(

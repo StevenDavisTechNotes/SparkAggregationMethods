@@ -63,18 +63,18 @@ class SixProgressiveBatchSampleStatistics:
         self.cond_var_e_subtotal = defaultdict(lambda: ProgressiveVariance(ddof=0))
 
     def update_with_population(self, df_chunk: pd.DataFrame):
-        for np_key, df_group in cast(Any, df_chunk).groupby(by=['grp', 'subgrp']):
+        for np_key, df_group in cast(Any, df_chunk).groupby(by=["grp", "subgrp"]):
             key = int(np_key[0]), int(np_key[1])
-            df_group_c = df_group.loc[:, 'C']
-            df_group_d = df_group.loc[:, 'D']
+            df_group_c = df_group.loc[:, "C"]
+            df_group_d = df_group.loc[:, "D"]
             self.uncond_count_subtotal[key].update_with_population(df_group)
             self.mean_c_subtotal[key].update_with_population(df_group_c)
             self.max_d_subtotal[key].update_with_population(df_group_d)
             if self.include_conditional:
-                cond_df_group_e = df_group.loc[df_group["E"] < 0, 'E']
+                cond_df_group_e = df_group.loc[df_group["E"] < 0, "E"]
                 self.cond_var_e_subtotal[key].update_with_population(cond_df_group_e.to_numpy())
             if self.include_unconditional:
-                uncond_df_group_e = df_group.loc[:, 'E']
+                uncond_df_group_e = df_group.loc[:, "E"]
                 self.uncond_var_e_subtotal[key].update_with_population(uncond_df_group_e.to_numpy())
 
     def merge_subtotals(self, right: Self):
@@ -147,18 +147,18 @@ def calculate_solution_progressively_from_iterable(
     cond_var_e_subtotal: dict[tuple[int, int], ProgressiveVariance] \
         = defaultdict(lambda: ProgressiveVariance(ddof=0))
     for df_chunk in chunk_iterable:
-        for np_key, df_group in df_chunk.groupby(by=['grp', 'subgrp']):
+        for np_key, df_group in df_chunk.groupby(by=["grp", "subgrp"]):
             key = int(np_key[0]), int(np_key[1])
-            df_group_c = df_group.loc[:, 'C']
-            df_group_d = df_group.loc[:, 'D']
+            df_group_c = df_group.loc[:, "C"]
+            df_group_d = df_group.loc[:, "D"]
             uncond_count_subtotal[key].update_with_population(df_group)
             mean_c_subtotal[key].update_with_population(df_group_c)
             max_d_subtotal[key].update_with_population(df_group_d)
             if include_conditional:
-                cond_df_group_e = df_group.loc[df_group["E"] < 0, 'E']
+                cond_df_group_e = df_group.loc[df_group["E"] < 0, "E"]
                 cond_var_e_subtotal[key].update_with_population(cond_df_group_e.to_numpy())
             if include_unconditional:
-                uncond_df_group_e = df_group.loc[:, 'E']
+                uncond_df_group_e = df_group.loc[:, "E"]
                 uncond_var_e_subtotal[key].update_with_population(uncond_df_group_e.to_numpy())
     num_data_points_visited = sum(p.count for p in uncond_count_subtotal.values())
     df_summary = (

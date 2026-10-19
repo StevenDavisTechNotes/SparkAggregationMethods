@@ -15,7 +15,8 @@ from spark_agg_methods_common_python.challenges.conditional.conditional_record_r
     ConditionalPythonRunResultFileWriter, ConditionalRunResult,
 )
 from spark_agg_methods_common_python.challenges.conditional.conditional_test_data_types import (
-    AGGREGATION_COLUMNS_3, DATA_SIZES_LIST_CONDITIONAL, GROUP_BY_COLUMNS, ConditionalDataSetDescription,
+    AGGREGATION_COLUMNS_3, DATA_SIZES_LIST_CONDITIONAL_MAXIMAL, DATA_SIZES_LIST_CONDITIONAL_MINIMAL, GROUP_BY_COLUMNS,
+    ConditionalDataSetDescription,
 )
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
     SixTestExecutionParameters, fetch_six_data_set_answer,
@@ -52,21 +53,30 @@ class Arguments(RunnerArgumentsBase):
 
 
 def parse_args() -> Arguments:
-    sizes = [x.size_code for x in DATA_SIZES_LIST_CONDITIONAL]
+    sizes_max = [x.size_code for x in DATA_SIZES_LIST_CONDITIONAL_MAXIMAL]
+    sizes_min = [x.size_code for x in DATA_SIZES_LIST_CONDITIONAL_MINIMAL]
     strategy_names = sorted(x.strategy_name for x in CONDITIONAL_STRATEGY_REGISTRY_PYSPARK)
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--random-seed', type=int)
-    parser.add_argument('--runs', type=int, default=1)
-    parser.add_argument('--size', choices=sizes, default=sizes, nargs="*")
-    parser.add_argument('--shuffle', default=True, action=argparse.BooleanOptionalAction)
-    parser.add_argument('--strategy', choices=strategy_names, default=strategy_names, nargs="*")
+    parser.add_argument("--random-seed", type=int)
+    parser.add_argument("--runs", type=int, default=1)
+    parser.add_argument("--size-minimal", default=False, action=argparse.BooleanOptionalAction)
+    parser.add_argument("--size", choices=sizes_max, nargs="+")
+    parser.add_argument("--shuffle", default=True, action=argparse.BooleanOptionalAction)
+    parser.add_argument("--strategy", choices=strategy_names, default=strategy_names, nargs="*")
     args = parser.parse_args()
+
+    if args.size is not None:
+        sizes = args.size
+    elif args.size_minimal:
+        sizes = sizes_min
+    else:
+        sizes = sizes_max
     return Arguments(
         num_runs=args.runs,
         random_seed=args.random_seed,
         shuffle=args.shuffle,
-        sizes=args.size,
+        sizes=sizes,
         strategy_names=args.strategy,
         exec_params=SixTestExecutionParameters(
             default_parallelism=2 * LOCAL_NUM_EXECUTORS,
@@ -93,14 +103,14 @@ def prepare_data_sets(
                 spark_logger=spark_session.logger,
             ),
         )
-        for size in DATA_SIZES_LIST_CONDITIONAL
+        for size in DATA_SIZES_LIST_CONDITIONAL_MAXIMAL
         if size.size_code in args.sizes
     ]
     return data_sets
 
 
 class ConditionalPysparkRunResultFileWriter(ConditionalPythonRunResultFileWriter):
-    RUN_LOG_FILE_PATH: str = 'results/conditional_pyspark_runs.csv'
+    RUN_LOG_FILE_PATH: str = "results/conditional_pyspark_runs.csv"
 
     def __init__(self):
         super().__init__(
@@ -152,7 +162,7 @@ def do_test_runs(
                                     num_output_rows=run_result.num_output_rows,
                                     finished_at=run_result.finished_at,
                                 ))
-                    case ('infeasible', _):
+                    case ("infeasible", _):
                         pass
                     case other:
                         raise ValueError(
@@ -189,7 +199,7 @@ def update_challenge_registration():
             elapsed_time_column_name=ELAPSED_TIME_COLUMN_NAME,
             expected_regressor_values=[
                 x.regressor_value
-                for x in DATA_SIZES_LIST_CONDITIONAL
+                for x in DATA_SIZES_LIST_CONDITIONAL_MAXIMAL
                 if not x.debugging_only
             ],
             strategies=[

@@ -11,7 +11,7 @@ class test_StudentHeader:
             self,
     ) -> None:
         studentId = 123
-        studentName = 'xxx'
+        studentName = "xxx"
         lineIndex = 456
         src = StudentHeader(
             StudentId=studentId,
@@ -39,7 +39,7 @@ class test_TrimesterHeader:
     def test_nominal(
             self,
     ) -> None:
-        date = 'date'
+        date = "date"
         wasAbroad = False
         lineIndex = 456
         src = TrimesterHeader(

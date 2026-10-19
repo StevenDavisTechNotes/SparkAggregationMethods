@@ -18,12 +18,12 @@ def cond_pyspark_sql_null(
     spark.catalog.dropTempView("example_data")
     df_src = data_set.data.open_source_data_as_df(spark_session)
     df_src.createTempView("example_data")
-    df = spark.sql('''
+    df = spark.sql("""
     SELECT
         grp, subgrp, AVG(C) mean_of_C, MAX(D) max_of_D,
         VAR_POP(CASE WHEN E < 0 THEN E ELSE NULL END) AS cond_var_of_E
     FROM example_data
     GROUP BY grp, subgrp
     ORDER BY grp, subgrp
-    ''')
+    """)
     return df

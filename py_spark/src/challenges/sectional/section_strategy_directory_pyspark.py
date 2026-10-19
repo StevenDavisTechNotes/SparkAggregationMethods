@@ -28,7 +28,7 @@ from src.challenges.sectional.strategies.using_pyspark.section_pyspark_rdd_reduc
 
 SECTIONAL_STRATEGY_REGISTRY_PYSPARK: list[SectionChallengeMethodPysparkRegistration] = [
     SectionChallengeMethodPysparkRegistration(
-        strategy_name_2018='section_mappart_single_threaded',
+        strategy_name_2018="section_mappart_single_threaded",
         strategy_name=name_of_function(section_pyspark_rdd_mappart_single_threaded),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.PYSPARK,
@@ -38,7 +38,7 @@ SECTIONAL_STRATEGY_REGISTRY_PYSPARK: list[SectionChallengeMethodPysparkRegistrat
         delegate=section_pyspark_rdd_mappart_single_threaded
     ),
     SectionChallengeMethodPysparkRegistration(
-        strategy_name_2018='section_mappart_odd_even',
+        strategy_name_2018="section_mappart_odd_even",
         strategy_name=name_of_function(section_pyspark_rdd_mappart_odd_even),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.PYSPARK,
@@ -48,7 +48,7 @@ SECTIONAL_STRATEGY_REGISTRY_PYSPARK: list[SectionChallengeMethodPysparkRegistrat
         delegate=section_pyspark_rdd_mappart_odd_even
     ),
     SectionChallengeMethodPysparkRegistration(
-        strategy_name_2018='section_mappart_partials',
+        strategy_name_2018="section_mappart_partials",
         strategy_name=name_of_function(section_pyspark_rdd_mappart_partials),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.PYSPARK,
@@ -58,7 +58,7 @@ SECTIONAL_STRATEGY_REGISTRY_PYSPARK: list[SectionChallengeMethodPysparkRegistrat
         delegate=section_pyspark_rdd_mappart_partials
     ),
     SectionChallengeMethodPysparkRegistration(
-        strategy_name_2018='section_asymreduce_partials',
+        strategy_name_2018="section_asymreduce_partials",
         strategy_name=name_of_function(section_pyspark_rdd_reduce_asymm_part),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.PYSPARK,
@@ -68,7 +68,7 @@ SECTIONAL_STRATEGY_REGISTRY_PYSPARK: list[SectionChallengeMethodPysparkRegistrat
         delegate=section_pyspark_rdd_reduce_asymm_part
     ),
     SectionChallengeMethodPysparkRegistration(
-        strategy_name_2018='section_prep_mappart',
+        strategy_name_2018="section_prep_mappart",
         strategy_name=name_of_function(section_pyspark_rdd_prep_mappart),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.PYSPARK,
@@ -78,7 +78,7 @@ SECTIONAL_STRATEGY_REGISTRY_PYSPARK: list[SectionChallengeMethodPysparkRegistrat
         delegate=section_pyspark_rdd_prep_mappart
     ),
     SectionChallengeMethodPysparkRegistration(
-        strategy_name_2018='section_prep_groupby',
+        strategy_name_2018="section_prep_groupby",
         strategy_name=name_of_function(section_pyspark_df_prep_txt),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.PYSPARK,
@@ -88,7 +88,7 @@ SECTIONAL_STRATEGY_REGISTRY_PYSPARK: list[SectionChallengeMethodPysparkRegistrat
         delegate=section_pyspark_df_prep_txt
     ),
     SectionChallengeMethodPysparkRegistration(
-        strategy_name_2018='section_prepcsv_groupby',
+        strategy_name_2018="section_prepcsv_groupby",
         strategy_name=name_of_function(section_pyspark_df_prep_grp_csv),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.PYSPARK,
@@ -98,7 +98,7 @@ SECTIONAL_STRATEGY_REGISTRY_PYSPARK: list[SectionChallengeMethodPysparkRegistrat
         delegate=section_pyspark_df_prep_grp_csv
     ),
     SectionChallengeMethodPysparkRegistration(
-        strategy_name_2018='section_join_groupby',
+        strategy_name_2018="section_join_groupby",
         strategy_name=name_of_function(section_join_groupby),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.PYSPARK,
@@ -108,7 +108,7 @@ SECTIONAL_STRATEGY_REGISTRY_PYSPARK: list[SectionChallengeMethodPysparkRegistrat
         delegate=section_join_groupby
     ),
     SectionChallengeMethodPysparkRegistration(
-        strategy_name_2018='section_join_mappart',
+        strategy_name_2018="section_join_mappart",
         strategy_name=name_of_function(section_pyspark_rdd_join_mappart),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.PYSPARK,

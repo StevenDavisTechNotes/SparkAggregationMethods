@@ -30,7 +30,10 @@ class AnswerFileSectional(ABC):
         expected_answer_data_file_path = section_derive_expected_answer_data_file_path(data_description)
         if not os.path.exists(expected_answer_data_file_path):
             raise FileNotFoundError(f"Expected answer data file not found: {expected_answer_data_file_path}")
-        return pd.read_parquet(expected_answer_data_file_path)
+        return pd.read_parquet(
+            path=expected_answer_data_file_path,
+            engine="auto",
+        )
 
     @staticmethod
     def write_answer_file_sectional(
@@ -43,7 +46,7 @@ class AnswerFileSectional(ABC):
             data_description, temp_file=True)
         answer.to_parquet(
             temp_file_name,
-            compression='zstd',
+            compression="zstd",
             index=False,
         )
         os.rename(temp_file_name, final_file_name)

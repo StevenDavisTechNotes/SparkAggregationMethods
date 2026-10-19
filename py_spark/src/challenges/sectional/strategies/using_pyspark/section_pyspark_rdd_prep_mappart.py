@@ -49,10 +49,10 @@ def parse_line_to_types_with_line_no(
         lineNumber: int,
         line: str,
 ) -> tuple[tuple[int, int], TypedLine]:
-    str_section_id, row_type, *fields = line.split(',')
+    str_section_id, row_type, *fields = line.split(",")
     section_id = int(str_section_id)
     match row_type:
-        case 'S':
+        case "S":
             str_student_id, student_name = fields
             student_id = int(str_student_id)
             return (
@@ -60,15 +60,15 @@ def parse_line_to_types_with_line_no(
                 StudentHeader(
                     StudentId=student_id, StudentName=student_name)
             )
-        case 'TH':
+        case "TH":
             str_date, str_was_abroad = fields
-            was_abroad = str_was_abroad == 'True'
+            was_abroad = str_was_abroad == "True"
             return (
                 (section_id, lineNumber),
                 TrimesterHeader(
                     Date=str_date, WasAbroad=was_abroad)
             )
-        case 'C':
+        case "C":
             str_dept, str_credits, str_grade = fields
             dept = int(str_dept)
             credits = int(str_credits)
@@ -78,7 +78,7 @@ def parse_line_to_types_with_line_no(
                 ClassLine(
                     Dept=dept, Credits=credits, Grade=grade)
             )
-        case 'TF':
+        case "TF":
             str_major, str_gpa, str_credits = fields
             major = int(str_major)
             gpa = float(str_gpa)

@@ -35,15 +35,15 @@ def vanilla_dask_ddf_grp_apply(
 def inner_agg_method(
         dfPartition: pd.DataFrame,
 ) -> pd.Series:
-    C = dfPartition['C']
-    D = dfPartition['D']
-    E = dfPartition['E']
+    C = dfPartition["C"]
+    D = dfPartition["D"]
+    E = dfPartition["E"]
     var_of_E2 = (
         (E * E).sum() / E.count()
         - (E.sum() / E.count())**2)
     return pd.Series({
-        'mean_of_C': C.mean(),
-        'max_of_D': D.max(),
-        'var_of_E': E.var(ddof=0),
-        'var_of_E2': var_of_E2,
+        "mean_of_C": C.mean(),
+        "max_of_D": D.max(),
+        "var_of_E": E.var(ddof=0),
+        "var_of_E2": var_of_E2,
     })

@@ -9,14 +9,14 @@ def zip_dataframe_with_index(
     df, spark: SparkSession, offset: int = 1,
     colName: str = "rowId"
 ) -> PySparkDataFrame:
-    '''
+    """
         Enumerates dataframe rows is native order, like rdd.ZipWithIndex(), but on a dataframe
         and preserves a schema
 
         :param df: source dataframe
-        :param offset: adjustment to zipWithIndex()'s index
+        :param offset: adjustment to zipWithIndex()"s index
         :param colName: name of the index column
-    '''
+    """
 
     new_schema = DataTypes.StructType(
         [DataTypes.StructField(

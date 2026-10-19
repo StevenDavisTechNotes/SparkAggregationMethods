@@ -59,10 +59,10 @@ def blocking_function(
 FindRecordMatches_RecList_Returns = DataTypes.ArrayType(
     DataTypes.StructType([
         DataTypes.StructField(
-            'idLeftVertex',
+            "idLeftVertex",
             DataTypes.IntegerType(), False),
         DataTypes.StructField(
-            'idRightVertex',
+            "idRightVertex",
             DataTypes.IntegerType(), False),
     ]))
 
@@ -97,11 +97,11 @@ def find_record_matches_rec_list(
 FindConnectedComponents_RecList_Returns = DataTypes.ArrayType(
     DataTypes.StructType([
         DataTypes.StructField(
-            'idEdge',
+            "idEdge",
             DataTypes.IntegerType(),
             False),
         DataTypes.StructField(
-            'idVertexList',
+            "idVertexList",
             DataTypes.ArrayType(
                 DataTypes.IntegerType()),
             False),
@@ -179,18 +179,18 @@ def combine_row_list(
         constituentList: list[DataTypes.Row],
 ) -> DataTypes.Row:
     mutableRec: dict[str, str | int | None] = constituentList[0].asDict()
-    mutableRec['SourceId'] = None
+    mutableRec["SourceId"] = None
     bestNumNameParts = 0
     for contributor in constituentList:
         numNameParts = (
             (0 if len(contributor.LastName or "") == 0 else 2) +
             (0 if len(contributor.FirstName or "") == 0 else 1))
         if ((numNameParts > bestNumNameParts) or
-            (mutableRec['LastName'] > contributor.LastName) or
-                (mutableRec['FirstName'] > contributor.FirstName)):
+            (mutableRec["LastName"] > contributor.LastName) or
+                (mutableRec["FirstName"] > contributor.FirstName)):
             bestNumNameParts = numNameParts
-            mutableRec['FirstName'] = contributor.FirstName
-            mutableRec['LastName'] = contributor.LastName
+            mutableRec["FirstName"] = contributor.FirstName
+            mutableRec["LastName"] = contributor.LastName
     bestNumAddressParts = 0
     for contributor in constituentList:
         numAddressParts = (
@@ -198,60 +198,60 @@ def combine_row_list(
             (0 if len(contributor.City or "") == 0 else 2) +
             (0 if len(contributor.StreetAddress or "") == 0 else 1))
         if ((numAddressParts > bestNumAddressParts) or
-            (mutableRec['LastName'] > contributor.LastName) or
-                (mutableRec['FirstName'] > contributor.FirstName)):
+            (mutableRec["LastName"] > contributor.LastName) or
+                (mutableRec["FirstName"] > contributor.FirstName)):
             bestNumAddressParts = numAddressParts
-            mutableRec['StreetAddress'] = \
+            mutableRec["StreetAddress"] = \
                 contributor.StreetAddress
-            mutableRec['City'] = contributor.City
-            mutableRec['ZipCode'] = contributor.ZipCode
-    mutableRec['FieldA'] = \
+            mutableRec["City"] = contributor.City
+            mutableRec["ZipCode"] = contributor.ZipCode
+    mutableRec["FieldA"] = \
         min_not_null([x.FieldA for x in constituentList])
-    mutableRec['FieldB'] = \
+    mutableRec["FieldB"] = \
         min_not_null([x.FieldB for x in constituentList])
-    mutableRec['FieldC'] = \
+    mutableRec["FieldC"] = \
         min_not_null([x.FieldC for x in constituentList])
-    mutableRec['FieldD'] = \
+    mutableRec["FieldD"] = \
         min_not_null([x.FieldD for x in constituentList])
-    mutableRec['FieldE'] = \
+    mutableRec["FieldE"] = \
         min_not_null([x.FieldE for x in constituentList])
-    mutableRec['FieldF'] = \
+    mutableRec["FieldF"] = \
         min_not_null([x.FieldF for x in constituentList])
-    if 'BlockingKey' in mutableRec:
+    if "BlockingKey" in mutableRec:
         row = DataTypes.Row(*(
-            mutableRec['FirstName'],
-            mutableRec['LastName'],
-            mutableRec['StreetAddress'],
-            mutableRec['City'],
-            mutableRec['ZipCode'],
-            mutableRec['SecretKey'],
-            mutableRec['FieldA'],
-            mutableRec['FieldB'],
-            mutableRec['FieldC'],
-            mutableRec['FieldD'],
-            mutableRec['FieldE'],
-            mutableRec['FieldF'],
-            mutableRec['SourceId'],
-            mutableRec['BlockingKey']))  # type: ignore
+            mutableRec["FirstName"],
+            mutableRec["LastName"],
+            mutableRec["StreetAddress"],
+            mutableRec["City"],
+            mutableRec["ZipCode"],
+            mutableRec["SecretKey"],
+            mutableRec["FieldA"],
+            mutableRec["FieldB"],
+            mutableRec["FieldC"],
+            mutableRec["FieldD"],
+            mutableRec["FieldE"],
+            mutableRec["FieldF"],
+            mutableRec["SourceId"],
+            mutableRec["BlockingKey"]))  # type: ignore
         row.__fields__ = RecordSparseStruct.names + \
-            ['SourceId', 'BlockingKey']
+            ["SourceId", "BlockingKey"]
     else:
         row = DataTypes.Row(*(
-            mutableRec['FirstName'],
-            mutableRec['LastName'],
-            mutableRec['StreetAddress'],
-            mutableRec['City'],
-            mutableRec['ZipCode'],
-            mutableRec['SecretKey'],
-            mutableRec['FieldA'],
-            mutableRec['FieldB'],
-            mutableRec['FieldC'],
-            mutableRec['FieldD'],
-            mutableRec['FieldE'],
-            mutableRec['FieldF'],
-            mutableRec['SourceId']))  # type: ignore
+            mutableRec["FirstName"],
+            mutableRec["LastName"],
+            mutableRec["StreetAddress"],
+            mutableRec["City"],
+            mutableRec["ZipCode"],
+            mutableRec["SecretKey"],
+            mutableRec["FieldA"],
+            mutableRec["FieldB"],
+            mutableRec["FieldC"],
+            mutableRec["FieldD"],
+            mutableRec["FieldE"],
+            mutableRec["FieldF"],
+            mutableRec["SourceId"]))  # type: ignore
         row.__fields__ = RecordSparseStruct.names + \
-            ['SourceId']
+            ["SourceId"]
     return row
 
 

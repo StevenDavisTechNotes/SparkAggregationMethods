@@ -39,7 +39,7 @@ class VanillaPythonRunResultFileWriter(RunResultFileWriterBase):
             persisted_row_type=VanillaPersistedRunResult,
         )
 
-    def __enter__(self) -> 'VanillaPythonRunResultFileWriter':
+    def __enter__(self) -> "VanillaPythonRunResultFileWriter":
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):

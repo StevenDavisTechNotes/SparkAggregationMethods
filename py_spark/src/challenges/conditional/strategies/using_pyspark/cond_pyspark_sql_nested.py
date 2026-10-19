@@ -18,7 +18,7 @@ def cond_pyspark_sql_nested(
     spark.catalog.dropTempView("example_data")
     df_src = data_set.data.open_source_data_as_df(spark_session)
     df_src.createTempView("example_data")
-    df = spark.sql('''
+    df = spark.sql("""
     SELECT
             grp, subgrp,
             sum_of_C / count as mean_of_C,
@@ -50,5 +50,5 @@ def cond_pyspark_sql_nested(
                 GROUP BY grp, subgrp, e<0) sub1
         GROUP BY grp, subgrp) sub2
     ORDER BY grp, subgrp
-    ''')
+    """)
     return df

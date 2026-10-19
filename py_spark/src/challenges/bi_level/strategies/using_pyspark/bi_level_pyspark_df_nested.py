@@ -45,8 +45,8 @@ def bi_level_pyspark_df_nested(
     )
     df = (
         df
-        .select('grp', 'mean_of_C', 'max_of_D',
-                'avg_var_of_E', 'avg_var_of_E2')
+        .select("grp", "mean_of_C", "max_of_D",
+                "avg_var_of_E", "avg_var_of_E2")
         .orderBy(df.grp)
     )
     return df

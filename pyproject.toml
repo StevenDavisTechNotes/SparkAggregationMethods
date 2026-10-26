@@ -25,6 +25,7 @@ dev = [
     "isort",
     "pre-commit",
     "pyarrow",
+    "pyclean",
     "pytest",
     "tomli; python_version < '3.11'",
     "ty",

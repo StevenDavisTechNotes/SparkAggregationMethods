@@ -42,7 +42,8 @@
         "udaf",
         "uncond",
         "unnest",
-        "unpersist"
+        "unpersist",
+        "venv"
     ],
     "ignoreWords": [],
     "import": []

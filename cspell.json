@@ -39,13 +39,17 @@
         "prepcsv",
         "psutil",
         "pyarrow",
+        "pyclean",
         "pydantic",
         "pyspark",
+        "PYTHONROOT",
+        "sessionization",
         "subgrp",
         "udaf",
         "uncond",
         "unnest",
-        "unpersist"
+        "unpersist",
+        "venv"
     ],
     "ignoreWords": [],
     "import": []

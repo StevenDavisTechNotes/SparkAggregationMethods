@@ -80,24 +80,24 @@ git submodule update --init --recursive
 
 Primary entrypoint is `python-workspace.code-workspace`.
 
-### 3. Buliding Python Environments (`uv`)
+### 3. Building Python Environments (`uv`)
 
 Because this repository tests against radically different Python capabilities (legacy Spark vs modern free-threading), the projects cannot share a single workspace lockfile. You must sync the environments for the specific projects you wish to run:
 
 ```bash
 (
-   uv sync && 
-   cd common_python && uv sync && cd .. && 
-   cd simple_queued_pipelines && uv sync && cd .. &&
-   cd admin && uv sync && cd .. && 
-   cd py_spark && uv sync && cd .. && 
-   cd python_dask && uv sync && cd .. && 
-   cd python_single_threaded && uv sync && cd .. && 
-   cd python_free_threaded && uv sync && cd .. && 
+   uv sync && uv pip install --upgrade pip &&
+   cd common_python && uv sync && uv pip install --upgrade pip && cd .. && 
+   cd simple_queued_pipelines && uv sync && uv pip install --upgrade pip && cd .. &&
+   cd admin && uv sync && uv pip install --upgrade pip && cd .. && 
+   cd py_spark && uv sync && uv pip install --upgrade pip && cd .. && 
+   cd python_dask && uv sync && uv pip install --upgrade pip && cd .. && 
+   cd python_single_threaded && uv sync && uv pip install --upgrade pip && cd .. && 
+   cd python_free_threaded && uv sync && uv pip install --upgrade pip && cd .. && 
    echo "Environments updated"
 )
 
-uv run pyclean --debrise admin challenge_base common_python py_spark python_dask python_free_threaded python_single_threaded simple_queued_pipelines
+uv run pyclean --debris admin challenge_base common_python py_spark python_dask python_free_threaded python_single_threaded simple_queued_pipelines
 
 ```
 

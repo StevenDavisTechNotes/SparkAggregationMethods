@@ -1,5 +1,5 @@
 #!python
-# usage: ..\.venv\Scripts\activate.ps1; python -O -m src.challenges.sectional.section_runner_py_st
+# usage: uv run python -O -m src.challenges.sectional.section_runner_py_st
 # cSpell: ignore wasb, sparkperftesting, Reqs
 import argparse
 import datetime as dt

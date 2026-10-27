@@ -1,5 +1,5 @@
 #!python
-# usage: ..\.venv\Scripts\activate.ps1; python -O -m src.challenges.vanilla.vanilla_runner_pyspark
+# usage: uv run python -O -m src.challenges.vanilla.vanilla_runner_pyspark
 import argparse
 import gc
 import logging

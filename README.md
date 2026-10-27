@@ -174,6 +174,10 @@ uv run python scripts/run_all.py --pyright
 # Update the challenge registry JSON from code
 cd admin; . .\update_challenge_registry.ps1
 
+# Generate the data files used by the tests
+cd admin; uv run python -m src.generate_data_files
+cd py_spark; uv run python -m src.generate_data_files_pyspark
+
 # Smoke test the platform by running all of the strategies across the smallest datasets
 uv run python scripts/run_all.py --quick-run
 

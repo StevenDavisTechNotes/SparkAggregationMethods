@@ -1,5 +1,5 @@
 #!python
-# usage: ..\.venv\Scripts\activate.ps1 ; python -m src.generate_data_files_pyspark
+# usage: uv run python -m src.generate_data_files_pyspark
 #        [--overwrite | --no-overwrite] [--minimal | --no-minimal]
 
 import argparse

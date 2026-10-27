@@ -43,7 +43,7 @@ To make these repositories approachable, professional, and functional for extern
 - [x] **12. Replace bare `print()` statements with `logging`**
   Production code, such as `python_free_threaded\src\challenges\vanilla\strategies\queue_mediated\vanilla_py_ft_queue_pd_prog_numpy.py`, utilizes bare `print()` statements (e.g., `print(df_result)`, `print("Success!")`). These should be refactored to use the project's standard logger setup (`logger.info()`) to align with the rest of the codebase.
 
-- [ ] **13. Clean Up Commented-Out Code**
+- [x] **13. Clean Up Commented-Out Code**
   Files like `bi_level_runner_dask.py` and `requirements_ide.txt` contain large blocks of commented-out logic (like `n_workers=LOCAL_NUM_EXECUTORS` configurations and `# pyspark==3.2.1`). This is visually distracting and gives the codebase an unfinished feel; it should be deleted prior to external release.
 
 - [ ] **14. Generalize Installation Instructions**
@@ -55,10 +55,10 @@ To make these repositories approachable, professional, and functional for extern
 - [x] **16. Add a Scala Build System (`sbt` or `Maven`)**
   The `scala_spark` directory currently contains raw `.scala` source files without a build configuration. Adding a standard `build.sbt` or `pom.xml` will allow external contributors to compile and run the code from the command line without needing a specific IDE setup.
 
-- [ ] **17. Automate Dataset Generation**
+- [x] **17. Automate Dataset Generation**
   The test runners depend on specific datasets (e.g., 10m row parquet files). A unified, documented bootstrap script (e.g., `generate_all_test_data.py`) should be created at the root level so new users can generate all necessary data with a single command.
 
-- [ ] **18. Consolidate and Unify Python Makefiles**
+- [x] **18. Consolidate and Unify Python Makefiles**
   Every Python sub-project currently has its own `makefile.ps1` and `quick_test_run.ps1`. These should be consolidated into a single root-level task runner (such as a standard `Makefile`, `Justfile`, or `Invoke` script) to eliminate duplicated script logic.
 
 - [ ] **19. Create a Master Benchmark Runner Script**

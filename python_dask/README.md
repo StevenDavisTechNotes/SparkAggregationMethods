@@ -14,7 +14,7 @@ This directory explores how the aggregation challenges can be solved using Dasc.
 
 The dependencies are managed by `uv` using the `pyproject.toml` file in this directory.
 
-> **Note**: This directory contains a local `.python-version` file specifying `3.12`. When you run `uv` commands in this folder, `uv` will automatically fetch and use Python 3.12 to maintain compatibility with `dask-sql`.
+> **Note**: This directory contains a local `.python-version` file specifying `3.14`. When you run `uv` commands in this folder, `uv` will automatically fetch and use Python 3.14.
 
 - From this directory, simply run `uv sync`.
 - To execute a runner, use:

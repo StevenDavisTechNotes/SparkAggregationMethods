@@ -10,7 +10,6 @@ from src.challenges.vanilla.strategies.using_dask.vanilla_dask_bag_map_partition
 from src.challenges.vanilla.strategies.using_dask.vanilla_dask_bag_reduction import vanilla_dask_bag_reduction
 from src.challenges.vanilla.strategies.using_dask.vanilla_dask_ddf_grp_apply import vanilla_dask_ddf_grp_apply
 from src.challenges.vanilla.strategies.using_dask.vanilla_dask_ddf_grp_udaf import vanilla_dask_ddf_grp_udaf
-from src.challenges.vanilla.strategies.using_dask.vanilla_dask_sql import vanilla_dask_sql_no_gpu
 
 VANILLA_STRATEGY_REGISTRY_DASK: list[ChallengeMethodPythonDaskRegistration] = [
     ChallengeMethodPythonDaskRegistration(
@@ -82,15 +81,5 @@ VANILLA_STRATEGY_REGISTRY_DASK: list[ChallengeMethodPythonDaskRegistration] = [
         numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         requires_gpu=False,
         delegate=vanilla_dask_ddf_grp_udaf,
-    ),
-    ChallengeMethodPythonDaskRegistration(
-        strategy_name_2018=None,
-        strategy_name=name_of_function(vanilla_dask_sql_no_gpu),
-        language=SolutionLanguage.PYTHON,
-        engine=CalcEngine.DASK,
-        interface=SolutionInterfaceDask.DASK_DATAFRAME,
-        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
-        requires_gpu=False,
-        delegate=vanilla_dask_sql_no_gpu,
     ),
 ]

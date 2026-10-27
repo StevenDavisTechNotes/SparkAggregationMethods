@@ -58,7 +58,7 @@ git submodule update --init --recursive
 | admin | 3.14 | Pre-and-post test processing | None |
 | common_python | 3.10 | Shared types, utilities, test harness (own `.venv`) | Match `.` |
 | py_spark | 3.10 | PySpark implementations w/wo GPU | Spark 3.5.9 |
-| python_dask | 3.12 | Dask implementations | `dask-sql` |
+| python_dask | 3.14 | Dask implementations | |
 | python_free_threaded | 3.14t | Multi-threaded implementations | GIL removed; PyO3 (Rust) wheels require >= 3.14t |
 | python_single_threaded | 3.14 | numpy w/wo GPU | Match python_free_threaded w GIL |
 | simple_queued_pipelines | 3.14t | Reusable components used by python_free_threaded | GIL removed; PyO3 (Rust) wheels require >= 3.14t |
@@ -104,8 +104,7 @@ uv run pyclean --debris admin challenge_base common_python py_spark python_dask 
 This automatically handles the different Python requirements across our projects:
 
 * `py_spark` targets **Python 3.10** for native compatibility with Spark 3.5.9.
-* `python_dask` targets **Python 3.12** for compatibility with the `dask-sql` ecosystem.
-* `admin` and `python_single_threaded` target standard **Python 3.14**.
+* `admin`, `python_dask` and `python_single_threaded` target standard **Python 3.14**.
 * `common_python` targets **Python 3.10**, matching the root project that packages it for the other sub-projects. Its `pyproject.toml` is derived from the root one, so a dependency change to the shared package must be made in both files.
 * `python_free_threaded` and `simple_queued_pipelines` target **Python 3.14t (free-threaded)** to leverage true multi-threading without the GIL. (This is enforced via local `.python-version` files).
 

@@ -2,9 +2,8 @@
 name = "python-dask"
 version = "0.0.1"
 description = "Aggregation challenge solutions using Dasc"
-requires-python = ">=3.12"
+requires-python = "==3.14.*"
 dependencies = [
-    "dask-sql",
     "dask[dataframe]",
     "dask[distributed]",
     "numpy",

@@ -30,7 +30,7 @@ packages the shared `spark_agg_methods_common_python` package for the other sub-
 | `admin/` | Whole-repo tooling (data generation, result summarization). Nothing imports it. | 3.14 |
 | `common_python/` | Shared types, test harness, registry, domain logic. Package name `spark_agg_methods_common_python`. | 3.10 |
 | `py_spark/` | PySpark implementations | 3.10 (Spark 3.5.9) |
-| `python_dask/` | Dask implementations | 3.12 (`dask-sql`) |
+| `python_dask/` | Dask implementations | 3.14 |
 | `python_single_threaded/` | Pandas / plain Python baselines | 3.14 |
 | `python_free_threaded/` | Threaded + queue-mediated implementations | 3.14t (GIL-free) |
 | `simple_queued_pipelines/` | Git submodule: streaming pipeline components | 3.14t |

@@ -24,13 +24,17 @@ def vanilla_pyspark_rdd_reduce(
         rdd_src
         .map(lambda r: DataPointNT(*r))
         .map(lambda x: ((x.grp, x.subgrp), x))
-        .combineByKey(create_combiner_2,
-                      merge_value_2,
-                      merge_combiners_2)
-        .map(lambda kv: final_analytics_2(kv[0], kv[1])))
+        .combineByKey(
+            create_combiner_2,
+            merge_value_2,
+            merge_combiners_2,
+        )
+        .map(lambda kv: final_analytics_2(kv[0], kv[1]))
+    )
     rdd_result = sum_count.sortBy(
         keyfunc=lambda x: cast(tuple[int, int], (x.grp, x.subgrp)),  # type: ignore
-        numPartitions=agg_tgt_num_partitions)
+        numPartitions=agg_tgt_num_partitions,
+    )
     return rdd_result
 
 
@@ -53,7 +57,8 @@ def create_accumulator() -> SubTotalNT:
         running_count=0,
         running_max_of_D=None,
         running_sum_of_E_squared=0,
-        running_sum_of_E=0)
+        running_sum_of_E=0,
+    )
 
 
 def merge_value_2(
@@ -67,7 +72,8 @@ def merge_value_2(
         running_count=sub.running_count + 1,
         running_max_of_D=max(sub.running_max_of_D, v.D),
         running_sum_of_E_squared=running_sum_of_E_squared,
-        running_sum_of_E=running_sum_of_E)
+        running_sum_of_E=running_sum_of_E,
+    )
 
 
 def create_combiner_2(
@@ -86,7 +92,7 @@ def merge_combiners_2(
         running_max_of_D=max(lsub.running_max_of_D, rsub.running_max_of_D),
         running_sum_of_E_squared=lsub.running_sum_of_E_squared +
         rsub.running_sum_of_E_squared,
-        running_sum_of_E=lsub.running_sum_of_E + rsub.running_sum_of_E
+        running_sum_of_E=lsub.running_sum_of_E + rsub.running_sum_of_E,
     )
 
 
@@ -105,5 +111,5 @@ def final_analytics_2(
         max_of_D=max_of_D,
         var_of_E=(
             sum_of_E_squared / count
-            - (sum_of_E / count) ** 2)
+            - (sum_of_E / count) ** 2),
     )

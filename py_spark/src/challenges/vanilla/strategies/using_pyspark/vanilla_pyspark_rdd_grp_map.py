@@ -50,16 +50,19 @@ def process_data_1(
     for item in iterator:
         sum_of_C = sum_of_C + item.C
         count = count + 1
-        max_of_D = item.D \
-            if max_of_D is None or max_of_D < item.D \
+        max_of_D = (
+            item.D
+            if max_of_D is None or max_of_D < item.D
             else max_of_D
+        )
         sum_of_E_squared += item.E * item.E
         sum_of_E += item.E
-    mean_of_C = sum_of_C / count \
-        if count > 0 else math.nan
+    mean_of_C = sum_of_C / count if count > 0 else math.nan
     var_of_E = sum_of_E_squared / count - (sum_of_E / count)**2
-    return Row(grp=key[0],
-               subgrp=key[1],
-               mean_of_C=mean_of_C,
-               max_of_D=max_of_D,
-               var_of_E=var_of_E)
+    return Row(
+        grp=key[0],
+        subgrp=key[1],
+        mean_of_C=mean_of_C,
+        max_of_D=max_of_D,
+        var_of_E=var_of_E,
+    )

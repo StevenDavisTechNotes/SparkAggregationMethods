@@ -26,5 +26,6 @@ def vanilla_pyspark_df_grp_builtin(
                 - func.pow(func.sum(df.E) / func.count(df.E), 2)
             ).alias("var_of_E2")
         )
-        .orderBy(df.grp, df.subgrp))
+        .orderBy(df.grp, df.subgrp)
+    )
     return df

@@ -8,6 +8,9 @@ from src.challenges.bi_level.strategies.using_pyspark.bi_level_pyspark_df_grp_pa
 from src.challenges.bi_level.strategies.using_pyspark.bi_level_pyspark_df_grp_pandas_numba import (
     bi_level_pyspark_df_grp_pandas_numba,
 )
+from src.challenges.bi_level.strategies.using_pyspark.bi_level_pyspark_df_grp_pandas_numpy import (
+    bi_level_pyspark_df_grp_pandas_numpy,
+)
 from src.challenges.bi_level.strategies.using_pyspark.bi_level_pyspark_df_join import bi_level_pyspark_df_join
 from src.challenges.bi_level.strategies.using_pyspark.bi_level_pyspark_df_nested import bi_level_pyspark_df_nested
 from src.challenges.bi_level.strategies.using_pyspark.bi_level_pyspark_df_window import bi_level_pyspark_df_window
@@ -61,6 +64,16 @@ BI_LEVEL_STRATEGY_REGISTRY_PYSPARK: list[SixFieldChallengeMethodPythonPysparkReg
         requires_gpu=True,
         numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=bi_level_pyspark_df_grp_pandas_numba
+    ),
+    SixFieldChallengeMethodPythonPysparkRegistration(
+        strategy_name_2018="bi_pandas_numba",
+        strategy_name=name_of_function(bi_level_pyspark_df_grp_pandas_numpy),
+        language=SolutionLanguage.PYTHON,
+        engine=CalcEngine.PYSPARK,
+        interface=SolutionInterfacePySpark.PYSPARK_DATAFRAME_PANDAS,
+        requires_gpu=False,
+        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
+        delegate=bi_level_pyspark_df_grp_pandas_numpy
     ),
     SixFieldChallengeMethodPythonPysparkRegistration(
         strategy_name_2018="bi_sql_nested",

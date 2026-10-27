@@ -46,6 +46,15 @@
                         "language": "python",
                         "engine": "pyspark",
                         "challenge": "bilevel",
+                        "interface": "pandas",
+                        "strategy_name": "bi_level_pyspark_df_grp_pandas_numpy",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "pyspark",
+                        "challenge": "bilevel",
                         "interface": "sql",
                         "strategy_name": "bi_level_pyspark_sql_nested",
                         "numerical_tolerance": 1e-12,

@@ -37,7 +37,8 @@ class MutableRunningTotal:
             running_count=0,
             running_max_of_D=math.nan,
             running_sum_of_E_squared=0,
-            running_sum_of_E=0)
+            running_sum_of_E=0,
+        )
 
 
 def vanilla_pyspark_rdd_mappart(
@@ -56,7 +57,8 @@ def vanilla_pyspark_rdd_mappart(
     )
     rdd_result = sum_count.sortBy(
         lambda x: (x.grp, x.subgrp),  # type: ignore
-        numPartitions=agg_tgt_num_partitions)
+        numPartitions=agg_tgt_num_partitions,
+    )
     return rdd_result
 
 
@@ -77,12 +79,16 @@ def partition_triage(
         sub.running_sum_of_E += v.E
     for k in running_subtotals:
         sub = running_subtotals[k]
-        yield (k, SubTotal(
-            running_sum_of_C=sub.running_sum_of_C,
-            running_count=sub.running_count,
-            running_max_of_D=sub.running_max_of_D,
-            running_sum_of_E_squared=sub.running_sum_of_E_squared,
-            running_sum_of_E=sub.running_sum_of_E))
+        yield (
+            k,
+            SubTotal(
+                running_sum_of_C=sub.running_sum_of_C,
+                running_count=sub.running_count,
+                running_max_of_D=sub.running_max_of_D,
+                running_sum_of_E_squared=sub.running_sum_of_E_squared,
+                running_sum_of_E=sub.running_sum_of_E,
+            )
+        )
 
 
 def max(
@@ -115,7 +121,8 @@ def merge_combiners_3(
         running_count=lsub.running_count,
         running_max_of_D=lsub.running_max_of_D,
         running_sum_of_E_squared=lsub.running_sum_of_E_squared,
-        running_sum_of_E=lsub.running_sum_of_E)
+        running_sum_of_E=lsub.running_sum_of_E,
+    )
 
 
 def final_analytics_2(
@@ -129,11 +136,10 @@ def final_analytics_2(
     sum_of_E = final.running_sum_of_E
     return Row(
         grp=key[0], subgrp=key[1],
-        mean_of_C=math.nan
-        if count < 1 else
-        sum_of_C / count,
+        mean_of_C=math.nan if count < 1 else sum_of_C / count,
         max_of_D=max_of_D,
         var_of_E=(
             sum_of_E_squared / count -
-            (sum_of_E / count)**2)
+            (sum_of_E / count)**2
+        )
     )

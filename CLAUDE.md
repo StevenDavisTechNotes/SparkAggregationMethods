@@ -102,6 +102,7 @@ uv run python scripts/run_all.py --pytest
 uv run python scripts/run_all.py --flake8
 uv run python scripts/run_all.py --autopep8
 uv run python scripts/run_all.py --ty
+uv run python scripts/run_all.py --quick-run
 # pyright is opt-in (not run by pre-commit, not in the default set); uses the global npm install
 # (`npm install -g pyright`) with each project's own .venv
 uv run python scripts/run_all.py --pyright

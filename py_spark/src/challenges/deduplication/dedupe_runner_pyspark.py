@@ -269,9 +269,8 @@ def run_one_itinerary_step(
                     other_type=type(other)
                 )
             )
-    logger.info("NumPartitions: in vs out ",
-                data_set.df_source.rdd.getNumPartitions(),
-                rdd_out.getNumPartitions())
+    logger.info(
+        f"NumPartitions: in vs out {data_set.df_source.rdd.getNumPartitions()} {rdd_out.getNumPartitions()}")
     if rdd_out.getNumPartitions() \
             > max(args.exec_params.default_parallelism,
                   data_set.grouped_num_partitions):

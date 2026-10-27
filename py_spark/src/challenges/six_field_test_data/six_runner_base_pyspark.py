@@ -51,7 +51,7 @@ def six_run_one_step_in_pyspark_itinerary(
             logger.info(f"{challenge_method_registration.strategy_name} output rdd "
                         f"has {rdd.getNumPartitions()} partitions")
             findings = rdd.collect()
-            logger.info(f"size={len(findings)}, ", findings)
+            logger.info(f"size={len(findings)}, {findings}")
             exit(1)
 
     started_time = time.time()

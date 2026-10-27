@@ -56,7 +56,7 @@ def verify_correctness(
         for index, row in enumerate(lst):
             verify_single_line(num_sources, NumBRecords, index, row)
     except Exception as exception:
-        logger.info("data error", exception)
+        logger.info(f"data error {exception}")
         return False
     return True
 
@@ -179,8 +179,9 @@ def print_partition_distribution(
         df_out: PySparkDataFrame,
         start_session: TidySparkSession,
 ) -> None:
-    start_session.logger.info(
-        "records per partition ",
+    partition_counts = (
         (rdd_out or df_out.rdd)
         .mapPartitionsWithIndex(count_in_a_partition)
-        .collect())
+        .collect()
+    )
+    start_session.logger.info(f"records per partition {partition_counts}")

@@ -210,7 +210,7 @@ def run_one_itinerary_step(
         case RDD() as case_rdd:
             logger.info(f"output rdd has {case_rdd.getNumPartitions()} partitions")
             count = case_rdd.count()
-            logger.info("Got a count", count)
+            logger.info(f"Got a count {count}")
             found_students = case_rdd.toLocalIterator()
             rdd = case_rdd  # otherwise confuses static code analysis
         case pd.DataFrame() as df:
@@ -234,7 +234,7 @@ def run_one_itinerary_step(
         logger.info(f"{challenge_method_registration.strategy_name} "
                     f"output rdd has {rdd.getNumPartitions()} partitions")
         findings = rdd.collect()
-        logger.info(f"size={len(findings)}!", findings)
+        logger.info(f"size={len(findings)}! {findings}")
         exit(1)
     df_concrete_students: pd.DataFrame
     match found_students:
@@ -255,7 +255,7 @@ def run_one_itinerary_step(
     )
     status = "success" if error_message is None else "failure"
     if error_message is not None:
-        logger.error("section_verify_correctness returned", error_message)
+        logger.error(f"section_verify_correctness returned {error_message}")
     data_description = data_set.data_description
     result = SectionRunResult(
         status=status,

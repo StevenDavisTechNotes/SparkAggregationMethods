@@ -1,6 +1,8 @@
-"""Run autopep8, flake8, ty, pytest and/or pyright across every Python sub-project.
+"""Run autopep8, flake8, ty, pytest, pyright and/or the quick benchmark runs across every Python sub-project.
 
-Select tools with --autopep8, --flake8, --ty, --pytest, --pyright (default: all but pyright when none is given).
+Select tools with --autopep8, --flake8, --ty, --pytest, --pyright, --quick-run
+(default: all but pyright and quick-run when none is given).
+--quick-run executes each challenge-bearing sub-project's quick_test_run.ps1.
 Skip sub-projects with --exclude <project_root> (repeatable).
 """
 import argparse
@@ -28,16 +30,45 @@ PYTEST_NO_TESTS_COLLECTED = 5
 class PythonProject(NamedTuple):
     project_root: str
     python_root: str
+    has_challenges: bool
 
 
 PYTHON_PROJECTS: tuple[PythonProject, ...] = (
-    PythonProject("admin", "src"),
-    PythonProject("common_python", "spark_agg_methods_common_python"),
-    PythonProject("py_spark", "src"),
-    PythonProject("python_dask", "src"),
-    PythonProject("python_free_threaded", "src"),
-    PythonProject("python_single_threaded", "src"),
-    PythonProject("simple_queued_pipelines", "simple_queued_pipelines"),
+    PythonProject(
+        project_root="admin",
+        python_root="src",
+        has_challenges=False,
+    ),
+    PythonProject(
+        project_root="common_python",
+        python_root="spark_agg_methods_common_python",
+        has_challenges=False,
+    ),
+    PythonProject(
+        project_root="py_spark",
+        python_root="src",
+        has_challenges=True,
+    ),
+    PythonProject(
+        project_root="python_dask",
+        python_root="src",
+        has_challenges=True,
+    ),
+    PythonProject(
+        project_root="python_free_threaded",
+        python_root="src",
+        has_challenges=True,
+    ),
+    PythonProject(
+        project_root="python_single_threaded",
+        python_root="src",
+        has_challenges=True,
+    ),
+    PythonProject(
+        project_root="simple_queued_pipelines",
+        python_root="simple_queued_pipelines",
+        has_challenges=False,
+    ),
 )
 
 
@@ -61,6 +92,7 @@ class Tool:
     name: str
     build_command: Callable[[PythonProject], list[str]]
     ok_return_codes: tuple[int, ...]
+    challenges_only: bool = False
 
 
 def _autopep8_command(project: PythonProject) -> list[str]:
@@ -162,6 +194,11 @@ def _pyright_command(project: PythonProject) -> list[str]:
     ]
 
 
+def _quick_run_command(project: PythonProject) -> list[str]:
+    shell = "powershell" if sys.platform == "win32" else "pwsh"
+    return [shell, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "quick_test_run.ps1"]
+
+
 def _pytest_command(project: PythonProject) -> list[str]:
     return [
         "uv", "run", "python", "-m", "pytest", "-m", "not slow",
@@ -194,6 +231,12 @@ PYRIGHT = Tool(
     build_command=_pyright_command,
     ok_return_codes=(0,),
 )
+QUICK_RUN = Tool(
+    name="quick-run",
+    build_command=_quick_run_command,
+    ok_return_codes=(0,),
+    challenges_only=True,
+)
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -204,6 +247,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--pytest", action="store_true", help="Run pytest")
     parser.add_argument("--pyright", action="store_true", help="Run global npm pyright (opt-in, not a default)")
     parser.add_argument(
+        "--quick-run",
+        action="store_true",
+        default=False,
+        help="Run quick_test_run.ps1 in every sub-project that has challenges (opt-in, not a default)",
+    )
+    parser.add_argument(
         "--exclude",
         action="append",
         default=[],
@@ -213,7 +262,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     args = parser.parse_args(argv)
     # pyright is opt-in: it depends on a global npm install, unlike the uv-managed tools.
-    if not (args.autopep8 or args.flake8 or args.ty or args.pytest or args.pyright):
+    if not (args.autopep8 or args.flake8 or args.ty or args.pytest or args.pyright or args.quick_run):
         args.autopep8 = args.flake8 = args.ty = args.pytest = True
     return args
 
@@ -222,6 +271,8 @@ def run_tool(tool: Tool, exclude: list[str], env: dict[str, str]) -> list[str]:
     """Run one tool over every non-excluded project; return the folders where it failed."""
     failed_folders: list[str] = []
     for project in PYTHON_PROJECTS:
+        if tool.challenges_only and not project.has_challenges:
+            continue
         folder = project.project_root
         if folder in exclude:
             print(f'\n{"="*50}\nSkipping {tool.name} in {folder}\n{"="*50}', flush=True)
@@ -244,6 +295,7 @@ def main(argv: list[str] | None = None) -> int:
             (TY, args.ty),
             (PYTEST, args.pytest),
             (PYRIGHT, args.pyright),
+            (QUICK_RUN, args.quick_run),
         )
         if selected]
 

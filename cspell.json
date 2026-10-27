@@ -28,6 +28,7 @@
         "iloc",
         "isin",
         "keyfunc",
+        "LASTEXITCODE",
         "mappart",
         "ndarray",
         "networkx",

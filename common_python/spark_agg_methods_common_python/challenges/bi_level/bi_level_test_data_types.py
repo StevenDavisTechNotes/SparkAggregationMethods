@@ -46,5 +46,9 @@ DATA_SIZE_LIST_BI_LEVEL_MAXIMAL = [
         size_code="3_3k_100", num_grp_1=3, num_grp_2=3 * 10 ** 3, points_per_index=10**2),
 ]
 DATA_SIZE_LIST_BI_LEVEL_MINIMAL = [
-    x for x in DATA_SIZE_LIST_BI_LEVEL_MAXIMAL if x.points_per_index <= 100
+    x for x in DATA_SIZE_LIST_BI_LEVEL_MAXIMAL
+    if (
+        x.points_per_index <= 100
+        or x.size_code == "3_30_10k"
+    )
 ]

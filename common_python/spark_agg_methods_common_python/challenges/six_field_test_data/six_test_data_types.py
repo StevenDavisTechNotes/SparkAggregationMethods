@@ -160,7 +160,8 @@ def six_derive_expected_answer_data_file_paths_csv(
     answer_file_names = {
         challenge: (
             six_derive_source_test_data_directory_path()
-            / f"{challenge}_answer_data_{num_grp_1}_{num_grp_2}_{repetition}{temp_postfix}.csv"
+            / f"{challenge.value}_answer_data_{num_grp_1}_{num_grp_2}_{repetition}{temp_postfix}.csv"
+            # .value is needed since we are dealing with a variety of Python versions
         )
         for challenge in SIX_TEST_CHALLENGES
     }

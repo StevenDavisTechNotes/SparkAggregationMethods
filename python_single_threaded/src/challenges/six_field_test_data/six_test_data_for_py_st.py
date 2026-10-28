@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Literal, Protocol
 
 import pandas as pd
+import polars as pl
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
     SixTestDataChallengeMethodRegistrationBase, SixTestDataSetDescription, SixTestExecutionParameters,
     six_derive_source_test_data_file_path,
@@ -25,6 +26,7 @@ class SixDataSetPythonST():
 TChallengePythonSTAnswer = (
     tuple[Literal["infeasible"], str]
     | pd.DataFrame
+    | pl.DataFrame
 )
 
 

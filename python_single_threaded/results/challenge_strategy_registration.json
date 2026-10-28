@@ -28,6 +28,15 @@
                         "language": "python",
                         "engine": "python_single_threaded",
                         "challenge": "bilevel",
+                        "interface": "polars",
+                        "strategy_name": "bi_level_py_st_pd_grp_polars",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "python_single_threaded",
+                        "challenge": "bilevel",
                         "interface": "progressive",
                         "strategy_name": "bi_level_py_st_pd_prog_numpy",
                         "numerical_tolerance": 1e-12,
@@ -61,6 +70,15 @@
                         "challenge": "vanilla",
                         "interface": "pandas",
                         "strategy_name": "vanilla_py_st_pd_grp_numpy",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "python_single_threaded",
+                        "challenge": "vanilla",
+                        "interface": "polars",
+                        "strategy_name": "vanilla_py_st_pd_grp_polars",
                         "numerical_tolerance": 1e-12,
                         "requires_gpu": false
                     },
@@ -134,10 +152,18 @@
                         "strategy_name": "cond_py_st_pd_grp_pandas",
                         "numerical_tolerance": 1e-12,
                         "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "python_single_threaded",
+                        "challenge": "conditional",
+                        "interface": "polars",
+                        "strategy_name": "cond_py_st_pd_grp_polars",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
                     }
                 ],
                 "expected_regressor_values": [
-                    9,
                     90,
                     900,
                     9000,

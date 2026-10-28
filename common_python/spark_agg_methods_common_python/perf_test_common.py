@@ -61,6 +61,7 @@ class SolutionInterfaceDask(str, Enum):
 
 class SolutionInterfacePythonST(str, Enum):
     PANDAS = "pandas"
+    POLARS = "polars"
     PROGRESSIVE = "progressive"
     SINGLE_THREADED = "single_threaded"
     # QUEUES = "queues"

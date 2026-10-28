@@ -37,6 +37,7 @@
         "numba",
         "numpy",
         "perpartition",
+        "polars",
         "prepcsv",
         "psutil",
         "pyarrow",

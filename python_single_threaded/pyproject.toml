@@ -11,6 +11,7 @@ dependencies = [
     "numba>=0.68.0",
     "numpy>=2.5.3",
     "pandas>=3.0.5",
+    "polars>=2.1.0",
     "pyarrow",
     "spark_agg_methods_common_python",
 ]

@@ -3,6 +3,7 @@ import time
 from typing import Literal
 
 import pandas as pd
+import polars as pl
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_runner_base import process_answer
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
     Challenge, SixTestExecutionParameters,
@@ -45,6 +46,9 @@ def run_one_step_in_python_single_threaded_itinerary(
             case pd.DataFrame() as pandas_df:
                 df_answer = pandas_df
                 finished_time = time.time()
+            case pl.DataFrame() as polars_df:
+                finished_time = time.time()
+                df_answer = polars_df.to_pandas()
             case ("infeasible", reason):
                 return "infeasible", reason
             case answer:

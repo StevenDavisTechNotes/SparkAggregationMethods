@@ -23,30 +23,34 @@ def section_pyspark_rdd_join_mappart(
         return "infeasible", "Times out"
     target_num_partitions = data_set.target_num_partitions
     sc = spark_session.spark_context
-    rdd1: RDD[LabeledTypedRow] \
-        = rdd_typed_with_index_factory(
-            spark_session,
-            data_set.source_data_file_path,
-            data_set.target_num_partitions)
+    rdd1: RDD[LabeledTypedRow] = rdd_typed_with_index_factory(
+        spark_session,
+        data_set.source_data_file_path,
+        data_set.target_num_partitions,
+    )
     NumRows = rdd1.count()
     rdd2: RDD[tuple[int, str, TypedLine]] = (
         rdd1
-        .map(lambda x: (x.Index, x.Value.__class__.__name__, x.Value)))
+        .map(lambda x: (x.Index, x.Value.__class__.__name__, x.Value))
+    )
     rdd8: RDD[tuple[int, str, TypedLine]] = (
         rdd2
         .filter(lambda x: x[1] == "StudentHeader")
     )
     rdd9: RDD[tuple[tuple[int, str, TypedLine], int]] = (
         rdd8
-        .zipWithIndex())
+        .zipWithIndex()
+    )
     rdd10: RDD[tuple[int, tuple[int, int]]] = (
         rdd9
-        .map(lambda x: (x[1], (x[0][0], cast(StudentHeader, x[0][2]).StudentId))))
+        .map(lambda x: (x[1], (x[0][0], cast(StudentHeader, x[0][2]).StudentId)))
+    )
     rdd11: RDD[tuple[int, tuple[int, int]]] = (
         rdd10
         .map(lambda x: (x[0] - 1, x[1]))
         .filter(lambda x: x[0] >= 0)
-        .union(sc.parallelize([(rdd10.count() - 1, (NumRows, cast(int, -1)))])))
+        .union(sc.parallelize([(rdd10.count() - 1, (NumRows, cast(int, -1)))]))
+    )
 
     def unpack_student_header_from_tuples(
             x: tuple[int, tuple[tuple[int, int], tuple[int, int]]],
@@ -70,7 +74,8 @@ def section_pyspark_rdd_join_mappart(
         rdd16
         .repartitionAndSortWithinPartitions(
             numPartitions=target_num_partitions,
-            partitionFunc=lambda x: cast(tuple[int, int], x[0])))  # type: ignore
+            partitionFunc=lambda x: cast(tuple[int, int], x[0]))  # type: ignore
+    )
 
     rdd18: RDD[StudentSummary] = (
         rdd17
@@ -105,6 +110,7 @@ def extract_student_summary(
                 trimester = None
             case _:
                 raise Exception(
-                    f"Unknown parsed row type {rec.__class__.__name__} on line {lineno}")
+                    f"Unknown parsed row type {rec.__class__.__name__} on line {lineno}"
+                )
     if student is not None:
         yield student.grade_summary()

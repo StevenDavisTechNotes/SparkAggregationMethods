@@ -19,13 +19,14 @@ def zip_dataframe_with_index(
     """
 
     new_schema = DataTypes.StructType(
-        [DataTypes.StructField(
-            colName, DataTypes.LongType(), True)]
-        + df.schema.fields)
+        [DataTypes.StructField(colName, DataTypes.LongType(), True)]
+        + df.schema.fields,
+    )
 
     zipped_rdd = df.rdd.zipWithIndex()
 
     new_rdd = zipped_rdd.map(
-        lambda kv: ([kv[1] + offset] + list(kv[0])))
+        lambda kv: ([kv[1] + offset] + list(kv[0]))
+    )
 
     return spark.createDataFrame(new_rdd, new_schema)

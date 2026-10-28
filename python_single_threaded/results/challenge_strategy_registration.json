@@ -164,6 +164,7 @@
                     }
                 ],
                 "expected_regressor_values": [
+                    9,
                     90,
                     900,
                     9000,

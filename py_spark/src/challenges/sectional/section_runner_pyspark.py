@@ -333,7 +333,9 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    setup_logging()
+    setup_logging(
+        include_debug=False,
+    )
     try:
         main()
     except KeyboardInterrupt:

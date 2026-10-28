@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "spark_agg_methods_common_python"
 version = "0.0.1"
 description = "shared utilities, type definitions, and the common test harness framework"
-requires-python = "==3.10.*"
+requires-python = "==3.14.*"
 dependencies = [
     "numpy",
     "pandas",
@@ -26,7 +26,6 @@ dev = [
     "pre-commit",
     "pyarrow",
     "pytest",
-    "tomli; python_version < '3.11'",
     "ty",
 ]
 

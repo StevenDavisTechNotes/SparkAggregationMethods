@@ -7,11 +7,12 @@ import gc
 import logging
 import time
 from dataclasses import dataclass
-from typing import Iterable, Literal
+from typing import Iterable, Literal, cast
 
 import pandas as pd
 from pyspark import RDD
 from pyspark.sql import DataFrame as PySparkDataFrame
+from pyspark.sql import Row
 from spark_agg_methods_common_python.challenge_strategy_registry import (
     ChallengeResultLogFileRegistration, ChallengeStrategyRegistration,
     update_challenge_strategy_registration_single_repo,
@@ -204,14 +205,14 @@ def run_one_itinerary_step(
         data_set=data_set,
     ):
         case PySparkDataFrame() as df:
-            logger.info(f"output rdd has {df.rdd.getNumPartitions()} partitions")
-            rdd = df.rdd
+            logger.info(f"output rdd has {cast(RDD[Row], df.rdd).getNumPartitions()} partitions")
+            rdd = cast(RDD[Row], df.rdd)
             found_students = df.toPandas()
         case RDD() as case_rdd:
             logger.info(f"output rdd has {case_rdd.getNumPartitions()} partitions")
             count = case_rdd.count()
             logger.info(f"Got a count {count}")
-            found_students = case_rdd.toLocalIterator()
+            found_students = list(case_rdd.toLocalIterator())
             rdd = case_rdd  # otherwise confuses static code analysis
         case pd.DataFrame() as df:
             found_students = df

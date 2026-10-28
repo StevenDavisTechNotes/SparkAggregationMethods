@@ -8,7 +8,7 @@ import logging
 import time
 from dataclasses import dataclass
 from functools import reduce
-from typing import Literal
+from typing import Literal, cast
 
 import pyspark.sql.functions as func
 from pyspark import RDD
@@ -115,30 +115,18 @@ def prepare_data_sets(
     target_data_size_list = [x for x in DATA_SIZE_LIST_DEDUPE_MAXIMAL if x.size_code in data_size_code_list]
     for target_data_size in sorted(target_data_size_list, key=lambda x: x.num_people):
         source_data_file_names = dedupe_derive_source_test_data_file_paths(target_data_size)
-        single_source_data_frames: list[PySparkDataFrame]
-        if exec_params.can_assume_no_dupes_per_partition:
-            single_source_data_frames = [
-                (spark.read
-                 .csv(
-                     str(source_data_file_names[source_code]),
-                     schema=RecordSparseStruct)
-                 .coalesce(1)
-                 .withColumn("SourceId", func.lit(i_source)))
-                for i_source, source_code in enumerate(DEDUPE_SOURCE_CODES)
-            ]
-        else:
-            single_source_data_frames = [
-                (spark.read
-                 .csv(
-                     str(source_data_file_names[source_code]),
-                     schema=RecordSparseStruct)
-                 .withColumn("SourceId", func.lit(i_source)))
-                for i_source, source_code in enumerate(DEDUPE_SOURCE_CODES)
-            ]
+        single_source_data_frames: list[PySparkDataFrame] = [
+            (spark.read
+             .csv(
+                 str(source_data_file_names[source_code]),
+                 schema=RecordSparseStruct)
+             .withColumn("SourceId", func.lit(i_source)))
+            for i_source, source_code in enumerate(DEDUPE_SOURCE_CODES)
+        ]
 
         def combine_sources(num: int) -> PySparkDataFrame:
             return reduce(
-                lambda dfA, dfB: dfA.unionAll(dfB),
+                lambda dfA, dfB: dfA.union(dfB),
                 [single_source_data_frames[i] for i in range(num)]
             )
         quantized_data_sets = {
@@ -258,7 +246,7 @@ def run_one_itinerary_step(
         case RDD() as rdd_row:
             rdd_out = rdd_row
         case PySparkDataFrame() as spark_df:
-            rdd_out = spark_df.rdd
+            rdd_out = cast(RDD[Row], spark_df.rdd)
         case ("infeasible", reason):
             return "infeasible", reason
         case other:
@@ -270,7 +258,8 @@ def run_one_itinerary_step(
                 )
             )
     logger.info(
-        f"NumPartitions: in vs out {data_set.df_source.rdd.getNumPartitions()} {rdd_out.getNumPartitions()}")
+        "NumPartitions: in vs out "
+        f"{cast(RDD[Row], data_set.df_source.rdd).getNumPartitions()} {rdd_out.getNumPartitions()}")
     if rdd_out.getNumPartitions() \
             > max(args.exec_params.default_parallelism,
                   data_set.grouped_num_partitions):
@@ -346,6 +335,9 @@ def spark_configs(
         "spark.network.timeout": "36000s",
         "spark.port.maxRetries": "1",
         "spark.python.worker.reuse": "false",
+        # InferFiltersFromGenerate pushes `size(MergedItems) > 0` below explode(), which
+        # re-evaluates the whole chain of Python UDFs and crashes the Python workers.
+        "spark.sql.optimizer.excludedRules": "org.apache.spark.sql.catalyst.optimizer.InferFiltersFromGenerate",
         "spark.reducer.maxReqsInFlight": "1",
         "spark.shuffle.io.maxRetries": "10",
         "spark.shuffle.io.retryWait": "60s",

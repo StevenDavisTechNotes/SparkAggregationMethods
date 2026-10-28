@@ -2,6 +2,6 @@
   "include": [
     "spark_agg_methods_common_python"
   ],
-  "pythonVersion": "3.10",
+  "pythonVersion": "3.14",
   "typeCheckingMode": "standard",
 }

@@ -61,7 +61,7 @@ def inner_agg_method(
             C.mean(),
             D.max(),
             negE.var(ddof=0),
-            negE.agg(my_var),
+            my_var(negE),
         ]],
         columns=cast(pd.Index, GROUP_BY_COLUMNS + AGGREGATION_COLUMNS_4),
     )

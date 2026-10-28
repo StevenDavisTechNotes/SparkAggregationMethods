@@ -6,13 +6,13 @@ build-backend = "setuptools.build_meta"
 name = "python-pyspark"
 version = "0.0.1"
 description = "Aggregation challenge solutions using PySpark"
-requires-python = "==3.10.*"
+requires-python = "==3.14.*"
 dependencies = [
     "findspark",
     "networkx",
     "numba>=0.68.0",
     "pyarrow>=25.0.1",
-    "pyspark==3.5.9",
+    "pyspark==4.2.0",
     "spark_agg_methods_common_python",
 ]
 

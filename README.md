@@ -54,10 +54,10 @@ git submodule update --init --recursive
 
 | Path | Version | Description | Version Limitation |
 | ------ | --------- | --------- | --------- |
-| . | 3.10 | Pre-commit; packages `common_python` for the other projects | LCD |
+| . | 3.14 | Pre-commit; packages `common_python` for the other projects | None |
 | admin | 3.14 | Pre-and-post test processing | None |
-| common_python | 3.10 | Shared types, utilities, test harness (own `.venv`) | Match `.` |
-| py_spark | 3.10 | PySpark implementations w/wo GPU | Spark 3.5.9 |
+| common_python | 3.14 | Shared types, utilities, test harness (own `.venv`) | LCD |
+| py_spark | 3.14 | PySpark implementations w/wo GPU | Spark 4.2.0 |
 | python_dask | 3.14 | Dask implementations | |
 | python_free_threaded | 3.14t | Multi-threaded implementations | GIL removed; PyO3 (Rust) wheels require >= 3.14t |
 | python_single_threaded | 3.14 | numpy w/wo GPU | Match python_free_threaded w GIL |
@@ -97,15 +97,28 @@ Because this repository tests against radically different Python capabilities (l
    echo "Environments updated"
 )
 
-uv run pyclean --debris admin challenge_base common_python py_spark python_dask python_free_threaded python_single_threaded simple_queued_pipelines
+uv run pyclean admin common_python py_spark python_dask python_free_threaded python_single_threaded simple_queued_pipelines --debris
+
+```
+
+```ps1
+                                  ( uv sync ); ( uv pip install --upgrade pip );
+  ( cd common_python           ); ( uv sync ); ( uv pip install --upgrade pip ); ( cd .. );
+  ( cd simple_queued_pipelines ); ( uv sync ); ( uv pip install --upgrade pip ); ( cd .. );
+  ( cd admin                   ); ( uv sync ); ( uv pip install --upgrade pip ); ( cd .. );
+  ( cd py_spark                ); ( uv sync ); ( uv pip install --upgrade pip ); ( cd .. );
+  ( cd python_dask             ); ( uv sync ); ( uv pip install --upgrade pip ); ( cd .. );
+  ( cd python_single_threaded  ); ( uv sync ); ( uv pip install --upgrade pip ); ( cd .. );
+  ( cd python_free_threaded    ); ( uv sync ); ( uv pip install --upgrade pip ); ( cd .. );
+
+uv run pyclean admin common_python py_spark python_dask python_free_threaded python_single_threaded simple_queued_pipelines --debris
 
 ```
 
 This automatically handles the different Python requirements across our projects:
 
-* `py_spark` targets **Python 3.10** for native compatibility with Spark 3.5.9.
-* `admin`, `python_dask` and `python_single_threaded` target standard **Python 3.14**.
-* `common_python` targets **Python 3.10**, matching the root project that packages it for the other sub-projects. Its `pyproject.toml` is derived from the root one, so a dependency change to the shared package must be made in both files.
+* `.` (root), `common_python`, `py_spark`, `admin`, `python_dask` and `python_single_threaded` target standard **Python 3.14**. `py_spark` needs it to match Spark 4.2.0.
+* `common_python`'s `pyproject.toml` is derived from the root one, so a dependency change to the shared package must be made in both files.
 * `python_free_threaded` and `simple_queued_pipelines` target **Python 3.14t (free-threaded)** to leverage true multi-threading without the GIL. (This is enforced via local `.python-version` files).
 
 ### 4. Building Scala Environment (`sbt`)

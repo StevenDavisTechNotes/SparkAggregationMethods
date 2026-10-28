@@ -12,5 +12,5 @@ POST_AGGREGATION_SCHEMA_3 = DataTypes.StructType(
         for name in AGGREGATION_COLUMNS_3])
 POST_AGGREGATION_SCHEMA_4 = DataTypes.StructType(
     [x for x in DataPointSchema.fields if x.name in GROUP_BY_COLUMNS] +
-    [DataTypes.StructField(name, DataTypes.DoubleType(), False)
+    [DataTypes.StructField(name, DataTypes.DoubleType(), True)
         for name in AGGREGATION_COLUMNS_4])

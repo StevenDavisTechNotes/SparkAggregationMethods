@@ -81,8 +81,8 @@ def inner_agg_method(
             subgroup_key,
             my_numba_mean(C),
             my_numba_max(D),
-            my_numba_var(posE),
-            my_loop_lift_var(posE),
+            my_numba_var(posE) if len(posE) > 0 else np.nan,
+            my_loop_lift_var(posE) if len(posE) > 0 else np.nan,
         ]],
         columns=cast(pd.Index, GROUP_BY_COLUMNS + AGGREGATION_COLUMNS_4),
     )

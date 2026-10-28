@@ -33,9 +33,7 @@ def cond_pyspark_df_join(
     )
     df = (
         df_uncond
-        .join(df_cond, (df_uncond.grp == df_cond.grp) & (df_uncond.subgrp == df_cond.subgrp))
-        .drop(df_cond.grp)
-        .drop(df_cond.subgrp)
+        .join(df_cond, on=["grp", "subgrp"], how="left")
     )
     df = df.orderBy(df.grp, df.subgrp)
     return df

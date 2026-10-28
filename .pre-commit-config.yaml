@@ -1,6 +1,6 @@
 fail_fast: true
 default_language_version:
-  python: python3.10
+  python: python3.14
 repos:
 - repo: https://github.com/PyCQA/isort
   rev: 9.0.1

@@ -24,8 +24,8 @@ def cond_pyspark_sql_nested(
             sum_of_C / count as mean_of_C,
             max_of_D,
             (
-                cond_sum_of_E_squared  / cond_count_of_E -
-                POWER(cond_sum_of_E / cond_count_of_E, 2)
+                cond_sum_of_E_squared  / NULLIF(cond_count_of_E, 0) -
+                POWER(cond_sum_of_E / NULLIF(cond_count_of_E, 0), 2)
             ) cond_var_of_E
     FROM
         (SELECT

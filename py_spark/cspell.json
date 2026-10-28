@@ -44,7 +44,8 @@
         "uncond",
         "unnest",
         "unpersist",
-        "venv"
+        "venv",
+        "winutils"
     ],
     "ignoreWords": [],
     "import": []

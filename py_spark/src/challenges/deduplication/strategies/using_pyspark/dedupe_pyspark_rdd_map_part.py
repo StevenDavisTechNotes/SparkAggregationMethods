@@ -1,5 +1,6 @@
-from typing import Iterable
+from typing import Iterable, cast
 
+from pyspark import RDD
 from pyspark.sql import Row
 from spark_agg_methods_common_python.challenges.deduplication.domain_logic.dedupe_domain_methods import is_match
 from src.challenges.deduplication.dedupe_test_data_types_pyspark import (
@@ -19,7 +20,7 @@ def dedupe_pyspark_rdd_map_part(
     dfSrc = data_set.df_source
 
     rdd = (
-        dfSrc.rdd
+        cast(RDD[Row], dfSrc.rdd)
         .keyBy(blocking_function)
         .partitionBy(data_set.grouped_num_partitions)
         .mapPartitions(core_mappart)

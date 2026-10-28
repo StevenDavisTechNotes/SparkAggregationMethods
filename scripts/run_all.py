@@ -10,16 +10,12 @@ import os
 import shutil
 import subprocess
 import sys
+import tomllib
 from configparser import ConfigParser
 from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
 from typing import Callable, NamedTuple
-
-if sys.version_info >= (3, 11):
-    import tomllib
-else:
-    import tomli as tomllib
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 

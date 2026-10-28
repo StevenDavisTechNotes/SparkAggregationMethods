@@ -148,7 +148,7 @@ MergeItems_RecList_Returns = DataTypes.ArrayType(
     DataTypes.StructType(
         RecordSparseStruct.fields +
         [DataTypes.StructField("SourceId",
-                               DataTypes.IntegerType(), False),
+                               DataTypes.IntegerType(), True),
          DataTypes.StructField("BlockingKey",
                                DataTypes.StringType(), False),]))
 

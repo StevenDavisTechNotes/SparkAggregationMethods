@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Literal, Protocol
+from typing import Literal, Protocol, cast
 
 from pyspark import RDD
 from pyspark.sql import DataFrame as PySparkDataFrame
@@ -43,7 +43,7 @@ class SixFieldDataSetDataPyspark():
             self,
             spark_session: TidySparkSession,
     ) -> RDD[Row]:
-        rdd_src = self.open_source_data_as_df(spark_session).rdd
+        rdd_src = cast(RDD[Row], self.open_source_data_as_df(spark_session).rdd)
         return rdd_src
 
 

@@ -1,5 +1,5 @@
 # cSpell: ignore Plaineville, FFFFFFA, LLLLLLA
-from typing import Iterable
+from typing import Iterable, cast
 
 from pyspark import RDD
 from pyspark.sql import DataFrame as PySparkDataFrame
@@ -180,7 +180,7 @@ def print_partition_distribution(
         start_session: TidySparkSession,
 ) -> None:
     partition_counts = (
-        (rdd_out or df_out.rdd)
+        (rdd_out or cast(RDD[Row], df_out.rdd))
         .mapPartitionsWithIndex(count_in_a_partition)
         .collect()
     )

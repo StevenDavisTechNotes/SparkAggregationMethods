@@ -1,4 +1,5 @@
 from itertools import chain
+from typing import cast
 
 from pyspark import RDD
 from pyspark.sql import Row
@@ -23,7 +24,7 @@ def dedupe_pyspark_rdd_reduce(
         if exec_params.can_assume_no_dupes_per_partition \
         else append_row_to_list_mixed
     rdd2: RDD[tuple[int, Row]] = \
-        dfSrc.rdd \
+        cast(RDD[Row], dfSrc.rdd) \
         .keyBy(blocking_function)
     rdd3: RDD[tuple[int, list[Row]]] = rdd2 \
         .combineByKey(

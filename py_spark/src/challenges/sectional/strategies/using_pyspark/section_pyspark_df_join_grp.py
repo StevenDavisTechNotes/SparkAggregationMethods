@@ -1,5 +1,8 @@
+from typing import cast
+
 import pyspark.sql.functions as func
 import pyspark.sql.types as DataTypes
+from pyspark import RDD
 from pyspark.sql import Row
 from pyspark.sql.window import Window
 from src.challenges.sectional.domain_logic.section_data_parsers_pyspark import parse_line_to_row, row_to_student_summary
@@ -37,7 +40,7 @@ def section_join_groupby(
     df = spark.createDataFrame(rdd, SparseLineWithLineNoSchema)
     dfStudentHeaders = (
         df
-        .filter(df.StudentId.isNotNull()))  # ty: ignore[missing-argument]
+        .filter(df.StudentId.isNotNull()))
     window = (
         Window
         .orderBy(df.LineNumber)
@@ -109,7 +112,7 @@ def section_join_groupby(
         .drop(df.MajorCredits)
         .sort(df.StudentId)
     )
-    rdd = df.rdd.map(row_to_student_summary)
+    rdd = cast(RDD[Row], df.rdd).map(row_to_student_summary)
     return rdd
 
 

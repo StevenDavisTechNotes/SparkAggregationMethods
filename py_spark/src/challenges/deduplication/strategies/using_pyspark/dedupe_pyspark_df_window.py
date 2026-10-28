@@ -22,19 +22,24 @@ def dedupe_pyspark_df_window(
         4 * exec_params.num_executors,  # cross product
         data_set.grouped_num_partitions)
     df = zip_dataframe_with_index(dfSrc, spark=spark_session.spark, colName="RowId")
-    df = df \
+    df = (
+        df
         .withColumn("BlockingKey",
                     func.hash(
                         df.ZipCode.cast(DataTypes.IntegerType()),
                         func.substring(df.FirstName, 1, 1),
                         func.substring(df.LastName, 1, 1)))
-    dfBlocked = df \
+    )
+    dfBlocked = (
+        df
         .repartition(numPartitions, df.BlockingKey)
+    )
 
     df1 = dfBlocked
     df2 = dfBlocked.select("RowId", "FirstName", "LastName",
                            "BlockingKey", "SecretKey").alias("df2")
-    df = df1.alias("df1").join(df2, on="BlockingKey")\
+    df = (
+        df1.alias("df1").join(df2, on="BlockingKey")
         .filter((func.col("df1.RowId") == func.col("df2.RowId")) | (
             udfMatchSingleName(
                 func.col("df1.FirstName"), func.col("df2.FirstName"),
@@ -42,18 +47,26 @@ def dedupe_pyspark_df_window(
             udfMatchSingleName(
                 func.col("df1.LastName"), func.col("df2.LastName"),
                 func.col("df1.SecretKey"), func.col("df2.SecretKey"))))
-    df = df \
-        .withColumn("ImmediateGroupId",
-                    func.least(func.col("df1.RowId"), func.col("df2.RowId")))
+    )
+    df = (
+        df
+        .withColumn(
+            "ImmediateGroupId",
+            func.least(func.col("df1.RowId"), func.col("df2.RowId")))
+    )
 
-    window = Window \
+    window = (
+        Window
         .partitionBy(df.BlockingKey, func.col("df1.RowId"))
-    df = df \
-        .withColumn("GroupId",
-                    func.min(df.ImmediateGroupId).over(window)) \
-        .drop(df.ImmediateGroupId) \
+    )
+    df = (
+        df
+        .withColumn("GroupId", func.min(df.ImmediateGroupId).over(window))
+        .drop(df.ImmediateGroupId)
         .filter(func.col("df1.RowId") == func.col("df2.RowId"))
-    df = df \
+    )
+    df = (
+        df
         .select(
             func.col("df1.BlockingKey").alias("BlockingKey"),
             func.col("df1.RowId").alias("RowId"),
@@ -70,38 +83,52 @@ def dedupe_pyspark_df_window(
             func.col("df1.FieldE").alias("FieldE"),
             func.col("df1.FieldF").alias("FieldF"),
             func.col("df1.SourceId").alias("SourceId"),
-            df.GroupId) \
+            df.GroupId)
         .repartition(numPartitions, df.GroupId)
-    df = df \
-        .withColumn("NumNames",
-                    func.when(df.FirstName.isNull(), 0)  # ty: ignore[missing-argument]
-                        .when(func.length(df.FirstName) > 0, 1)
-                        .otherwise(0) +
-                    func.when(df.LastName.isNull(), 0)  # ty: ignore[missing-argument]
-                        .when(func.length(df.LastName) > 0, 2)  # precedence
-                        .otherwise(0)) \
-        .withColumn("NumAddressParts",
-                    func.when(df.StreetAddress.isNull(), 0)  # ty: ignore[missing-argument]
-                        .when(func.length(df.StreetAddress) > 0, 1)
-                        .otherwise(0) +
-                    func.when(df.City.isNull(), 0)  # ty: ignore[missing-argument]
-                        .when(func.length(df.City) > 0, 1)
-                        .otherwise(0) +
-                    func.when(df.ZipCode.isNull(), 0)  # ty: ignore[missing-argument]
-                        .when(func.length(df.ZipCode) > 0, 1)
-                        .otherwise(0))
-    window = Window \
-        .partitionBy(df.GroupId) \
-        .orderBy(df.NumNames.desc(), df.LastName.asc(), df.FirstName.asc())  # ty: ignore[missing-argument]
-    df = df \
+    )
+    df = (
+        df
+        .withColumn(
+            "NumNames",
+            func.when(df.FirstName.isNull(), 0)
+            .when(func.length(df.FirstName) > 0, 1)
+            .otherwise(0) +
+            func.when(df.LastName.isNull(), 0)
+            .when(func.length(df.LastName) > 0, 2)  # precedence
+            .otherwise(0))
+        .withColumn(
+            "NumAddressParts",
+            func.when(df.StreetAddress.isNull(), 0)
+            .when(func.length(df.StreetAddress) > 0, 1)
+            .otherwise(0) +
+            func.when(df.City.isNull(), 0)
+            .when(func.length(df.City) > 0, 1)
+            .otherwise(0) +
+            func.when(df.ZipCode.isNull(), 0)
+            .when(func.length(df.ZipCode) > 0, 1)
+            .otherwise(0))
+    )
+    window = (
+        Window
+        .partitionBy(df.GroupId)
+        .orderBy(df.NumNames.desc(), df.LastName.asc(), df.FirstName.asc())
+    )
+    df = (
+        df
         .withColumn("RowIdBestName", func.first(df.RowId).over(window))
-    window = Window \
-        .partitionBy(df.GroupId) \
-        .orderBy(df.NumAddressParts.desc(), df.LastName.asc(), df.FirstName.asc())  # ty: ignore[missing-argument]
-    df = df \
+    )
+    window = (
+        Window
+        .partitionBy(df.GroupId)
+        .orderBy(df.NumAddressParts.desc(), df.LastName.asc(), df.FirstName.asc())
+    )
+    df = (
+        df
         .withColumn("RowIdBestAddr", func.first(df.RowId).over(window))
-    df = df \
-        .groupBy(df.GroupId) \
+    )
+    df = (
+        df
+        .groupBy(df.GroupId)
         .agg(
             func.max(func.when(
                 df.RowId == df.RowIdBestName, df.FirstName))
@@ -124,7 +151,8 @@ def dedupe_pyspark_df_window(
             func.min(df.FieldC).alias("FieldC"),
             func.min(df.FieldD).alias("FieldD"),
             func.min(df.FieldE).alias("FieldE"),
-            func.min(df.FieldF).alias("FieldF")) \
-        .drop(df.GroupId) \
+            func.min(df.FieldF).alias("FieldF"))
+        .drop(df.GroupId)
         .repartition(2 * exec_params.num_executors)
+    )
     return df

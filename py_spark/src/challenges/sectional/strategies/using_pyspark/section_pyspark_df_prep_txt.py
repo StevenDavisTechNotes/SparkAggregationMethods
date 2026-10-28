@@ -1,6 +1,7 @@
-from typing import Any
+from typing import Any, cast
 
 import pyspark.sql.types as DataTypes
+from pyspark import RDD
 from pyspark.sql import Row
 from spark_agg_methods_common_python.challenges.sectional.domain_logic.section_data_parsers import (
     identify_section_using_intermediate_file,
@@ -46,7 +47,7 @@ def section_pyspark_df_prep_txt(
     df = spark.createDataFrame(rdd, SparseLineWithSectionIdLineNoSchema)
     df = section_pyspark_rdd_prep_shared(df, exec_params, section_maximum)
     rdd = (
-        df.rdd
+        cast(RDD[Row], df.rdd)
         .map(row_to_student_summary)
         .sortBy(keyfunc=student_id_accessor)
     )

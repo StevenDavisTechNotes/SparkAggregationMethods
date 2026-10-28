@@ -1,4 +1,7 @@
+from typing import cast
 
+from pyspark import RDD
+from pyspark.sql import Row
 from src.challenges.deduplication.dedupe_test_data_types_pyspark import (
     DedupeDataSetPySpark, DedupeExecutionParametersPyspark, TChallengePendingAnswerPythonPyspark,
 )
@@ -18,7 +21,7 @@ def dedupe_pyspark_rdd_grp(
     dfSrc = data_set.df_source
 
     rdd = (
-        dfSrc.rdd
+        cast(RDD[Row], dfSrc.rdd)
         .groupBy(blocking_function, data_set.grouped_num_partitions)
         .flatMapValues(lambda iter:
                        single_pass_rec_list(list(iter)))

@@ -1,14 +1,106 @@
-import logging
+#!python
+# usage: uv run python -O -m src.challenges.conditional.conditional_runner_py_st
 
-from spark_agg_methods_common_python.challenges.conditional.conditional_record_runs import (
-    ConditionalPythonRunResultFileWriter,
+import argparse
+import gc
+import logging
+import time
+from dataclasses import dataclass
+
+import pandas as pd
+from spark_agg_methods_common_python.challenge_strategy_registry import (
+    ChallengeResultLogFileRegistration, ChallengeStrategyRegistration,
+    update_challenge_strategy_registration_single_repo,
 )
-from spark_agg_methods_common_python.perf_test_common import CalcEngine
+from spark_agg_methods_common_python.challenges.conditional.conditional_record_runs import (
+    ConditionalPythonRunResultFileWriter, ConditionalRunResult,
+)
+from spark_agg_methods_common_python.challenges.conditional.conditional_test_data_types import (
+    DATA_SIZE_LIST_CONDITIONAL_MAXIMAL, DATA_SIZE_LIST_CONDITIONAL_MINIMAL, ConditionalDataSetDescription,
+)
+from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
+    SixTestExecutionParameters, fetch_six_data_set_answer,
+)
+from spark_agg_methods_common_python.perf_test_common import (
+    ELAPSED_TIME_COLUMN_NAME, CalcEngine, Challenge, RunnerArgumentsBase, RunResultBase, SolutionLanguage,
+    assemble_itinerary,
+)
 from spark_agg_methods_common_python.utils.platform import setup_logging
+from src.challenges.conditional.conditional_strategy_directory_py_st import (
+    CONDITIONAL_STRATEGY_REGISTRY_PYTHON_SINGLE_THREADED,
+)
+from src.challenges.six_field_test_data.six_runner_base_py_st import run_one_step_in_python_single_threaded_itinerary
+from src.challenges.six_field_test_data.six_test_data_for_py_st import (
+    SixDataSetPythonST, six_prepare_data_set_python_single_threaded,
+)
+
+LANGUAGE = SolutionLanguage.PYTHON
+ENGINE = CalcEngine.SINGLE_THREADED
+CHALLENGE = Challenge.CONDITIONAL
+
 
 logger = logging.getLogger(__name__)
 
-ENGINE = CalcEngine.SINGLE_THREADED
+
+@dataclass(frozen=True)
+class ConditionalDataSetWAnswerPythonST(SixDataSetPythonST):
+    answer: pd.DataFrame
+
+
+@dataclass(frozen=True)
+class Arguments(RunnerArgumentsBase):
+    exec_params: SixTestExecutionParameters
+
+
+def parse_args() -> Arguments:
+    sizes_max = [x.size_code for x in DATA_SIZE_LIST_CONDITIONAL_MAXIMAL]
+    sizes_min = [x.size_code for x in DATA_SIZE_LIST_CONDITIONAL_MINIMAL]
+    strategy_names = sorted(x.strategy_name for x in CONDITIONAL_STRATEGY_REGISTRY_PYTHON_SINGLE_THREADED)
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--random-seed", type=int)
+    parser.add_argument("--runs", type=int, default=1)
+    parser.add_argument("--size-minimal", default=False, action=argparse.BooleanOptionalAction)
+    parser.add_argument("--size", choices=sizes_max, nargs="+")
+    parser.add_argument("--shuffle", default=True, action=argparse.BooleanOptionalAction)
+    parser.add_argument("--strategy", choices=strategy_names, default=strategy_names, nargs="*")
+    args = parser.parse_args()
+
+    if args.size is not None:
+        sizes = args.size
+    elif args.size_minimal:
+        sizes = sizes_min
+    else:
+        sizes = sizes_max
+    return Arguments(
+        num_runs=args.runs,
+        random_seed=args.random_seed,
+        shuffle=args.shuffle,
+        sizes=sizes,
+        strategy_names=args.strategy,
+        exec_params=SixTestExecutionParameters(
+            default_parallelism=1,
+            num_executors=1,
+        ),
+    )
+
+
+def prepare_data_sets(
+        args: Arguments,
+) -> list[ConditionalDataSetWAnswerPythonST]:
+    data_sets = [
+        ConditionalDataSetWAnswerPythonST(
+            data_description=size,
+            data=six_prepare_data_set_python_single_threaded(
+                exec_params=args.exec_params,
+                data_description=size,
+            ),
+            answer=fetch_six_data_set_answer(CHALLENGE, size),
+        )
+        for size in DATA_SIZE_LIST_CONDITIONAL_MAXIMAL
+        if size.size_code in args.sizes
+    ]
+    return data_sets
 
 
 class ConditionalPythonSTRunResultFileWriter(ConditionalPythonRunResultFileWriter):
@@ -20,14 +112,96 @@ class ConditionalPythonSTRunResultFileWriter(ConditionalPythonRunResultFileWrite
             rel_log_file_path=__class__.RUN_LOG_FILE_PATH,
         )
 
-# TODO: Implement the main function
+
+def do_test_runs(
+        args: Arguments,
+) -> None:
+    itinerary = assemble_itinerary(args)
+    if len(itinerary) == 0:
+        logger.info("No runs to execute.")
+        return
+    keyed_implementation_list = {
+        x.strategy_name: x for x in CONDITIONAL_STRATEGY_REGISTRY_PYTHON_SINGLE_THREADED}
+    keyed_data_sets = {x.data_description.size_code: x for x in prepare_data_sets(args)}
+    with ConditionalPythonSTRunResultFileWriter() as file:
+        for index, (strategy_name, size_code) in enumerate(itinerary):
+            challenge_method_registration = keyed_implementation_list[strategy_name]
+            data_set = keyed_data_sets[size_code]
+            logger.info("Working on %d of %d" % (index, len(itinerary)))
+            logger.info(f"Working on {challenge_method_registration.strategy_name} "
+                        f"for {data_set.data_description.size_code}")
+            try:
+                match run_one_step_in_python_single_threaded_itinerary(
+                    challenge=CHALLENGE,
+                    exec_params=args.exec_params,
+                    challenge_method_registration=challenge_method_registration,
+                    numerical_tolerance=challenge_method_registration.numerical_tolerance,
+                    data_set=data_set,
+                    correct_answer=data_set.answer,
+                ):
+                    case RunResultBase() as run_result:
+                        if not data_set.data_description.debugging_only:
+                            file.write_run_result(challenge_method_registration, ConditionalRunResult(
+                                num_source_rows=data_set.data_description.num_source_rows,
+                                elapsed_time=run_result.elapsed_time,
+                                num_output_rows=run_result.num_output_rows,
+                                finished_at=run_result.finished_at,
+                            ))
+                    case ("infeasible", _):
+                        pass
+                    case answer:
+                        raise ValueError(f"Unexpected return type: {type(answer)}")
+            except KeyboardInterrupt as ex:
+                raise ex
+            except Exception as ex:
+                logger.error(
+                    "Error in {strategy_name} for {size_code}: {ex}"
+                    .format(
+                        strategy_name=challenge_method_registration.strategy_name,
+                        size_code=data_set.data_description.size_code,
+                        ex=ex,
+                    )
+                )
+                raise ex
+            gc.collect()
+            time.sleep(0.1)
+
+
+def update_challenge_registration():
+    update_challenge_strategy_registration_single_repo(
+        language=LANGUAGE,
+        engine=ENGINE,
+        challenge=CHALLENGE,
+        registration=ChallengeResultLogFileRegistration(
+            result_file_path=ConditionalPythonSTRunResultFileWriter.RUN_LOG_FILE_PATH,
+            regressor_column_name=ConditionalDataSetDescription.regressor_field_name(),
+            elapsed_time_column_name=ELAPSED_TIME_COLUMN_NAME,
+            expected_regressor_values=[
+                x.regressor_value
+                for x in DATA_SIZE_LIST_CONDITIONAL_MAXIMAL
+                if not x.debugging_only
+            ],
+            strategies=[
+                ChallengeStrategyRegistration(
+                    language=LANGUAGE,
+                    engine=ENGINE,
+                    challenge=CHALLENGE,
+                    interface=x.interface,
+                    strategy_name=x.strategy_name,
+                    numerical_tolerance=x.numerical_tolerance.value,
+                    requires_gpu=x.requires_gpu,
+                )
+                for x in CONDITIONAL_STRATEGY_REGISTRY_PYTHON_SINGLE_THREADED
+            ]
+        ),
+    )
 
 
 def main() -> None:
     logger.info(f"Running {__file__}")
-    # args = parse_args()
-    # update_challenge_registration()
-    # do_test_runs(args)
+    args = parse_args()
+    update_challenge_registration()
+    do_test_runs(args)
     logger.info("Done!")
 
 

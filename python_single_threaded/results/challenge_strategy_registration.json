@@ -11,6 +11,15 @@
                         "engine": "python_single_threaded",
                         "challenge": "bilevel",
                         "interface": "pandas",
+                        "strategy_name": "bi_level_py_st_pd_grp_numba",
+                        "numerical_tolerance": 1e-10,
+                        "requires_gpu": true
+                    },
+                    {
+                        "language": "python",
+                        "engine": "python_single_threaded",
+                        "challenge": "bilevel",
+                        "interface": "pandas",
                         "strategy_name": "bi_level_py_st_pd_grp_numpy",
                         "numerical_tolerance": 1e-12,
                         "requires_gpu": false
@@ -101,6 +110,42 @@
                     100000,
                     1000000,
                     10000000
+                ]
+            },
+            "conditional": {
+                "result_file_path": "results/conditional_python_single_threaded_runs.csv",
+                "regressor_column_name": "num_source_rows",
+                "elapsed_time_column_name": "elapsed_time",
+                "strategies": [
+                    {
+                        "language": "python",
+                        "engine": "python_single_threaded",
+                        "challenge": "conditional",
+                        "interface": "pandas",
+                        "strategy_name": "cond_py_st_pd_grp_numpy",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "python_single_threaded",
+                        "challenge": "conditional",
+                        "interface": "pandas",
+                        "strategy_name": "cond_py_st_pd_grp_pandas",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    }
+                ],
+                "expected_regressor_values": [
+                    9,
+                    90,
+                    900,
+                    9000,
+                    90000,
+                    900000,
+                    9000000,
+                    90000000,
+                    900000000
                 ]
             }
         }

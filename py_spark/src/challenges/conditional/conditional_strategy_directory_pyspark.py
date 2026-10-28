@@ -6,6 +6,9 @@ from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_df_grp_pan
 from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_df_grp_pandas_numba import (
     cond_pyspark_df_grp_pandas_numba,
 )
+from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_df_grp_pandas_numpy import (
+    cond_pyspark_df_grp_pandas_numpy,
+)
 from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_df_join import cond_pyspark_df_join
 from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_df_nested import cond_pyspark_df_nested
 from src.challenges.conditional.strategies.using_pyspark.cond_pyspark_df_null import cond_pyspark_df_null
@@ -88,9 +91,19 @@ CONDITIONAL_STRATEGY_REGISTRY_PYSPARK: list[SixFieldChallengeMethodPythonPyspark
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.PYSPARK,
         interface=SolutionInterfacePySpark.PYSPARK_DATAFRAME_PANDAS,
-        requires_gpu=False,
+        requires_gpu=True,
         numerical_tolerance=NumericalToleranceExpectations.NUMPY,
         delegate=cond_pyspark_df_grp_pandas_numba
+    ),
+    SixFieldChallengeMethodPythonPysparkRegistration(
+        strategy_name_2018=None,
+        strategy_name=name_of_function(cond_pyspark_df_grp_pandas_numpy),
+        language=SolutionLanguage.PYTHON,
+        engine=CalcEngine.PYSPARK,
+        interface=SolutionInterfacePySpark.PYSPARK_DATAFRAME_PANDAS,
+        requires_gpu=False,
+        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
+        delegate=cond_pyspark_df_grp_pandas_numpy
     ),
     SixFieldChallengeMethodPythonPysparkRegistration(
         strategy_name_2018="cond_sql_nested",

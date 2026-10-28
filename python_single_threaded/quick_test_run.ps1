@@ -4,8 +4,8 @@
 $failed = $false
 python -m src.challenges.bi_level.bi_level_runner_py_st --runs 1 --no-shuffle --size 3_3_10 3_30_10k
 if ($LASTEXITCODE -ne 0) { $failed = $true }
-# python -m src.challenges.conditional.conditional_runner_py_st --runs 1 --no-shuffle --size 3_3_1 3_3_10 3_3_100
-# if ($LASTEXITCODE -ne 0) { $failed = $true }
+python -m src.challenges.conditional.conditional_runner_py_st --runs 1 --no-shuffle --size 3_3_1 3_3_10 3_3_100
+if ($LASTEXITCODE -ne 0) { $failed = $true }
 python -m src.challenges.sectional.section_runner_py_st --runs 1 --no-shuffle --size 1 10 100
 if ($LASTEXITCODE -ne 0) { $failed = $true }
 python -m src.challenges.vanilla.vanilla_runner_py_st --runs 1 --no-shuffle --size 3_3_1 3_3_10 3_3_100

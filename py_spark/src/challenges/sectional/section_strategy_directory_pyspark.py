@@ -2,7 +2,7 @@ from spark_agg_methods_common_python.challenges.sectional.section_test_data_type
 from spark_agg_methods_common_python.perf_test_common import CalcEngine, SolutionInterfacePySpark, SolutionLanguage
 from spark_agg_methods_common_python.utils.inspection import name_of_function
 from src.challenges.sectional.section_test_data_types_pyspark import SectionChallengeMethodPysparkRegistration
-from src.challenges.sectional.strategies.using_pyspark.section_pyspark_df_join_grp import section_join_groupby
+from src.challenges.sectional.strategies.using_pyspark.section_pyspark_df_join_grp import section_pyspark_df_join_grp
 from src.challenges.sectional.strategies.using_pyspark.section_pyspark_df_prep_grp_csv import (
     section_pyspark_df_prep_grp_csv,
 )
@@ -99,13 +99,13 @@ SECTIONAL_STRATEGY_REGISTRY_PYSPARK: list[SectionChallengeMethodPysparkRegistrat
     ),
     SectionChallengeMethodPysparkRegistration(
         strategy_name_2018="section_join_groupby",
-        strategy_name=name_of_function(section_join_groupby),
+        strategy_name=name_of_function(section_pyspark_df_join_grp),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.PYSPARK,
         interface=SolutionInterfacePySpark.PYSPARK_DATAFRAME_FLUENT,
         scale=SolutionScale.WHOLE_SECTION,
         requires_gpu=False,
-        delegate=section_join_groupby
+        delegate=section_pyspark_df_join_grp
     ),
     SectionChallengeMethodPysparkRegistration(
         strategy_name_2018="section_join_mappart",

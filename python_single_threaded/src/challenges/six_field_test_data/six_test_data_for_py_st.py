@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Literal, Protocol
 
 import pandas as pd
@@ -14,7 +15,7 @@ from spark_agg_methods_common_python.perf_test_common import (
 
 @dataclass(frozen=True)
 class SixDataSetDataPythonST():
-    source_file_path_parquet: str
+    source_file_path_parquet: Path
 
 
 @dataclass(frozen=True)
@@ -63,5 +64,5 @@ def six_prepare_data_set_python_single_threaded(
         data_description=data_description,
     )
     return SixDataSetDataPythonST(
-        source_file_path_parquet=str(source_file_paths.source_file_path_parquet_single_file),
+        source_file_path_parquet=source_file_paths.source_file_path_parquet_single_file,
     )

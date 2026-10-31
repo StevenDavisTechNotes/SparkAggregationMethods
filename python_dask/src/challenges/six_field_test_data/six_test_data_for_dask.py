@@ -7,15 +7,19 @@ import pandas as pd
 from dask.bag.core import Bag as DaskBag
 from dask.dataframe import DataFrame as DaskDataFrame
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (
-    SixTestDataChallengeMethodRegistrationBase, SixTestDataSetDescription, SixTestExecutionParameters,
-    six_derive_source_test_data_file_path,
+    TARGET_PARQUET_BATCH_SIZE, SixTestDataChallengeMethodRegistrationBase, SixTestDataSetDescription,
+    SixTestExecutionParameters, six_derive_source_test_data_file_path,
 )
 from spark_agg_methods_common_python.perf_test_common import (
-    CalcEngine, Challenge, NumericalToleranceExpectations, SolutionInterfaceDask, SolutionLanguage,
+    TARGET_ROWS_PER_PARTITION, CalcEngine, Challenge, NumericalToleranceExpectations, SolutionInterfaceDask,
+    SolutionLanguage,
 )
 from spark_agg_methods_common_python.utils.utils import int_divide_round_up
 
-MAX_DATA_POINTS_PER_DASK_PARTITION = 1 * 10**4
+# Read side of the hash-shuffle strategies: how many ~TARGET_PARQUET_BATCH_SIZE-row Parquet row groups form one input
+# partition, so that an input partition holds about TARGET_ROWS_PER_PARTITION rows. Left at Dask's default a 9M-row
+# file is read as a single partition, which measured slower than this at 3_3_1m.
+SHUFFLE_SRC_ROW_GROUPS_PER_PARTITION = TARGET_ROWS_PER_PARTITION // TARGET_PARQUET_BATCH_SIZE
 logger = logging.getLogger(__name__)
 
 
@@ -26,21 +30,21 @@ class SixTestDataSetDataDask:
     agg_tgt_num_partitions_2_level: int
     source_file_path_parquet: str
 
-    def open_source_data_as_ddf(self) -> DaskDataFrame:
-        read_parquet = dask.dataframe.read_parquet
-        df_src = cast(DaskDataFrame, read_parquet(
-            self. source_file_path_parquet,
-            engine="pyarrow",
-        ))
-        df_src = df_src.set_index("id", npartitions=self.src_num_partitions)
-        return df_src
-
     def open_source_data_as_bag(self) -> DaskBag:
         return (
             self.open_source_data_as_ddf()
             .reset_index()
             .to_bag()
         )
+
+    def open_source_data_as_ddf(self) -> DaskDataFrame:
+        read_parquet = dask.dataframe.read_parquet
+        df_src = cast(DaskDataFrame, read_parquet(
+            self.source_file_path_parquet,
+            engine="pyarrow",
+        ))
+        df_src = df_src.set_index("id", npartitions=self.src_num_partitions)
+        return df_src
 
 
 def pick_agg_tgt_num_partitions_dask(data: SixTestDataSetDataDask, challenge: Challenge) -> int:
@@ -51,6 +55,25 @@ def pick_agg_tgt_num_partitions_dask(data: SixTestDataSetDataDask, challenge: Ch
             return data.agg_tgt_num_partitions_2_level
         case _:
             raise KeyError(f"Unknown challenge {challenge}")
+
+
+def pick_shuffle_tgt_num_partitions_dask(
+        exec_params: SixTestExecutionParameters,
+        data_description: SixTestDataSetDescription,
+) -> int:
+    """Output partition count for a hash shuffle on (grp, subgrp), derived from the data set.
+
+    Every (grp, subgrp) key has points_per_index rows and lands whole in one partition, so a partition can
+    never hold fewer than points_per_index rows and there are at most num_grp_1 * num_grp_2 non-empty partitions.
+    Within that cap, use at least default_parallelism partitions, and more when the rows would exceed
+    TARGET_ROWS_PER_PARTITION per partition.
+    """
+    num_keys = data_description.num_grp_1 * data_description.num_grp_2
+    num_partitions_for_size = int_divide_round_up(
+        data_description.num_source_rows,
+        TARGET_ROWS_PER_PARTITION,
+    )
+    return min(num_keys, max(exec_params.default_parallelism, num_partitions_for_size))
 
 
 @dataclass(frozen=True)
@@ -88,6 +111,7 @@ class ChallengeMethodPythonDaskRegistration(
     numerical_tolerance: NumericalToleranceExpectations
     requires_gpu: bool
     delegate: IChallengeMethodPythonDask
+    requires_cluster: bool = False
 
 
 def six_prepare_data_set_dask(
@@ -102,15 +126,11 @@ def six_prepare_data_set_dask(
     source_file_paths = six_derive_source_test_data_file_path(
         data_description=data_description,
     )
-    max_data_points_per_partition = MAX_DATA_POINTS_PER_DASK_PARTITION
-    src_num_partitions = (
-        1 if max_data_points_per_partition < 0 else
-        max(
-            exec_params.default_parallelism,
-            int_divide_round_up(
-                num_source_rows,
-                max_data_points_per_partition,
-            )
+    src_num_partitions = max(
+        exec_params.default_parallelism,
+        int_divide_round_up(
+            num_source_rows,
+            TARGET_ROWS_PER_PARTITION,
         )
     )
     return SixTestDataSetDataDask(

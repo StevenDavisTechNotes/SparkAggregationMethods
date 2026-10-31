@@ -3,7 +3,7 @@ from spark_agg_methods_common_python.challenges.sectional.domain_logic.section_m
 )
 from src.challenges.sectional.domain_logic.section_data_parsers_pyspark import parse_line_to_types
 from src.challenges.sectional.section_test_data_types_pyspark import (
-    MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT, SectionDataSetPyspark, SectionExecutionParametersPyspark,
+    MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT_SECTION_PYSPARK, SectionDataSetPyspark, SectionExecutionParametersPyspark,
     TChallengePythonPysparkAnswer,
 )
 from src.utils.tidy_session_pyspark import TidySparkSession
@@ -14,7 +14,7 @@ def section_pyspark_rdd_mappart_single_threaded(
         exec_params: SectionExecutionParametersPyspark,
         data_set: SectionDataSetPyspark,
 ) -> TChallengePythonPysparkAnswer:
-    if data_set.data_description.num_students > pow(10, MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT-1):
+    if data_set.data_description.num_students > pow(10, MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT_SECTION_PYSPARK-1):
         return "infeasible", "Unreliable"
     sc = spark_session.spark_context
     if data_set.data_description.num_source_rows > exec_params.maximum_processable_segment:

@@ -426,7 +426,7 @@
                         "engine": "pyspark",
                         "challenge": "sectional",
                         "interface": "fluent",
-                        "strategy_name": "section_join_groupby",
+                        "strategy_name": "section_pyspark_df_join_grp",
                         "numerical_tolerance": -1.0,
                         "requires_gpu": false
                     },

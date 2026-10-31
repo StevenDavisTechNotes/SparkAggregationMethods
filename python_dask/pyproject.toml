@@ -8,6 +8,7 @@ dependencies = [
     "dask[distributed]",
     "numpy",
     "pandas",
+    "polars>=2.1.0",
     "pyarrow",
     "spark_agg_methods_common_python",
 ]

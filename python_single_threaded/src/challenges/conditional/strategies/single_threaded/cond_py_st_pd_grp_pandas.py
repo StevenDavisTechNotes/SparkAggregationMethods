@@ -13,7 +13,10 @@ def cond_py_st_pd_grp_pandas(
 ) -> TChallengePythonSTAnswer:
     if data_set.data_description.num_source_rows > 9 * 10**6:
         return "infeasible", "Unknown reason"
-    df = pd.read_parquet(data_set.data.source_file_path_parquet, engine="pyarrow")
+    df = pd.read_parquet(
+        data_set.data.source_file_path_parquet,
+        engine="pyarrow",
+    )
     df_result = (
         df
         .groupby(by=["grp", "subgrp"])

@@ -4,6 +4,7 @@
     "dictionaryDefinitions": [],
     "dictionaries": [],
     "words": [
+        "argsort",
         "asymm",
         "asymreduce",
         "bilevel",
@@ -19,6 +20,7 @@
         "endregion",
         "fillna",
         "findspark",
+        "flatnonzero",
         "foldby",
         "groupby",
         "grpmap",
@@ -29,6 +31,7 @@
         "mappart",
         "ndarray",
         "networkx",
+        "Neumaier",
         "nospark",
         "npartitions",
         "numba",
@@ -40,12 +43,14 @@
         "pyarrow",
         "pydantic",
         "pyspark",
+        "reduceat",
         "subgrp",
         "udaf",
         "uncond",
         "unnest",
         "unpersist",
-        "venv"
+        "venv",
+        "Welford"
     ],
     "ignoreWords": [],
     "import": []

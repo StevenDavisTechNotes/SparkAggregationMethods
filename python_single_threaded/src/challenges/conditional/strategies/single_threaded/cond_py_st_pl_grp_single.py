@@ -5,22 +5,29 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_dat
 from src.challenges.six_field_test_data.six_test_data_for_py_st import SixDataSetPythonST, TChallengePythonSTAnswer
 
 
-def vanilla_py_st_pd_grp_polars(
+def cond_py_st_pl_grp_single(
         exec_params: SixTestExecutionParameters,
         data_set: SixDataSetPythonST,
 ) -> TChallengePythonSTAnswer:
     if data_set.data_description.num_source_rows > 9 * 10**6:
         return "infeasible", "Unknown reason"
-    df = pl.read_parquet(data_set.data.source_file_path_parquet)
-    E = pl.col("E")
+    df = pl.read_parquet(
+        source=data_set.data.source_file_path_parquet,
+        parallel="row_groups",
+        use_pyarrow=True,
+    )
+    negE = pl.col("E").filter(pl.col("E") < 0)
     df_result = (
         df
         .group_by("grp", "subgrp")
         .agg(
             mean_of_C=pl.col("C").mean(),
             max_of_D=pl.col("D").max(),
-            var_of_E=E.var(ddof=0),
-            var_of_E2=(E * E).sum() / E.count() - (E.sum() / E.count()) ** 2,
+            cond_var_of_E=negE.var(ddof=0),
+            cond_var_of_E2=(
+                (negE * negE).sum() / negE.count()
+                - (negE.sum() / negE.count()) ** 2
+            ),
         )
         .sort("grp", "subgrp")
     )

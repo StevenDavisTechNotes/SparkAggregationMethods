@@ -7,18 +7,18 @@ from pyspark.sql import Row
 from pyspark.sql.window import Window
 from src.challenges.sectional.domain_logic.section_data_parsers_pyspark import parse_line_to_row, row_to_student_summary
 from src.challenges.sectional.section_test_data_types_pyspark import (
-    MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT, SectionDataSetPyspark, SectionExecutionParametersPyspark, SparseLineSchema,
-    TChallengePythonPysparkAnswer,
+    MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT_SECTION_PYSPARK, SectionDataSetPyspark, SectionExecutionParametersPyspark,
+    SparseLineSchema, TChallengePythonPysparkAnswer,
 )
 from src.utils.tidy_session_pyspark import TidySparkSession
 
 
-def section_join_groupby(
+def section_pyspark_df_join_grp(
         spark_session: TidySparkSession,
         exec_params: SectionExecutionParametersPyspark,
         data_set: SectionDataSetPyspark,
 ) -> TChallengePythonPysparkAnswer:
-    if data_set.data_description.num_students > pow(10, MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT - 1):
+    if data_set.data_description.num_students > pow(10, MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT_SECTION_PYSPARK - 1):
         return "infeasible", "Requires that all records for a student must fit in memory simultaneously."
     sc = spark_session.spark_context
     spark = spark_session.spark

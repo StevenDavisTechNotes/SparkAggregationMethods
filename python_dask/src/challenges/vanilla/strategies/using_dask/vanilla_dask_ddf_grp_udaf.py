@@ -14,9 +14,9 @@ from src.challenges.six_field_test_data.six_test_data_for_dask import SixTestDat
 
 def ddof_0_do_chunk(s: SeriesGroupBy) -> tuple[pd.Series, pd.Series, pd.Series]:
     return (
-        cast(pd.Series, s.count()),  # ty: ignore[redundant-cast]
+        s.count(),
         cast(pd.Series, s.sum()),
-        cast(pd.Series, s.apply(lambda r: numpy.sum(numpy.power(r, 2)))),  # ty: ignore[redundant-cast]
+        s.apply(lambda r: numpy.sum(numpy.power(r, 2))),
     )
 
 
@@ -54,7 +54,7 @@ def vanilla_dask_ddf_grp_udaf(
         .aggregate(
             mean_of_C=("C", "mean"),
             max_of_D=("D", "max"),
-            # var_of_E=("E", "var(ddof=0)"),  # doesn"t respect ddof=0
+            # var_of_E=("E", "var(ddof=0)"),  # doesn't respect ddof=0
             var_of_E2=("E", custom_var_ddof_0),
         ),
     )

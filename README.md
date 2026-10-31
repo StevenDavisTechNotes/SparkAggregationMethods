@@ -205,7 +205,7 @@ uv run python -m src.perf_test_runner_for_pyspark
 
 ## 📊 Results
 
-When you execute the performance test runners (e.g., `perf_test_runner_for_dask.py`), the system generates CSV output files in the `results/` directories. These log files contain execution times, partition counts, data sizes, and correctness verification results, which are used to generate the graphs and performance comparisons seen in the reference articles.
+When you execute the performance test runners (e.g., `perf_test_runner_for_dask.py`), the system generates CSV output files in the `results/<year>/` directories. These log files contain execution times, partition counts, data sizes, and correctness verification results, which are used to generate the graphs and performance comparisons seen in the reference articles.
 
 ## 📝 License
 

@@ -12,8 +12,8 @@ from spark_agg_methods_common_python.challenges.sectional.section_test_data_type
 from spark_agg_methods_common_python.perf_test_common import SolutionInterfacePySpark
 from src.utils.tidy_session_pyspark import TidySparkSession
 
-MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT: int = 5
-MAXIMUM_PROCESSABLE_SEGMENT: int = 10**MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT
+MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT_SECTION_PYSPARK: int = 5
+MAXIMUM_PROCESSABLE_SEGMENT_SECTION_PYSPARK: int = 10**MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT_SECTION_PYSPARK
 
 StudentSummaryStruct = DataTypes.StructType([
     DataTypes.StructField("StudentId", DataTypes.IntegerType(), True),

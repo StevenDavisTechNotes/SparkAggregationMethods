@@ -34,7 +34,7 @@ from spark_agg_methods_common_python.utils.platform import setup_logging
 from spark_agg_methods_common_python.utils.utils import int_divide_round_up
 from src.challenges.sectional.section_strategy_directory_pyspark import SECTIONAL_STRATEGY_REGISTRY_PYSPARK
 from src.challenges.sectional.section_test_data_types_pyspark import (
-    MAXIMUM_PROCESSABLE_SEGMENT, SectionChallengeMethodPysparkRegistration, SectionDataSetPyspark,
+    MAXIMUM_PROCESSABLE_SEGMENT_SECTION_PYSPARK, SectionChallengeMethodPysparkRegistration, SectionDataSetPyspark,
     SectionExecutionParametersPyspark,
 )
 from src.utils.tidy_session_pyspark import TidySparkSession
@@ -84,7 +84,7 @@ def parse_args() -> Arguments:
             # for SectionExecutionParametersBase
             # section_maximum=SECTION_SIZE_MAXIMUM,
             # for SectionExecutionArgumentsPySpark
-            maximum_processable_segment=MAXIMUM_PROCESSABLE_SEGMENT,
+            maximum_processable_segment=MAXIMUM_PROCESSABLE_SEGMENT_SECTION_PYSPARK,
         )
     )
 

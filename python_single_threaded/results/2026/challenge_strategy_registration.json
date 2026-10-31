@@ -29,7 +29,61 @@
                         "engine": "python_single_threaded",
                         "challenge": "bilevel",
                         "interface": "polars",
-                        "strategy_name": "bi_level_py_st_pd_grp_polars",
+                        "strategy_name": "bi_level_py_st_pl_grp_single",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "python_single_threaded",
+                        "challenge": "bilevel",
+                        "interface": "polars",
+                        "strategy_name": "bi_level_py_st_pl_grp_scan",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "python_single_threaded",
+                        "challenge": "bilevel",
+                        "interface": "polars",
+                        "strategy_name": "bi_level_py_st_pl_grp_stripe",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "python_single_threaded",
+                        "challenge": "bilevel",
+                        "interface": "pandas",
+                        "strategy_name": "bi_level_py_st_pd_grp_agg",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "python_single_threaded",
+                        "challenge": "bilevel",
+                        "interface": "numpy",
+                        "strategy_name": "bi_level_py_st_np_grp_reduceat",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "python_single_threaded",
+                        "challenge": "bilevel",
+                        "interface": "numba",
+                        "strategy_name": "bi_level_py_st_nb_grp_kernel",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "python_single_threaded",
+                        "challenge": "bilevel",
+                        "interface": "pyarrow",
+                        "strategy_name": "bi_level_py_st_pa_grp_batches",
                         "numerical_tolerance": 1e-12,
                         "requires_gpu": false
                     },
@@ -78,7 +132,61 @@
                         "engine": "python_single_threaded",
                         "challenge": "vanilla",
                         "interface": "polars",
-                        "strategy_name": "vanilla_py_st_pd_grp_polars",
+                        "strategy_name": "vanilla_py_st_pl_grp_single",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "python_single_threaded",
+                        "challenge": "vanilla",
+                        "interface": "polars",
+                        "strategy_name": "vanilla_py_st_pl_grp_scan",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "python_single_threaded",
+                        "challenge": "vanilla",
+                        "interface": "polars",
+                        "strategy_name": "vanilla_py_st_pl_grp_stripe",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "python_single_threaded",
+                        "challenge": "vanilla",
+                        "interface": "pandas",
+                        "strategy_name": "vanilla_py_st_pd_grp_agg",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "python_single_threaded",
+                        "challenge": "vanilla",
+                        "interface": "numpy",
+                        "strategy_name": "vanilla_py_st_np_grp_reduceat",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "python_single_threaded",
+                        "challenge": "vanilla",
+                        "interface": "numba",
+                        "strategy_name": "vanilla_py_st_nb_grp_kernel",
+                        "numerical_tolerance": 1e-11,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "python_single_threaded",
+                        "challenge": "vanilla",
+                        "interface": "pyarrow",
+                        "strategy_name": "vanilla_py_st_pa_grp_batches",
                         "numerical_tolerance": 1e-12,
                         "requires_gpu": false
                     },
@@ -158,8 +266,62 @@
                         "engine": "python_single_threaded",
                         "challenge": "conditional",
                         "interface": "polars",
-                        "strategy_name": "cond_py_st_pd_grp_polars",
+                        "strategy_name": "cond_py_st_pl_grp_single",
                         "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "python_single_threaded",
+                        "challenge": "conditional",
+                        "interface": "polars",
+                        "strategy_name": "cond_py_st_pl_grp_scan",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "python_single_threaded",
+                        "challenge": "conditional",
+                        "interface": "polars",
+                        "strategy_name": "cond_py_st_pl_grp_stripe",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "python_single_threaded",
+                        "challenge": "conditional",
+                        "interface": "pandas",
+                        "strategy_name": "cond_py_st_pd_grp_agg",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "python_single_threaded",
+                        "challenge": "conditional",
+                        "interface": "numpy",
+                        "strategy_name": "cond_py_st_np_grp_reduceat",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "python_single_threaded",
+                        "challenge": "conditional",
+                        "interface": "numba",
+                        "strategy_name": "cond_py_st_nb_grp_kernel",
+                        "numerical_tolerance": 1e-12,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "python",
+                        "engine": "python_single_threaded",
+                        "challenge": "conditional",
+                        "interface": "pyarrow",
+                        "strategy_name": "cond_py_st_pa_grp_batches",
+                        "numerical_tolerance": 1e-11,
                         "requires_gpu": false
                     }
                 ],

@@ -26,6 +26,7 @@ from spark_agg_methods_common_python.perf_test_common import (
 )
 from spark_agg_methods_common_python.utils.platform import setup_logging
 from src.challenges.bi_level.bi_level_strategy_directory_dask import BI_LEVEL_STRATEGY_REGISTRY_DASK
+from src.challenges.six_field_test_data.dask_cluster import shutdown_dask_client
 from src.challenges.six_field_test_data.six_runner_dask_base import six_run_one_step_in_dask_itinerary
 from src.challenges.six_field_test_data.six_test_data_for_dask import SixTestDataSetDask, six_prepare_data_set_dask
 
@@ -207,7 +208,10 @@ def main() -> None:
     logger.info(f"Running {__file__}")
     args = parse_args()
     update_challenge_registration()
-    do_test_runs(args)
+    try:
+        do_test_runs(args)
+    finally:
+        shutdown_dask_client()
     logger.info("Done!")
 
 

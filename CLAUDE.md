@@ -36,7 +36,7 @@ packages the shared `spark_agg_methods_common_python` package for the other sub-
 | `simple_queued_pipelines/` | Git submodule: streaming pipeline components | 3.14t |
 | `scala_spark/` | Scala Spark implementations (`sbt`) | JDK 17 |
 | `scripts/` | Repo-wide lint/test runners invoked by pre-commit | root env |
-| `results/{year}/` | Consolidated, summarized benchmark output | — |
+| `results/<year>/` | Consolidated, summarized benchmark output | — |
 
 Each Python sub-project is its **own `uv` project** with its own `pyproject.toml`,
 `uv.lock`, and `.venv`; they cannot share one lockfile because the Python
@@ -94,7 +94,7 @@ uv run python -m src.challenges.vanilla.vanilla_runner_dask --runs 1 --no-shuffl
 # Refresh the strategy registry without benchmarking (see update_challenge_registry.ps1)
 uv run python -m src.challenges.vanilla.vanilla_runner_dask --runs 0
 
-# Summarize accumulated results into results/{year}/*.csv
+# Summarize accumulated results into results/<year>/*.csv
 cd admin; uv run python -m src.summarize_test_results
 
 # Repo-wide checks (what pre-commit runs)
@@ -153,19 +153,19 @@ inventing a new structure:
    with `--size` and `--strategy` choices derived from the data-size list and the
    strategy registry.
 3. `prepare_data_sets()`.
-4. A `*RunResultFileWriter` subclass declaring `RUN_LOG_FILE_PATH`
+4. A `*RunResultFileWriter` subclass declaring `RUN_LOG_FILE_NAME`
    (`results/<year>/<challenge>_<engine>_runs.csv`).
 5. `do_test_runs()` — walks `assemble_itinerary(args)`, executes one strategy per
    step, verifies the answer within the strategy's numerical tolerance, writes a
    run result, and skips writing for `debugging_only` data sizes.
 6. `update_challenge_registration()` — writes this engine's strategy metadata to
-   `results/challenge_strategy_registration.json`.
+   `results/<year>/challenge_strategy_registration.json`.
 7. `main()` = parse args, update registration, run, log "Done!".
 
 ### The strategy registry
 
 `challenge_strategy_registry.py` defines the Pydantic schema for
-`results/challenge_strategy_registration.json`, one per engine directory.
+`results/<year>/challenge_strategy_registration.json`, one per engine directory.
 `CHALLENGE_STRATEGY_REGISTRATION_MAP` maps each `CalcEngine` to its **relative**
 path — keep these relative; hardcoded absolute paths were a known past defect.
 `admin/src/summarize_test_results.py` reads the consolidated registry plus each
@@ -202,6 +202,10 @@ new code. The rules below are the ones the tooling enforces or that are easy to 
   strategy function changes benchmark result identity.
 - `strategy_name_2018` links a strategy to its name in the original 2018 blog
   posts; it is `None` when there is no counterpart.
+- **Hardware-dependent tuning**: `TARGET_ROWS_PER_PARTITION` in `perf_test_common.py` is the one row budget (per
+  Dask partition or chunk, per single-threaded batch). Derive any row-based sizing from it rather than adding a
+  per-strategy constant, so result differences reflect architecture, not tuning. Re-tune it when the benchmark
+  hardware changes. PySpark deliberately keeps its own smaller `MAX_DATA_POINTS_PER_SPARK_PARTITION`.
 - **Spell checking**: `cspell.json` files exist at the root and per sub-project.
   Add genuinely new domain words rather than working around a warning.
 

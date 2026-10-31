@@ -55,6 +55,33 @@ class TotalDC():
     var_of_E2: float
 
 
+BI_LEVEL_RESULT_PANDAS_SCHEMA = pd.DataFrame({
+    "grp": pd.Series(dtype="int32"),
+    "subgrp": pd.Series(dtype="int32"),
+    "n": pd.Series(dtype="float64"),
+    "sum_C": pd.Series(dtype="float64"),
+    "max_D": pd.Series(dtype="float64"),
+    "var_of_E": pd.Series(dtype="float64"),
+    "var_of_E2": pd.Series(dtype="float64"),
+})
+CONDITIONAL_RESULT_PANDAS_SCHEMA = pd.DataFrame({
+    "grp": pd.Series(dtype="int32"),
+    "subgrp": pd.Series(dtype="int32"),
+    "mean_of_C": pd.Series(dtype="float64"),
+    "max_of_D": pd.Series(dtype="float64"),
+    "cond_var_of_E": pd.Series(dtype="float64"),
+    "cond_var_of_E2": pd.Series(dtype="float64"),
+})
+VANILLA_RESULT_PANDAS_SCHEMA = pd.DataFrame({
+    "grp": pd.Series(dtype="int32"),
+    "subgrp": pd.Series(dtype="int32"),
+    "mean_of_C": pd.Series(dtype="float64"),
+    "max_of_D": pd.Series(dtype="float64"),
+    "var_of_E": pd.Series(dtype="float64"),
+    "var_of_E2": pd.Series(dtype="float64"),
+})
+
+
 class SixTestDataSetDescription(DataSetDescriptionBase):
     num_grp_1: int
     num_grp_2: int

@@ -9,6 +9,7 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_dat
     Challenge, SixTestExecutionParameters,
 )
 from spark_agg_methods_common_python.perf_test_common import RunResultBase
+from src.challenges.six_field_test_data.dask_cluster import get_dask_client
 from src.challenges.six_field_test_data.six_test_data_for_dask import (
     ChallengeMethodPythonDaskRegistration, SixTestDataSetDask, pick_agg_tgt_num_partitions_dask,
 )
@@ -35,6 +36,8 @@ def six_run_one_step_in_dask_itinerary(
         data_set: SixTestDataSetDask,
         correct_answer: pd.DataFrame,
 ) -> RunResultBase | tuple[Literal["infeasible"], str]:
+    if challenge_method_registration.requires_cluster:
+        get_dask_client(exec_params)  # start the cluster outside the timed section
     started_time = time.time()
     agg_tgt_num_partitions = pick_agg_tgt_num_partitions_dask(data_set.data, challenge)
     df_answer: pd.DataFrame

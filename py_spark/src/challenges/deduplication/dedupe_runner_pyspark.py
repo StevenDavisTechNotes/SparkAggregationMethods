@@ -44,7 +44,7 @@ logger = logging.getLogger(__name__)
 LANGUAGE = SolutionLanguage.PYTHON
 ENGINE = CalcEngine.PYSPARK
 CHALLENGE = Challenge.DEDUPLICATION
-MAX_DATA_POINTS_PER_PARTITION: int = 10000
+MAX_DATA_POINTS_PER_DEDUPE_PYSPARK_PARTITION: int = 10**4
 
 
 MaximumProcessableSegment = pow(10, 5)
@@ -154,7 +154,7 @@ def prepare_data_sets(
             exec_params.default_parallelism,
             int_divide_round_up(
                 actual_data_size,
-                MAX_DATA_POINTS_PER_PARTITION))
+                MAX_DATA_POINTS_PER_DEDUPE_PYSPARK_PARTITION))
         all_data_sets.append(DedupeDataSetPySpark(
             data_description=target_data_size,
             grouped_num_partitions=num_partitions,

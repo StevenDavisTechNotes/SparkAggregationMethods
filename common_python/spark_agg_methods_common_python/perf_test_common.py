@@ -19,6 +19,13 @@ LOCAL_TEST_DATA_FILE_LOCATION: Path = Path(
     or Path(tempfile.gettempdir()) / "spark_test_data"
 )
 LOCAL_NUM_EXECUTORS = 5
+# Hardware dependent: the number of six-field rows (data points) one task, worker or batch holds at once.
+# Every engine and strategy that sizes its work by rows (Dask partitions and chunks, single-threaded batches) MUST
+# derive from this one value so results differ by architecture, not by per-strategy tuning. Re-tune it when the
+# benchmark machine's memory changes (earlier runs used 10**4 for Dask partitions and 10**6 for chunks).
+# PySpark deliberately does NOT use it: Spark's default configuration struggles with partitions this large, so its
+# own, smaller MAX_DATA_POINTS_PER_SPARK_PARTITION stays in effect as part of what the benchmark measures.
+TARGET_ROWS_PER_PARTITION = 2 ** 20
 TESTING_YEAR = 2026
 
 
@@ -64,14 +71,19 @@ class SolutionInterfaceInvalid(str, Enum):
 
 
 class SolutionInterfaceDask(str, Enum):
+    DASK_ACTORS = "actors"
     DASK_BAG = "bag"
     DASK_DATAFRAME = "ddf"
-    DASK_SQL = "sql"
+    DASK_DELAYED = "delayed"
+    DASK_FUTURES = "futures"
 
 
 class SolutionInterfacePythonST(str, Enum):
+    NUMBA = "numba"
+    NUMPY = "numpy"
     PANDAS = "pandas"
     POLARS = "polars"
+    PYARROW = "pyarrow"
     PROGRESSIVE = "progressive"
     SINGLE_THREADED = "single_threaded"
     # QUEUES = "queues"
@@ -191,6 +203,13 @@ class PersistedRunResultBase(Generic[TSolutionInterface], RunResultBase):
     strategy_name: str
 
 
+def _format_csv_field(value: object) -> str:
+    # str() on a (str, Enum) member yields "Class.NAME"; persist the value instead.
+    if isinstance(value, Enum):
+        return str(value.value)
+    return str(value)
+
+
 class RunResultFileWriterBase(Generic[TSolutionInterface], ABC):
     file: TextIO
     language: SolutionLanguage
@@ -238,7 +257,7 @@ class RunResultFileWriterBase(Generic[TSolutionInterface], ABC):
     ) -> None:
         dict_result = asdict(persisted_result_row)
         line = ",".join(
-            str(getattr(persisted_result_row, field_name))
+            _format_csv_field(getattr(persisted_result_row, field_name))
             for field_name in sorted(dict_result)
         )+","
         if __debug__:

@@ -5,24 +5,22 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_dat
 from src.challenges.six_field_test_data.six_test_data_for_py_st import SixDataSetPythonST, TChallengePythonSTAnswer
 
 
-def bi_level_py_st_pd_grp_polars(
+def bi_level_py_st_pl_grp_scan(
         exec_params: SixTestExecutionParameters,
         data_set: SixDataSetPythonST,
 ) -> TChallengePythonSTAnswer:
-    if data_set.data_description.num_source_rows > 9 * 10**6:
-        return "infeasible", "Unknown reason"
-    df = pl.read_parquet(data_set.data.source_file_path_parquet)
+    lf = pl.scan_parquet(data_set.data.source_file_path_parquet)
     E = pl.col("E")
-    df_group = (
-        df
+    lf_group = (
+        lf
         .group_by("grp")
         .agg(
             mean_of_C=pl.col("C").mean(),
             max_of_D=pl.col("D").max(),
         )
     )
-    df_subgroup = (
-        df
+    lf_subgroup = (
+        lf
         .group_by("grp", "subgrp")
         .agg(
             var_of_E=E.var(ddof=0),
@@ -35,8 +33,9 @@ def bi_level_py_st_pd_grp_polars(
         )
     )
     df_result = (
-        df_group
-        .join(df_subgroup, on="grp", how="inner")
+        lf_group
+        .join(lf_subgroup, on="grp", how="inner")
         .sort("grp")
+        .collect()
     )
     return df_result

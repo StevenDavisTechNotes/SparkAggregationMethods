@@ -12,7 +12,10 @@ def vanilla_py_st_pd_grp_numpy(
 ) -> TChallengePythonSTAnswer:
     if data_set.data_description.num_source_rows > 9 * 10**6:
         return "infeasible", "Unknown reason"
-    df = df = pd.read_parquet(data_set.data.source_file_path_parquet, engine="pyarrow")
+    df = pd.read_parquet(
+        data_set.data.source_file_path_parquet,
+        engine="pyarrow",
+    )
     df_result = (
         df
         .groupby(by=["grp", "subgrp"])
@@ -24,14 +27,17 @@ def vanilla_py_st_pd_grp_numpy(
 
 
 def inner_agg_method(
-        dfPartition: pd.DataFrame,
+        partition_df: pd.DataFrame,
 ) -> pd.Series:
-    C = dfPartition["C"]
-    D = dfPartition["D"]
-    E = dfPartition["E"]
+    c = partition_df["C"]
+    d = partition_df["D"]
+    e = partition_df["E"]
     return pd.Series({
-        "mean_of_C": numpy.mean(C),
-        "max_of_D": numpy.max(D),
-        "var_of_E": numpy.var(E),
-        "var_of_E2": numpy.inner(E, E) / E.count() - (numpy.sum(E) / E.count())**2,
+        "mean_of_C": numpy.mean(c),
+        "max_of_D": numpy.max(d),
+        "var_of_E": numpy.var(e),
+        "var_of_E2": (
+            numpy.inner(e, e) / e.count()
+            - (numpy.sum(e) / e.count())**2
+        ),
     }, dtype=float)

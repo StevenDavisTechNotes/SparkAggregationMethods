@@ -2,7 +2,7 @@
     "python": {
         "python_free_threaded": {
             "vanilla": {
-                "result_file_path": "results/vanilla_python_free_threaded_runs.csv",
+                "result_file_path": "results/2026/vanilla_python_free_threaded_runs.csv",
                 "regressor_column_name": "num_source_rows",
                 "elapsed_time_column_name": "elapsed_time",
                 "strategies": [

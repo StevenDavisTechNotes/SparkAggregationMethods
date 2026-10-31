@@ -27,7 +27,7 @@ from spark_agg_methods_common_python.challenges.deduplication.dedupe_test_data_t
 )
 from spark_agg_methods_common_python.perf_test_common import (
     ELAPSED_TIME_COLUMN_NAME, CalcEngine, Challenge, NumericalToleranceExpectations, RunnerArgumentsBase,
-    SolutionLanguage, assemble_itinerary,
+    SolutionLanguage, assemble_itinerary, construct_result_file_path,
 )
 from spark_agg_methods_common_python.utils.platform import setup_logging
 from spark_agg_methods_common_python.utils.utils import int_divide_round_up
@@ -164,12 +164,12 @@ def prepare_data_sets(
 
 
 class DedupePysparkRunResultFileWriter(DedupePythonRunResultFileWriter):
-    RUN_LOG_FILE_PATH: str = "results/dedupe_pyspark_runs.csv"
+    RUN_LOG_FILE_NAME: str = "dedupe_pyspark_runs.csv"
 
     def __init__(self):
         super().__init__(
             engine=ENGINE,
-            rel_log_file_path=__class__.RUN_LOG_FILE_PATH,
+            log_file_name=__class__.RUN_LOG_FILE_NAME,
         )
 
 
@@ -297,12 +297,13 @@ def run_one_itinerary_step(
 
 
 def update_challenge_registration():
+    result_file_path = construct_result_file_path(DedupePysparkRunResultFileWriter.RUN_LOG_FILE_NAME)
     update_challenge_strategy_registration_single_repo(
         language=LANGUAGE,
         engine=ENGINE,
         challenge=CHALLENGE,
         registration=ChallengeResultLogFileRegistration(
-            result_file_path=DedupePysparkRunResultFileWriter.RUN_LOG_FILE_PATH,
+            result_file_path=result_file_path.as_posix(),
             regressor_column_name=DedupeDataSetDescription.regressor_field_name(),
             elapsed_time_column_name=ELAPSED_TIME_COLUMN_NAME,
             expected_regressor_values=[

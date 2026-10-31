@@ -14,12 +14,12 @@ ENGINE = CalcEngine.DASK
 
 
 class ConditionalLevelDaskRunResultFileWriter(ConditionalPythonRunResultFileWriter):
-    RUN_LOG_FILE_PATH: str = "results/conditional_dask_runs.csv"
+    RUN_LOG_FILE_NAME: str = "conditional_dask_runs.csv"
 
     def __init__(self):
         super().__init__(
             engine=ENGINE,
-            rel_log_file_path=__class__.RUN_LOG_FILE_PATH,
+            log_file_name=__class__.RUN_LOG_FILE_NAME,
         )
 
 # TODO

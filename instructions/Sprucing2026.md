@@ -6,7 +6,7 @@ To make these repositories approachable, professional, and functional for extern
   The repository root (`C:\src\SparkAggregationMethods`) lacks a top-level `README.md`. A comprehensive README is necessary to orient external parties to the multiple sub-projects (`py_spark`, `python_dask`, `python_single_threaded`, `scala_spark`, etc.), explain the overall goals, and link out to sub-project documentation.
 
 - [x] **2. Remove Hardcoded Local Paths in JSON Configurations**
-  The configuration files (`results/challenge_strategy_registration.json` within py_spark, python_dask, and python_single_threaded) contain hardcoded local paths (e.g., `C:\Src\GitHub_Hosted\SparkAggMethods2\...`). These absolute paths will immediately break when an external user runs the code and should be converted to relative paths.
+  The configuration files (`results/<year>/challenge_strategy_registration.json` within py_spark, python_dask, and python_single_threaded) contain hardcoded local paths (e.g., `C:\Src\GitHub_Hosted\SparkAggMethods2\...`). These absolute paths will immediately break when an external user runs the code and should be converted to relative paths.
 
 - [x] **3. Fix the Hardcoded `makefile_python.ps1` Path**
   `python_free_threaded\makefile.ps1` explicitly sources `. C:\Src\GitHub_Hosted\SparkAggMethods2\makefile_python.ps1`. This should use `. ..\makefile_python.ps1` as it correctly does in `py_spark\makefile.ps1` and `python_dask\makefile.ps1`.

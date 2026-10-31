@@ -185,11 +185,11 @@ uv run python scripts/run_all.py --flake8 --ty --exclude py_spark --exclude pyth
 uv run python scripts/run_all.py --pyright
 
 # Update the challenge registry JSON from code
-cd admin; . .\update_challenge_registry.ps1
+cd admin; . .\update_challenge_registry.ps1 ; cd ..
 
 # Generate the data files used by the tests
-cd admin; uv run python -m src.generate_data_files
-cd py_spark; uv run python -m src.generate_data_files_pyspark
+cd admin; uv run python -m src.generate_data_files ; cd ..
+cd py_spark; uv run python -m src.generate_data_files_pyspark ; cd ..
 
 # Smoke test the platform by running all of the strategies across the smallest datasets
 uv run python scripts/run_all.py --quick-run

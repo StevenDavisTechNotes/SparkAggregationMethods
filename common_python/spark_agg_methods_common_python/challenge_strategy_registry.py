@@ -3,17 +3,10 @@ from pathlib import Path
 from typing import Iterable
 
 from pydantic import BaseModel, TypeAdapter
-from spark_agg_methods_common_python.perf_test_common import CalcEngine, Challenge, SolutionLanguage
+from spark_agg_methods_common_python.perf_test_common import \
+    ENGINE_FOLDER_MAP, CalcEngine, Challenge, SolutionLanguage, construct_result_file_path
 
-REGISTRY_FILE_PATH = "results/challenge_strategy_registration.json"
-
-CHALLENGE_STRATEGY_REGISTRATION_MAP = {
-    CalcEngine.DASK: "../python_dask/results/challenge_strategy_registration.json",
-    CalcEngine.FREE_THREADED: "../python_free_threaded/results/challenge_strategy_registration.json",
-    CalcEngine.PYSPARK: "../py_spark/results/challenge_strategy_registration.json",
-    CalcEngine.SCALA_SPARK: "../scala_spark/results/challenge_strategy_registration.json",
-    CalcEngine.SINGLE_THREADED: "../python_single_threaded/results/challenge_strategy_registration.json",
-}
+REGISTRY_FILE_NAME = "challenge_strategy_registration.json"
 
 
 class ChallengeStrategyRegistrationKeyColumns(BaseModel):
@@ -30,7 +23,7 @@ class ChallengeStrategyRegistration(ChallengeStrategyRegistrationKeyColumns):
 
 
 class ChallengeResultLogFileRegistration(BaseModel):
-    result_file_path: str
+    result_file_path: str  # str not Path since meant to be archival
     regressor_column_name: str
     elapsed_time_column_name: str
     strategies: list[ChallengeStrategyRegistration]
@@ -47,20 +40,22 @@ CHALLENGE_REGISTRY_TYPE_ADAPTER = TypeAdapter(ChallengeRegistryFileType)
 
 
 def read_single_repo_challenge_strategy_registration(
-        file_path: str
+        file_path: Path,
 ) -> ChallengeRegistryFileType:
-    if not Path(file_path).exists():
+    if not file_path.exists():
         return dict()
-    text = Path(file_path).read_text()
+    text = file_path.read_text()
     return CHALLENGE_REGISTRY_TYPE_ADAPTER.validate_json(text)
 
 
 def read_challenge_strategy_registration_consolidated(
 ) -> ChallengeRegistryFileType:
-    consolidated_data = merge_registries(
-        read_single_repo_challenge_strategy_registration(file_path)
-        for file_path in CHALLENGE_STRATEGY_REGISTRATION_MAP.values()
-    )
+    registries: list[ChallengeRegistryFileType] = []
+    for folder_name in ENGINE_FOLDER_MAP.values():
+        registry_file_path = Path("..") / folder_name / construct_result_file_path(REGISTRY_FILE_NAME)
+        registry = read_single_repo_challenge_strategy_registration(registry_file_path)
+        registries.append(registry)
+    consolidated_data = merge_registries(registries)
     return consolidated_data
 
 
@@ -89,12 +84,14 @@ def update_challenge_strategy_registration_single_repo(
         challenge: Challenge,
         registration: ChallengeResultLogFileRegistration,
 ) -> None:
+    registry_file_path = construct_result_file_path(REGISTRY_FILE_NAME)
+
     def read_file() -> ChallengeRegistryFileType:
-        return read_single_repo_challenge_strategy_registration(REGISTRY_FILE_PATH)
+        return read_single_repo_challenge_strategy_registration(registry_file_path)
 
     def write_file(data: ChallengeRegistryFileType):
-        Path(REGISTRY_FILE_PATH).parent.mkdir(parents=True, exist_ok=True)
-        with open(REGISTRY_FILE_PATH, "w") as file:
+        registry_file_path.parent.mkdir(parents=True, exist_ok=True)
+        with registry_file_path.open("w") as file:
             json.dump(
                 {
                     lang: {

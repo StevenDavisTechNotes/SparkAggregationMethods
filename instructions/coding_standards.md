@@ -58,7 +58,7 @@ Tooling-enforced rules (line length, isort, autopep8, flake8, `ty`) are in `CLAU
   `.open()`, `.replace()` and `.parent.mkdir(parents=True, exist_ok=True)` rather than `os`/
   `os.path`.  PySpark needs string paths.
 - **Atomic persistence** Write files via a temp path (`temp_file=True` variant) then `replace` to the final path.
-- Repo-relative paths in registries stay relative (`results/<challenge>_<engine>_runs.csv`).
+- Repo-relative paths in registries stay relative (`results/<year>/<challenge>_<engine>_runs.csv`).
 
 ### Logging
 

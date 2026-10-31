@@ -22,7 +22,7 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_dat
 )
 from spark_agg_methods_common_python.perf_test_common import (
     ELAPSED_TIME_COLUMN_NAME, CalcEngine, Challenge, RunnerArgumentsBase, RunResultBase, SolutionLanguage,
-    assemble_itinerary,
+    assemble_itinerary, construct_result_file_path,
 )
 from spark_agg_methods_common_python.utils.platform import setup_logging
 from src.challenges.bi_level.bi_level_strategy_directory_py_st import BI_LEVEL_STRATEGY_REGISTRY_PYTHON_SINGLE_THREADED
@@ -99,12 +99,12 @@ def prepare_data_sets(
 
 
 class BiLevelPythonSTRunResultFileWriter(BiLevelPythonRunResultFileWriter):
-    RUN_LOG_FILE_PATH: str = "results/bi_level_python_single_threaded_runs.csv"
+    RUN_LOG_FILE_NAME: str = "bi_level_python_single_threaded_runs.csv"
 
     def __init__(self):
         super().__init__(
             engine=ENGINE,
-            rel_log_file_path=__class__.RUN_LOG_FILE_PATH,
+            log_file_name=__class__.RUN_LOG_FILE_NAME,
         )
 
 
@@ -168,12 +168,13 @@ def do_test_runs(
 
 
 def update_challenge_registration():
+    result_file_path = construct_result_file_path(BiLevelPythonSTRunResultFileWriter.RUN_LOG_FILE_NAME)
     update_challenge_strategy_registration_single_repo(
         language=LANGUAGE,
         engine=ENGINE,
         challenge=CHALLENGE,
         registration=ChallengeResultLogFileRegistration(
-            result_file_path=BiLevelPythonSTRunResultFileWriter.RUN_LOG_FILE_PATH,
+            result_file_path=result_file_path.as_posix(),
             regressor_column_name=BiLevelDataSetDescription.regressor_field_name(),
             elapsed_time_column_name=ELAPSED_TIME_COLUMN_NAME,
             expected_regressor_values=[

@@ -1,4 +1,3 @@
-import os
 from dataclasses import dataclass
 
 from spark_agg_methods_common_python.perf_test_common import (
@@ -33,11 +32,12 @@ class DedupePythonRunResultFileWriter(RunResultFileWriterBase):
 
     def __init__(
             self,
+            *,
             engine: CalcEngine,
-            rel_log_file_path: str,
+            log_file_name: str,
     ):
         super().__init__(
-            log_file_path=os.path.abspath(rel_log_file_path),
+            log_file_name=log_file_name,
             language=SolutionLanguage.PYTHON,
             engine=engine,
             persisted_row_type=DedupePersistedRunResult,

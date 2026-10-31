@@ -22,7 +22,7 @@ from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types 
 )
 from spark_agg_methods_common_python.perf_test_common import (
     ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge, RunnerArgumentsBase, RunResultBase,
-    SolutionLanguage, assemble_itinerary,
+    SolutionLanguage, assemble_itinerary, construct_result_file_path,
 )
 from spark_agg_methods_common_python.utils.platform import setup_logging
 from src.challenges.six_field_test_data.six_runner_dask_base import six_run_one_step_in_dask_itinerary
@@ -101,12 +101,12 @@ def prepare_data_sets(
 
 
 class VanillaDaskRunResultFileWriter(VanillaPythonRunResultFileWriter):
-    RUN_LOG_FILE_PATH: str = "results/vanilla_dask_runs.csv"
+    RUN_LOG_FILE_NAME: str = "vanilla_dask_runs.csv"
 
     def __init__(self):
         super().__init__(
             engine=ENGINE,
-            rel_log_file_path=__class__.RUN_LOG_FILE_PATH,
+            log_file_name=__class__.RUN_LOG_FILE_NAME,
         )
 
 
@@ -173,12 +173,13 @@ def do_test_runs(
 
 
 def update_challenge_registration():
+    result_file_path = construct_result_file_path(VanillaDaskRunResultFileWriter.RUN_LOG_FILE_NAME)
     update_challenge_strategy_registration_single_repo(
         language=LANGUAGE,
         engine=ENGINE,
         challenge=CHALLENGE,
         registration=ChallengeResultLogFileRegistration(
-            result_file_path=VanillaDaskRunResultFileWriter.RUN_LOG_FILE_PATH,
+            result_file_path=result_file_path.as_posix(),
             regressor_column_name=VanillaDataSetDescription.regressor_field_name(),
             elapsed_time_column_name=ELAPSED_TIME_COLUMN_NAME,
             expected_regressor_values=[

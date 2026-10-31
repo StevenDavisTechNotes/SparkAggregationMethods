@@ -2,7 +2,7 @@
     "python": {
         "pyspark": {
             "bilevel": {
-                "result_file_path": "results/bi_level_pyspark_runs.csv",
+                "result_file_path": "results/2026/bi_level_pyspark_runs.csv",
                 "regressor_column_name": "relative_cardinality_between_groupings",
                 "elapsed_time_column_name": "elapsed_time",
                 "strategies": [
@@ -123,7 +123,7 @@
                 ]
             },
             "conditional": {
-                "result_file_path": "results/conditional_pyspark_runs.csv",
+                "result_file_path": "results/2026/conditional_pyspark_runs.csv",
                 "regressor_column_name": "num_source_rows",
                 "elapsed_time_column_name": "elapsed_time",
                 "strategies": [
@@ -267,7 +267,7 @@
                 ]
             },
             "deduplication": {
-                "result_file_path": "results/dedupe_pyspark_runs.csv",
+                "result_file_path": "results/2026/dedupe_pyspark_runs.csv",
                 "regressor_column_name": "num_source_rows",
                 "elapsed_time_column_name": "elapsed_time",
                 "strategies": [
@@ -354,7 +354,7 @@
                 ]
             },
             "sectional": {
-                "result_file_path": "results/section_pyspark_runs.csv",
+                "result_file_path": "results/2026/section_pyspark_runs.csv",
                 "regressor_column_name": "num_students",
                 "elapsed_time_column_name": "elapsed_time",
                 "strategies": [
@@ -452,7 +452,7 @@
                 ]
             },
             "vanilla": {
-                "result_file_path": "results/vanilla_pyspark_runs.csv",
+                "result_file_path": "results/2026/vanilla_pyspark_runs.csv",
                 "regressor_column_name": "num_source_rows",
                 "elapsed_time_column_name": "elapsed_time",
                 "strategies": [

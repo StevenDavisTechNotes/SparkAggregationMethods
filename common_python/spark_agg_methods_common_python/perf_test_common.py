@@ -19,6 +19,7 @@ LOCAL_TEST_DATA_FILE_LOCATION: Path = Path(
     or Path(tempfile.gettempdir()) / "spark_test_data"
 )
 LOCAL_NUM_EXECUTORS = 5
+TESTING_YEAR = 2026
 
 
 class SolutionLanguage(str, Enum):
@@ -32,6 +33,15 @@ class CalcEngine(str, Enum):
     PYSPARK = "pyspark"
     SCALA_SPARK = "sc_spark"
     SINGLE_THREADED = "python_single_threaded"
+
+
+ENGINE_FOLDER_MAP = {
+    CalcEngine.DASK: "python_dask",
+    CalcEngine.FREE_THREADED: "python_free_threaded",
+    CalcEngine.PYSPARK: "py_spark",
+    CalcEngine.SCALA_SPARK: "scala_spark",
+    CalcEngine.SINGLE_THREADED: "python_single_threaded",
+}
 
 
 class Challenge(str, Enum):
@@ -190,12 +200,13 @@ class RunResultFileWriterBase(Generic[TSolutionInterface], ABC):
     def __init__(
             self,
             *,
-            log_file_path: str,
+            log_file_name: str,
             language: SolutionLanguage,
             engine: CalcEngine,
             persisted_row_type: type
     ):
-        self.file = open(log_file_path, mode="at+")
+        run_log_file_path = construct_result_file_path(log_file_name)
+        self.file = run_log_file_path.open(mode="at+")
         self.language = language
         self.engine = engine
         self.persisted_row_type = persisted_row_type
@@ -266,3 +277,9 @@ def assemble_itinerary(
     if args.shuffle:
         random.shuffle(itinerary)
     return itinerary
+
+
+def construct_result_file_path(
+        file_name: str,
+) -> Path:
+    return Path("results") / str(TESTING_YEAR) / file_name

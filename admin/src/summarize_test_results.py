@@ -11,7 +11,7 @@ from spark_agg_methods_common_python.challenge_strategy_registry import (
     ChallengeResultLogFileRegistration, ChallengeStrategyRegistrationKeyColumns,
     read_challenge_strategy_registration_consolidated,
 )
-from spark_agg_methods_common_python.perf_test_common import CalcEngine, Challenge, SolutionLanguage
+from spark_agg_methods_common_python.perf_test_common import TESTING_YEAR, CalcEngine, Challenge, SolutionLanguage
 from spark_agg_methods_common_python.utils.pandas_helpers import make_empty_pd_dataframe_from_schema
 from spark_agg_methods_common_python.utils.platform import setup_logging
 
@@ -19,7 +19,7 @@ from spark_agg_methods_common_python.utils.platform import setup_logging
 
 
 logger = logging.getLogger(__name__)
-FINAL_REPORT_FILE_PATH = "../results/{challenge}_results.csv"
+FINAL_REPORT_FILE_PATH = "../results/{year}/{challenge}_results.csv"
 
 
 @dataclass(frozen=True)
@@ -236,7 +236,10 @@ def print_summary(
         challenge: Challenge,
         summary_status: list[SummarizedPerformanceOfMethodAtDataSize],
 ):
-    file_report_file_path = FINAL_REPORT_FILE_PATH.format(challenge=challenge.name.lower())
+    file_report_file_path = FINAL_REPORT_FILE_PATH.format(
+        year=TESTING_YEAR,
+        challenge=challenge.name.lower(),
+    )
     os.unlink(file_report_file_path) if os.path.exists(file_report_file_path) else None
     if len(summary_status) > 0:
         logger.info(f"Summarizing challenge: {challenge}")

@@ -14,6 +14,10 @@ from src.utils.tidy_session_pyspark import TidySparkSession
 
 MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT_SECTION_PYSPARK: int = 5
 MAXIMUM_PROCESSABLE_SEGMENT_SECTION_PYSPARK: int = 10**MAXIMUM_PROCESSABLE_SEGMENT_EXPONENT_SECTION_PYSPARK
+# On Windows every task launches its own Python worker on a fresh loopback port (no worker daemon), so a stage with
+# thousands of tasks exhausts the ephemeral port range ("No buffer space available ... bind"). Strategies whose
+# stages are sized by target_num_partitions report "infeasible" above this many partitions.
+MAX_PARTITIONS_PER_STAGE_SECTION_PYSPARK: int = 10**3
 
 StudentSummaryStruct = DataTypes.StructType([
     DataTypes.StructField("StudentId", DataTypes.IntegerType(), True),

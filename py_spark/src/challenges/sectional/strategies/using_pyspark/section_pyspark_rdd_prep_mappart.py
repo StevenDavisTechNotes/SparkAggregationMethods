@@ -9,7 +9,8 @@ from spark_agg_methods_common_python.challenges.sectional.section_test_data_type
     ClassLine, StudentHeader, StudentSummary, TrimesterFooter, TrimesterHeader, TypedLine,
 )
 from src.challenges.sectional.section_test_data_types_pyspark import (
-    SectionDataSetPyspark, SectionExecutionParametersPyspark, TChallengePythonPysparkAnswer,
+    MAX_PARTITIONS_PER_STAGE_SECTION_PYSPARK, SectionDataSetPyspark, SectionExecutionParametersPyspark,
+    TChallengePythonPysparkAnswer,
 )
 from src.utils.tidy_session_pyspark import TidySparkSession
 
@@ -19,8 +20,8 @@ def section_pyspark_rdd_prep_mappart(
         exec_params: SectionExecutionParametersPyspark,
         data_set: SectionDataSetPyspark,
 ) -> TChallengePythonPysparkAnswer:
-    if data_set.data_description.num_students > pow(10, 8 - 1):
-        return "infeasible", "Too slow"
+    if data_set.target_num_partitions > MAX_PARTITIONS_PER_STAGE_SECTION_PYSPARK:
+        return "infeasible", "Too many partitions: one Python worker (and port) per task exhausts Windows ports"
     sc = spark_session.spark_context
     filename = data_set.source_data_file_path
     filename_str = str(filename)

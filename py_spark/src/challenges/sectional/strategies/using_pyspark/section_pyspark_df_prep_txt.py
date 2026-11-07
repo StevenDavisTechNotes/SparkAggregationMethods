@@ -9,7 +9,8 @@ from spark_agg_methods_common_python.challenges.sectional.domain_logic.section_d
 from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import StudentSummary
 from src.challenges.sectional.domain_logic.section_data_parsers_pyspark import row_to_student_summary
 from src.challenges.sectional.section_test_data_types_pyspark import (
-    SectionDataSetPyspark, SectionExecutionParametersPyspark, SparseLineSchema, TChallengePythonPysparkAnswer,
+    MAX_PARTITIONS_PER_STAGE_SECTION_PYSPARK, SectionDataSetPyspark, SectionExecutionParametersPyspark,
+    SparseLineSchema, TChallengePythonPysparkAnswer,
 )
 from src.challenges.sectional.strategies.using_pyspark.section_pyspark_rdd_prep_shared import (
     section_pyspark_rdd_prep_shared,
@@ -26,8 +27,8 @@ def section_pyspark_df_prep_txt(
         exec_params: SectionExecutionParametersPyspark,
         data_set: SectionDataSetPyspark,
 ) -> TChallengePythonPysparkAnswer:
-    if data_set.data_description.num_students > pow(10, 8-1):
-        return "infeasible", "Times out"
+    if data_set.target_num_partitions > MAX_PARTITIONS_PER_STAGE_SECTION_PYSPARK:
+        return "infeasible", "Too many partitions: one Python worker (and port) per task exhausts Windows ports"
     sc = spark_session.spark_context
     spark = spark_session.spark
     section_maximum = data_set.section_maximum

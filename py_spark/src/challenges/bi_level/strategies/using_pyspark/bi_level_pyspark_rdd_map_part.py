@@ -72,7 +72,7 @@ def bi_level_pyspark_rdd_map_part(
         rddSrc
         .map(lambda r: DataPointNT(*r))
         .mapPartitions(partition_triage)
-        .groupByKey(numPartitions=data_set.data_description.num_grp_1 * data_set.data_description.num_grp_2)
+        .groupByKey(numPartitions=exec_params.default_parallelism)
         .map(lambda kv: (kv[0], merge_combiners_3(kv[0], kv[1])), preservesPartitioning=True)
         .sortByKey(numPartitions=agg_tgt_num_partitions)  # type: ignore
         .values()

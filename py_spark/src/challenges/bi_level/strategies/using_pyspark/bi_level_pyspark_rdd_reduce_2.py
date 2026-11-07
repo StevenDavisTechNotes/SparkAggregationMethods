@@ -38,7 +38,7 @@ def bi_level_pyspark_rdd_reduce_2(
                       merge_value,
                       merge_combiners)
         .map(lambda x: (x[0][0], x[1]))
-        .groupByKey(numPartitions=data_set.data_description.num_grp_1 * data_set.data_description.num_grp_2)
+        .groupByKey(numPartitions=exec_params.default_parallelism)
         .map(lambda x: (x[0], final_analytics(x[0], x[1])), preservesPartitioning=True)
         .sortByKey(numPartitions=agg_tgt_num_partitions)  # type: ignore
         .values()

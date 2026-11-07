@@ -16,6 +16,9 @@ from spark_agg_methods_common_python.utils.utils import int_divide_round_up
 from src.utils.tidy_session_pyspark import TidySparkSession
 
 MAX_DATA_POINTS_PER_SPARK_PARTITION = 5 * 10**3
+# On Windows every task launches its own Python worker on a fresh loopback port (no worker daemon), so a stage with
+# tens of thousands of tasks exhausts the ephemeral port range ("No buffer space available ... bind").
+MAX_SOURCE_PARTITIONS_PER_SPARK_STAGE = 10**3
 
 
 @dataclass(frozen=True)
@@ -136,10 +139,13 @@ def six_prepare_data_set_pyspark(
         1 if max_data_points_per_partition < 0 else
         max(
             exec_params.default_parallelism,
-            int_divide_round_up(
-                num_source_rows,
-                max_data_points_per_partition,
-            )
+            min(
+                MAX_SOURCE_PARTITIONS_PER_SPARK_STAGE,
+                int_divide_round_up(
+                    num_source_rows,
+                    max_data_points_per_partition,
+                ),
+            ),
         )
     )
     return SixFieldDataSetDataPyspark(

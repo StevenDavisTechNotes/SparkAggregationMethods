@@ -7,7 +7,7 @@ from dataclasses import asdict, dataclass
 from dataclasses import fields as dataclass_fields
 from enum import Enum
 from pathlib import Path
-from typing import Callable, Generic, TextIO, TypeVar
+from typing import Callable, Generic, Iterable, TextIO, TypeVar
 
 from spark_agg_methods_common_python.utils.utils import set_random_seed
 
@@ -210,6 +210,18 @@ def _format_csv_field(value: object) -> str:
     return str(value)
 
 
+def run_log_has_current_header(existing_lines: Iterable[str], header: str) -> bool:
+    """True when the last header line already in a run log equals ``header``.
+
+    Header lines start with a blank (see ``write_header``); result lines never do.
+    """
+    last_header = None
+    for line in existing_lines:
+        if line.startswith(" "):
+            last_header = line.rstrip()
+    return last_header == header
+
+
 class RunResultFileWriterBase(Generic[TSolutionInterface], ABC):
     file: TextIO
     language: SolutionLanguage
@@ -239,9 +251,15 @@ class RunResultFileWriterBase(Generic[TSolutionInterface], ABC):
         ))+","
         if __debug__:
             logger.info(f"Skipping writing header {header}")
-        else:
-            logger.info(f"Writing header {header}")
-            print(header, file=self.file)
+            return
+        # A header starts a new segment for summarize_test_results, so a changed column set must get a new one;
+        # an unchanged one is redundant when each step runs in its own process and reopens the log.
+        self.file.seek(0)
+        if run_log_has_current_header(self.file, header):
+            logger.info(f"Header already current {header}")
+            return
+        logger.info(f"Writing header {header}")
+        print(header, file=self.file)
 
     @abstractmethod
     def write_run_result(

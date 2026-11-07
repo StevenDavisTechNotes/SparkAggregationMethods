@@ -51,6 +51,8 @@ def vanilla_pyspark_df_grp_numba(
 ) -> TSixFieldChallengePendingAnswerPythonPyspark:
     if numba is None:
         return "infeasible", "Requires Numba be installed"
+    if data_set.data_description.num_source_rows >= 9*10**8:
+        return "infeasible", "A whole group must fit in memory as one pandas dataframe; JVM heap exhausted sorting it"
     df = data_set.data.open_source_data_as_df(spark_session)
     df = (
         df.groupby(df.grp, df.subgrp)

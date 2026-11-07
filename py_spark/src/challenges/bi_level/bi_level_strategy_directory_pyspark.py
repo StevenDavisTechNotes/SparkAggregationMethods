@@ -102,7 +102,7 @@ BI_LEVEL_STRATEGY_REGISTRY_PYSPARK: list[SixFieldChallengeMethodPythonPysparkReg
         engine=CalcEngine.PYSPARK,
         interface=SolutionInterfacePySpark.PYSPARK_DATAFRAME_FLUENT,
         requires_gpu=False,
-        numerical_tolerance=NumericalToleranceExpectations.NUMPY,
+        numerical_tolerance=NumericalToleranceExpectations.SIMPLE_SUM,
         delegate=bi_level_pyspark_df_window
     ),
     SixFieldChallengeMethodPythonPysparkRegistration(

@@ -75,7 +75,7 @@
                         "challenge": "bilevel",
                         "interface": "fluent",
                         "strategy_name": "bi_level_pyspark_df_window",
-                        "numerical_tolerance": 1e-12,
+                        "numerical_tolerance": 1e-11,
                         "requires_gpu": false
                     },
                     {

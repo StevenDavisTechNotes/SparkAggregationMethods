@@ -29,6 +29,12 @@ class OpenSparkSession:
     log: Any
 
 
+# local mode ignores spark.task.maxFailures and takes it from the master URL, defaulting to a single attempt. On
+# Windows each task spawns its own Python worker, and an occasional "Python worker failed to connect back" must not
+# abort a multi-hour benchmark run.
+MAX_TASK_ATTEMPTS_LOCAL = 4
+
+
 def open_spark_session(
         config_dict: dict[str, Any],
         enable_hive_support: bool,
@@ -48,7 +54,7 @@ def open_spark_session(
         SparkSession
         .builder
         .appName("PerfTestApp")  # pyright: ignore[reportAttributeAccessIssue]
-        .master(f"local[{local_num_executors}]")
+        .master(f"local[{local_num_executors},{MAX_TASK_ATTEMPTS_LOCAL}]")
         .config("spark.hadoop.mapreduce.fileoutputcommitter.algorithm.version", 2)
         .config("spark.pyspark.python", str(path_to_python_interpreter))
         .config("spark.rdd.compress", "false")

@@ -51,3 +51,13 @@ Copy-Item -Recurse -Force 'hadoop-3.4.0-win10-x64' 'C:\Programs\Spark\'
   - pyspark --version
   - pyspark
   - To execute a runner, use `uv run python -m src.perf_test_runner_for_pyspark`.
+
+### How the performance runner launches work
+
+`src.perf_test_runner_for_pyspark` runs each challenge in a child process of its own, so every challenge gets a fresh JVM.
+On Windows Spark leaks one listening socket per Python worker for the life of the JVM; after roughly 50k tasks the
+ephemeral port range (16,384 ports by default) is exhausted and tasks fail with
+`SocketException: No buffer space available`. The conditional challenge is the only one seen to reach that, so it runs
+one benchmark step per child process and `conditional_runner_pyspark.warm_up_strategy` runs the strategy about to be
+timed once, on the smallest data set, before the timed run (its time is not recorded). Because a fresh JVM is slower
+than a long-lived one, results for the same strategy collected in the two modes are not comparable.

@@ -82,7 +82,7 @@ Tooling-enforced rules (line length, isort, autopep8, flake8, `ty`) are in `CLAU
   - resolution order: explicit `--size`, then `--size-minimal`, then all maximal sizes.
     Runners that previously skipped `debugging_only` sizes by default (Dask bi-level,
     PySpark dedupe) keep that filter in the fallback.
-- Data-generation scripts (`admin/src/generate_data_files.py` and `py_spark/src/generate_data_files_pyspark.py`) take `--overwrite` and `--minimal` (both default `False`). Generator functions accept keyword-only `overwrite: bool = False, minimal: bool = False`.
+- The data-generation script (`admin/src/generate_data_files.py`) takes `--overwrite` and `--minimal` (both default `False`). Generator functions accept keyword-only `overwrite: bool = False, minimal: bool = False`.
 
 ### Structure
 

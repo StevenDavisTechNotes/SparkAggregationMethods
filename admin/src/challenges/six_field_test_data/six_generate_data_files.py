@@ -39,6 +39,12 @@ SIX_TEST_SOURCE_DATA_PYARROW_SCHEMA = pyarrow.schema([
     pyarrow.field("F", pyarrow.float64()),
 ])
 
+# The `_spark` folder holds many small files in the oldest Parquet format (1.0: int32/int64/float/double physical
+# types only, no nanosecond timestamps, no unsigned-int logical types) so that every reader, however old, can load them.
+TARGET_SPARK_PARQUET_BATCH_SIZE: int = 10000 - 1  # Trying to keep the partition size < 1MB
+SPARK_PARQUET_FORMAT_VERSION = "1.0"
+SPARK_PARQUET_COMPRESSION = "ZSTD"
+
 
 def _remove_data_files_for_size(
         data_description: SixTestDataSetDescription,
@@ -48,7 +54,7 @@ def _remove_data_files_for_size(
         shutil.rmtree(source_file_paths.source_directory_path)
 
 
-def _generate_source_data_file_for_size(
+def _generate_modern_source_data_file_for_size(
         data_description: SixTestDataSetDescription,
 ) -> None:
     num_grp_1 = data_description.num_grp_1
@@ -62,10 +68,19 @@ def _generate_source_data_file_for_size(
         data_description=data_description,
         temp_file=True,
     )
-    if final_source_file_paths.source_file_path_parquet_single_file.exists():
+    if (
+        final_source_file_paths.source_file_path_parquet_small_v1_files.exists()
+        and final_source_file_paths.source_file_path_parquet_single_file.exists()
+    ):
         return
-    for path in final_source_file_paths.file_paths + temp_source_file_paths.file_paths:
+    for path in [
+        final_source_file_paths.source_file_path_csv,
+        temp_source_file_paths.source_file_path_parquet_single_file,
+        temp_source_file_paths.source_file_path_csv,
+    ]:
         path.unlink(missing_ok=True)
+    if final_source_file_paths.source_file_path_parquet_small_v1_files.exists():
+        shutil.rmtree(final_source_file_paths.source_file_path_parquet_small_v1_files)
     num_data_points = num_grp_1 * num_grp_2 * repetition
     final_source_file_paths.source_directory_path.mkdir(parents=True, exist_ok=True)
     logger.info(f"Creating {final_source_file_paths.source_file_path_parquet_single_file}")
@@ -106,6 +121,51 @@ def _generate_source_data_file_for_size(
     parquet_file_modern.close()
     temp_source_file_paths.source_file_path_parquet_single_file.replace(
         final_source_file_paths.source_file_path_parquet_single_file)
+
+
+def _generate_spark_source_data_files_for_size(
+        data_description: SixTestDataSetDescription,
+) -> None:
+    """
+    Re-slices the `_modern` file into a folder of small, Parquet 1.0 files for the engines that need a
+    format every reader (Spark, Hive, older Dask/pandas) can load.
+    """
+    final_source_file_paths = six_derive_source_test_data_file_path(
+        data_description=data_description,
+        temp_file=False,
+    )
+    temp_source_file_paths = six_derive_source_test_data_file_path(
+        data_description=data_description,
+        temp_file=True,
+    )
+    read_file_path = final_source_file_paths.source_file_path_parquet_single_file
+    final_folder_path = final_source_file_paths.source_file_path_parquet_small_v1_files
+    write_folder_path = temp_source_file_paths.source_file_path_parquet_small_v1_files
+    if final_folder_path.exists() and any(final_folder_path.glob("*.parquet")):
+        return
+    if write_folder_path.exists():
+        shutil.rmtree(write_folder_path)  # left over from an interrupted run
+    write_folder_path.mkdir(parents=True)
+    logger.info(f"Creating {final_folder_path}")
+    source_file = pyarrow.parquet.ParquetFile(read_file_path)
+    for i_part, batch in enumerate(source_file.iter_batches(batch_size=TARGET_SPARK_PARQUET_BATCH_SIZE)):
+        pyarrow.parquet.write_table(
+            pyarrow.Table.from_batches([batch]),
+            write_folder_path / f"part-{i_part:05d}.parquet",
+            version=SPARK_PARQUET_FORMAT_VERSION,
+            compression=SPARK_PARQUET_COMPRESSION,
+        )
+    source_file.close()
+    if final_folder_path.exists():
+        shutil.rmtree(final_folder_path)  # present but holds no data files
+    write_folder_path.replace(final_folder_path)
+
+
+def _generate_source_data_file_for_size(
+        data_description: SixTestDataSetDescription,
+) -> None:
+    _generate_modern_source_data_file_for_size(data_description)
+    _generate_spark_source_data_files_for_size(data_description)
 
 
 def _generate_answer_file(data_description: SixTestDataSetDescription) -> None:

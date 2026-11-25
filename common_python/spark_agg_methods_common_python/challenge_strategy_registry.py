@@ -1,10 +1,11 @@
 import json
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable
 
 from pydantic import BaseModel, TypeAdapter
-from spark_agg_methods_common_python.perf_test_common import \
-    ENGINE_FOLDER_MAP, CalcEngine, Challenge, SolutionLanguage, construct_result_file_path
+from spark_agg_methods_common_python.perf_test_common import (
+    ENGINE_FOLDER_MAP, CalcEngine, Challenge, SolutionLanguage, construct_result_file_path,
+)
 
 REGISTRY_FILE_NAME = "challenge_strategy_registration.json"
 

@@ -1,9 +1,9 @@
 # from https://gist.github.com/DevSlem/555e7caf4b843741682fbff64ae1cf15
 
-from typing import Optional, Tuple, Union
+
+from typing import Self
 
 import numpy as np
-from typing_extensions import Self
 
 
 class ProgressiveVariance:
@@ -51,17 +51,17 @@ class ProgressiveVariance:
         (array([-2.8,  8.4,  5.4]), array([83.7, 38.8,  2.8]))
     """
 
-    def __init__(self, ddof: int = 1, axis: Optional[int] = None) -> None:
+    def __init__(self, ddof: int = 1, axis: int | None = None) -> None:
         self._ddof = ddof
         self._axis = axis
         self.reset()
 
     @property
-    def mean(self) -> Union[float, np.ndarray]:
+    def mean(self) -> float | np.ndarray:
         return self._mean
 
     @property
-    def variance(self) -> Union[float, np.ndarray]:
+    def variance(self) -> float | np.ndarray:
         return self._var
 
     @property
@@ -77,7 +77,7 @@ class ProgressiveVariance:
     def update_with_population(
             self,
             batch: np.ndarray,
-    ) -> Tuple[Union[float, np.ndarray], Union[float, np.ndarray]]:
+    ) -> tuple[float | np.ndarray, float | np.ndarray]:
         """
         Update the mean and variance from a batch of data.
 
@@ -99,7 +99,7 @@ class ProgressiveVariance:
     def merge_subtotals(
             self,
             other: Self,
-    ) -> Tuple[Union[float, np.ndarray], Union[float, np.ndarray]]:
+    ) -> tuple[float | np.ndarray, float | np.ndarray]:
         if other.batch_size == 0:
             return self._mean, self._var
         if self._n == 0:
@@ -116,10 +116,10 @@ class ProgressiveVariance:
     def _update_from_batch_mean_var(
             self,
             *,
-            batch_mean: Union[float, np.ndarray],
-            batch_var: Union[float, np.ndarray],
+            batch_mean: float | np.ndarray,
+            batch_var: float | np.ndarray,
             batch_size: int,
-    ) -> Tuple[Union[float, np.ndarray], Union[float, np.ndarray]]:
+    ) -> tuple[float | np.ndarray, float | np.ndarray]:
         # n: batch size
         # M: sum of squares
         # a: old batch

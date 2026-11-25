@@ -1,4 +1,5 @@
-from typing import Any, Iterable, cast
+from collections.abc import Iterable
+from typing import Any, cast
 
 from spark_agg_methods_common_python.challenges.sectional.domain_logic.section_mutable_subtotal_type import (
     MutableStudent, MutableTrimester,

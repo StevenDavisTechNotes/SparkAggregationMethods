@@ -1,4 +1,4 @@
-from typing import Iterable
+from collections.abc import Iterable
 
 from spark_agg_methods_common_python.challenges.sectional.domain_logic.section_data_parsers import parse_line_to_types
 from spark_agg_methods_common_python.challenges.sectional.domain_logic.section_mutable_subtotal_type import (

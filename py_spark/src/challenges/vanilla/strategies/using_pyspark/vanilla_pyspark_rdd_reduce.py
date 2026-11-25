@@ -1,4 +1,4 @@
-from typing import Optional, cast
+from typing import cast
 
 from pyspark import RDD
 from pyspark.sql import Row
@@ -39,9 +39,9 @@ def vanilla_pyspark_rdd_reduce(
 
 
 def max(
-        lhs: Optional[float],
-        rhs: Optional[float],
-) -> Optional[float]:
+        lhs: float | None,
+        rhs: float | None,
+) -> float | None:
     if lhs is None:
         return rhs
     if rhs is None:

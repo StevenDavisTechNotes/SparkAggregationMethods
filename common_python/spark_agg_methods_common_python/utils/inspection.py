@@ -1,5 +1,5 @@
+from collections.abc import Callable
 from types import FunctionType
-from typing import Callable
 
 
 # from https://stackoverflow.com/questions/2553354/simpler-way-to-create-dictionary-of-separate-variables

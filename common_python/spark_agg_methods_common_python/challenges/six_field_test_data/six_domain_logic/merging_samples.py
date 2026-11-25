@@ -1,5 +1,6 @@
 from collections import defaultdict
-from typing import Any, Iterable, cast
+from collections.abc import Iterable
+from typing import Any, Self, cast
 
 import numpy as np
 import pandas as pd
@@ -11,7 +12,6 @@ from spark_agg_methods_common_python.utils.progressive_statistics.progressive_co
 from spark_agg_methods_common_python.utils.progressive_statistics.progressive_max import ProgressiveMax
 from spark_agg_methods_common_python.utils.progressive_statistics.progressive_mean import ProgressiveMean
 from spark_agg_methods_common_python.utils.progressive_statistics.progressive_variance import ProgressiveVariance
-from typing_extensions import Self
 
 # cSpell: ignore aggfunc, ddof, np_key
 

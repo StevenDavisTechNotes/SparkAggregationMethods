@@ -1,4 +1,5 @@
-from typing import Callable, Iterable, TypeVar, cast
+from collections.abc import Callable, Iterable
+from typing import TypeVar, cast
 
 from pyspark import RDD, StorageLevel
 

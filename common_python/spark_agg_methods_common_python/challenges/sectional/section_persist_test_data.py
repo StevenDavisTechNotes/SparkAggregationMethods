@@ -1,5 +1,6 @@
 from abc import ABC
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 import pandas as pd
 from pydantic import BaseModel, RootModel, TypeAdapter

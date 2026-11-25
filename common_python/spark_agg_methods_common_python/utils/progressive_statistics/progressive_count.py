@@ -1,5 +1,6 @@
+from typing import Self
+
 import pandas as pd
-from typing_extensions import Self
 
 
 class ProgressiveCount:

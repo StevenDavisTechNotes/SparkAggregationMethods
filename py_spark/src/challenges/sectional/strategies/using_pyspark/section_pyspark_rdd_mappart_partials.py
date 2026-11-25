@@ -1,4 +1,5 @@
-from typing import Callable, Iterable, NamedTuple, cast
+from collections.abc import Callable, Iterable
+from typing import NamedTuple, cast
 
 from pyspark import RDD, SparkContext, StorageLevel
 from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import LabeledTypedRow, StudentSummary

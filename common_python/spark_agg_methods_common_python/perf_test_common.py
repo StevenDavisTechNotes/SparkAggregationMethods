@@ -3,11 +3,12 @@ import os
 import random
 import tempfile
 from abc import ABC, abstractmethod
+from collections.abc import Callable, Iterable
 from dataclasses import asdict, dataclass
 from dataclasses import fields as dataclass_fields
 from enum import Enum
 from pathlib import Path
-from typing import Callable, Generic, Iterable, TextIO, TypeVar
+from typing import Generic, TextIO, TypeVar
 
 from spark_agg_methods_common_python.utils.utils import set_random_seed
 

@@ -1,4 +1,4 @@
-from typing import Iterable
+from collections.abc import Iterable
 
 from pyspark.sql import Row
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_data_types import (

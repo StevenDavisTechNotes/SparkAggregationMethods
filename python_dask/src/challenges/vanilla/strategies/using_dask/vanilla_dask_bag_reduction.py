@@ -1,5 +1,5 @@
+from collections.abc import Iterable
 from dataclasses import asdict
-from typing import Iterable
 
 import pandas as pd
 from dask.bag.core import Bag as DaskBag

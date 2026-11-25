@@ -11,11 +11,11 @@ import shutil
 import subprocess
 import sys
 import tomllib
+from collections.abc import Callable
 from configparser import ConfigParser
 from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
-from typing import Callable, NamedTuple
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
@@ -23,7 +23,8 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 PYTEST_NO_TESTS_COLLECTED = 5
 
 
-class PythonProject(NamedTuple):
+@dataclass
+class PythonProject:
     project_root: str
     python_root: str
     has_challenges: bool
@@ -63,6 +64,11 @@ PYTHON_PROJECTS: tuple[PythonProject, ...] = (
     PythonProject(
         project_root="simple_queued_pipelines",
         python_root="simple_queued_pipelines",
+        has_challenges=False,
+    ),
+    PythonProject(
+        project_root=".",
+        python_root="scripts",
         has_challenges=False,
     ),
 )

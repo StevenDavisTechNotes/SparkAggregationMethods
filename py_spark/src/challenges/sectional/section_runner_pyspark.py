@@ -6,8 +6,9 @@ import datetime as dt
 import gc
 import logging
 import time
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Iterable, Literal, cast
+from typing import Literal, cast
 
 import pandas as pd
 from pyspark import RDD

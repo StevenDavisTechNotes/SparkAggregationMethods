@@ -1,6 +1,6 @@
 import logging
 import queue
-from typing import Generator
+from collections.abc import Generator
 
 import pandas as pd
 from spark_agg_methods_common_python.challenges.six_field_test_data.six_domain_logic.merging_samples import (

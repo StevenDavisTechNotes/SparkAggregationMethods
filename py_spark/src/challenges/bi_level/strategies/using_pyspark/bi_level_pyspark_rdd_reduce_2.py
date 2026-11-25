@@ -1,5 +1,6 @@
 import math
-from typing import Iterable, NamedTuple
+from collections.abc import Iterable
+from typing import NamedTuple
 
 from pyspark import RDD
 from pyspark.sql import Row

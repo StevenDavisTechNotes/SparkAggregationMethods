@@ -1,10 +1,14 @@
 """Run autopep8, flake8, ty, pytest, pyright and/or the quick benchmark runs across every Python sub-project.
 
-Select tools with --autopep8, --flake8, --ty, --pytest, --pyright, --quick-run
-(default: all but pyright and quick-run when none is given).
---quick-run executes each challenge-bearing sub-project's quick_test_run.ps1.
+usage: uv run python scripts/run_all.py --ty --flake8 --autopep8 --pyright --pytest
+
+Select tools with --autopep8, --flake8, --ty, --pytest, --pyright, --quick-run, --register
+(default: all but pyright, quick-run and register when none is given).
+--quick-run executes each challenge-bearing sub-project's quick_test_run.ps1 with -NumRuns 1.
+--register does the same with -NumRuns 0, which only refreshes challenge_strategy_registration.json.
 Skip sub-projects with --exclude <project_root> (repeatable).
 """
+
 import argparse
 import os
 import shutil
@@ -100,7 +104,11 @@ class Tool:
 def _autopep8_command(project: PythonProject) -> list[str]:
     max_line_length = read_setup_cfg_int("pycodestyle", "max_line_length")
     return [
-        "uv", "run", "python", "-m", "autopep8",
+        "uv",
+        "run",
+        "python",
+        "-m",
+        "autopep8",
         "--in-place",
         "--recursive",
         f"--max-line-length={max_line_length}",
@@ -112,7 +120,11 @@ def _autopep8_command(project: PythonProject) -> list[str]:
 def _flake8_command(project: PythonProject) -> list[str]:
     max_line_length = read_setup_cfg_int("flake8", "max-line-length")
     return [
-        "uv", "run", "python", "-m", "flake8",
+        "uv",
+        "run",
+        "python",
+        "-m",
+        "flake8",
         f"--max-line-length={max_line_length}",
         "--exclude=.venv",
         project.python_root,
@@ -134,7 +146,13 @@ def _read_pyproject(project_dir: Path) -> dict:
 
 def _packaged_source_roots(project_dir: Path) -> list[Path]:
     """Directories that `[tool.setuptools.packages.find] where` exposes as import roots; empty when unset."""
-    find = _read_pyproject(project_dir).get("tool", {}).get("setuptools", {}).get("packages", {}).get("find", {})
+    find = (
+        _read_pyproject(project_dir)
+        .get("tool", {})
+        .get("setuptools", {})
+        .get("packages", {})
+        .get("find", {})
+    )
     return [(project_dir / where).resolve() for where in find.get("where", [])]
 
 
@@ -147,7 +165,9 @@ def _extra_search_paths(project: PythonProject) -> list[Path]:
     """
     project_dir = _find_project_dir(REPO_ROOT / project.project_root)
     roots = _packaged_source_roots(project_dir)
-    sources = _read_pyproject(project_dir).get("tool", {}).get("uv", {}).get("sources", {})
+    sources = (
+        _read_pyproject(project_dir).get("tool", {}).get("uv", {}).get("sources", {})
+    )
     for source in sources.values():
         if "path" in source:
             source_dir = (project_dir / source["path"]).resolve()
@@ -162,7 +182,12 @@ def _ty_command(project: PythonProject) -> list[str]:
         for argument in ("--extra-search-path", str(path))
     ]
     return [
-        "uv", "run", "python", "-m", "ty", "check",
+        "uv",
+        "run",
+        "python",
+        "-m",
+        "ty",
+        "check",
         *extra_search_paths,
         project.python_root,
     ]
@@ -175,35 +200,66 @@ def _pyright_executable() -> str:
     if found is None:
         npm = shutil.which("npm")
         if npm is not None:
-            prefix = subprocess.run([npm, "prefix", "-g"], capture_output=True, text=True, check=True).stdout.strip()
-            found = shutil.which("pyright", path=prefix if sys.platform == "win32" else str(Path(prefix) / "bin"))
+            prefix = subprocess.run(
+                [npm, "prefix", "-g"], capture_output=True, text=True, check=True
+            ).stdout.strip()
+            found = shutil.which(
+                "pyright",
+                path=prefix if sys.platform == "win32" else str(Path(prefix) / "bin"),
+            )
     if found is None:
-        raise FileNotFoundError("pyright not found; install it with `npm install -g pyright`")
+        raise FileNotFoundError(
+            "pyright not found; install it with `npm install -g pyright`"
+        )
     return found
 
 
 def _venv_python(project: PythonProject) -> Path:
     """Interpreter of the project"s own uv venv, which pyright needs to resolve third-party imports."""
     venv = _find_project_dir(REPO_ROOT / project.project_root) / ".venv"
-    return venv / "Scripts" / "python.exe" if sys.platform == "win32" else venv / "bin" / "python"
+    return (
+        venv / "Scripts" / "python.exe"
+        if sys.platform == "win32"
+        else venv / "bin" / "python"
+    )
 
 
 def _pyright_command(project: PythonProject) -> list[str]:
     return [
         _pyright_executable(),
-        "--pythonpath", str(_venv_python(project)),
+        "--pythonpath",
+        str(_venv_python(project)),
         project.python_root,
     ]
 
 
-def _quick_run_command(project: PythonProject) -> list[str]:
+def _quick_test_run_command(num_runs: int) -> Callable[[PythonProject], list[str]]:
     shell = "powershell" if sys.platform == "win32" else "pwsh"
-    return [shell, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "quick_test_run.ps1"]
+
+    def build(project: PythonProject) -> list[str]:
+        return [
+            shell,
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            "quick_test_run.ps1",
+            "-NumRuns",
+            str(num_runs),
+        ]
+
+    return build
 
 
 def _pytest_command(project: PythonProject) -> list[str]:
     return [
-        "uv", "run", "python", "-m", "pytest", "-m", "not slow",
+        "uv",
+        "run",
+        "python",
+        "-m",
+        "pytest",
+        "-m",
+        "not slow",
         project.python_root,
     ]
 
@@ -235,24 +291,44 @@ PYRIGHT = Tool(
 )
 QUICK_RUN = Tool(
     name="quick-run",
-    build_command=_quick_run_command,
+    build_command=_quick_test_run_command(1),
+    ok_return_codes=(0,),
+    challenges_only=True,
+)
+REGISTER = Tool(
+    name="register",
+    build_command=_quick_test_run_command(0),
     ok_return_codes=(0,),
     challenges_only=True,
 )
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--autopep8", action="store_true", help="Run autopep8 --in-place")
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument(
+        "--autopep8", action="store_true", help="Run autopep8 --in-place"
+    )
     parser.add_argument("--flake8", action="store_true", help="Run flake8")
     parser.add_argument("--ty", action="store_true", help="Run ty check")
     parser.add_argument("--pytest", action="store_true", help="Run pytest")
-    parser.add_argument("--pyright", action="store_true", help="Run global npm pyright (opt-in, not a default)")
+    parser.add_argument(
+        "--pyright",
+        action="store_true",
+        help="Run global npm pyright (opt-in, not a default)",
+    )
     parser.add_argument(
         "--quick-run",
         action="store_true",
         default=False,
         help="Run quick_test_run.ps1 in every sub-project that has challenges (opt-in, not a default)",
+    )
+    parser.add_argument(
+        "--register",
+        action="store_true",
+        default=False,
+        help="Refresh challenge_strategy_registration.json by running every runner with --runs 0 (opt-in)",
     )
     parser.add_argument(
         "--exclude",
@@ -264,7 +340,15 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     args = parser.parse_args(argv)
     # pyright is opt-in: it depends on a global npm install, unlike the uv-managed tools.
-    if not (args.autopep8 or args.flake8 or args.ty or args.pytest or args.pyright or args.quick_run):
+    if not (
+        args.autopep8
+        or args.flake8
+        or args.ty
+        or args.pytest
+        or args.pyright
+        or args.quick_run
+        or args.register
+    ):
         args.autopep8 = args.flake8 = args.ty = args.pytest = True
     return args
 
@@ -277,11 +361,16 @@ def run_tool(tool: Tool, exclude: list[str], env: dict[str, str]) -> list[str]:
             continue
         folder = project.project_root
         if folder in exclude:
-            print(f'\n{"="*50}\nSkipping {tool.name} in {folder}\n{"="*50}', flush=True)
+            print(
+                f"\n{'=' * 50}\nSkipping {tool.name} in {folder}\n{'=' * 50}",
+                flush=True,
+            )
             continue
 
-        print(f'\n{"="*50}\nRunning {tool.name} in {folder}\n{"="*50}', flush=True)
-        result = subprocess.run(tool.build_command(project), cwd=REPO_ROOT / folder, env=env)
+        print(f"\n{'=' * 50}\nRunning {tool.name} in {folder}\n{'=' * 50}", flush=True)
+        result = subprocess.run(
+            tool.build_command(project), cwd=REPO_ROOT / folder, env=env
+        )
         if result.returncode not in tool.ok_return_codes:
             failed_folders.append(folder)
             print(f"{tool.name} failed in {folder}!", file=sys.stderr)
@@ -291,15 +380,18 @@ def run_tool(tool: Tool, exclude: list[str], env: dict[str, str]) -> list[str]:
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     tools = [
-        tool for tool, selected in (
+        tool
+        for tool, selected in (
             (AUTOPEP8, args.autopep8),
             (FLAKE8, args.flake8),
             (TY, args.ty),
             (PYTEST, args.pytest),
             (PYRIGHT, args.pyright),
             (QUICK_RUN, args.quick_run),
+            (REGISTER, args.register),
         )
-        if selected]
+        if selected
+    ]
 
     env = child_env()
     failures = {tool.name: run_tool(tool, args.exclude, env) for tool in tools}
@@ -307,9 +399,9 @@ def main(argv: list[str] | None = None) -> int:
     failed = {name: folders for name, folders in failures.items() if folders}
     if failed:
         for name, folders in failed.items():
-            print(f'\n{name} failed in: {", ".join(folders)}', file=sys.stderr)
+            print(f"\n{name} failed in: {', '.join(folders)}", file=sys.stderr)
         return 1
-    print(f'\n{", ".join(failures)} passed successfully in all projects!')
+    print(f"\n{', '.join(failures)} passed successfully in all projects!")
     return 0
 
 

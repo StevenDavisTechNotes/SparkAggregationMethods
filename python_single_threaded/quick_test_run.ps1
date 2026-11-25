@@ -1,14 +1,15 @@
-# usage: . .\quick_test_run.ps1
+# usage: . .\quick_test_run.ps1 [-NumRuns <n>]   (NumRuns 0 only refreshes the strategy registration)
+param([int]$NumRuns = 1)
 
 .\.venv\Scripts\activate.ps1
 $failed = $false
-python -m src.challenges.bi_level.bi_level_runner_py_st --runs 1 --no-shuffle --size 3_3_10 3_30_10k
+python -m src.challenges.bi_level.bi_level_runner_py_st --runs $NumRuns --no-shuffle --size 3_3_10 3_30_10k
 if ($LASTEXITCODE -ne 0) { $failed = $true }
-python -m src.challenges.conditional.conditional_runner_py_st --runs 1 --no-shuffle --size 3_3_1 3_3_10 3_3_100
+python -m src.challenges.conditional.conditional_runner_py_st --runs $NumRuns --no-shuffle --size 3_3_1 3_3_10 3_3_100
 if ($LASTEXITCODE -ne 0) { $failed = $true }
-python -m src.challenges.sectional.section_runner_py_st --runs 1 --no-shuffle --size 1 10 100
+python -m src.challenges.sectional.section_runner_py_st --runs $NumRuns --no-shuffle --size 1 10 100
 if ($LASTEXITCODE -ne 0) { $failed = $true }
-python -m src.challenges.vanilla.vanilla_runner_py_st --runs 1 --no-shuffle --size 3_3_1 3_3_10 3_3_100
+python -m src.challenges.vanilla.vanilla_runner_py_st --runs $NumRuns --no-shuffle --size 3_3_1 3_3_10 3_3_100
 if ($LASTEXITCODE -ne 0) { $failed = $true }
 
 # Exit non-zero if any runner failed, so callers such as scripts/run_all.py --quick-run can see it.

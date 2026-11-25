@@ -175,10 +175,18 @@ def parse_request(argv: list[str]) -> PerfRunnerRequest:
     if args.runs is not None and args.target_num_samples is not None:
         parser.error("--runs and --target-num-samples cannot be specified together")
     top_up = args.target_num_samples is not None
-    num_runs = args.target_num_samples if top_up else 1 if args.runs is None else args.runs
+    num_runs = (
+        args.target_num_samples if args.target_num_samples is not None else
+        args.runs if args.runs is not None else
+        1
+    )
     if num_runs < 0:
         parser.error("the number of runs or samples cannot be negative")
-    return PerfRunnerRequest(num_runs=num_runs, top_up=top_up, runner_argv=[*runner_argv, "--runs", str(num_runs)])
+    return PerfRunnerRequest(
+        num_runs=num_runs,
+        top_up=top_up,
+        runner_argv=[*runner_argv, "--runs", str(num_runs)],
+    )
 
 
 def main() -> None:

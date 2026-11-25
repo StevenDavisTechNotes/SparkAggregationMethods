@@ -1,3 +1,5 @@
+# usage: python -m src.summarize_test_results
+
 import io
 import logging
 import os
@@ -11,12 +13,11 @@ from spark_agg_methods_common_python.challenge_strategy_registry import (
     ChallengeResultLogFileRegistration, ChallengeStrategyRegistrationKeyColumns,
     read_challenge_strategy_registration_consolidated,
 )
-from spark_agg_methods_common_python.perf_test_common import TESTING_YEAR, CalcEngine, Challenge, SolutionLanguage
+from spark_agg_methods_common_python.perf_test_common import (
+    ENGINE_FOLDER_MAP, TESTING_YEAR, CalcEngine, Challenge, SolutionLanguage,
+)
 from spark_agg_methods_common_python.utils.pandas_helpers import make_empty_pd_dataframe_from_schema
 from spark_agg_methods_common_python.utils.platform import setup_logging
-
-# usage: python -m src.summarize_test_results
-
 
 logger = logging.getLogger(__name__)
 FINAL_REPORT_FILE_PATH = "../results/{year}/{challenge}_results.csv"
@@ -174,17 +175,21 @@ def analyze_run_results():
         for language in challenge_result_log_registrations:
             for engine in challenge_result_log_registrations[language]:
                 if challenge not in challenge_result_log_registrations[language][engine]:
-                    logger.warning(f"Did not find {challenge} in {language} {engine} registration")
+                    logger.warning(f"Did not find {challenge.value} in {language.value} {engine.value} registration")
                     continue
                 challenge_result_log_registration = challenge_result_log_registrations[language][engine][challenge]
                 challenge_result_log_registration_by_strategy_name = {
                     x.strategy_name: x for x in challenge_result_log_registration.strategies
                 }
-                result_file_path = challenge_result_log_registration.result_file_path
+                result_file_path = (
+                    Path("..")
+                    / ENGINE_FOLDER_MAP[engine]
+                    / challenge_result_log_registration.result_file_path
+                )
                 regressor_column_name = challenge_result_log_registration.regressor_column_name
                 elapsed_time_column_name = challenge_result_log_registration.elapsed_time_column_name
                 df = read_run_result_file(
-                    log_file_path=Path(result_file_path),
+                    log_file_path=result_file_path,
                     key_columns=common_key_fields + [regressor_column_name],
                     regressor_column=regressor_column_name,
                     dependent_variable_column=challenge_result_log_registration.elapsed_time_column_name,

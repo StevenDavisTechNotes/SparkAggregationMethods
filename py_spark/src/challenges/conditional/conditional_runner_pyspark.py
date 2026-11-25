@@ -4,7 +4,7 @@ import argparse
 import gc
 import logging
 import time
-from dataclasses import dataclass, replace
+from dataclasses import dataclass
 
 import pandas as pd
 from spark_agg_methods_common_python.challenge_strategy_registry import (
@@ -23,7 +23,7 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_dat
 )
 from spark_agg_methods_common_python.perf_test_common import (
     ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge, RunnerArgumentsBase, RunResultBase,
-    SolutionInterfacePySpark, SolutionLanguage, assemble_itinerary, construct_result_file_path,
+    SolutionLanguage, assemble_itinerary, construct_result_file_path,
 )
 from spark_agg_methods_common_python.utils.platform import setup_logging
 from src.challenges.conditional.conditional_strategy_directory_pyspark import CONDITIONAL_STRATEGY_REGISTRY_PYSPARK
@@ -31,7 +31,7 @@ from src.challenges.six_field_test_data.six_runner_base_pyspark import (
     six_run_one_step_in_pyspark_itinerary, six_spark_config_base,
 )
 from src.challenges.six_field_test_data.six_test_data_for_pyspark import (
-    SixFieldChallengeMethodPythonPysparkRegistration, SixFieldDataSetPyspark, six_prepare_data_set_pyspark,
+    SixFieldDataSetPyspark, six_prepare_data_set_pyspark,
 )
 from src.utils.tidy_session_pyspark import TidySparkSession
 
@@ -119,53 +119,6 @@ class ConditionalPysparkRunResultFileWriter(ConditionalPythonRunResultFileWriter
         )
 
 
-# Warm-up probes on the 9-row data set (fresh JVM, run n of the same strategy): DataFrame and SQL strategies keep
-# getting faster for about 5 runs (df_join 8.3, 2.3, 1.5, 1.2, 0.9 s), pandas-UDF ones are warm after the first
-# (4.0 s then flat), and RDD ones never change (60, 57, 59 s) because worker start-up dominates them.
-MAX_WARM_UP_RUNS = 6
-WARM_UP_STILL_IMPROVING_RATIO = 0.8  # keep warming up while a run took under 80% of the previous one
-
-
-def warm_up_strategy(
-        *,
-        challenge_method_registration: SixFieldChallengeMethodPythonPysparkRegistration,
-        warm_up_data_set: ConditionalDataSetWAnswerPyspark,
-        exec_params: SixTestExecutionParameters,
-        spark_session: TidySparkSession,
-) -> None:
-    """Run the strategy about to be timed on the smallest data set until it stops getting faster; record nothing.
-
-    Each step runs in a fresh JVM (see perf_test_runner_for_pyspark), so without this the timed run would also pay
-    for loading and compiling the code paths of its own strategy, which a long-lived JVM only pays once.
-    """
-    logger = spark_session.logger
-    strategy_name = challenge_method_registration.strategy_name
-    if challenge_method_registration.interface == SolutionInterfacePySpark.PYSPARK_RDD:
-        logger.info(f"No warm-up for {strategy_name}: RDD strategies do not speed up when repeated")
-        return
-    previous_elapsed_time: float | None = None
-    for run_number in range(1, MAX_WARM_UP_RUNS + 1):
-        match six_run_one_step_in_pyspark_itinerary(
-            challenge_method_registration=challenge_method_registration,
-            challenge=CHALLENGE,
-            correct_answer=warm_up_data_set.answer,
-            data_set=warm_up_data_set,
-            exec_params=exec_params,
-            result_columns=GROUP_BY_COLUMNS+AGGREGATION_COLUMNS_3,
-            spark_session=spark_session,
-        ):
-            case RunResultBase() as run_result:
-                elapsed_time = run_result.elapsed_time
-            case _:
-                return  # infeasible; the timed run will report that itself
-        logger.info(
-            f"Warm-up {run_number} of {strategy_name} on {warm_up_data_set.data_description.size_code} "
-            f"took {elapsed_time:.1f} seconds (not recorded)")
-        if previous_elapsed_time is not None and elapsed_time >= WARM_UP_STILL_IMPROVING_RATIO * previous_elapsed_time:
-            return
-        previous_elapsed_time = elapsed_time
-
-
 def do_test_runs(
         args: Arguments,
         spark_session: TidySparkSession,
@@ -179,8 +132,6 @@ def do_test_runs(
     keyed_implementation_list = {
         x.strategy_name: x for x in CONDITIONAL_STRATEGY_REGISTRY_PYSPARK}
     keyed_data_sets = {x.data_description.size_code: x for x in prepare_data_sets(args, spark_session)}
-    smallest_size = min(DATA_SIZE_LIST_CONDITIONAL_MAXIMAL, key=lambda x: x.num_source_rows)
-    warm_up_data_set = prepare_data_sets(replace(args, sizes=[smallest_size.size_code]), spark_session)[0]
     with ConditionalPysparkRunResultFileWriter() as file:
         for index, (strategy_name, size_code) in enumerate(itinerary):
             challenge_method_registration = keyed_implementation_list[strategy_name]
@@ -192,12 +143,6 @@ def do_test_runs(
                     strategy=challenge_method_registration.strategy_name,
                     size_code=data_set.data_description.size_code))
             try:
-                warm_up_strategy(
-                    challenge_method_registration=challenge_method_registration,
-                    warm_up_data_set=warm_up_data_set,
-                    exec_params=args.exec_params,
-                    spark_session=spark_session,
-                )
                 match six_run_one_step_in_pyspark_itinerary(
                     challenge_method_registration=challenge_method_registration,
                     challenge=CHALLENGE,

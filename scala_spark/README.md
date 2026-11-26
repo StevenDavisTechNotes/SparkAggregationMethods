@@ -4,6 +4,17 @@
 
 This directory contains the Scala implementations for the Spark aggregation challenges. It demonstrates how to use the native Scala API (RDDs, DataFrames, Datasets, and UDAFs) to solve complex aggregation problems and benchmarks their performance against the Python equivalents.
 
+## Status: ported for comparison, run only in 2018
+
+The Scala code exists to give the PySpark implementations a native-Spark yardstick. It was run only in 2018 and
+is not part of the routine benchmark: it is not wired into the Python runner harness or strategy registry (the
+`vanilla_strategy_directory_scala_spark.py` entries are placeholders whose delegates raise
+`NotImplementedError`), generates its own random data, and covers fewer sizes than the Python runners.
+The `vanilla` runner (`challenges.vanilla.Runner`) would append its rows to
+`results/2026/wsl/vanilla_runs_scala.csv`, relative to the directory it is run from. The `dedupe` runner has its own
+settings and results handling. The variance in the naive strategies is population variance (divide
+by n), deliberately uncentered, to match the Python strategies.
+
 ## 🛠 Getting Started
 
 We use `sbt` as the build tool for the Scala projects.

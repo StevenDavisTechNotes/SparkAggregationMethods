@@ -44,87 +44,87 @@ object Verifier {
       if (secretKeys != expectedSecretKeys) {
         val dmissing = expectedSecretKeys &~ secretKeys
         val dextra = secretKeys &~ expectedSecretKeys
-        throw new Exception(f"Missing $dmissing extra $dextra")
+        throw new IllegalStateException(f"Missing $dmissing extra $dextra")
       }
 
       val count = deduped.length
       if (count != actualNumPeople) {
-        throw new Exception(f"df.count()=$count != numPeople=$actualNumPeople ")
+        throw new IllegalStateException(f"df.count()=$count != numPeople=$actualNumPeople ")
       }
       val NumBRecords = math.max(1, 2 * actualNumPeople / 100)
       for ((row: Record, index: Int) <- deduped.zipWithIndex) {
         val i: Long = index + 1
         val hashString = RecordMethods.hashName(i)
         if (f"FFFFFFA${i}_${hashString}" != row.FirstName) {
-          throw new Exception(f"${i}: FFFFFFA${i}_${hashString} != ${row.FirstName}")
+          throw new IllegalStateException(f"${i}: FFFFFFA${i}_${hashString} != ${row.FirstName}")
         }
         if (f"LLLLLLA${i}_${hashString}" != row.LastName) {
-          throw new Exception(f"${i}: LLLLLLA{i}_${hashString} != ${row.LastName}")
+          throw new IllegalStateException(f"${i}: LLLLLLA{i}_${hashString} != ${row.LastName}")
         }
         if (f"${i} Main St" != row.StreetAddress) {
-          throw new Exception(f"${i} Main St != row.StreetAddress")
+          throw new IllegalStateException(f"${i} Main St != row.StreetAddress")
         }
         if ("Plaineville ME" != row.City) {
-          throw new Exception("${i}: Plaineville ME != ${row.City}")
+          throw new IllegalStateException("${i}: Plaineville ME != ${row.City}")
         }
         val sZipCode = f"${(i.toInt-1)%100}%05d"
         if (f"${(i.toInt - 1) % 100}%05d" != row.ZipCode) {
-          throw new Exception(f"${((i.toInt - 1) % 100) % 05d} != ${row.ZipCode}")
+          throw new IllegalStateException(f"${((i.toInt - 1) % 100) % 05d} != ${row.ZipCode}")
         }
         if (i != row.SecretKey) {
-          throw new Exception(f"${i}: ${i} != SecretKey=${row.SecretKey}")
+          throw new IllegalStateException(f"${i}: ${i} != SecretKey=${row.SecretKey}")
         }
         if (f"${i * 2}" != row.FieldA) {
-          throw new Exception(f"${i}: ${i * 2} != FieldA=${row.FieldA}")
+          throw new IllegalStateException(f"${i}: ${i * 2} != FieldA=${row.FieldA}")
         }
 
         if ((NumSources < 2) || (i > NumBRecords)) {
           if (row.FieldB != null) {
-            throw new Exception("${i}: row.FieldB is not None, NumSources=${NumSources}, NumBRecords=${NumBRecords}")
+            throw new IllegalStateException("${i}: row.FieldB is not None, NumSources=${NumSources}, NumBRecords=${NumBRecords}")
           }
         } else {
           if (f"${i * 3}" != row.FieldB) {
-            throw new Exception(f"${i}: ${i * 3} != FieldB=${row.FieldB}")
+            throw new IllegalStateException(f"${i}: ${i * 3} != FieldB=${row.FieldB}")
           }
         }
 
         if (NumSources < 3) {
           if (row.FieldC != null) {
-            throw new Exception("${i}: row.FieldC is not None, NumSources=${NumSources}")
+            throw new IllegalStateException("${i}: row.FieldC is not None, NumSources=${NumSources}")
           }
         } else {
           if (f"${i * 5}" != row.FieldC) {
-            throw new Exception(f"${i}: ${i * 5} != FieldC=${row.FieldC}")
+            throw new IllegalStateException(f"${i}: ${i * 5} != FieldC=${row.FieldC}")
           }
         }
 
         if (NumSources < 4) {
           if (row.FieldD != null) {
-            throw new Exception("${i}: row.FieldD is not None, NumSources=${NumSources}")
+            throw new IllegalStateException("${i}: row.FieldD is not None, NumSources=${NumSources}")
           }
         } else {
           if (f"${i * 7}" != row.FieldD) {
-            throw new Exception(f"${i}: ${i * 7} != FieldD=${row.FieldD}")
+            throw new IllegalStateException(f"${i}: ${i * 7} != FieldD=${row.FieldD}")
           }
         }
 
         if (NumSources < 5) {
           if (row.FieldE != null) {
-            throw new Exception("${i}: row.FieldE is not None, NumSources=${NumSources}")
+            throw new IllegalStateException("${i}: row.FieldE is not None, NumSources=${NumSources}")
           }
         } else {
           if (f"${i * 11}" != row.FieldE) {
-            throw new Exception(f"${i}: ${i * 11} != FieldE=${row.FieldE}")
+            throw new IllegalStateException(f"${i}: ${i * 11} != FieldE=${row.FieldE}")
           }
         }
 
         if (NumSources < 6) {
           if (row.FieldF != null) {
-            throw new Exception(f"${i}: row.FieldF is not None, NumSources=${NumSources}")
+            throw new IllegalStateException(f"${i}: row.FieldF is not None, NumSources=${NumSources}")
           }
         } else {
           if (f"${i * 13}" != row.FieldF) {
-            throw new Exception(f"$i: ${i * 13} != FieldF=${row.FieldF}")
+            throw new IllegalStateException(f"$i: ${i * 13} != FieldF=${row.FieldF}")
           }
         }
       }

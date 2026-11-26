@@ -8,10 +8,7 @@ object VanillaRDDGrpMap {
   def run(
       dataSize: Long, 
       listData: IndexedSeq[DataPoint], 
-      sc: SparkContext, spark: SparkSession): (
-          RDD[AggResult], 
-          DataFrame,
-          Dataset[AggResult]) = {
+      sc: SparkContext, spark: SparkSession): StrategyResult = {
     import spark.implicits._
     val rddData = sc.parallelize(listData, numSlices=8)
     def processData1(grp: Long, subgrp: Long, 
@@ -36,7 +33,7 @@ object VanillaRDDGrpMap {
             sum_of_E_squared
             - sum_of_E * sum_of_E / count
         ) / count
-      return new AggResult(grp, subgrp, 
+      AggResult(grp, subgrp, 
           mean_of_C, max_of_D, var_of_E, var_of_E)
     }
 
@@ -45,6 +42,6 @@ object VanillaRDDGrpMap {
         .map( { case ((grp, subgrp),lst) => 
           processData1(grp, subgrp, lst) })
         .sortBy(x=>(x.grp, x.subgrp))
-    return (rddResult, null, null)
+    RddResult(rddResult)
   }
 }

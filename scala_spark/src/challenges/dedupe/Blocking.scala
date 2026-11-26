@@ -31,7 +31,7 @@ object Blocking {
       .select(col("Rows.*"))
       .drop($"BlockingKey")
       .drop($"SourceId")
-    return df
+    df
   }
 
   def BlockingFunctionWSrc(x: RecordWSrc) = {

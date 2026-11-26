@@ -8,10 +8,7 @@ object VanillaRDDMapPart {
   def run(
       dataSize: Long, 
       listData: IndexedSeq[DataPoint], 
-      sc: SparkContext, spark: SparkSession): (
-          RDD[AggResult], 
-          DataFrame,
-          Dataset[AggResult]) = {
+      sc: SparkContext, spark: SparkSession): StrategyResult = {
     import spark.implicits._
     val rddData = sc.parallelize(listData, numSlices=8)
     
@@ -30,24 +27,18 @@ object VanillaRDDMapPart {
       def Add(v: DataPoint) = {
         running_sum_of_C += v.C
         running_count += 1
-        running_max_of_D = Some(
-          if (running_max_of_D.isDefined) 
-            math.max(running_max_of_D.get, v.D)
-          else v.D)
+        running_max_of_D = Some(running_max_of_D.fold(v.D)(math.max(_, v.D)))
         running_sum_of_E_squared += v.E * v.E
         running_sum_of_E += v.E
       }
       def Add(sub: SubTotal) = {
         running_sum_of_C += sub.running_sum_of_C
         running_count += sub.running_count
-        running_max_of_D =
-          if (running_max_of_D.isDefined) (
-            if(sub.running_max_of_D.isDefined) 
-              Some(math.max(running_max_of_D.get, 
-                  sub.running_max_of_D.get))
-            else
-              running_max_of_D
-          ) else sub.running_max_of_D
+        running_max_of_D = (running_max_of_D, sub.running_max_of_D) match {
+          case (Some(a), Some(b)) => Some(math.max(a, b))
+          case (a, None)          => a
+          case (None, b)          => b
+        }
         running_sum_of_E_squared += sub.running_sum_of_E_squared
         running_sum_of_E += sub.running_sum_of_E
       }
@@ -62,7 +53,7 @@ object VanillaRDDMapPart {
     }
     def partitionTriage(iterator: Iterator[DataPoint]): 
       Iterator[((Long, Long), SubTotal)] = {
-        var running_subtotals = 
+        val running_subtotals = 
           scala.collection.mutable.Map[(Long,Long),RunningTotal]()
         for(v <- iterator) {
             val k = (v.grp, v.subgrp)
@@ -77,7 +68,7 @@ object VanillaRDDMapPart {
     }
     def mergeCombiners(iterable: Iterable[SubTotal]):
       SubTotal = {
-        var runningTotal = new RunningTotal()
+        val runningTotal = new RunningTotal()
         for (rsub <- iterable) {
           runningTotal.Add(rsub)
         }
@@ -100,7 +91,7 @@ object VanillaRDDMapPart {
         mean_of_C= 
           if (count < 1) Double.NaN 
           else sum_of_C / count,
-        max_of_D= if(max_of_D.isDefined) max_of_D.get else Double.NaN, 
+        max_of_D= max_of_D.getOrElse(Double.NaN), 
         var_of_E = var_of_E,
         var_of_E2 = var_of_E)
     }
@@ -115,6 +106,6 @@ object VanillaRDDMapPart {
           case (k,v) => finalAnalytics(k, v)
         }
         .sortBy(x=>(x.grp, x.subgrp))
-    return (rddResult, null, null)
+    RddResult(rddResult)
   }
 }

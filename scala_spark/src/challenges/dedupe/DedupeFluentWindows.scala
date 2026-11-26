@@ -218,6 +218,6 @@ object DedupeFluentWindows {
         .drop($"GroupId")
       dfSelected = df
     }
-    return (null, dfSelected, null)
+    (null, dfSelected, null)
   }
 }

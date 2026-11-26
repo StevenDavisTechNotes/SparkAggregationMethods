@@ -65,14 +65,11 @@ object VanillaUDAF {
   def run(
       dataSize: Long, 
       listData: IndexedSeq[DataPoint], 
-      sc: SparkContext, spark: SparkSession): (
-          RDD[AggResult], 
-          DataFrame,
-          Dataset[AggResult]) = {
+      sc: SparkContext, spark: SparkSession): StrategyResult = {
     import spark.implicits._
-    var ds = spark.createDataset(listData)
-    var myVarianceUDAF = new MyVarianceUDAF
-    var ds2 = ds
+    val ds = spark.createDataset(listData)
+    val myVarianceUDAF = new MyVarianceUDAF
+    val ds2 = ds
         .groupByKey(x => (x.grp, x.subgrp))
         .agg(
             typedMean[DataPoint](_.C).name("mean_of_C"),
@@ -83,6 +80,6 @@ object VanillaUDAF {
         .map { case ((grp, subgrp), mean_of_C, max_of_D, var_of_E, var_of_E2) =>
           AggResult(grp, subgrp, mean_of_C, max_of_D, var_of_E, var_of_E2) }
         .orderBy($"grp", $"subgrp")
-    return (null, null, ds2)
+    DatasetResult(ds2)
   }
 }

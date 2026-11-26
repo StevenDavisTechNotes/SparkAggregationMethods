@@ -4,23 +4,23 @@ import org.apache.spark.sql.{types => DataTypes}
 import common.MathHelper._
 
 final case class DataPoint(
-    var id: Long, 
-    var grp: Long, 
-    var subgrp: Long,
-    var A: Long, 
-    var B: Long, 
-    var C: Double, 
-    var D: Double, 
-    var E: Double, 
-    var F: Double)
+    id: Long, 
+    grp: Long, 
+    subgrp: Long,
+    A: Long, 
+    B: Long, 
+    C: Double, 
+    D: Double, 
+    E: Double, 
+    F: Double)
 
 final case class AggResult(
-    var grp: Long, 
-    var subgrp: Long,
-    var mean_of_C: Double, 
-    var max_of_D: Double, 
-    var var_of_E: Double, 
-    var var_of_E2: Double)
+    grp: Long, 
+    subgrp: Long,
+    mean_of_C: Double, 
+    max_of_D: Double, 
+    var_of_E: Double, 
+    var_of_E2: Double)
     
 object DataPoint {
   def DataPointSchema: DataTypes.StructType = {
@@ -37,53 +37,52 @@ object DataPoint {
     Nil
     )
   }
-  var random = scala.util.Random
-  def generateData(numGrp1: Int, numGrp2: Int, repetition: Int) =
+  private val random = new scala.util.Random()
+  def generateData(numGrp1: Int, numGrp2: Int, repetition: Int): IndexedSeq[DataPoint] =
     for (i <- 0 until numGrp1 * numGrp2 * repetition)
       yield DataPoint(
-            id=i, 
-            grp=(i / numGrp2) % numGrp1,
-            subgrp=i % numGrp2,
-            A=random.nextInt(repetition)+1,
-            B=random.nextInt(repetition)+1,
-            C=random.nextDouble()*10+1,
-            D=random.nextDouble()*10+1,
-            E=random.nextGaussian()*10+0,
-            F=random.nextGaussian()*10+1)
-   def generateCorrectValues(data: IndexedSeq[DataPoint]): Map[(Long,Long),AggResult] = {
-      
-     val grps = data.groupBy(x=>(x.grp,x.subgrp))
-     val inter = grps.map( { case ((grp, subgrp),lst) => {
-       val v = variance(lst.map(_.E))
-       ((grp, subgrp), AggResult(
-           grp, subgrp,
-           mean(lst.map(_.C)),
-           max(lst.map(_.D).toList).get,
-           v, v
-           ))}})
-     return inter
-   }
-  def checkData(numGrp1: Int, numGrp2: Int, correct: Map[(Long, Long), AggResult], actual: Iterable[AggResult]): Boolean = {
-    val tolerance = 1e-10
-    val actMap = actual.groupBy(x=>(x.grp, x.subgrp))
-    var maxErrorFound: Double = 0
-    for(
-        grp <- 0 until numGrp1;
-        subgrp <- 0 until numGrp2) {
-       val lhs = correct((grp, subgrp))
-       val rhs = actMap((grp, subgrp)).head
-       maxErrorFound = math.max(maxErrorFound, max(
-           math.abs(2*(lhs.mean_of_C - rhs.mean_of_C)/(lhs.mean_of_C + rhs.mean_of_C)) ::
-           math.abs(2*(lhs.max_of_D - rhs.max_of_D)/(lhs.max_of_D + rhs.max_of_D)) ::
-           math.abs(2*(lhs.var_of_E - rhs.var_of_E)/(lhs.var_of_E + rhs.var_of_E)) ::
-           math.abs(2*(lhs.var_of_E2 - rhs.var_of_E2)/(lhs.var_of_E2 + rhs.var_of_E2)) :: 
-           Nil).get)
-      if(maxErrorFound >= tolerance)
-        println(s"!out of tolerance {maxErrorFound} for {grp} {subgrp}")
+        id = i,
+        grp = (i / numGrp2) % numGrp1,
+        subgrp = i % numGrp2,
+        A = random.nextInt(repetition) + 1,
+        B = random.nextInt(repetition) + 1,
+        C = random.nextDouble() * 10 + 1,
+        D = random.nextDouble() * 10 + 1,
+        E = random.nextGaussian() * 10 + 0,
+        F = random.nextGaussian() * 10 + 1)
+
+  def generateCorrectValues(data: IndexedSeq[DataPoint]): Map[(Long, Long), AggResult] =
+    data.groupBy(x => (x.grp, x.subgrp)).map {
+      case ((grp, subgrp), lst) =>
+        val v = variance(lst.map(_.E))
+        (grp, subgrp) -> AggResult(grp, subgrp, mean(lst.map(_.C)), lst.map(_.D).max, v, v)
     }
-    return maxErrorFound < tolerance 
+
+  private def relativeError(lhs: Double, rhs: Double): Double =
+    math.abs(2 * (lhs - rhs) / (lhs + rhs))
+
+  def checkData(
+      numGrp1: Int,
+      numGrp2: Int,
+      correct: Map[(Long, Long), AggResult],
+      actual: Iterable[AggResult]): Boolean = {
+    val tolerance = 1e-10
+    val actMap = actual.groupBy(x => (x.grp, x.subgrp))
+    val errors = for (
+      grp <- 0 until numGrp1;
+      subgrp <- 0 until numGrp2
+    ) yield {
+      val lhs = correct((grp, subgrp))
+      val rhs = actMap((grp, subgrp)).head
+      val error = Seq(
+        relativeError(lhs.mean_of_C, rhs.mean_of_C),
+        relativeError(lhs.max_of_D, rhs.max_of_D),
+        relativeError(lhs.var_of_E, rhs.var_of_E),
+        relativeError(lhs.var_of_E2, rhs.var_of_E2)).max
+      if (error >= tolerance)
+        LogHolder.log.error(s"Out of tolerance $error for $grp $subgrp")
+      error
+    }
+    errors.max < tolerance
   }
 }
-
-//var rdd = sc.parallelize(DataPointGenerator.generateData(2,3,5))
-//rdd.count()

@@ -8,10 +8,7 @@ object VanillaRDDReduce {
   def run(
       dataSize: Long, 
       listData: IndexedSeq[DataPoint], 
-      sc: SparkContext, spark: SparkSession): (
-          RDD[AggResult], 
-          DataFrame,
-          Dataset[AggResult]) = {
+      sc: SparkContext, spark: SparkSession): StrategyResult = {
     import spark.implicits._
     val rddData = sc.parallelize(listData, numSlices=8)
     
@@ -76,6 +73,6 @@ object VanillaRDDReduce {
             mergeCombiners)
         .map(kv => finalAnalytics(kv._1, kv._2))
         .sortBy(x=>(x.grp, x.subgrp))
-    return (rddResult, null, null)
+    RddResult(rddResult)
   }
 }

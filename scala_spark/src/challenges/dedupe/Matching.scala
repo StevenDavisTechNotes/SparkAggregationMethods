@@ -51,7 +51,7 @@ object Matching {
       iFirstName, jFirstName)
     if (actualRatioFirstName < MatchThreshold) {
       if (iSecretKey == jSecretKey) {
-        throw new Exception(f"FirstName non-match for {iSecretKey} with itself {iFirstName} {jFirstName} actualRatioFirstName={actualRatioFirstName}")
+        throw new IllegalStateException(f"FirstName non-match for ${iSecretKey} with itself ${iFirstName} ${jFirstName} actualRatioFirstName=${actualRatioFirstName}")
       }
       return false
     }
@@ -59,15 +59,15 @@ object Matching {
       iLastName, jLastName)
     if (actualRatioLastName < MatchThreshold) {
       if (iSecretKey == jSecretKey) {
-        throw new Exception(f"LastName non-match for {iSecretKey} with itself {iLastName} {jLastName} with actualRatioLastName={actualRatioLastName}")
+        throw new IllegalStateException(f"LastName non-match for ${iSecretKey} with itself ${iLastName} ${jLastName} with actualRatioLastName=${actualRatioLastName}")
       }
       return false
     }
     if (iSecretKey != jSecretKey) {
-      throw new Exception(f"""
-        False match for {iSecretKey}-{jSecretKey} with itself 
-        iFirstName={iFirstName} jFirstName={jFirstName} actualRatioFirstName={actualRatioFirstName} 
-        iLastName={iLastName} jLastName={jLastName} actualRatioLastName={actualRatioLastName}""")
+      throw new IllegalStateException(f"""
+        False match for ${iSecretKey}-${jSecretKey} with itself 
+        iFirstName=${iFirstName} jFirstName=${jFirstName} actualRatioFirstName=${actualRatioFirstName} 
+        iLastName=${iLastName} jLastName=${jLastName} actualRatioLastName=${actualRatioLastName}""")
     }
     return true
   }
@@ -79,8 +79,8 @@ object Matching {
     val actualRatio = stringSimilarity(lhs, rhs)
     if (actualRatio < MatchThreshold) {
       if (iSecretKey == jSecretKey) {
-        throw new Exception(
-          f"Name non-match for {iSecretKey} with itself {lhs} {rhs} ratio={actualRatio}")
+        throw new IllegalStateException(
+          f"Name non-match for ${iSecretKey} with itself ${lhs} ${rhs} ratio=${actualRatio}")
       }
       return false
     }
@@ -239,7 +239,7 @@ object Matching {
             (x.FirstName.length > 0)) 1 else 0),
           x.LastName, x.FirstName))
       if (sorted.isEmpty) {
-        throw new Exception("no valid names")
+        throw new IllegalStateException("no valid names")
       }
       val best = sorted.head
       FirstName = best.FirstName
@@ -256,7 +256,7 @@ object Matching {
             (x.StreetAddress.length > 0)) 1 else 0),
           x.LastName, x.FirstName))
       if (sorted.isEmpty) {
-        throw new Exception("no valid addresses")
+        throw new IllegalStateException("no valid addresses")
       }
       val best = sorted.head
       StreetAddress = best.StreetAddress
@@ -266,7 +266,7 @@ object Matching {
     {
       var secretKeys = constituentList.map(x => x.SecretKey).distinct
       if (secretKeys.length != 1) {
-        throw new Exception(f"Found ${secretKeys.length} distinct keys in a component")
+        throw new IllegalStateException(f"Found ${secretKeys.length} distinct keys in a component")
       }
       SecretKey = secretKeys(0)
     }
@@ -321,7 +321,7 @@ object Matching {
             (x.FirstName.length > 0)) 1 else 0),
           x.LastName, x.FirstName))
       if (sorted.isEmpty) {
-        throw new Exception("no valid names")
+        throw new IllegalStateException("no valid names")
       }
       val best = sorted.head
       FirstName = best.FirstName
@@ -338,7 +338,7 @@ object Matching {
             (x.StreetAddress.length > 0)) 1 else 0),
           x.LastName, x.FirstName))
       if (sorted.isEmpty) {
-        throw new Exception("no valid addresses")
+        throw new IllegalStateException("no valid addresses")
       }
       val best = sorted.head
       StreetAddress = best.StreetAddress
@@ -348,7 +348,7 @@ object Matching {
     {
       var secretKeys = constituentList.map(x => x.SecretKey).distinct
       if (secretKeys.length != 1) {
-        throw new Exception(f"Found ${secretKeys.length} distinct keys in a component")
+        throw new IllegalStateException(f"Found ${secretKeys.length} distinct keys in a component")
       }
       SecretKey = secretKeys(0)
     }

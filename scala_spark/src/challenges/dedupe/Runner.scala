@@ -56,8 +56,7 @@ case class Runner(IsCloudMode: Boolean, OverrideCanAssumeNoDupesPerPartition: Bo
         .config("spark.port.maxRetries", "0")
         .config("spark.rpc.numRetries", "0")
         .config("spark.task.maxFailures", "1")
-        .config("spark.sql.execution.arrow.enabled", "true")
-        .config("spark.worker.cleanup.enabled", "true")
+                .config("spark.worker.cleanup.enabled", "true")
         .enableHiveSupport()
         .getOrCreate()
 
@@ -154,7 +153,7 @@ case class Runner(IsCloudMode: Boolean, OverrideCanAssumeNoDupesPerPartition: Bo
         } else if (ds != null) {
           actual = ds.collect()
         } else {
-          throw new Exception("no data returned")
+          throw new IllegalStateException("no data returned")
         }
         val finishedTime = System.nanoTime()
         val recordCount = actual.length
@@ -175,7 +174,7 @@ case class Runner(IsCloudMode: Boolean, OverrideCanAssumeNoDupesPerPartition: Bo
             numPeople,
             gendataset.DataSize, ds, ss)
         } else {
-          throw new Exception("Don't know how to verify that")
+          throw new IllegalArgumentException("Don't know how to verify that")
         }
         val result = RunResult(
           DataSize = gendataset.DataSize,

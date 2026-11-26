@@ -18,11 +18,4 @@ object MathHelper {
     val avg = mean(a)
     a.map(x => math.pow((x - avg), 2)).sum / a.size
   }
-  // https://stackoverflow.com/questions/19044114/how-to-find-the-largest-element-in-a-list-of-integers-recursively
-  def max[A <% Ordered[A]](xs: List[A]): Option[A] = xs match {
-    case Nil            => None
-    case x :: Nil       => Some(x)
-    case x :: y :: rest => max((if (x > y) x else y) :: rest)
-  }
-
 }

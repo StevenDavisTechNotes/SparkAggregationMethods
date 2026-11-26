@@ -1,12 +1,10 @@
 package challenges.vanilla
 
-import java.io._
-import scala.collection.immutable.IndexedSeq
+import scala.util.Random
 
 import org.apache.log4j.Logger
-import org.apache.spark.rdd.{ RDD }
-import org.apache.spark.{ SparkConf, SparkContext }
-import org.apache.spark.sql.{ SparkSession, Row, DataFrame, Dataset, Encoder }
+import org.apache.spark.{ SparkContext }
+import org.apache.spark.sql.{ SparkSession }
 
 import common.FileHelper
 import common.MathHelper
@@ -15,43 +13,48 @@ object LogHolder extends Serializable {
   @transient lazy val log = Logger.getLogger(getClass.getName)
 }
 
+/**
+ * Scala Spark port of the "vanilla" challenge, kept only as a performance comparison for the PySpark
+ * implementations. It was run once, in 2018. It is not wired into the Python runner harness or registry
+ * (see py_spark/src/challenges/vanilla/vanilla_strategy_directory_scala_spark.py), generates its own random
+ * data, and appends one row per run to [[Runner.ResultsFile]]. Run it from the scala_spark directory.
+ */
 object Runner {
+  /** Same layout as the Python runners: results/<year>/<environment>/<challenge>_<engine>_runs.csv */
+  val ResultsFile = "results/2026/wsl/vanilla_runs_scala.csv"
+  private val ResultsHeader = "outcome,rawmethod,interface,expectedSize,returnedSize,elapsedTime"
+
   def createSparkSession(): SparkSession = {
     val ss = SparkSession
       .builder
       .master("local[*]")
-      .appName("CondPerfTest")
+      .appName("VanillaPerfTest")
       .config("spark.sql.shuffle.partitions", 8)
       .config("spark.ui.enabled", "false")
       .config("spark.rdd.compress", "false")
-//      .config("spark.driver.memory", "20g") -Xms2g -Xmx20g
       .config("spark.shuffle.io.maxRetries", "0")
       .config("spark.port.maxRetries", "0")
       .config("spark.rpc.numRetries", "0")
       .config("spark.task.maxFailures", "1")
-      .config("spark.sql.execution.arrow.enabled", "true")
-      .config("spark.local.dir", sys.env.get("SPARK_SCRATCH_SPACE").getOrElse(new java.io.File(System.getProperty("java.io.tmpdir"), "spark_scratch").getAbsolutePath()))
-      .enableHiveSupport()
+      .config("spark.local.dir", sys.env.getOrElse(
+        "SPARK_SCRATCH_SPACE",
+        new java.io.File(System.getProperty("java.io.tmpdir"), "spark_scratch").getAbsolutePath()))
       .getOrCreate()
     LogHolder.log.info("script initialized")
     ss
   }
+
   final case class ComputationMethod(
     name:      String,
     interface: String,
-    delegate:  (Long, IndexedSeq[DataPoint], SparkContext, SparkSession) => (RDD[AggResult], DataFrame, Dataset[AggResult]))
+    delegate:  (Long, IndexedSeq[DataPoint], SparkContext, SparkSession) => StrategyResult)
   final case class ItineraryStop(
     compMethod: ComputationMethod,
     data:       IndexedSeq[DataPoint])
-  final case class RunResult(
-      dataSize: Long, 
-      elapsedTime: Double, 
-      recordCount: Long)
 
-  def main(args: Array[String]) = {
+  def main(args: Array[String]): Unit = {
     val ss = createSparkSession()
     val sc = ss.sparkContext
-    import ss.implicits._
 
     val methodList = List(
       ComputationMethod("vanilla_sql", "sql", VanillaSQL.run),
@@ -63,70 +66,46 @@ object Runner {
 
     val numGrp1 = 3
     val numGrp2 = 3
-    val pyData_3_3_10 = DataPoint.generateData(3, 3, MathHelper.pow(10, 1))
-    val pyData_3_3_100 = DataPoint.generateData(3, 3, MathHelper.pow(10, 2))
-    val pyData_3_3_1k = DataPoint.generateData(3, 3, MathHelper.pow(10, 3))
-    val pyData_3_3_10k = DataPoint.generateData(3, 3, MathHelper.pow(10, 4))
-    val pyData_3_3_100k = DataPoint.generateData(3, 3, MathHelper.pow(10, 5))
-    val datasets = pyData_3_3_10 :: pyData_3_3_100 :: 
-      pyData_3_3_1k :: pyData_3_3_10k :: pyData_3_3_100k :: Nil
-    var correctValues = scala.collection.mutable.Map[Long, Map[(Long,Long),AggResult]]() 
-    for( dataset <- datasets) {
-      correctValues(dataset.length) = DataPoint.generateCorrectValues(dataset)
-    }
-    val NumRunsPer = 100
+    val datasets = (1 to 5).map(exponent => DataPoint.generateData(numGrp1, numGrp2, MathHelper.pow(10, exponent)))
+    val correctValues = datasets.map(dataset => dataset.length.toLong -> DataPoint.generateCorrectValues(dataset)).toMap
+    val numRunsPer = 100
 
-    var itinerary = (for (
-      method <- methodList;
-      data <- datasets;
-      iteration <- 0 until NumRunsPer 
-    ) yield ItineraryStop(method, data)).toList
-    var random = scala.util.Random
-    itinerary = random.shuffle(itinerary)
+    val itinerary = Random.shuffle(
+      for (
+        method <- methodList;
+        data <- datasets;
+        _ <- 0 until numRunsPer
+      ) yield ItineraryStop(method, data))
     val itinerarySize = itinerary.length
 
-    var pw = FileHelper.openAppend("Results/vanilla_runs_scala.csv")
-    pw.println(s" outcome,rawmethod,interface,expectedSize,returnedSize,elapsedTime")
+    val resultFile = new java.io.File(ResultsFile)
+    val isNewFile = !resultFile.exists
+    val pw = FileHelper.openAppend(ResultsFile)
+    if (isNewFile) pw.println(ResultsHeader)
     try {
-      for ((itineraryStop, index) <- itinerary.view.zipWithIndex) {
+      for ((itineraryStop, index) <- itinerary.zipWithIndex) {
         val method = itineraryStop.compMethod
         val srcdata = itineraryStop.data
-        println(s"Working on $index of $itinerarySize")
+        LogHolder.log.info(s"Working on $index of $itinerarySize")
         val startedTime = System.nanoTime()
-        var (rdd, df, ds) = method.delegate(srcdata.length, srcdata, sc, ss)
-        var actual: Array[AggResult] = null
-        if (rdd != null) {
-          actual = rdd.collect()
-        } else if (df != null) {
-          actual = df.as[AggResult].collect()
-        } else if (ds != null) {
-          actual = ds.collect()
-        } else {
-          throw new Exception("no data returned")
-        }
+        val actual = method.delegate(srcdata.length, srcdata, sc, ss).collect(ss)
         val finishedTime = System.nanoTime()
         val recordCount = actual.length
-        var success = true
-        if (numGrp1 * numGrp2 != recordCount) {
-          println(s"!Record count doesn't match {numGrp1} {numGrp2} {recordCount}")
-          success = false
-        } else {
-          if(!DataPoint.checkData(numGrp1, numGrp2, correctValues(srcdata.length), actual)) {
-            println(s"!Data isn't write for {numGrp1} {numGrp2} {recordCount}")
-            success = false
+        val success =
+          if (numGrp1 * numGrp2 != recordCount) {
+            LogHolder.log.error(s"Record count $recordCount doesn't match $numGrp1 x $numGrp2")
+            false
+          } else if (!DataPoint.checkData(numGrp1, numGrp2, correctValues(srcdata.length), actual)) {
+            LogHolder.log.error(s"Data isn't right for $numGrp1 x $numGrp2 with $recordCount records")
+            false
+          } else {
+            true
           }
-        }              
-        val result = RunResult(
-          dataSize = srcdata.length,
-          elapsedTime = (finishedTime - startedTime).toDouble / 1e+9,
-          recordCount = recordCount)
-        var success2 = if (success) "success" else "failure"
-        pw.println(s"${success2},${method.name},${method.interface},${result.dataSize},${result.recordCount},${result.elapsedTime}")
+        val elapsedTime = (finishedTime - startedTime).toDouble / 1e+9
+        val outcome = if (success) "success" else "failure"
+        pw.println(s"$outcome,${method.name},${method.interface},${srcdata.length},$recordCount,$elapsedTime")
         pw.flush()
-        actual = null
-        df = null
-        rdd = null
-        ds = null
+        // Keep one run's garbage from being billed to the next run's timing.
         System.gc()
         Thread.sleep(1000)
       }
@@ -134,6 +113,6 @@ object Runner {
       pw.close()
     }
 
-    ss.stop
+    ss.stop()
   }
 }

@@ -1,13 +1,16 @@
+import copy
 import json
 from collections.abc import Iterable
 from pathlib import Path
 
 from pydantic import BaseModel, TypeAdapter
 from spark_agg_methods_common_python.perf_test_common import (
-    ENGINE_FOLDER_MAP, CalcEngine, Challenge, SolutionLanguage, construct_result_file_path,
+    ENGINE_FOLDER_MAP, TESTING_YEAR, CalcEngine, Challenge, SolutionLanguage,
 )
 
 REGISTRY_FILE_NAME = "challenge_strategy_registration.json"
+# shared by all environments; each registration maps an environment to its own result file
+REGISTRY_FILE_PATH = Path("results") / str(TESTING_YEAR) / REGISTRY_FILE_NAME
 
 
 class ChallengeStrategyRegistrationKeyColumns(BaseModel):
@@ -24,7 +27,7 @@ class ChallengeStrategyRegistration(ChallengeStrategyRegistrationKeyColumns):
 
 
 class ChallengeResultLogFileRegistration(BaseModel):
-    result_file_path: str  # str not Path since meant to be archival
+    result_file_path: dict[str, str]  # environment -> relative path; str not Path since meant to be archival
     regressor_column_name: str
     elapsed_time_column_name: str
     strategies: list[ChallengeStrategyRegistration]
@@ -53,7 +56,7 @@ def read_challenge_strategy_registration_consolidated(
 ) -> ChallengeRegistryFileType:
     registries: list[ChallengeRegistryFileType] = []
     for folder_name in ENGINE_FOLDER_MAP.values():
-        registry_file_path = Path("..") / folder_name / construct_result_file_path(REGISTRY_FILE_NAME)
+        registry_file_path = Path("..") / folder_name / REGISTRY_FILE_PATH
         registry = read_single_repo_challenge_strategy_registration(registry_file_path)
         registries.append(registry)
     consolidated_data = merge_registries(registries)
@@ -85,7 +88,7 @@ def update_challenge_strategy_registration_single_repo(
         challenge: Challenge,
         registration: ChallengeResultLogFileRegistration,
 ) -> None:
-    registry_file_path = construct_result_file_path(REGISTRY_FILE_NAME)
+    registry_file_path = REGISTRY_FILE_PATH
 
     def read_file() -> ChallengeRegistryFileType:
         return read_single_repo_challenge_strategy_registration(registry_file_path)
@@ -113,7 +116,15 @@ def update_challenge_strategy_registration_single_repo(
         data = data or dict()
         engines = data[language] = data.get(language) or dict()
         challenges = engines[engine] = engines.get(engine) or dict()
-        challenges[challenge] = registration
+        existing = challenges.get(challenge)
+        merged_registration = copy.copy(registration)  # shallow, so the caller's registration is left alone
+        if existing:
+            # keep the result files other environments registered
+            merged_registration.result_file_path = {
+                **existing.result_file_path,
+                **registration.result_file_path
+            }
+        challenges[challenge] = merged_registration
         return data
 
     data = read_file()

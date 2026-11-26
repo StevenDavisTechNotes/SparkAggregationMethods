@@ -1,6 +1,8 @@
 import logging
 import os
+import platform
 import random
+import sys
 import tempfile
 from abc import ABC, abstractmethod
 from collections.abc import Callable, Iterable
@@ -8,7 +10,7 @@ from dataclasses import asdict, dataclass
 from dataclasses import fields as dataclass_fields
 from enum import Enum
 from pathlib import Path
-from typing import Generic, TextIO, TypeVar
+from typing import Generic, Literal, TextIO, TypeVar
 
 from spark_agg_methods_common_python.utils.utils import set_random_seed
 
@@ -320,7 +322,19 @@ def assemble_itinerary(
     return itinerary
 
 
+def detect_environment() -> Literal["windows", "wsl"]:
+    """The environment the benchmarks run in, which keeps results from different environments apart."""
+    if sys.platform == "win32":
+        return "windows"
+    if sys.platform == "linux" and "microsoft" in platform.uname().release.lower():
+        return "wsl"
+    raise RuntimeError(f"Unsupported environment: sys.platform={sys.platform}, release={platform.uname().release}")
+
+
+TESTING_ENVIRONMENT = detect_environment()
+
+
 def construct_result_file_path(
         file_name: str,
 ) -> Path:
-    return Path("results") / str(TESTING_YEAR) / file_name
+    return Path("results") / str(TESTING_YEAR) / TESTING_ENVIRONMENT / file_name

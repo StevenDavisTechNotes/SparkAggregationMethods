@@ -21,8 +21,8 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_dat
     SixTestExecutionParameters, fetch_six_data_set_answer,
 )
 from spark_agg_methods_common_python.perf_test_common import (
-    ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge, RunnerArgumentsBase, RunResultBase,
-    SolutionLanguage, assemble_itinerary, construct_result_file_path,
+    ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, TESTING_ENVIRONMENT, CalcEngine, Challenge, RunnerArgumentsBase,
+    RunResultBase, SolutionLanguage, assemble_itinerary, construct_result_file_path,
 )
 from spark_agg_methods_common_python.utils.platform import setup_logging
 from src.challenges.conditional.conditional_strategy_directory_dask import CONDITIONAL_STRATEGY_REGISTRY_DASK
@@ -180,7 +180,7 @@ def update_challenge_registration():
         engine=ENGINE,
         challenge=CHALLENGE,
         registration=ChallengeResultLogFileRegistration(
-            result_file_path=result_file_path.as_posix(),
+            result_file_path={TESTING_ENVIRONMENT: result_file_path.as_posix()},
             regressor_column_name=ConditionalDataSetDescription.regressor_field_name(),
             elapsed_time_column_name=ELAPSED_TIME_COLUMN_NAME,
             expected_regressor_values=[

@@ -4,7 +4,7 @@
 #
 # --runs N runs every (strategy, data size) of every challenge exactly N times (default 1).
 # --target-num-samples N instead runs only what is missing so that every feasible one has at least N timings in
-# results/<year>/<challenge>_py_ft_runs.csv, so an interrupted run can be repeated.
+# results/<year>/<environment>/<challenge>_py_ft_runs.csv, so an interrupted run can be repeated.
 
 import logging
 import sys

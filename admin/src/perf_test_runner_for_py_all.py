@@ -18,7 +18,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import pandas as pd  # type: ignore[unresolved-import]
-from spark_agg_methods_common_python.perf_test_common import TESTING_YEAR
+from spark_agg_methods_common_python.perf_test_common import TESTING_ENVIRONMENT, TESTING_YEAR
 from spark_agg_methods_common_python.utils.platform import setup_logging
 from src.summarize_test_results import analyze_run_results
 
@@ -111,11 +111,17 @@ def find_errors(lines: list[str], is_pyspark: bool) -> list[FoundError]:
     return errors
 
 
-def summary_run_count_range() -> tuple[int, int]:
-    """(smallest, largest) number_of_runs over every summarized (strategy, data size); (0, 0) with no summary yet."""
+def summarize_run_count_range() -> tuple[int, int]:
+    """(smallest, largest) number_of_runs over every summarized (strategy, data size) of this environment.
+
+    (0, 0) with no summary yet.
+    """
     counts: list[int] = []
     for path in sorted(Path().glob(SUMMARY_FILE_PATTERN)):
-        counts.extend(int(x) for x in pd.read_csv(path)["number_of_runs"])
+        summary = pd.read_csv(path)
+        number_of_runs_for_testing_environment = \
+            summary.loc[summary["environment"] == TESTING_ENVIRONMENT, "number_of_runs"]
+        counts.extend(int(x) for x in number_of_runs_for_testing_environment)
     return (min(counts), max(counts)) if counts else (0, 0)
 
 
@@ -141,7 +147,7 @@ def main() -> None:
     logger.info(f"Running {__file__}")
     os.chdir(ADMIN_ROOT)  # summarize_test_results addresses ../results relative to admin
     analyze_run_results()
-    smallest_num_runs, largest_num_runs = summary_run_count_range()
+    smallest_num_runs, largest_num_runs = summarize_run_count_range()
     target_num_samples = smallest_num_runs + 1
     logger.info(
         f"number_of_runs ranges from {smallest_num_runs} to {largest_num_runs}; "
@@ -162,7 +168,7 @@ def main() -> None:
             logger.warning(f"{runner.module}: ignored {len(errors)} known PySpark flakiness errors")
         output_path.unlink()  # kept only when a real error needs investigating
     analyze_run_results()
-    smallest_num_runs, largest_num_runs = summary_run_count_range()
+    smallest_num_runs, largest_num_runs = summarize_run_count_range()
     logger.info(f"number_of_runs now ranges from {smallest_num_runs} to {largest_num_runs}")
     logger.info("Done!")
 

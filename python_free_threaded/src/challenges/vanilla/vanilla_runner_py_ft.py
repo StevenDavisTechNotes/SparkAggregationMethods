@@ -22,8 +22,8 @@ from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types 
     DATA_SIZE_LIST_VANILLA_MAXIMAL, DATA_SIZE_LIST_VANILLA_MINIMAL, VanillaDataSetDescription,
 )
 from spark_agg_methods_common_python.perf_test_common import (
-    ELAPSED_TIME_COLUMN_NAME, CalcEngine, Challenge, RunnerArgumentsBase, RunResultBase, SolutionLanguage,
-    assemble_itinerary, construct_result_file_path,
+    ELAPSED_TIME_COLUMN_NAME, TESTING_ENVIRONMENT, CalcEngine, Challenge, RunnerArgumentsBase, RunResultBase,
+    SolutionLanguage, assemble_itinerary, construct_result_file_path,
 )
 from spark_agg_methods_common_python.utils.platform import setup_logging
 from src.challenges.six_field_test_data.six_runner_base_py_ft import (
@@ -175,7 +175,7 @@ def update_challenge_registration():
         engine=ENGINE,
         challenge=CHALLENGE,
         registration=ChallengeResultLogFileRegistration(
-            result_file_path=result_file_path.as_posix(),
+            result_file_path={TESTING_ENVIRONMENT: result_file_path.as_posix()},
             regressor_column_name=VanillaDataSetDescription.regressor_field_name(),
             elapsed_time_column_name=ELAPSED_TIME_COLUMN_NAME,
             expected_regressor_values=[

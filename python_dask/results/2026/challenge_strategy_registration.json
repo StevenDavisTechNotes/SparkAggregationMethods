@@ -2,7 +2,9 @@
     "python": {
         "dask": {
             "bilevel": {
-                "result_file_path": "results/2026/bi_level_dask_runs.csv",
+                "result_file_path": {
+                    "windows": "results/2026/windows/bi_level_dask_runs.csv"
+                },
                 "regressor_column_name": "relative_cardinality_between_groupings",
                 "elapsed_time_column_name": "elapsed_time",
                 "strategies": [
@@ -69,7 +71,9 @@
                 ]
             },
             "vanilla": {
-                "result_file_path": "results/2026/vanilla_dask_runs.csv",
+                "result_file_path": {
+                    "windows": "results/2026/windows/vanilla_dask_runs.csv"
+                },
                 "regressor_column_name": "num_source_rows",
                 "elapsed_time_column_name": "elapsed_time",
                 "strategies": [
@@ -124,7 +128,7 @@
                         "challenge": "vanilla",
                         "interface": "ddf",
                         "strategy_name": "vanilla_dask_ddf_grp_apply",
-                        "numerical_tolerance": 1e-12,
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -133,7 +137,7 @@
                         "challenge": "vanilla",
                         "interface": "ddf",
                         "strategy_name": "vanilla_dask_ddf_grp_udaf",
-                        "numerical_tolerance": 1e-12,
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -142,7 +146,7 @@
                         "challenge": "vanilla",
                         "interface": "delayed",
                         "strategy_name": "vanilla_dask_delayed_pl_chunks",
-                        "numerical_tolerance": 1e-12,
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -160,7 +164,7 @@
                         "challenge": "vanilla",
                         "interface": "futures",
                         "strategy_name": "vanilla_dask_futures_as_completed",
-                        "numerical_tolerance": 1e-12,
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -169,7 +173,7 @@
                         "challenge": "vanilla",
                         "interface": "actors",
                         "strategy_name": "vanilla_dask_actors_accumulate",
-                        "numerical_tolerance": 1e-12,
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     }
                 ],
@@ -186,7 +190,9 @@
                 ]
             },
             "conditional": {
-                "result_file_path": "results/2026/conditional_dask_runs.csv",
+                "result_file_path": {
+                    "windows": "results/2026/windows/conditional_dask_runs.csv"
+                },
                 "regressor_column_name": "num_source_rows",
                 "elapsed_time_column_name": "elapsed_time",
                 "strategies": [

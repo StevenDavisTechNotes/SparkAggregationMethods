@@ -4,8 +4,8 @@
 #
 # --runs N runs every (strategy, data size) of every challenge exactly N times (default 1).
 # --target-num-samples N instead runs only what is missing so that every feasible one has at least N timings in
-# results/<year>/<challenge>_pyspark_runs.csv, so an interrupted run can be repeated. Cells that return "infeasible"
-# never get rows, so they are always reported as short.
+# results/<year>/<environment>/<challenge>_pyspark_runs.csv, so an interrupted run can be repeated. Cells that return
+# "infeasible" never get rows, so they are always reported as short.
 #
 # The work runs in child processes so that each starts with a fresh JVM.
 # On Windows Spark starts a Python worker process per task and leaks one listening socket for each for the life of

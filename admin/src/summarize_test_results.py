@@ -29,6 +29,7 @@ class SummarizedPerformanceOfMethodAtDataSize:
     strategy_name: str
     language: SolutionLanguage
     engine: CalcEngine
+    environment: str
     interface: str
     regressor: int
     number_of_runs: int
@@ -57,8 +58,8 @@ def read_run_result_file(
     )
     if log_file_path is None or not log_file_path.exists():
         return empty_results
-    results: list[pd.DataFrame] = []
-    results.append(empty_results)
+    result_files: list[pd.DataFrame] = []
+    result_files.append(empty_results)
 
     def parse_segment(
         segment: list[str],
@@ -90,15 +91,15 @@ def read_run_result_file(
                     case None:
                         pass
                     case df_segment:
-                        results.append(df_segment)
+                        result_files.append(df_segment)
                 segment.clear()
             segment.append(line)
         match parse_segment(segment):
             case None:
                 pass
             case df_segment:
-                results.append(df_segment)
-    df = pd.concat(objs=results)
+                result_files.append(df_segment)
+    df = pd.concat(objs=result_files)
     df = (
         df
         .drop(columns=[col for col in df.columns if col.startswith("Unnamed:")])
@@ -112,11 +113,10 @@ def clean_key_field(
         key_field: str,
         expected_value: str,
         src_df: pd.DataFrame,
-        challenge_result_log_registration: ChallengeResultLogFileRegistration,
+        src_file_path: Path,
 ) -> pd.DataFrame:
     src_df = src_df.copy()
     file_language = src_df[key_field].dropna().unique().tolist()
-    src_file_path = challenge_result_log_registration.result_file_path
     if len(file_language) > 1:
         logger.warning(f"Warning: multiple {key_field} found in {src_file_path}: {file_language}")
     elif 1 == len(file_language):
@@ -133,6 +133,7 @@ def analyze_elapsed_time_samples(
     strategy_name: str,
     language: SolutionLanguage,
     engine: CalcEngine,
+    environment: str,
     interface: str,
     regressor_value: int,
     elapsed_time_samples: pd.Series,
@@ -157,6 +158,7 @@ def analyze_elapsed_time_samples(
         strategy_name=strategy_name,
         language=language,
         engine=engine,
+        environment=environment,
         interface=interface,
         regressor=regressor_value,
         number_of_runs=num_runs,
@@ -165,6 +167,58 @@ def analyze_elapsed_time_samples(
         elapsed_time_rl=confident_low,
         elapsed_time_rh=confident_high,
     )
+
+
+def summarize_environment_results(
+        *,
+        challenge: Challenge,
+        language: SolutionLanguage,
+        engine: CalcEngine,
+        environment: str,
+        registration: ChallengeResultLogFileRegistration,
+        common_key_fields: list[str],
+) -> list[SummarizedPerformanceOfMethodAtDataSize]:
+    strategies_by_name = {x.strategy_name: x for x in registration.strategies}
+    result_file_path = Path("..") / ENGINE_FOLDER_MAP[engine] / registration.result_file_path[environment]
+    regressor_column_name = registration.regressor_column_name
+    elapsed_time_column_name = registration.elapsed_time_column_name
+    df = read_run_result_file(
+        log_file_path=result_file_path,
+        key_columns=common_key_fields + [regressor_column_name],
+        regressor_column=regressor_column_name,
+        dependent_variable_column=elapsed_time_column_name,
+    )
+    df_clean_regressor = df[regressor_column_name].round(0).astype(int)
+    if (df_clean_regressor - df[regressor_column_name]).abs().max() > 0:
+        logger.warning(f"Warning: regressor values in {result_file_path} are not integers")
+    df[regressor_column_name] = df_clean_regressor
+    for key_field, expected_value in (("language", language), ("engine", engine), ("challenge", challenge)):
+        df = clean_key_field(
+            key_field=key_field,
+            expected_value=expected_value,
+            src_df=df,
+            src_file_path=result_file_path,
+        )
+    summaries: list[SummarizedPerformanceOfMethodAtDataSize] = []
+    group_iterator = cast(Any, df.groupby(by=["strategy_name", regressor_column_name]))
+    for (strategy_name, regressor_value), group in group_iterator:
+        if strategy_name not in strategies_by_name:
+            logger.warning(
+                f"Warning: strategy {strategy_name} in results but not in challenge registration for "
+                f"language {language}, engine {engine}, challenge {challenge}")
+            continue
+        strategy = strategies_by_name[strategy_name]
+        summaries.append(analyze_elapsed_time_samples(
+            challenge=Challenge(strategy.challenge),
+            strategy_name=strategy_name,
+            language=language,
+            engine=engine,
+            environment=environment,
+            interface=strategy.interface,
+            regressor_value=regressor_value,
+            elapsed_time_samples=cast(pd.Series, group[elapsed_time_column_name]),
+        ))
+    return summaries
 
 
 def analyze_run_results():
@@ -177,69 +231,22 @@ def analyze_run_results():
                 if challenge not in challenge_result_log_registrations[language][engine]:
                     logger.warning(f"Did not find {challenge.value} in {language.value} {engine.value} registration")
                     continue
-                challenge_result_log_registration = challenge_result_log_registrations[language][engine][challenge]
-                challenge_result_log_registration_by_strategy_name = {
-                    x.strategy_name: x for x in challenge_result_log_registration.strategies
-                }
-                result_file_path = (
-                    Path("..")
-                    / ENGINE_FOLDER_MAP[engine]
-                    / challenge_result_log_registration.result_file_path
-                )
-                regressor_column_name = challenge_result_log_registration.regressor_column_name
-                elapsed_time_column_name = challenge_result_log_registration.elapsed_time_column_name
-                df = read_run_result_file(
-                    log_file_path=result_file_path,
-                    key_columns=common_key_fields + [regressor_column_name],
-                    regressor_column=regressor_column_name,
-                    dependent_variable_column=challenge_result_log_registration.elapsed_time_column_name,
-                )
-                df_clean_regressor = df[regressor_column_name].round(0).astype(int)
-                if (df_clean_regressor - df[regressor_column_name]).abs().max() > 0:
-                    logger.warning(f"Warning: regressor values in {result_file_path} are not integers")
-                df[regressor_column_name] = df_clean_regressor
-                df = clean_key_field(
-                    key_field="language",
-                    expected_value=language,
-                    src_df=df,
-                    challenge_result_log_registration=challenge_result_log_registration,
-                )
-                df = clean_key_field(
-                    key_field="engine",
-                    expected_value=engine,
-                    src_df=df,
-                    challenge_result_log_registration=challenge_result_log_registration,
-                )
-                df = clean_key_field(
-                    key_field="challenge",
-                    expected_value=challenge,
-                    src_df=df,
-                    challenge_result_log_registration=challenge_result_log_registration,
-                )
-                engine_summary_start = len(summary_status)
-                group_iterator = cast(Any, df.groupby(by=["strategy_name", regressor_column_name]))
-                for (strategy_name, regressor_value), group in group_iterator:
-                    if strategy_name not in challenge_result_log_registration_by_strategy_name:
-                        logger.warning(
-                            f"Warning: strategy {strategy_name} in results but not in challenge registration for "
-                            f"language {language}, engine {engine}, challenge {challenge}")
-                        continue
-                    strategy = challenge_result_log_registration_by_strategy_name[strategy_name]
-                    elapsed_time_samples = cast(pd.Series, group[elapsed_time_column_name])
-                    summary_status.append(analyze_elapsed_time_samples(
-                        challenge=Challenge(strategy.challenge),
-                        strategy_name=strategy_name,
+                registration = challenge_result_log_registrations[language][engine][challenge]
+                for environment in registration.result_file_path:
+                    environment_summaries = summarize_environment_results(
+                        challenge=challenge,
                         language=language,
                         engine=engine,
-                        interface=strategy.interface,
-                        regressor_value=regressor_value,
-                        elapsed_time_samples=elapsed_time_samples,
-                    ))
-                engine_runs = [x.number_of_runs for x in summary_status[engine_summary_start:]]
-                if engine_runs:
-                    logger.info(
-                        f"{challenge.value} on {engine.value}: number_of_runs smallest={min(engine_runs)}, "
-                        f"largest={max(engine_runs)} over {len(engine_runs)} strategy/size cells")
+                        environment=environment,
+                        registration=registration,
+                        common_key_fields=common_key_fields,
+                    )
+                    summary_status.extend(environment_summaries)
+                    engine_runs = [x.number_of_runs for x in environment_summaries]
+                    if engine_runs:
+                        logger.info(
+                            f"{challenge.value} on {engine.value} in {environment}: "
+                            f"number_of_runs smallest={min(engine_runs)}, largest={max(engine_runs)}")
         print_summary(
             challenge=challenge,
             summary_status=summary_status,
@@ -258,7 +265,7 @@ def print_summary(
     if len(summary_status) > 0:
         logger.info(f"Summarizing challenge: {challenge}")
         df = pd.DataFrame(summary_status)
-        df = df.sort_values(by=["challenge", "language", "interface", "strategy_name"])
+        df = df.sort_values(by=["challenge", "language", "interface", "strategy_name", "environment"])
         df.to_csv(file_report_file_path, index=False)
 
 

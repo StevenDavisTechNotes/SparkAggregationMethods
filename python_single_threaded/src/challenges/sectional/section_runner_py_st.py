@@ -23,8 +23,9 @@ from spark_agg_methods_common_python.challenges.sectional.section_test_data_type
     StudentSummary, section_derive_source_test_data_file_path, section_verify_correctness,
 )
 from spark_agg_methods_common_python.perf_test_common import (
-    ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, CalcEngine, Challenge, NumericalToleranceExpectations,
-    RunnerArgumentsBase, RunResultBase, SolutionLanguage, assemble_itinerary, construct_result_file_path,
+    ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, TESTING_ENVIRONMENT, CalcEngine, Challenge,
+    NumericalToleranceExpectations, RunnerArgumentsBase, RunResultBase, SolutionLanguage, assemble_itinerary,
+    construct_result_file_path,
 )
 from spark_agg_methods_common_python.utils.pandas_helpers import make_pd_dataframe_from_list_of_named_tuples
 from spark_agg_methods_common_python.utils.platform import setup_logging
@@ -221,7 +222,7 @@ def update_challenge_registration():
         engine=ENGINE,
         challenge=CHALLENGE,
         registration=ChallengeResultLogFileRegistration(
-            result_file_path=result_file_path.as_posix(),
+            result_file_path={TESTING_ENVIRONMENT: result_file_path.as_posix()},
             regressor_column_name=SectionDataSetDescription.regressor_field_name(),
             elapsed_time_column_name=ELAPSED_TIME_COLUMN_NAME,
             expected_regressor_values=[

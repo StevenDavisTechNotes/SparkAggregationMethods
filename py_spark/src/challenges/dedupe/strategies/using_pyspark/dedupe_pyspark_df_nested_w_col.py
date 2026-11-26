@@ -25,18 +25,21 @@ def dedupe_pyspark_df_nested_w_col(
     df = df \
         .withColumn("FirstOrderEdges",
                     func.udf(find_record_matches_rec_list,
-                             FindRecordMatches_RecList_Returns)(
-                        df.BlockedData))
+                             FindRecordMatches_RecList_Returns,
+                             useArrow=False,
+                             )(df.BlockedData))
     df = df \
         .withColumn("ConnectedComponents",
                     func.udf(find_connected_components_rec_list,
-                             FindConnectedComponents_RecList_Returns)(
-                        df.FirstOrderEdges)) \
+                             FindConnectedComponents_RecList_Returns,
+                             useArrow=False,
+                             )(df.FirstOrderEdges)) \
         .drop(df.FirstOrderEdges)
     df = df \
         .withColumn("MergedItems",
                     func.udf(merge_items_rec_list,
-                             MergeItems_RecList_Returns)(
-                        df.BlockedData, df.ConnectedComponents))
+                             MergeItems_RecList_Returns,
+                             useArrow=False,
+                             )(df.BlockedData, df.ConnectedComponents))
     df = unnest_blocks_dataframe(df)
     return df

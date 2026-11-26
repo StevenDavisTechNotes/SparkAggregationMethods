@@ -233,6 +233,7 @@ class RunResultFileWriterBase(Generic[TSolutionInterface], ABC):
             persisted_row_type: type
     ):
         run_log_file_path = construct_result_file_path(log_file_name)
+        run_log_file_path.parent.mkdir(parents=True, exist_ok=True)
         self.file = run_log_file_path.open(mode="at+")
         self.language = language
         self.engine = engine

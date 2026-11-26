@@ -23,8 +23,10 @@ def dedupe_pyspark_df_nested_python(
     )
     df = df \
         .withColumn("MergedItems",
-                    func.udf(single_pass_rec_list,
-                             SinglePass_RecList_DF_Returns)(
-                        df.BlockedData))
+                    func.udf(
+                        single_pass_rec_list,
+                        SinglePass_RecList_DF_Returns,
+                        useArrow=False,
+                    )(df.BlockedData))
     df = unnest_blocks_dataframe(df)
     return df

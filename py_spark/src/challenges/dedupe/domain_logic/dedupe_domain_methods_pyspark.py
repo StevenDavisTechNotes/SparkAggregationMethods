@@ -13,7 +13,10 @@ MATCH_THRESHOLD = 0.9
 MatchSingleName_Returns = DataTypes.BooleanType()
 
 udfMatchSingleName = func.udf(
-    match_single_name, MatchSingleName_Returns)
+    match_single_name,
+    MatchSingleName_Returns,
+    useArrow=False,
+)
 
 
 def nest_blocks_dataframe(

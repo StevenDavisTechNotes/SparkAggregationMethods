@@ -34,7 +34,11 @@ def section_pyspark_rdd_mappart_partials(
     default_parallelism = exec_params.default_parallelism
     maximum_processable_segment = exec_params.maximum_processable_segment
     targetNumPartitions = int_divide_round_up(expected_row_count + 2, maximum_processable_segment)
-    rdd_orig: RDD[LabeledTypedRow] = rdd_typed_with_index_factory(spark_session, filename, targetNumPartitions)
+    rdd_orig: RDD[LabeledTypedRow] = rdd_typed_with_index_factory(
+        spark_session=spark_session,
+        filename=filename,
+        numPartitions=targetNumPartitions,
+    )
 
     def report_num_completed(complete_count: int) -> None:
         logger.info(f"Completed {complete_count} of {data_set.data_description.num_students}")
@@ -70,7 +74,12 @@ def section_mappart_partials_logic(
         )
         .union(
             rdd_orig
-            .map(lambda x: student_snippet_from_typed_row_2(x.Index, x.Value)))
+            .map(lambda x: student_snippet_from_typed_row_2(
+                lineIndex=x.Index,
+                rec=x.Value,
+            )
+            )
+        )
         .union(
             sc.parallelize([
                 build_initial_snippet_2(
@@ -214,7 +223,10 @@ def consolidate_snippets_in_partition(
                 or (rMember.StudentId is not None)
             ):
                 completedItems, remaining_snippets = complete_snippets_2(
-                    building_snippet, front_is_clean=front_is_clean, back_is_clean=True)
+                    building_snippet=building_snippet,
+                    front_is_clean=front_is_clean,
+                    back_is_clean=True,
+                )
                 for item in completedItems:
                     yield True, item
                 for item in remaining_snippets:
@@ -228,6 +240,9 @@ def consolidate_snippets_in_partition(
         if building_snippet is None:
             building_snippet = rMember
         else:
-            building_snippet = marge_snippets_2(building_snippet, rMember)
+            building_snippet = marge_snippets_2(
+                lhs=building_snippet,
+                rhs=rMember,
+            )
     if building_snippet is not None:
         yield False, building_snippet

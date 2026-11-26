@@ -39,7 +39,10 @@ def six_run_one_step_in_dask_itinerary(
     if challenge_method_registration.requires_cluster:
         get_dask_client(exec_params)  # start the cluster outside the timed section
     started_time = time.time()
-    agg_tgt_num_partitions = pick_agg_tgt_num_partitions_dask(data_set.data, challenge)
+    agg_tgt_num_partitions = pick_agg_tgt_num_partitions_dask(
+        data=data_set.data,
+        challenge=challenge,
+    )
     df_answer: pd.DataFrame
     match _call_delegate_with_timeout(
         challenge_method_registration=challenge_method_registration,

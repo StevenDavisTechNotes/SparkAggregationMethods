@@ -21,7 +21,11 @@ def dedupe_pyspark_df_window(
     numPartitions = max(
         4 * exec_params.num_executors,  # cross product
         data_set.grouped_num_partitions)
-    df = zip_dataframe_with_index(dfSrc, spark=spark_session.spark, colName="RowId")
+    df = zip_dataframe_with_index(
+        df=dfSrc,
+        spark=spark_session.spark,
+        colName="RowId",
+    )
     df = (
         df
         .withColumn("BlockingKey",

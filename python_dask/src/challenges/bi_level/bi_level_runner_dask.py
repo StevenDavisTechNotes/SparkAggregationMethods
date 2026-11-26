@@ -142,8 +142,8 @@ def do_test_runs(
                     case RunResultBase() as run_result:
                         if not data_set.data_description.debugging_only:
                             file.write_run_result(
-                                challenge_method_registration,
-                                BiLevelRunResult(
+                                challenge_method_registration=challenge_method_registration,
+                                run_result=BiLevelRunResult(
                                     num_source_rows=run_result.num_source_rows,
                                     elapsed_time=run_result.elapsed_time,
                                     num_output_rows=run_result.num_output_rows,
@@ -151,7 +151,7 @@ def do_test_runs(
                                         data_set.data_description.relative_cardinality_between_groupings
                                     ),
                                     finished_at=run_result.finished_at,
-                                )
+                                ),
                             )
                     case ("infeasible", _):
                         pass

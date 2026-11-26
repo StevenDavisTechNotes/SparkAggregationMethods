@@ -18,7 +18,10 @@ def vanilla_pyspark_rdd_reduce(
         exec_params: SixTestExecutionParameters,
         data_set: SixFieldDataSetPyspark
 ) -> TSixFieldChallengePendingAnswerPythonPyspark:
-    agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(data_set.data, CHALLENGE)
+    agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(
+        data=data_set.data,
+        challenge=CHALLENGE,
+    )
     rdd_src = data_set.data.open_source_data_as_rdd(spark_session)
     sum_count: RDD[Row] = (
         rdd_src
@@ -29,7 +32,10 @@ def vanilla_pyspark_rdd_reduce(
             merge_value_2,
             merge_combiners_2,
         )
-        .map(lambda kv: final_analytics_2(kv[0], kv[1]))
+        .map(lambda kv: final_analytics_2(
+            key=kv[0],
+            total=kv[1],
+        ))
     )
     rdd_result = sum_count.sortBy(
         keyfunc=lambda x: cast(tuple[int, int], (x.grp, x.subgrp)),  # type: ignore
@@ -70,7 +76,10 @@ def merge_value_2(
     return SubTotalNT(
         running_sum_of_C=sub.running_sum_of_C + v.C,
         running_count=sub.running_count + 1,
-        running_max_of_D=max(sub.running_max_of_D, v.D),
+        running_max_of_D=max(
+            lhs=sub.running_max_of_D,
+            rhs=v.D,
+        ),
         running_sum_of_E_squared=running_sum_of_E_squared,
         running_sum_of_E=running_sum_of_E,
     )
@@ -79,7 +88,10 @@ def merge_value_2(
 def create_combiner_2(
         v: DataPointNT,
 ) -> SubTotalNT:
-    return merge_value_2(create_accumulator(), v)
+    return merge_value_2(
+        sub=create_accumulator(),
+        v=v,
+    )
 
 
 def merge_combiners_2(
@@ -89,7 +101,10 @@ def merge_combiners_2(
     return SubTotalNT(
         running_sum_of_C=lsub.running_sum_of_C + rsub.running_sum_of_C,
         running_count=lsub.running_count + rsub.running_count,
-        running_max_of_D=max(lsub.running_max_of_D, rsub.running_max_of_D),
+        running_max_of_D=max(
+            lhs=lsub.running_max_of_D,
+            rhs=rsub.running_max_of_D,
+        ),
         running_sum_of_E_squared=lsub.running_sum_of_E_squared +
         rsub.running_sum_of_E_squared,
         running_sum_of_E=lsub.running_sum_of_E + rsub.running_sum_of_E,

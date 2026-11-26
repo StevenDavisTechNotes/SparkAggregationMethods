@@ -6,16 +6,28 @@ RESULT = "1.5,pyspark,some_strategy,"
 
 
 def test_empty_log_needs_a_header():
-    assert not run_log_has_current_header([], HEADER)
+    assert not run_log_has_current_header(
+        existing_lines=[],
+        header=HEADER,
+    )
 
 
 def test_log_ending_in_the_same_header_does_not_need_another():
-    assert run_log_has_current_header([HEADER + "\n", RESULT + "\n", RESULT + "\n"], HEADER)
+    assert run_log_has_current_header(
+        existing_lines=[HEADER + "\n", RESULT + "\n", RESULT + "\n"],
+        header=HEADER,
+    )
 
 
 def test_changed_columns_need_a_new_header_even_if_the_old_one_appears_earlier():
-    assert not run_log_has_current_header([HEADER + "\n", RESULT + "\n", OLD_HEADER + "\n", RESULT + "\n"], HEADER)
+    assert not run_log_has_current_header(
+        existing_lines=[HEADER + "\n", RESULT + "\n", OLD_HEADER + "\n", RESULT + "\n"],
+        header=HEADER,
+    )
 
 
 def test_result_lines_are_not_mistaken_for_headers():
-    assert not run_log_has_current_header([RESULT + "\n"], HEADER)
+    assert not run_log_has_current_header(
+        existing_lines=[RESULT + "\n"],
+        header=HEADER,
+    )

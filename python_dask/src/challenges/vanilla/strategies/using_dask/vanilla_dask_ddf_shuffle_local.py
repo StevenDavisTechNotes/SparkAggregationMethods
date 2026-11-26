@@ -47,7 +47,10 @@ def vanilla_dask_ddf_shuffle_local(
     )
     shuffled = ddf.shuffle(
         on=KEYS,
-        npartitions=pick_shuffle_tgt_num_partitions_dask(exec_params, data_set.data_description),
+        npartitions=pick_shuffle_tgt_num_partitions_dask(
+            exec_params=exec_params,
+            data_description=data_set.data_description,
+        ),
         shuffle_method="p2p",
     )
     df = (

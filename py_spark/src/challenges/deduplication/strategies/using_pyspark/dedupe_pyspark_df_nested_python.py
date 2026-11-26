@@ -17,7 +17,10 @@ def dedupe_pyspark_df_nested_python(
         return "infeasible", "Unknown reason"
 
     dfSrc = data_set.df_source
-    df = nest_blocks_dataframe(dfSrc, data_set.grouped_num_partitions)
+    df = nest_blocks_dataframe(
+        df=dfSrc,
+        grouped_num_partitions=data_set.grouped_num_partitions,
+    )
     df = df \
         .withColumn("MergedItems",
                     func.udf(single_pass_rec_list,

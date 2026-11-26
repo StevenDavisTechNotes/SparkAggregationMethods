@@ -549,7 +549,10 @@ class test_full_set:
     ]
 
     def test_start(self):
-        r = marge_snippets_2(self.students[0], self.students[1])
+        r = marge_snippets_2(
+            lhs=self.students[0],
+            rhs=self.students[1],
+        )
         assert r == StudentSnippet2(
             FirstLastFlag=FIRST_LAST_NEITHER,
             FirstLineIndex=0,
@@ -563,7 +566,10 @@ class test_full_set:
             WeightedGradeTotal=[0, 0, 0, 0])
 
     def test_end(self):
-        r = marge_snippets_2(self.students[-2], self.students[-1])
+        r = marge_snippets_2(
+            lhs=self.students[-2],
+            rhs=self.students[-1],
+        )
         assert r == StudentSnippet2(
             FirstLastFlag=FIRST_LAST_NEITHER,
             FirstLineIndex=47,

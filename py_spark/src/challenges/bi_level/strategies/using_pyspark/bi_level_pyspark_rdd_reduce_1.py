@@ -32,26 +32,41 @@ def bi_level_pyspark_rdd_reduce_1(
         data_set: SixFieldDataSetPyspark
 ) -> TSixFieldChallengePendingAnswerPythonPyspark:
     rdd_src: RDD[Row] = data_set.data.open_source_data_as_rdd(spark_session)
-    agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(data_set.data, CHALLENGE)
+    agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(
+        data=data_set.data,
+        challenge=CHALLENGE,
+    )
 
     rdd_result = (
         rdd_src
         .map(lambda r: DataPointNT(*r))
         .map(lambda x: (x.grp, x))
-        .combineByKey(create_combiner,
-                      merge_value,
-                      merge_combiners)
+        .combineByKey(
+            create_combiner,
+            lambda acc, v: merge_value(
+                acc=acc,
+                v=v,
+            ),
+            lambda lsub, rsub: merge_combiners(
+                lsub=lsub,
+                rsub=rsub,
+            ),
+        )
         .sortByKey(numPartitions=agg_tgt_num_partitions)  # type: ignore
-        .map(lambda pair: final_analytics(pair[0], pair[1]))
+        .map(lambda pair: final_analytics(
+            grp=pair[0],
+            level1=pair[1],
+        ))
     )
     return rdd_result
 
 
 def merge_value(
-        pre: SubTotal1,
+        *,
+        acc: SubTotal1,
         v: DataPointNT,
 ) -> SubTotal1:
-    subgrp_running_totals = pre.subgrp_running_totals.copy()
+    subgrp_running_totals = acc.subgrp_running_totals.copy()
     if v.subgrp not in subgrp_running_totals:
         subgrp_running_totals[v.subgrp] = \
             SubTotal2(
@@ -65,24 +80,31 @@ def merge_value(
         sub_sub.running_sum_of_E + v.E,
         sub_sub.running_count + 1)
     return SubTotal1(
-        running_sum_of_C=pre.running_sum_of_C + v.C,
-        running_max_of_D=(pre.running_max_of_D
-                          if not math.isnan(pre.running_max_of_D) and
-                          pre.running_max_of_D > v.D
-                          else v.D),
+        running_sum_of_C=acc.running_sum_of_C + v.C,
+        running_max_of_D=(
+            acc.running_max_of_D
+            if not math.isnan(acc.running_max_of_D) and
+            acc.running_max_of_D > v.D
+            else v.D
+        ),
         subgrp_running_totals=subgrp_running_totals)
 
 
 def create_combiner(
         v: DataPointNT,
 ) -> SubTotal1:
-    return merge_value(SubTotal1(
-        running_sum_of_C=0,
-        running_max_of_D=math.nan,
-        subgrp_running_totals=dict()), v)
+    return merge_value(
+        acc=SubTotal1(
+            running_sum_of_C=0,
+            running_max_of_D=math.nan,
+            subgrp_running_totals=dict(),
+        ),
+        v=v,
+    )
 
 
 def merge_combiners(
+        *,
         lsub: SubTotal1,
         rsub: SubTotal1,
 ) -> SubTotal1:
@@ -122,6 +144,7 @@ def merge_combiners(
 
 
 def final_analytics(
+        *,
         grp: int,
         level1: SubTotal1,
 ) -> Row:

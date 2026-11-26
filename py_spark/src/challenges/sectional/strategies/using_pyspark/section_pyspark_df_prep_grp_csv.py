@@ -40,7 +40,11 @@ def section_pyspark_df_prep_grp_csv(
     df = spark.read.format("csv") \
         .schema(SparseLineWithSectionIdLineNoSchema) \
         .load(str(intermediate_file_nameFileName))
-    df = section_pyspark_rdd_prep_shared(df, exec_params, section_maximum)
+    df = section_pyspark_rdd_prep_shared(
+        dfSrc=df,
+        exec_params=exec_params,
+        sectionMaximum=section_maximum,
+    )
     rdd: RDD[StudentSummary] = (
         cast(RDD[Row], df.rdd)
         .map(row_to_student_summary)

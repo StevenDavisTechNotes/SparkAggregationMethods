@@ -32,7 +32,7 @@ def dedupe_pyspark_rdd_map_part(
 def add_row_to_row_list(
         rows: list[Row],
         j_row: Row
-) -> Iterable[Row]:
+) -> list[Row]:
     found = False
     for index, i_row in enumerate(rows):
         if not is_match(
@@ -52,11 +52,14 @@ def add_row_to_row_list(
 def core_mappart(
         iterator: Iterable[tuple[int, Row]],
 ) -> Iterable[Row]:
-    store = {}
+    store: dict[int, list[Row]] = {}
     for kv in iterator:
         key, row = kv
         bucket = store[key] if key in store else []
-        store[key] = add_row_to_row_list(bucket, row)  # ty: ignore[invalid-argument-type]
+        store[key] = add_row_to_row_list(
+            rows=bucket,
+            j_row=row,
+        )
     for bucket in store.values():
         for row in bucket:
             yield row

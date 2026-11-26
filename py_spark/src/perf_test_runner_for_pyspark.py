@@ -125,7 +125,11 @@ def plan_children(
     """
     if not leaks_sockets_per_python_worker():
         rdd_strategy_names = set()
-    remaining = missing_runs(args, timed_size_codes, logged)
+    remaining = missing_runs(
+        args=args,
+        timed_size_codes=timed_size_codes,
+        logged=logged,
+    )
     children: list[list[str]] = []
     for shortfall in sorted(set(remaining.values()), reverse=True):
         cells = [
@@ -199,16 +203,28 @@ def main() -> None:
         # an exact count ignores the run log; debugging-only sizes are never logged, so only top-up skips them
         timed_size_codes = challenge.timed_size_codes() if request.top_up else set(args.sizes)
         logged = challenge.count_logged_runs() if request.top_up else Counter()
-        children = plan_children(args, challenge.rdd_strategy_names(), timed_size_codes, logged)
+        children = plan_children(
+            args=args,
+            rdd_strategy_names=challenge.rdd_strategy_names(),
+            timed_size_codes=timed_size_codes,
+            logged=logged,
+        )
         logger.info(f"{challenge.name}: {len(children)} child processes to run")
         for index, child_args in enumerate(children):
             description = f"{challenge.name} {' '.join(child_args)}"
             logger.info(f"Child {index + 1}/{len(children)} of {challenge.name}: {' '.join(child_args)}")
-            if not run_child(challenge, child_args):
+            if not run_child(
+                challenge=challenge,
+                child_args=child_args,
+            ):
                 logger.error(f"Child failed: {description}")
                 failures.append(description)
         if request.top_up and children:
-            short = missing_runs(args, timed_size_codes, challenge.count_logged_runs())
+            short = missing_runs(
+                args=args,
+                timed_size_codes=timed_size_codes,
+                logged=challenge.count_logged_runs(),
+            )
             logger.info(f"{challenge.name}: {len(short)} cells still below {args.num_runs} timings: {sorted(short)}")
     if failures:
         logger.error(f"{len(failures)} child processes failed:\n" + "\n".join(failures))

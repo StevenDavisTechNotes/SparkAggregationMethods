@@ -25,9 +25,9 @@ def section_pyspark_rdd_join_mappart(
     target_num_partitions = data_set.target_num_partitions
     sc = spark_session.spark_context
     rdd1: RDD[LabeledTypedRow] = rdd_typed_with_index_factory(
-        spark_session,
-        data_set.source_data_file_path,
-        data_set.target_num_partitions,
+        spark_session=spark_session,
+        filename=data_set.source_data_file_path,
+        numPartitions=data_set.target_num_partitions,
     )
     NumRows = rdd1.count()
     rdd2: RDD[tuple[int, str, TypedLine]] = (
@@ -102,11 +102,19 @@ def extract_student_summary(
                 trimester = MutableTrimester(rec.Date, rec.WasAbroad)
             case ClassLine():
                 assert trimester is not None
-                trimester.add_class(rec.Dept, rec.Credits, rec.Grade)
+                trimester.add_class(
+                    dept=rec.Dept,
+                    credits=rec.Credits,
+                    grade=rec.Grade,
+                )
             case TrimesterFooter():
                 assert student is not None
                 assert trimester is not None
-                trimester.add_footer(rec.Major, rec.GPA, rec.Credits)
+                trimester.add_footer(
+                    major=rec.Major,
+                    gpa=rec.GPA,
+                    credits=rec.Credits,
+                )
                 student.add_trimester(trimester)
                 trimester = None
             case _:

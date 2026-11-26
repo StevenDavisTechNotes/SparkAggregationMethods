@@ -45,7 +45,9 @@ def process_answer(
         (correct_answer - df_answer)
         .abs().max().max())
     expected_summation_error = estimate_expected_summation_error(
-        numerical_tolerance, data_description)
+        numerical_tolerance=numerical_tolerance,
+        data_description=data_description,
+    )
     if abs_diff >= expected_summation_error:
         raise ValueError(f"abs_diff={abs_diff} >= numerical_tolerance={expected_summation_error}")
     record_count = len(df_answer)

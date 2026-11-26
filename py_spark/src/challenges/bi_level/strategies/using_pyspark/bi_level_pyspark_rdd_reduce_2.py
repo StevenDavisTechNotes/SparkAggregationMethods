@@ -29,19 +29,34 @@ def bi_level_pyspark_rdd_reduce_2(
         data_set: SixFieldDataSetPyspark
 ) -> TSixFieldChallengePendingAnswerPythonPyspark:
     rdd_src: RDD[Row] = data_set.data.open_source_data_as_rdd(spark_session)
-    agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(data_set.data, CHALLENGE)
+    agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(
+        data=data_set.data,
+        challenge=CHALLENGE,
+    )
 
     rdd_result = (
         rdd_src
         .map(lambda r: DataPointNT(*r))
         .map(lambda x: ((x.grp, x.subgrp), x))
-        .combineByKey(create_combiner,
-                      merge_value,
-                      merge_combiners)
+        .combineByKey(
+            create_combiner,
+            merge_value,
+            merge_combiners,
+        )
         .map(lambda x: (x[0][0], x[1]))
-        .groupByKey(numPartitions=exec_params.default_parallelism)
-        .map(lambda x: (x[0], final_analytics(x[0], x[1])), preservesPartitioning=True)
-        .sortByKey(numPartitions=agg_tgt_num_partitions)  # type: ignore
+        .groupByKey(
+            numPartitions=exec_params.default_parallelism,
+        )
+        .map(
+            lambda x: (x[0], final_analytics(
+                grp=x[0],
+                iterator=x[1],
+            )),
+            preservesPartitioning=True,
+        )
+        .sortByKey(
+            numPartitions=agg_tgt_num_partitions,
+        )  # type: ignore
         .values()
     )
     return rdd_result
@@ -66,12 +81,16 @@ def merge_value(
 def create_combiner(
         v: DataPointNT,
 ) -> SubTotal:
-    return merge_value(SubTotal(
-        running_sum_of_C=0,
-        running_count=0,
-        running_max_of_D=math.nan,
-        running_sum_of_E_squared=0,
-        running_sum_of_E=0), v)
+    return merge_value(
+        pre=SubTotal(
+            running_sum_of_C=0,
+            running_count=0,
+            running_max_of_D=math.nan,
+            running_sum_of_E_squared=0,
+            running_sum_of_E=0,
+        ),
+        v=v,
+    )
 
 
 def merge_combiners(

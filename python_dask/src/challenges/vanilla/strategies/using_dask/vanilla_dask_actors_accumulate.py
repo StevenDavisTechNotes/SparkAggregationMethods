@@ -68,7 +68,11 @@ class PartialMerger:
 
 def aggregate_and_push(file_path: str, offset: int, length: int, *actors) -> int:
     """Aggregate one chunk, then hand each grp's rows to that grp's actor (actor i owns grp == i)."""
-    partial = aggregate_chunk(file_path, offset, length)
+    partial = aggregate_chunk(
+        file_path=file_path,
+        offset=offset,
+        length=length,
+    )
     for grp, actor in enumerate(actors):
         part = partial.filter(pl.col("grp") == grp)
         if part.height > 0:

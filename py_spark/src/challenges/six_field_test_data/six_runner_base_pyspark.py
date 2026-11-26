@@ -46,7 +46,10 @@ def six_run_one_step_in_pyspark_itinerary(
 
     def check_partitions(rdd: RDD):
         logger = spark_session.logger
-        agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(data_set.data, challenge)
+        agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(
+            data=data_set.data,
+            challenge=challenge,
+        )
         if rdd.getNumPartitions() > max(agg_tgt_num_partitions, exec_params.default_parallelism):
             logger.info(f"{challenge_method_registration.strategy_name} output rdd "
                         f"has {rdd.getNumPartitions()} partitions")

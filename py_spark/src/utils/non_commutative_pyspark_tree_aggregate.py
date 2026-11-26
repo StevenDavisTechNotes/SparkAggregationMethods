@@ -19,13 +19,23 @@ def non_commutative_tree_aggregate(
             i_part: int,
             iterator: Iterable[tuple[int, T]],
     ) -> Iterable[tuple[int, T]]:
-        return full_aggregate_partition(i_part, iterator, zero_value_factory, seq_op)
+        return full_aggregate_partition(
+            i_part=i_part,
+            iterator=iterator,
+            zero_value_factory=zero_value_factory,
+            seq_op=seq_op,
+        )
 
     def combine_in_partition(
             i_part: int,
             iterator: Iterable[tuple[tuple[int, int], tuple[int, T]]],
     ) -> Iterable[tuple[int, T]]:
-        return full_combine_in_partition(i_part, iterator, zero_value_factory, comb_op)
+        return full_combine_in_partition(
+            i_part=i_part,
+            iterator=iterator,
+            zero_value_factory=zero_value_factory,
+            combOp=comb_op,
+        )
 
     def process_rdd(
             rdd_loop: RDD[tuple[int, T]],
@@ -33,7 +43,13 @@ def non_commutative_tree_aggregate(
             i_depth: int,
             division_base: int,
     ) -> RDD[tuple[int, T]]:
-        return full_process_rdd(rdd_loop, num_rows, i_depth, division_base, combine_in_partition)
+        return full_process_rdd(
+            rdd_loop=rdd_loop,
+            num_rows=num_rows,
+            i_depth=i_depth,
+            division_base=division_base,
+            combine_in_partition=combine_in_partition,
+        )
 
     persistedRDD = rdd1
     if storage_level is not None:
@@ -48,7 +64,12 @@ def non_commutative_tree_aggregate(
     rdd3: RDD[tuple[int, T]] = rdd2.map(lambda x: (x[1], x[0]))
     rdd_loop: RDD[tuple[int, T]] = rdd3.mapPartitionsWithIndex(aggregate_partition)
     for i_depth in range(depth - 1, -1, -1):
-        rdd_loop = process_rdd(rdd_loop, numRows, i_depth, division_base)
+        rdd_loop = process_rdd(
+            rdd_loop=rdd_loop,
+            num_rows=numRows,
+            i_depth=i_depth,
+            division_base=division_base,
+        )
     rdd8: RDD[T] = rdd_loop \
         .map(lambda x: x[1])
     return rdd8

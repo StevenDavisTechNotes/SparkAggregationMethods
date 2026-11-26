@@ -144,8 +144,11 @@ def spark() -> Iterable[SparkSession]:
     enable_hive_support = False
     tidy_spark_session \
         = open_spark_session(
-            spark_configs(1), enable_hive_support,
-            SPARK_SCRATCH_FOLDER, 1)
+            config_dict=spark_configs(1),
+            enable_hive_support=enable_hive_support,
+            spark_scratch_folder=SPARK_SCRATCH_FOLDER,
+            local_num_executors=1,
+        )
     spark = tidy_spark_session.spark_session
     yield spark
     spark.stop()

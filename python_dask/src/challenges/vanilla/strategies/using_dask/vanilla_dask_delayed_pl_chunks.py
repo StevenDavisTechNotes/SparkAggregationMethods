@@ -37,7 +37,11 @@ def vanilla_dask_delayed_pl_chunks(
     file_path = data_set.data.source_file_path_parquet
     num_source_rows = data_set.data_description.num_source_rows
     tasks = [
-        aggregate_chunk(file_path, offset, TARGET_ROWS_PER_PARTITION)
+        aggregate_chunk(
+            file_path=file_path,
+            offset=offset,
+            length=TARGET_ROWS_PER_PARTITION,
+        )
         for offset in range(0, num_source_rows, TARGET_ROWS_PER_PARTITION)
     ]
     partials = pl.concat(compute(*tasks))

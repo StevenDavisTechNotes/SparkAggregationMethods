@@ -22,7 +22,10 @@ def cond_pyspark_rdd_reduce(
 ) -> TSixFieldChallengePendingAnswerPythonPyspark:
     if (data_set.data_description.num_source_rows >= 9*10**8):
         return "infeasible", "Too slow"
-    agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(data_set.data, CHALLENGE)
+    agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(
+        data=data_set.data,
+        challenge=CHALLENGE,
+    )
     rdd_src = data_set.data.open_source_data_as_rdd(spark_session)
     rdd_result = cast(
         RDD[Row],
@@ -32,7 +35,13 @@ def cond_pyspark_rdd_reduce(
         .combineByKey(create_combiner_2,
                       merge_value_2,
                       merge_combiners_2)
-        .map(lambda kv: (kv[0], final_analytics_2(kv[0], kv[1])), preservesPartitioning=True)
+        .map(
+            lambda kv: (kv[0], final_analytics_2(
+                key=kv[0],
+                total=kv[1],
+            )),
+            preservesPartitioning=True,
+        )
         .sortByKey(numPartitions=agg_tgt_num_partitions)  # type: ignore
         .values()
     )
@@ -68,13 +77,17 @@ def merge_value_2(
 def create_combiner_2(
         v: DataPointNT,
 ) -> SubTotal:
-    return merge_value_2(SubTotal(
-        running_sum_of_C=0,
-        running_uncond_count=0,
-        running_max_of_D=math.nan,
-        running_cond_sum_of_E_squared=0,
-        running_cond_sum_of_E=0,
-        running_cond_count=0), v)
+    return merge_value_2(
+        sub=SubTotal(
+            running_sum_of_C=0,
+            running_uncond_count=0,
+            running_max_of_D=math.nan,
+            running_cond_sum_of_E_squared=0,
+            running_cond_sum_of_E=0,
+            running_cond_count=0,
+        ),
+        v=v,
+    )
 
 
 def merge_combiners_2(

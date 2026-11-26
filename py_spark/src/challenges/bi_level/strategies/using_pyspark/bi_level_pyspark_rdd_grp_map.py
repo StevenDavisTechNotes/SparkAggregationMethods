@@ -28,7 +28,10 @@ def bi_level_pyspark_rdd_grp_map(
         # This strategy only works if all of the values per key can fit into memory at once.
         return "infeasible", "requires all values per key to fit in memory"
     rdd_src: RDD[Row] = data_set.data.open_source_data_as_rdd(spark_session)
-    agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(data_set.data, CHALLENGE)
+    agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(
+        data=data_set.data,
+        challenge=CHALLENGE,
+    )
 
     rdd_result = cast(
         RDD[Row],
@@ -37,7 +40,10 @@ def bi_level_pyspark_rdd_grp_map(
         .groupBy(lambda x: x.grp)
         .map(lambda pair: (
             pair[0],
-            process_data_1(pair[0], pair[1])),
+            process_data_1(
+                grp=pair[0],
+                iterator=pair[1],
+            )),
             preservesPartitioning=True)
         .sortByKey(numPartitions=agg_tgt_num_partitions)  # type: ignore
         .values()

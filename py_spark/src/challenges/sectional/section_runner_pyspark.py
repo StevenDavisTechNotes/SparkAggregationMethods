@@ -168,7 +168,10 @@ def do_test_runs(
                 ):
                     case SectionRunResult() as run_result:
                         if not data_set.data_description.debugging_only:
-                            file.write_run_result(challenge_method_registration, run_result)
+                            file.write_run_result(
+                                challenge_method_registration=challenge_method_registration,
+                                run_result=run_result,
+                            )
                     case ("infeasible", _):
                         pass
                     case other:
@@ -327,10 +330,13 @@ def main() -> None:
     args = parse_args()
     update_challenge_registration()
     with TidySparkSession(
-        spark_configs(args.exec_params.default_parallelism),
+        config_dict=spark_configs(args.exec_params.default_parallelism),
         enable_hive_support=False,
     ) as spark_session:
-        do_test_runs(args, spark_session)
+        do_test_runs(
+            args=args,
+            spark_session=spark_session,
+        )
     logger.info("Done!")
 
 

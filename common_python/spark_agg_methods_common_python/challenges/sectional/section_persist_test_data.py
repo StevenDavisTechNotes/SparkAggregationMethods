@@ -67,7 +67,10 @@ class AnswerFileSectional(ABC):
             path=expected_answer_data_file_path,
             engine="auto",
         )
-        _validate_answer_schema(answer, str(expected_answer_data_file_path))
+        _validate_answer_schema(
+            answer=answer,
+            source=str(expected_answer_data_file_path),
+        )
         return answer
 
     @staticmethod
@@ -79,7 +82,10 @@ class AnswerFileSectional(ABC):
             data_description, temp_file=False)
         temp_file_name = section_derive_expected_answer_data_file_path(
             data_description, temp_file=True)
-        _validate_answer_schema(answer, str(final_file_name))
+        _validate_answer_schema(
+            answer=answer,
+            source=str(final_file_name),
+        )
         _validate_answer_rows(answer)
         answer.to_parquet(
             temp_file_name,

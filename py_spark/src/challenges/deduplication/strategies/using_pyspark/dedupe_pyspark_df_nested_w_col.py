@@ -18,7 +18,10 @@ def dedupe_pyspark_df_nested_w_col(
     if data_set.data_description.num_source_rows > 20200:
         return "infeasible", "Unknown reason"
     dfSrc = data_set.df_source
-    df = nest_blocks_dataframe(dfSrc, data_set.grouped_num_partitions)
+    df = nest_blocks_dataframe(
+        df=dfSrc,
+        grouped_num_partitions=data_set.grouped_num_partitions,
+    )
     df = df \
         .withColumn("FirstOrderEdges",
                     func.udf(find_record_matches_rec_list,

@@ -33,7 +33,10 @@ def section_pyspark_df_join_grp(
     rdd = (
         rdd
         .zipWithIndex()
-        .map(lambda x: with_index_column(x[1], parse_line_to_row(x[0]))))
+        .map(lambda x: with_index_column(
+            lineNumber=x[1],
+            row=parse_line_to_row(x[0]),
+        )))
     SparseLineWithLineNoSchema = DataTypes.StructType([
         DataTypes.StructField("LineNumber", DataTypes.IntegerType(), True)] +
         SparseLineSchema.fields)

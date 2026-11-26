@@ -27,7 +27,11 @@ def dedupe_pyspark_df_nested_pandas(
 
     spark = spark_session.spark
     numPartitions = exec_params.num_executors
-    df: PySparkDataFrame = zip_dataframe_with_index(dfSrc, spark=spark, colName="RowId")
+    df: PySparkDataFrame = zip_dataframe_with_index(
+        df=dfSrc,
+        spark=spark,
+        colName="RowId",
+    )
     df = df.withColumn(
         "BlockingKey",
         func.hash(
@@ -50,7 +54,10 @@ def inner_agg_method(
 ) -> pd.DataFrame:
     matched = find_matches(dfGroup)
     connectedComponents = find_components(matched)
-    mergedValue = combine_components(dfGroup, connectedComponents)
+    mergedValue = combine_components(
+        df=dfGroup,
+        connectedComponents=connectedComponents,
+    )
     return mergedValue
 
 

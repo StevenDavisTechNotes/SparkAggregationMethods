@@ -498,7 +498,10 @@ class test_full_set:
     ]
 
     def test_start(self):
-        r = merge_snippet_lists_1([self.students[0]], [self.students[1]])
+        r = merge_snippet_lists_1(
+            lh_group=[self.students[0]],
+            rh_group=[self.students[1]],
+        )
         assert r == [StudentSnippet1(
             FirstLineIndex=0,
             LastLineIndex=1,
@@ -511,7 +514,10 @@ class test_full_set:
             WeightedGradeTotal=[0, 0, 0, 0])]
 
     def test_end(self):
-        r = merge_snippet_lists_1([self.students[-2]], [self.students[-1]])
+        r = merge_snippet_lists_1(
+            lh_group=[self.students[-2]],
+            rh_group=[self.students[-1]],
+        )
         assert r == [StudentSnippet1(
             FirstLineIndex=47,
             LastLineIndex=48,

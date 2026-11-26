@@ -49,7 +49,7 @@ def dedupe_generate_data_file(
     )
     with temp_source_data_file_path.open("w") as f:
         for i in range(1, num_people_to_represent + 1):
-            f.write(line(i, source_code))
+            f.write(line(i=i, misspelledLetter=source_code))
     temp_source_data_file_path.replace(source_data_file_path)
 
 

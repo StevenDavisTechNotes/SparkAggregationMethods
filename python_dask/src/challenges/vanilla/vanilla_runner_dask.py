@@ -139,13 +139,13 @@ def do_test_runs(
                     case RunResultBase() as base_run_result:
                         if not data_set.data_description.debugging_only:
                             file.write_run_result(
-                                challenge_method_registration,
-                                VanillaRunResult(
+                                challenge_method_registration=challenge_method_registration,
+                                run_result=VanillaRunResult(
                                     num_source_rows=base_run_result.num_source_rows,
                                     elapsed_time=base_run_result.elapsed_time,
                                     num_output_rows=base_run_result.num_output_rows,
                                     finished_at=base_run_result.finished_at,
-                                )
+                                ),
                             )
                     case ("infeasible", _):
                         pass

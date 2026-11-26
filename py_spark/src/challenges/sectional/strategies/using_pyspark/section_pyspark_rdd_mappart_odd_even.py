@@ -29,7 +29,10 @@ def section_pyspark_rdd_mappart_odd_even(
     SegmentExtra = 2 * section_maximum_size
     SegmentSize = SegmentOffset + section_maximum_size - 1 + SegmentExtra
     rddTypedWithIndex = rdd_typed_with_index_factory(
-        spark_session, filename, target_num_partitions)
+        spark_session=spark_session,
+        filename=filename,
+        numPartitions=target_num_partitions,
+    )
     rddSegmentsEven = cast(Any, rddTypedWithIndex) \
         .keyBy(lambda x: (x.Index // SegmentSize, x.Index)) \
         .repartitionAndSortWithinPartitions(
@@ -73,7 +76,11 @@ def aggregate(
                 student = None
         prevIndex = index
         rec = labeled_row.Value
-        complete_student, student, trimester = accumulate_one_line(rec, student, trimester)
+        complete_student, student, trimester = accumulate_one_line(
+            rec=rec,
+            student=student,
+            trimester=trimester,
+        )
         if complete_student is not None:
             yield complete_student
     if student is not None:
@@ -97,9 +104,17 @@ def accumulate_one_line(
     elif trimester is None:  # since the section may be split
         pass
     elif isinstance(rec, ClassLine):
-        trimester.add_class(rec.Dept, rec.Credits, rec.Grade)
+        trimester.add_class(
+            dept=rec.Dept,
+            credits=rec.Credits,
+            grade=rec.Grade,
+        )
     elif isinstance(rec, TrimesterFooter):
-        trimester.add_footer(rec.Major, rec.GPA, rec.Credits)
+        trimester.add_footer(
+            major=rec.Major,
+            gpa=rec.GPA,
+            credits=rec.Credits,
+        )
         student.add_trimester(trimester)
         trimester = None
     else:

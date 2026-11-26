@@ -184,7 +184,10 @@ def do_test_runs(
         logger.info("No runs to execute.")
         return
     keyed_data_sets = {x.data_description.size_code: x for x in prepare_data_sets(
-        args.sizes, spark_session, args.exec_params)}
+        data_size_code_list=args.sizes,
+        spark_session=spark_session,
+        exec_params=args.exec_params,
+    )}
     keyed_implementation_list = {
         x.strategy_name: x for x in DEDUPE_STRATEGY_REGISTRY_PYSPARK}
     with DedupePysparkRunResultFileWriter() as file:
@@ -206,7 +209,10 @@ def do_test_runs(
                 ):
                     case DedupeRunResult() as run_result:
                         if not data_set.data_description.debugging_only:
-                            file.write_run_result(challenge_method_registration, run_result)
+                            file.write_run_result(
+                                challenge_method_registration=challenge_method_registration,
+                                run_result=run_result,
+                            )
                     case ("infeasible", _):
                         pass
                     case other:
@@ -272,7 +278,11 @@ def run_one_itinerary_step(
     finished_at = time.time()
     elapsed_time = finished_at - startedTime
     num_people_found = len(found_people)
-    success = verify_correctness(data_set.data_description, found_people, spark_session)
+    success = verify_correctness(
+        data_description=data_set.data_description,
+        lst=found_people,
+        spark_session=spark_session,
+    )
     if not success:
         raise ValueError(
             "Got incorrect result for"
@@ -353,10 +363,13 @@ def main() -> None:
     args = parse_args()
     update_challenge_registration()
     with TidySparkSession(
-        spark_configs(args.exec_params.default_parallelism),
+        config_dict=spark_configs(args.exec_params.default_parallelism),
         enable_hive_support=args.exec_params.in_cloud_mode,
     ) as spark_session:
-        do_test_runs(args, spark_session)
+        do_test_runs(
+            args=args,
+            spark_session=spark_session,
+        )
     logger.info("Done!")
 
 

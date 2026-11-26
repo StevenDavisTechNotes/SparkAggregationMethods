@@ -55,7 +55,12 @@ def verify_correctness(
                 f"df.count()({count}) != numPeople({actual_num_people}) ")
         NumBRecords = max(1, 2 * actual_num_people // 100)
         for index, row in enumerate(lst):
-            verify_single_line(num_sources, NumBRecords, index, row)
+            verify_single_line(
+                NumSources=num_sources,
+                NumBRecords=NumBRecords,
+                index=index,
+                row=row,
+            )
     except Exception as exception:
         logger.info(f"data error {exception}")
         return False
@@ -69,18 +74,60 @@ def verify_single_line(
         row: Row,
 ) -> None:
     i = index + 1
-    verify_first_name(row, i)
-    verify_last_name(row, i)
-    verify_street_address(row, i)
-    verify_city(row, i)
-    verify_zip_code(row, i)
-    verify_secret_key(row, i)
-    verify_column_a(row, i)
-    verify_column_b(NumSources, NumBRecords, row, i)
-    verify_column_c(NumSources, row, i)
-    verify_column_d(NumSources, row, i)
-    verify_column_e(NumSources, row, i)
-    verify_column_f(NumSources, row, i)
+    verify_first_name(
+        row=row,
+        i=i,
+    )
+    verify_last_name(
+        row=row,
+        i=i,
+    )
+    verify_street_address(
+        row=row,
+        i=i,
+    )
+    verify_city(
+        row=row,
+        i=i,
+    )
+    verify_zip_code(
+        row=row,
+        i=i,
+    )
+    verify_secret_key(
+        row=row,
+        i=i,
+    )
+    verify_column_a(
+        row=row,
+        i=i,
+    )
+    verify_column_b(
+        num_sources=NumSources,
+        num_b_records=NumBRecords,
+        row=row,
+        i=i,
+    )
+    verify_column_c(
+        num_sources=NumSources,
+        row=row,
+        i=i,
+    )
+    verify_column_d(
+        num_sources=NumSources,
+        row=row,
+        i=i,
+    )
+    verify_column_e(
+        num_sources=NumSources,
+        row=row,
+        i=i,
+    )
+    verify_column_f(
+        num_sources=NumSources,
+        row=row,
+        i=i,
+    )
 
 
 def verify_first_name(row: Row, i: int) -> None:

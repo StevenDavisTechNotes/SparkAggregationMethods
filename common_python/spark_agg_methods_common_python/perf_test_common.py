@@ -256,7 +256,10 @@ class RunResultFileWriterBase(Generic[TSolutionInterface], ABC):
         # A header starts a new segment for summarize_test_results, so a changed column set must get a new one;
         # an unchanged one is redundant when each step runs in its own process and reopens the log.
         self.file.seek(0)
-        if run_log_has_current_header(self.file, header):
+        if run_log_has_current_header(
+            existing_lines=self.file,
+            header=header,
+        ):
             logger.info(f"Header already current {header}")
             return
         logger.info(f"Writing header {header}")

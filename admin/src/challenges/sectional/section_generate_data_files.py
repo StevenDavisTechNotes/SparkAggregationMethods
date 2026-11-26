@@ -82,7 +82,10 @@ def _generate_answer_file(data_description: SectionDataSetDescription) -> None:
         list(answer_iterable),
         row_type=StudentSummary
     )
-    AnswerFileSectional.write_answer_file_sectional(data_description, df)
+    AnswerFileSectional.write_answer_file_sectional(
+        data_description=data_description,
+        answer=df,
+    )
 
 
 def sectional_generate_data_files_remove():

@@ -46,7 +46,11 @@ def section_pyspark_df_prep_txt(
         .map(parse_line_to_row_with_line_no)
     )
     df = spark.createDataFrame(rdd, SparseLineWithSectionIdLineNoSchema)
-    df = section_pyspark_rdd_prep_shared(df, exec_params, section_maximum)
+    df = section_pyspark_rdd_prep_shared(
+        dfSrc=df,
+        exec_params=exec_params,
+        sectionMaximum=section_maximum,
+    )
     rdd = (
         cast(RDD[Row], df.rdd)
         .map(row_to_student_summary)

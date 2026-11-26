@@ -264,5 +264,8 @@ def single_pass_rec_list(
     firstOrderEdges = find_record_matches_rec_list(blockedData)
     connectedComponents = find_connected_components_rec_list(firstOrderEdges)
     firstOrderEdges = None
-    mergedItems = merge_items_rec_list(blockedData, connectedComponents)
+    mergedItems = merge_items_rec_list(
+        blockedDataList=blockedData,
+        connectedComponentList=connectedComponents,
+    )
     return mergedItems

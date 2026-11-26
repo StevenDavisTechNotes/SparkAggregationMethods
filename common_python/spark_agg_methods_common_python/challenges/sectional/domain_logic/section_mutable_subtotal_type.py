@@ -76,16 +76,30 @@ def aggregate_typed_rows_to_grades(
             case StudentHeader():
                 if student is not None:
                     yield student.grade_summary()
-                student = MutableStudent(rec.StudentId, rec.StudentName)
+                student = MutableStudent(
+                    studentId=rec.StudentId,
+                    studentName=rec.StudentName,
+                )
             case TrimesterHeader():
-                trimester = MutableTrimester(rec.Date, rec.WasAbroad)
+                trimester = MutableTrimester(
+                    date=rec.Date,
+                    wasAbroad=rec.WasAbroad,
+                )
             case ClassLine():
                 assert trimester is not None
-                trimester.add_class(rec.Dept, rec.Credits, rec.Grade)
+                trimester.add_class(
+                    dept=rec.Dept,
+                    credits=rec.Credits,
+                    grade=rec.Grade,
+                )
             case TrimesterFooter():
                 assert trimester is not None
                 assert student is not None
-                trimester.add_footer(rec.Major, rec.GPA, rec.Credits)
+                trimester.add_footer(
+                    major=rec.Major,
+                    gpa=rec.GPA,
+                    credits=rec.Credits,
+                )
                 student.add_trimester(trimester)
                 trimester = None
             case _:

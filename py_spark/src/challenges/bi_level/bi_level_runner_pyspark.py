@@ -94,8 +94,8 @@ def prepare_data_sets(
         BiLevelDataSetWAnswerPyspark(
             data_description=size,
             data=six_prepare_data_set_pyspark(
-                spark_session,
-                args.exec_params,
+                spark_session=spark_session,
+                exec_params=args.exec_params,
                 data_description=size,
             ),
             answer=fetch_six_data_set_answer(
@@ -132,7 +132,10 @@ def do_test_runs(
         return
     keyed_implementation_list = {
         x.strategy_name: x for x in BI_LEVEL_STRATEGY_REGISTRY_PYSPARK}
-    keyed_data_sets = {x.data_description.size_code: x for x in prepare_data_sets(args, spark_session)}
+    keyed_data_sets = {x.data_description.size_code: x for x in prepare_data_sets(
+        args=args,
+        spark_session=spark_session,
+    )}
     with BiLevelPysparkRunResultFileWriter() as file:
         for index, (strategy_name, size_code) in enumerate(itinerary):
             challenge_method_registration = keyed_implementation_list[strategy_name]
@@ -228,10 +231,15 @@ def main() -> None:
     args = parse_args()
     update_challenge_registration()
     with TidySparkSession(
-        six_spark_config_base(args.exec_params),
-        enable_hive_support=False
+        config_dict=six_spark_config_base(
+            exec_params=args.exec_params,
+        ),
+        enable_hive_support=False,
     ) as spark_session:
-        do_test_runs(args, spark_session)
+        do_test_runs(
+            args=args,
+            spark_session=spark_session,
+        )
     logger.info("Done!")
 
 

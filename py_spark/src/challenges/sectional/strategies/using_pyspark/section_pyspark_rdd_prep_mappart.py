@@ -31,7 +31,11 @@ def section_pyspark_rdd_prep_mappart(
     rdd1: RDD[tuple[tuple[int, int], TypedLine]] = (
         sc.textFile(str(interFileName), target_num_partitions)
         .zipWithIndex()
-        .map(lambda pair: parse_line_to_types_with_line_no(filename_str, pair[1], pair[0]))
+        .map(lambda pair: parse_line_to_types_with_line_no(
+            filename=filename_str,
+            lineNumber=pair[1],
+            line=pair[0],
+        ))
     )
     rdd: RDD[StudentSummary] = (
         rdd1
@@ -99,4 +103,8 @@ def print_test_data_file(
 ) -> None:
     with open(prepped_file_path, "rt") as fh:
         for i_line, line in enumerate(fh):
-            parse_line_to_types_with_line_no(prepped_file_path, i_line, line.rstrip())
+            parse_line_to_types_with_line_no(
+                filename=prepped_file_path,
+                lineNumber=i_line,
+                line=line.rstrip(),
+            )

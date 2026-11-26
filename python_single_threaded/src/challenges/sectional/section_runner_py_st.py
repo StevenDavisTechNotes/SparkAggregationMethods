@@ -133,10 +133,17 @@ def do_test_runs(
             logger.info(f"Working on {challenge_method_registration.strategy_name} "
                         f"for {data_set.data_description.num_source_rows}")
             try:
-                match section_run_one_itinerary_step(args, challenge_method_registration, data_set):
+                match section_run_one_itinerary_step(
+                    args=args,
+                    challenge_method_registration=challenge_method_registration,
+                    data_set=data_set,
+                ):
                     case RunResultBase() as run_result:
                         if not data_set.data_description.debugging_only:
-                            file.write_run_result(challenge_method_registration, run_result)
+                            file.write_run_result(
+                                challenge_method_registration=challenge_method_registration,
+                                run_result=run_result,
+                            )
                     case ("infeasible", _):
                         pass
                     case other:

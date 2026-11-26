@@ -234,7 +234,10 @@ def analyze_run_results():
                         regressor_value=regressor_value,
                         elapsed_time_samples=elapsed_time_samples,
                     ))
-        print_summary(challenge, summary_status)
+        print_summary(
+            challenge=challenge,
+            summary_status=summary_status,
+        )
 
 
 def print_summary(

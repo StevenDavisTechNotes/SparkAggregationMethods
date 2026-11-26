@@ -24,13 +24,22 @@ def vanilla_pyspark_rdd_grp_map(
             * data_set.data_description.num_grp_1 * data_set.data_description.num_grp_2
     ):
         return "infeasible", "Requires that all values per key fit into memory at once"
-    agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(data_set.data, CHALLENGE)
+    agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(
+        data=data_set.data,
+        challenge=CHALLENGE,
+    )
     rdd_src = data_set.data.open_source_data_as_rdd(spark_session)
     rdd_result = (
         rdd_src
         .map(lambda r: DataPointNT(*r))
         .groupBy(lambda x: (x.grp, x.subgrp))
-        .map(lambda pair: (pair[0], process_data_1(pair[0], pair[1])), preservesPartitioning=True)
+        .map(
+            lambda pair: (pair[0], process_data_1(
+                key=pair[0],
+                iterator=pair[1],
+            )),
+            preservesPartitioning=True,
+        )
         .sortByKey(numPartitions=agg_tgt_num_partitions)  # type: ignore
         .values()
     )

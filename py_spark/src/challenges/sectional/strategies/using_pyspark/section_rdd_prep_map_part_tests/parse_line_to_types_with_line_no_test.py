@@ -73,5 +73,14 @@ def test_nominal():
         )
     ]
 
-    actual = list(map(lambda x: parse_line_to_types_with_line_no("filename", 441+x[0], x[1]), enumerate(prepped_data)))
+    actual = list(
+        map(
+            lambda x: parse_line_to_types_with_line_no(
+                filename="filename",
+                lineNumber=441+x[0],
+                line=x[1],
+            ),
+            enumerate(prepped_data),
+        )
+    )
     assert expected == actual

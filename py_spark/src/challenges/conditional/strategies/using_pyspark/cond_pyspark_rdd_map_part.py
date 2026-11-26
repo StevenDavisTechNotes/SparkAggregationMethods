@@ -21,7 +21,10 @@ def cond_pyspark_rdd_map_part(
 ) -> TSixFieldChallengePendingAnswerPythonPyspark:
     if (data_set.data_description.num_source_rows >= 9*10**8):
         return "infeasible", "Too slow"
-    agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(data_set.data, CHALLENGE)
+    agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(
+        data=data_set.data,
+        challenge=CHALLENGE,
+    )
     rdd_src = data_set.data.open_source_data_as_rdd(spark_session)
     rdd_sum_count = (
         rdd_src
@@ -29,8 +32,20 @@ def cond_pyspark_rdd_map_part(
         .mapPartitionsWithIndex(partition_triage)
         .groupByKey(
             numPartitions=data_set.data_description.num_grp_1 * data_set.data_description.num_grp_2)
-        .map(lambda kv: (kv[0], merge_combiners_3(kv[0], kv[1])), preservesPartitioning=True)
-        .map(lambda kv: (kv[0], final_analytics_2(kv[0], kv[1])), preservesPartitioning=True)
+        .map(
+            lambda kv: (kv[0], merge_combiners_3(
+                _key=kv[0],
+                iterable=kv[1],
+            )),
+            preservesPartitioning=True,
+        )
+        .map(
+            lambda kv: (kv[0], final_analytics_2(
+                key=kv[0],
+                total=kv[1],
+            )),
+            preservesPartitioning=True,
+        )
         .sortByKey(numPartitions=agg_tgt_num_partitions)  # type: ignore
         .values()
     )

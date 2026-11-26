@@ -29,10 +29,19 @@ def section_reduce_partials_broken(
 
     rdd1: RDD[LabeledTypedRow] \
         = rdd_typed_with_index_factory(
-        spark_session, filename, TargetNumPartitions)
+            spark_session=spark_session,
+            filename=filename,
+            numPartitions=TargetNumPartitions,
+    )
     num_rows = rdd1.count()
     rdd2: RDD[list[StudentSnippet1]] = rdd1 \
-        .map(lambda x: [student_snippet_from_typed_row_1(x.Index, x.Value)])
+        .map(lambda x: [
+            student_snippet_from_typed_row_1(
+                lineIndex=x.Index,
+                rec=x.Value,
+            )
+        ]
+    )
     targetDepth = max(1, math.ceil(
         math.log(num_rows / MaximumProcessableSegment, MaximumProcessableSegment - 2)))
     students1: list[StudentSnippet1] \
@@ -62,15 +71,18 @@ def section_pyspark_rdd_reduce_asymm_part(
     rdd13: RDD[LabeledTypedRow] = rdd2 \
         .map(lambda x: LabeledTypedRow(Index=x[1], Value=parse_line_to_types(x[0])))
     rdd4: RDD[list[StudentSnippet1]] = rdd13 \
-        .map(lambda x: [student_snippet_from_typed_row_1(x.Index, x.Value)])
+        .map(lambda x: [student_snippet_from_typed_row_1(
+            lineIndex=x.Index,
+            rec=x.Value,
+        )])
     division_base = 2
     target_depth = max(1, math.ceil(
         math.log(data_size / maximum_processable_segment, division_base)))
     rdd5: RDD[list[StudentSnippet1]] = non_commutative_tree_aggregate(
-        rdd4,
-        lambda: cast(list[StudentSnippet1], list()),
-        merge_snippet_lists_1,
-        merge_snippet_lists_1,
+        rdd1=rdd4,
+        zero_value_factory=lambda: cast(list[StudentSnippet1], list()),
+        seq_op=merge_snippet_lists_1,
+        comb_op=merge_snippet_lists_1,
         depth=target_depth,
         division_base=division_base,
         storage_level=StorageLevel.DISK_ONLY,

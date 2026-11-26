@@ -66,8 +66,9 @@ def pretty_print_to_string(
     global re_match_dt_1
     with io.StringIO(newline="\n") as intermediateStream:
         pprint(
-            rows,
-            stream=intermediateStream)
+            object=rows,
+            stream=intermediateStream,
+        )
         text = intermediateStream.getvalue()
 
         if re_match_dt_1 is None:
@@ -82,7 +83,10 @@ def print_object_as_python_literal(
         suffix: str = "",
 ) -> None:
     with open(pick_file_path(suffix), "w", encoding="utf-8") as fh:
-        pretty_print_to_string(rows, fh)
+        pretty_print_to_string(
+            rows=rows,
+            fh=fh,
+        )
 
 
 def print_text(

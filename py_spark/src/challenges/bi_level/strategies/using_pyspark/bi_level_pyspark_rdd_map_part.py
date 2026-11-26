@@ -66,7 +66,10 @@ def bi_level_pyspark_rdd_map_part(
         data_set: SixFieldDataSetPyspark
 ) -> TSixFieldChallengePendingAnswerPythonPyspark:
     rddSrc: RDD[Row] = data_set.data.open_source_data_as_rdd(spark_session)
-    agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(data_set.data, CHALLENGE)
+    agg_tgt_num_partitions = pick_agg_tgt_num_partitions_pyspark(
+        data=data_set.data,
+        challenge=CHALLENGE,
+    )
 
     rddResult = cast(
         RDD[Row],
@@ -74,7 +77,11 @@ def bi_level_pyspark_rdd_map_part(
         .map(lambda r: DataPointNT(*r))
         .mapPartitions(partition_triage)
         .groupByKey(numPartitions=exec_params.default_parallelism)
-        .map(lambda kv: (kv[0], merge_combiners_3(kv[0], kv[1])), preservesPartitioning=True)
+        .map(lambda kv: (kv[0],
+                         merge_combiners_3(kv[0], kv[1])
+                         ),
+             preservesPartitioning=True,
+             )
         .sortByKey(numPartitions=agg_tgt_num_partitions)  # type: ignore
         .values()
     )
@@ -98,7 +105,10 @@ def partition_triage(
             else v.D
         k2 = v.subgrp
         if k2 not in r1.running_subgrp_totals:
-            r1.running_subgrp_totals[k2] = MutableSubGrpTotal(v.grp, v.subgrp)
+            r1.running_subgrp_totals[k2] = MutableSubGrpTotal(
+                grp=v.grp,
+                subgrp=v.subgrp,
+            )
         r2 = r1.running_subgrp_totals[k2]
         r2.running_sum_of_E_squared += v.E * v.E
         r2.running_sum_of_E += v.E
@@ -141,7 +151,10 @@ def merge_combiners_3(
         for subgrp, rsub2 in rsub1.subgrp_totals.items():
             k2 = subgrp
             if k2 not in lsub.running_subgrp_totals:
-                lsub.running_subgrp_totals[k2] = MutableSubGrpTotal(grp, subgrp)
+                lsub.running_subgrp_totals[k2] = MutableSubGrpTotal(
+                    grp=grp,
+                    subgrp=subgrp,
+                )
             lsub2 = lsub.running_subgrp_totals[k2]
             lsub2.running_sum_of_E_squared += \
                 rsub2.running_sum_of_E_squared
@@ -159,4 +172,5 @@ def merge_combiners_3(
         grp=grp,
         mean_of_C=lsub.running_sum_of_C / running_count,
         max_of_D=lsub.running_max_of_D,
-        avg_var_of_E=statistics.mean(vars_of_E))
+        avg_var_of_E=statistics.mean(vars_of_E),
+    )

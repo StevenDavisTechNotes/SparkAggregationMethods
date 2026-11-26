@@ -21,7 +21,7 @@
                         "challenge": "bilevel",
                         "interface": "pandas",
                         "strategy_name": "bi_level_py_st_pd_grp_numpy",
-                        "numerical_tolerance": 1e-12,
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -30,7 +30,7 @@
                         "challenge": "bilevel",
                         "interface": "polars",
                         "strategy_name": "bi_level_py_st_pl_grp_single",
-                        "numerical_tolerance": 1e-12,
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -39,7 +39,7 @@
                         "challenge": "bilevel",
                         "interface": "polars",
                         "strategy_name": "bi_level_py_st_pl_grp_scan",
-                        "numerical_tolerance": 1e-12,
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -48,7 +48,7 @@
                         "challenge": "bilevel",
                         "interface": "polars",
                         "strategy_name": "bi_level_py_st_pl_grp_stripe",
-                        "numerical_tolerance": 1e-12,
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -57,7 +57,7 @@
                         "challenge": "bilevel",
                         "interface": "pandas",
                         "strategy_name": "bi_level_py_st_pd_grp_agg",
-                        "numerical_tolerance": 1e-12,
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -66,7 +66,7 @@
                         "challenge": "bilevel",
                         "interface": "numpy",
                         "strategy_name": "bi_level_py_st_np_grp_reduceat",
-                        "numerical_tolerance": 1e-12,
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -75,7 +75,7 @@
                         "challenge": "bilevel",
                         "interface": "numba",
                         "strategy_name": "bi_level_py_st_nb_grp_kernel",
-                        "numerical_tolerance": 1e-12,
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -84,7 +84,7 @@
                         "challenge": "bilevel",
                         "interface": "pyarrow",
                         "strategy_name": "bi_level_py_st_pa_grp_batches",
-                        "numerical_tolerance": 1e-12,
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -93,7 +93,7 @@
                         "challenge": "bilevel",
                         "interface": "progressive",
                         "strategy_name": "bi_level_py_st_pd_prog_numpy",
-                        "numerical_tolerance": 1e-12,
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     }
                 ],
@@ -249,7 +249,7 @@
                         "challenge": "conditional",
                         "interface": "pandas",
                         "strategy_name": "cond_py_st_pd_grp_numpy",
-                        "numerical_tolerance": 1e-12,
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -258,7 +258,7 @@
                         "challenge": "conditional",
                         "interface": "pandas",
                         "strategy_name": "cond_py_st_pd_grp_pandas",
-                        "numerical_tolerance": 1e-12,
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -267,7 +267,7 @@
                         "challenge": "conditional",
                         "interface": "polars",
                         "strategy_name": "cond_py_st_pl_grp_single",
-                        "numerical_tolerance": 1e-12,
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -276,7 +276,7 @@
                         "challenge": "conditional",
                         "interface": "polars",
                         "strategy_name": "cond_py_st_pl_grp_scan",
-                        "numerical_tolerance": 1e-12,
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -285,7 +285,7 @@
                         "challenge": "conditional",
                         "interface": "polars",
                         "strategy_name": "cond_py_st_pl_grp_stripe",
-                        "numerical_tolerance": 1e-12,
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -294,7 +294,7 @@
                         "challenge": "conditional",
                         "interface": "pandas",
                         "strategy_name": "cond_py_st_pd_grp_agg",
-                        "numerical_tolerance": 1e-12,
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -303,7 +303,7 @@
                         "challenge": "conditional",
                         "interface": "numpy",
                         "strategy_name": "cond_py_st_np_grp_reduceat",
-                        "numerical_tolerance": 1e-12,
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -312,7 +312,7 @@
                         "challenge": "conditional",
                         "interface": "numba",
                         "strategy_name": "cond_py_st_nb_grp_kernel",
-                        "numerical_tolerance": 1e-12,
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {

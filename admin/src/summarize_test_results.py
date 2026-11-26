@@ -216,6 +216,7 @@ def analyze_run_results():
                     src_df=df,
                     challenge_result_log_registration=challenge_result_log_registration,
                 )
+                engine_summary_start = len(summary_status)
                 group_iterator = cast(Any, df.groupby(by=["strategy_name", regressor_column_name]))
                 for (strategy_name, regressor_value), group in group_iterator:
                     if strategy_name not in challenge_result_log_registration_by_strategy_name:
@@ -234,6 +235,11 @@ def analyze_run_results():
                         regressor_value=regressor_value,
                         elapsed_time_samples=elapsed_time_samples,
                     ))
+                engine_runs = [x.number_of_runs for x in summary_status[engine_summary_start:]]
+                if engine_runs:
+                    logger.info(
+                        f"{challenge.value} on {engine.value}: number_of_runs smallest={min(engine_runs)}, "
+                        f"largest={max(engine_runs)} over {len(engine_runs)} strategy/size cells")
         print_summary(
             challenge=challenge,
             summary_status=summary_status,

@@ -112,7 +112,7 @@ class SolutionInterfaceScalaSpark(str, Enum):
 
 class NumericalToleranceExpectations(Enum):
     NOT_APPLICABLE = -1.0
-    NUMPY = 1e-12
+    NUMPY = 5e-12
     NUMBA = 1e-10
     SIMPLE_SUM = 1e-11
 

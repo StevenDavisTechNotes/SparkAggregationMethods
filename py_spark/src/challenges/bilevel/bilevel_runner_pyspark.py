@@ -229,6 +229,9 @@ def main() -> None:
     logger.info(f"Running {__file__}")
     args = parse_args()
     update_challenge_registration()
+    if args.num_runs == 0:
+        logger.info("--runs 0: registry updated, skipping Spark session")
+        return
     with TidySparkSession(
         config_dict=six_spark_config_base(
             exec_params=args.exec_params,

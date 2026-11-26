@@ -13,9 +13,10 @@ object MathHelper {
   }
   // https://stackoverflow.com/questions/39617213/scala-what-is-the-generic-way-to-calculate-standard-deviation
   def mean(a: Seq[Double]): Double = a.sum / a.size
+  // Population variance (divide by n), matching the Python strategies and verifier.
   def variance(a: Seq[Double]): Double = {
     val avg = mean(a)
-    a.map(x => math.pow((x - avg), 2)).sum / (a.size - 1)
+    a.map(x => math.pow((x - avg), 2)).sum / a.size
   }
   // https://stackoverflow.com/questions/19044114/how-to-find-the-largest-element-in-a-list-of-integers-recursively
   def max[A <% Ordered[A]](xs: List[A]): Option[A] = xs match {

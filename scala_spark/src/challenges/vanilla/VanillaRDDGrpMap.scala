@@ -31,11 +31,11 @@ object VanillaRDDGrpMap {
       }
       val mean_of_C = if(count > 0) sum_of_C / count 
         else Double.NaN
-      val var_of_E = if (count < 2) Double.NaN else
+      val var_of_E = if (count < 1) Double.NaN else
         (
             sum_of_E_squared
             - sum_of_E * sum_of_E / count
-        )  / (count - 1)
+        ) / count
       return new AggResult(grp, subgrp, 
           mean_of_C, max_of_D, var_of_E, var_of_E)
     }

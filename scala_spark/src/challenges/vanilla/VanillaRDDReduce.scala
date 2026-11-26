@@ -54,11 +54,11 @@ object VanillaRDDReduce {
         val sum_of_E_squared = total.running_sum_of_E_squared
         val sum_of_E = total.running_sum_of_E
         val var_of_E = 
-              if (count < 2) Double.NaN else
+              if (count < 1) Double.NaN else
                 (
                     sum_of_E_squared - 
                     sum_of_E * sum_of_E / count
-                )  / (count - 1)
+                ) / count
         AggResult(
             grp=key._1, subgrp=key._2,
             mean_of_C= 

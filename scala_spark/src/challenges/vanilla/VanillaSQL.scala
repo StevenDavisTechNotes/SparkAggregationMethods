@@ -19,11 +19,11 @@ df.createTempView("exampledata")
 var query: String = """
 SELECT 
     grp, subgrp, AVG(C) mean_of_C, MAX(D) max_of_D, 
-    VAR_SAMP(E) var_of_E,
+    VAR_POP(E) var_of_E,
     (
         SUM(E*E) - 
         SUM(E) * SUM(E) / COUNT(E)
-    ) / (COUNT(E) - 1) var_of_E2
+    ) / COUNT(E) var_of_E2
 FROM
     exampledata
 GROUP BY grp, subgrp

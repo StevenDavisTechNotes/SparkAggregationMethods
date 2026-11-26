@@ -27,7 +27,7 @@ from spark_agg_methods_common_python.utils.platform import setup_logging
 from src.challenges.bilevel import bilevel_runner_pyspark
 from src.challenges.conditional import conditional_runner_pyspark
 from src.challenges.dedupe import dedupe_runner_pyspark
-from src.challenges.sectional import section_runner_pyspark
+from src.challenges.sectional import sectional_runner_pyspark
 from src.challenges.vanilla import vanilla_runner_pyspark
 
 logger = logging.getLogger(__name__)
@@ -65,9 +65,9 @@ CHALLENGE_RUNNERS = (
         strategy_registry_name="DEDUPE_STRATEGY_REGISTRY_PYSPARK",
     ),
     PysparkChallengeRunner(
-        module=section_runner_pyspark,
+        module=sectional_runner_pyspark,
         size_list_name="DATA_SIZE_LIST_SECTIONAL_MAXIMAL",
-        writer_class_name="SectionPysparkRunResultFileWriter",
+        writer_class_name="SectionalPysparkRunResultFileWriter",
         strategy_registry_name="SECTIONAL_STRATEGY_REGISTRY_PYSPARK",
     ),
     PysparkChallengeRunner(

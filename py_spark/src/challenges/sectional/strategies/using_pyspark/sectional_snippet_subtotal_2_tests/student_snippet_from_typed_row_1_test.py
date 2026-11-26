@@ -1,0 +1,122 @@
+from spark_agg_methods_common_python.challenges.sectional.sectional_test_data_types import (
+    NUM_DEPARTMENTS, ClassLine, StudentHeader, TrimesterFooter, TrimesterHeader,
+)
+from src.challenges.sectional.domain_logic.sectional_snippet_subtotal_type import (
+    StudentSnippet1, student_snippet_from_typed_row_1,
+)
+
+
+class test_StudentHeader:
+    def test_nominal(
+            self,
+    ) -> None:
+        studentId = 123
+        studentName = "xxx"
+        lineIndex = 456
+        src = StudentHeader(
+            StudentId=studentId,
+            StudentName=studentName,
+        )
+        expected = StudentSnippet1(
+            StudentId=studentId,
+            StudentName=studentName,
+            FirstTrimesterDate=None,
+            LastTrimesterDate=None,
+            LastMajor=None,
+            Credits=[0 for _ in range(0, NUM_DEPARTMENTS)],
+            WeightedGradeTotal=[0 for _ in range(0, NUM_DEPARTMENTS)],
+            FirstLineIndex=lineIndex,
+            LastLineIndex=lineIndex)
+        actual = student_snippet_from_typed_row_1(
+            lineIndex=lineIndex,
+            rec=src,
+        )
+        assert expected == actual
+
+
+class test_TrimesterHeader:
+    def test_nominal(
+            self,
+    ) -> None:
+        date = "date"
+        wasAbroad = False
+        lineIndex = 456
+        src = TrimesterHeader(
+            Date=date,
+            WasAbroad=wasAbroad,
+        )
+        expected = StudentSnippet1(
+            StudentId=None,
+            StudentName=None,
+            FirstTrimesterDate=date,
+            LastTrimesterDate=date,
+            LastMajor=None,
+            Credits=[0 for _ in range(0, NUM_DEPARTMENTS)],
+            WeightedGradeTotal=[0 for _ in range(0, NUM_DEPARTMENTS)],
+            FirstLineIndex=lineIndex,
+            LastLineIndex=lineIndex)
+        actual = student_snippet_from_typed_row_1(
+            lineIndex=lineIndex,
+            rec=src,
+        )
+        assert expected == actual
+
+
+class test_ClassLine:
+    def test_nominal(
+            self,
+    ) -> None:
+        dept = 2
+        credits = 3
+        grade = 5
+        lineIndex = 456
+        src = ClassLine(
+            Dept=dept,
+            Credits=credits,
+            Grade=grade,
+        )
+        expected = StudentSnippet1(
+            StudentId=None,
+            StudentName=None,
+            FirstTrimesterDate=None,
+            LastTrimesterDate=None,
+            LastMajor=None,
+            Credits=[(credits if x == dept else 0) for x in range(0, NUM_DEPARTMENTS)],
+            WeightedGradeTotal=[(credits * grade if x == dept else 0) for x in range(0, NUM_DEPARTMENTS)],
+            FirstLineIndex=lineIndex,
+            LastLineIndex=lineIndex)
+        actual = student_snippet_from_typed_row_1(
+            lineIndex=lineIndex,
+            rec=src,
+        )
+        assert expected == actual
+
+
+class test_TrimesterFooter:
+    def test_nominal(
+            self,
+    ) -> None:
+        major = 2
+        gps = 3.2
+        credits = 21
+        lineIndex = 456
+        src = TrimesterFooter(
+            Major=major,
+            GPA=gps,
+            Credits=credits,
+        )
+        expected = StudentSnippet1(
+            StudentId=None,
+            StudentName=None,
+            FirstTrimesterDate=None,
+            LastTrimesterDate=None,
+            LastMajor=2,
+            Credits=[0 for _ in range(0, NUM_DEPARTMENTS)],
+            WeightedGradeTotal=[0 for _ in range(0, NUM_DEPARTMENTS)],
+            FirstLineIndex=lineIndex,
+            LastLineIndex=lineIndex)
+        actual = student_snippet_from_typed_row_1(
+            lineIndex=lineIndex,
+            rec=src,
+        )
+        assert expected == actual

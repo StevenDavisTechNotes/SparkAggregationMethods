@@ -220,8 +220,8 @@
             },
             "sectional": {
                 "result_file_path": {
-                    "windows": "results/2026/windows/section_python_single_threaded_runs.csv",
-                    "wsl": "results/2026/wsl/section_python_single_threaded_runs.csv"
+                    "windows": "results/2026/windows/sectional_python_single_threaded_runs.csv",
+                    "wsl": "results/2026/wsl/sectional_python_single_threaded_runs.csv"
                 },
                 "regressor_column_name": "num_students",
                 "elapsed_time_column_name": "elapsed_time",
@@ -231,7 +231,7 @@
                         "engine": "python_single_threaded",
                         "challenge": "sectional",
                         "interface": "single_threaded",
-                        "strategy_name": "section_py_st_linear_file_read",
+                        "strategy_name": "sectional_py_st_linear_file_read",
                         "numerical_tolerance": -1.0,
                         "requires_gpu": false
                     }

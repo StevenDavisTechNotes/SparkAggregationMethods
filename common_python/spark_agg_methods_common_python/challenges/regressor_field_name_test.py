@@ -7,7 +7,7 @@ from spark_agg_methods_common_python.challenges.conditional.conditional_test_dat
     ConditionalDataSetDescription,
 )
 from spark_agg_methods_common_python.challenges.dedupe.dedupe_test_data_types import DedupeDataSetDescription
-from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import SectionDataSetDescription
+from spark_agg_methods_common_python.challenges.sectional.sectional_test_data_types import SectionalDataSetDescription
 from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types import VanillaDataSetDescription
 
 
@@ -17,7 +17,7 @@ from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types 
         BilevelDataSetDescription,
         ConditionalDataSetDescription,
         DedupeDataSetDescription,
-        SectionDataSetDescription,
+        SectionalDataSetDescription,
         VanillaDataSetDescription,
     ],
 )

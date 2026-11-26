@@ -16,7 +16,7 @@ from spark_agg_methods_common_python.utils.platform import setup_logging
 from src.challenges.bilevel import bilevel_runner_py_st
 from src.challenges.conditional import conditional_runner_py_st
 # from src.challenges.dedupe import dedupe_runner_py_st
-from src.challenges.sectional import section_runner_py_st
+from src.challenges.sectional import sectional_runner_py_st
 from src.challenges.vanilla import vanilla_runner_py_st
 
 logger = logging.getLogger(__name__)
@@ -33,9 +33,9 @@ CHALLENGE_RUNNERS = [
         writer_class_name="ConditionalPythonSTRunResultFileWriter",
     ),
     ChallengeRunner(
-        module=section_runner_py_st,
+        module=sectional_runner_py_st,
         size_list_name="DATA_SIZE_LIST_SECTIONAL_MAXIMAL",
-        writer_class_name="SectionPythonSTRunResultFileWriter",
+        writer_class_name="SectionalPythonSTRunResultFileWriter",
     ),
     ChallengeRunner(
         module=vanilla_runner_py_st,

@@ -364,8 +364,8 @@
             },
             "sectional": {
                 "result_file_path": {
-                    "windows": "results/2026/windows/section_pyspark_runs.csv",
-                    "wsl": "results/2026/wsl/section_pyspark_runs.csv"
+                    "windows": "results/2026/windows/sectional_pyspark_runs.csv",
+                    "wsl": "results/2026/wsl/sectional_pyspark_runs.csv"
                 },
                 "regressor_column_name": "num_students",
                 "elapsed_time_column_name": "elapsed_time",
@@ -375,7 +375,7 @@
                         "engine": "pyspark",
                         "challenge": "sectional",
                         "interface": "rdd",
-                        "strategy_name": "section_pyspark_rdd_mappart_single_threaded",
+                        "strategy_name": "sectional_pyspark_rdd_mappart_single_threaded",
                         "numerical_tolerance": -1.0,
                         "requires_gpu": false
                     },
@@ -384,7 +384,7 @@
                         "engine": "pyspark",
                         "challenge": "sectional",
                         "interface": "rdd",
-                        "strategy_name": "section_pyspark_rdd_mappart_odd_even",
+                        "strategy_name": "sectional_pyspark_rdd_mappart_odd_even",
                         "numerical_tolerance": -1.0,
                         "requires_gpu": false
                     },
@@ -393,7 +393,7 @@
                         "engine": "pyspark",
                         "challenge": "sectional",
                         "interface": "rdd",
-                        "strategy_name": "section_pyspark_rdd_mappart_partials",
+                        "strategy_name": "sectional_pyspark_rdd_mappart_partials",
                         "numerical_tolerance": -1.0,
                         "requires_gpu": false
                     },
@@ -402,7 +402,7 @@
                         "engine": "pyspark",
                         "challenge": "sectional",
                         "interface": "rdd",
-                        "strategy_name": "section_pyspark_rdd_reduce_asymm_part",
+                        "strategy_name": "sectional_pyspark_rdd_reduce_asymm_part",
                         "numerical_tolerance": -1.0,
                         "requires_gpu": false
                     },
@@ -411,7 +411,7 @@
                         "engine": "pyspark",
                         "challenge": "sectional",
                         "interface": "rdd",
-                        "strategy_name": "section_pyspark_rdd_prep_mappart",
+                        "strategy_name": "sectional_pyspark_rdd_prep_mappart",
                         "numerical_tolerance": -1.0,
                         "requires_gpu": false
                     },
@@ -420,7 +420,7 @@
                         "engine": "pyspark",
                         "challenge": "sectional",
                         "interface": "fluent",
-                        "strategy_name": "section_pyspark_df_prep_txt",
+                        "strategy_name": "sectional_pyspark_df_prep_txt",
                         "numerical_tolerance": -1.0,
                         "requires_gpu": false
                     },
@@ -429,7 +429,7 @@
                         "engine": "pyspark",
                         "challenge": "sectional",
                         "interface": "fluent",
-                        "strategy_name": "section_pyspark_df_prep_grp_csv",
+                        "strategy_name": "sectional_pyspark_df_prep_grp_csv",
                         "numerical_tolerance": -1.0,
                         "requires_gpu": false
                     },
@@ -438,7 +438,7 @@
                         "engine": "pyspark",
                         "challenge": "sectional",
                         "interface": "fluent",
-                        "strategy_name": "section_pyspark_df_join_grp",
+                        "strategy_name": "sectional_pyspark_df_join_grp",
                         "numerical_tolerance": -1.0,
                         "requires_gpu": false
                     },
@@ -447,7 +447,7 @@
                         "engine": "pyspark",
                         "challenge": "sectional",
                         "interface": "rdd",
-                        "strategy_name": "section_pyspark_rdd_join_mappart",
+                        "strategy_name": "sectional_pyspark_rdd_join_mappart",
                         "numerical_tolerance": -1.0,
                         "requires_gpu": false
                     }

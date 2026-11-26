@@ -1,0 +1,355 @@
+#!python
+# usage: uv run python -O -m src.challenges.sectional.sectional_runner_pyspark
+# cSpell: ignore wasb, sparkperftesting, Reqs
+import argparse
+import datetime as dt
+import gc
+import logging
+import time
+from collections.abc import Iterable
+from dataclasses import dataclass
+from typing import Literal, cast
+
+import pandas as pd
+from pyspark import RDD
+from pyspark.sql import DataFrame as PySparkDataFrame
+from pyspark.sql import Row
+from spark_agg_methods_common_python.challenge_strategy_registry import (
+    ChallengeResultLogFileRegistration, ChallengeStrategyRegistration,
+    update_challenge_strategy_registration_single_repo,
+)
+from spark_agg_methods_common_python.challenges.sectional.sectional_persist_test_data import AnswerFileSectional
+from spark_agg_methods_common_python.challenges.sectional.sectional_record_runs import (
+    SectionalPythonRunResultFileWriter, SectionalRunResult,
+)
+from spark_agg_methods_common_python.challenges.sectional.sectional_test_data_types import (
+    DATA_SIZE_LIST_SECTIONAL_MAXIMAL, DATA_SIZE_LIST_SECTIONAL_MINIMAL, SECTION_SIZE_MAXIMUM,
+    SectionalDataSetDescription, StudentSummary, sectional_derive_source_test_data_file_path,
+    sectional_verify_correctness,
+)
+from spark_agg_methods_common_python.perf_test_common import (
+    ELAPSED_TIME_COLUMN_NAME, LOCAL_NUM_EXECUTORS, TESTING_ENVIRONMENT, CalcEngine, Challenge,
+    NumericalToleranceExpectations, RunnerArgumentsBase, SolutionLanguage, assemble_itinerary,
+    construct_result_file_path,
+)
+from spark_agg_methods_common_python.utils.pandas_helpers import make_pd_dataframe_from_list_of_named_tuples
+from spark_agg_methods_common_python.utils.platform import setup_logging
+from spark_agg_methods_common_python.utils.utils import int_divide_round_up
+from src.challenges.sectional.sectional_strategy_directory_pyspark import SECTIONAL_STRATEGY_REGISTRY_PYSPARK
+from src.challenges.sectional.sectional_test_data_types_pyspark import (
+    MAXIMUM_PROCESSABLE_SEGMENT_SECTIONAL_PYSPARK, SectionalChallengeMethodPysparkRegistration, SectionalDataSetPyspark,
+    SectionalExecutionParametersPyspark,
+)
+from src.utils.tidy_session_pyspark import TidySparkSession
+
+logger = logging.getLogger(__name__)
+
+LANGUAGE = SolutionLanguage.PYTHON
+ENGINE = CalcEngine.PYSPARK
+CHALLENGE = Challenge.SECTIONAL
+
+
+@dataclass(frozen=True)
+class Arguments(RunnerArgumentsBase):
+    exec_params: SectionalExecutionParametersPyspark
+
+
+def parse_args() -> Arguments:
+    sizes_max = [x.size_code for x in DATA_SIZE_LIST_SECTIONAL_MAXIMAL]
+    sizes_min = [x.size_code for x in DATA_SIZE_LIST_SECTIONAL_MINIMAL]
+    strategy_names = sorted(x.strategy_name for x in SECTIONAL_STRATEGY_REGISTRY_PYSPARK)
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--random-seed", type=int)
+    parser.add_argument("--runs", type=int, default=1)
+    parser.add_argument("--size-minimal", default=False, action=argparse.BooleanOptionalAction)
+    parser.add_argument("--size", choices=sizes_max, nargs="+")
+    parser.add_argument("--shuffle", default=True, action=argparse.BooleanOptionalAction)
+    parser.add_argument("--strategy", choices=strategy_names, default=strategy_names, nargs="*")
+    args = parser.parse_args()
+
+    if args.size is not None:
+        sizes = args.size
+    elif args.size_minimal:
+        sizes = sizes_min
+    else:
+        sizes = sizes_max
+    return Arguments(
+        num_runs=args.runs,
+        random_seed=args.random_seed,
+        shuffle=args.shuffle,
+        sizes=sizes,
+        strategy_names=args.strategy,
+        exec_params=SectionalExecutionParametersPyspark(
+            # for ExecutionParametersBase
+            default_parallelism=2 * LOCAL_NUM_EXECUTORS,
+            num_executors=LOCAL_NUM_EXECUTORS,
+            # for SectionalExecutionParametersBase
+            # section_maximum=SECTION_SIZE_MAXIMUM,
+            # for SectionalExecutionArgumentsPySpark
+            maximum_processable_segment=MAXIMUM_PROCESSABLE_SEGMENT_SECTIONAL_PYSPARK,
+        )
+    )
+
+
+def prepare_data_sets(
+        args: Arguments,
+) -> list[SectionalDataSetPyspark]:
+    exec_params = args.exec_params
+    datasets: list[SectionalDataSetPyspark] = []
+    num_students = 1
+    for data_description in DATA_SIZE_LIST_SECTIONAL_MAXIMAL:
+        if data_description.size_code not in args.sizes:
+            continue
+        num_students = data_description.num_students
+        file_path = sectional_derive_source_test_data_file_path(data_description)
+        data_size = num_students * SECTION_SIZE_MAXIMUM
+        if not file_path.exists():
+            raise FileNotFoundError(f"Missing file {file_path}")
+        src_num_partitions = max(
+            exec_params.default_parallelism,
+            int_divide_round_up(
+                data_size,
+                exec_params.maximum_processable_segment,
+            ),
+        )
+        correct_answer = AnswerFileSectional.read_answer_file_sectional(data_description)
+        datasets.append(
+            SectionalDataSetPyspark(
+                # for SectionalDataSetBase
+                data_description=data_description,
+                correct_answer=correct_answer,
+                section_maximum=SECTION_SIZE_MAXIMUM,
+                # for SectionalDataSetPyspark
+                maximum_processable_segment=exec_params.maximum_processable_segment,
+                source_data_file_path=file_path,
+                target_num_partitions=src_num_partitions,
+            ))
+    return datasets
+
+
+class SectionalPysparkRunResultFileWriter(SectionalPythonRunResultFileWriter):
+    RUN_LOG_FILE_NAME: str = "sectional_pyspark_runs.csv"
+
+    def __init__(self):
+        super().__init__(
+            engine=ENGINE,
+            log_file_name=__class__.RUN_LOG_FILE_NAME,
+        )
+
+
+def do_test_runs(
+        args: Arguments,
+        spark_session: TidySparkSession,
+) -> None:
+    logger = spark_session.logger
+    itinerary = assemble_itinerary(args)
+    num_itinerary_stops = len(itinerary)
+    if num_itinerary_stops == 0:
+        logger.info("No runs to execute.")
+        return
+    keyed_data_sets = {x.data_description.size_code: x for x in prepare_data_sets(args)}
+    keyed_implementation_list = {
+        x.strategy_name: x for x in SECTIONAL_STRATEGY_REGISTRY_PYSPARK}
+    with SectionalPysparkRunResultFileWriter() as file:
+        for index, (strategy_name, size_code) in enumerate(itinerary):
+            challenge_method_registration = keyed_implementation_list[strategy_name]
+            data_set = keyed_data_sets[size_code]
+            logger.info(
+                "Step {index}/{out_of}: {strategy} for {size_code}"
+                .format(
+                    index=index, out_of=num_itinerary_stops,
+                    strategy=challenge_method_registration.strategy_name,
+                    size_code=data_set.data_description.size_code))
+            try:
+                match run_one_itinerary_step(
+                    args=args,
+                    challenge_method_registration=challenge_method_registration,
+                    data_set=data_set,
+                    spark_session=spark_session,
+                ):
+                    case SectionalRunResult() as run_result:
+                        if not data_set.data_description.debugging_only:
+                            file.write_run_result(
+                                challenge_method_registration=challenge_method_registration,
+                                run_result=run_result,
+                            )
+                    case ("infeasible", _):
+                        pass
+                    case other:
+                        raise ValueError(f"Unexpected return type {type(other)}")
+            except KeyboardInterrupt as ex:
+                raise ex
+            except Exception as ex:
+                logger.error(
+                    "Error in {strategy_name} for {size_code}: {ex}"
+                    .format(
+                        strategy_name=challenge_method_registration.strategy_name,
+                        size_code=data_set.data_description.size_code,
+                        ex=ex,
+                    )
+                )
+                raise ex
+            gc.collect()
+            time.sleep(0.1)
+
+
+def run_one_itinerary_step(
+        *,
+        args: Arguments,
+        challenge_method_registration: SectionalChallengeMethodPysparkRegistration,
+        data_set: SectionalDataSetPyspark,
+        spark_session: TidySparkSession,
+) -> SectionalRunResult | tuple[Literal["infeasible"], str]:
+    logger = spark_session.logger
+    startedTime = time.time()
+    rdd: RDD | None = None
+    found_students: Iterable[StudentSummary] | pd.DataFrame
+    match challenge_method_registration.delegate(
+        spark_session=spark_session,
+        exec_params=args.exec_params,
+        data_set=data_set,
+    ):
+        case PySparkDataFrame() as df:
+            logger.info(f"output rdd has {cast(RDD[Row], df.rdd).getNumPartitions()} partitions")
+            rdd = cast(RDD[Row], df.rdd)
+            found_students = df.toPandas()
+        case RDD() as case_rdd:
+            logger.info(f"output rdd has {case_rdd.getNumPartitions()} partitions")
+            count = case_rdd.count()
+            logger.info(f"Got a count {count}")
+            found_students = list(case_rdd.toLocalIterator())
+            rdd = case_rdd  # otherwise confuses static code analysis
+        case pd.DataFrame() as df:
+            found_students = df
+        case list() as iter_tuple:
+            found_students = iter_tuple
+        case ("infeasible", reason):
+            return "infeasible", reason
+        case other:
+            raise ValueError(
+                "{strategy_name} unexpected returned a {other_type}"
+                .format(
+                    strategy_name=challenge_method_registration.strategy_name,
+                    other_type=type(other)
+                )
+            )
+    if rdd is not None and rdd.getNumPartitions() > max(
+        args.exec_params.default_parallelism,
+        data_set.target_num_partitions,
+    ):
+        logger.info(f"{challenge_method_registration.strategy_name} "
+                    f"output rdd has {rdd.getNumPartitions()} partitions")
+        findings = rdd.collect()
+        logger.info(f"size={len(findings)}! {findings}")
+        exit(1)
+    concrete_students_df: pd.DataFrame
+    match found_students:
+        case pd.DataFrame() as df:
+            concrete_students_df = df
+            finishedTime = time.time()
+        case list() as concrete_students:
+            finishedTime = time.time()
+            concrete_students_df = make_pd_dataframe_from_list_of_named_tuples(
+                concrete_students,
+                row_type=StudentSummary,
+            )
+        case _:
+            raise ValueError("Unexpected return type")
+    error_message = sectional_verify_correctness(
+        data_set,
+        concrete_students_df,
+    )
+    status = "success" if error_message is None else "failure"
+    if error_message is not None:
+        logger.error(f"sectional_verify_correctness returned {error_message}")
+    data_description = data_set.data_description
+    result = SectionalRunResult(
+        status=status,
+        num_source_rows=data_description.num_source_rows,
+        section_maximum=data_set.section_maximum,
+        elapsed_time=finishedTime - startedTime,
+        num_output_rows=len(concrete_students_df),
+        finished_at=dt.datetime.now().isoformat(),
+    )
+    logger.info("%s Took %f secs" % (challenge_method_registration.strategy_name, finishedTime - startedTime))
+    return result
+
+
+def update_challenge_registration():
+    result_file_path = construct_result_file_path(SectionalPysparkRunResultFileWriter.RUN_LOG_FILE_NAME)
+    update_challenge_strategy_registration_single_repo(
+        language=LANGUAGE,
+        engine=ENGINE,
+        challenge=CHALLENGE,
+        registration=ChallengeResultLogFileRegistration(
+            result_file_path={TESTING_ENVIRONMENT: result_file_path.as_posix()},
+            regressor_column_name=SectionalDataSetDescription.regressor_field_name(),
+            elapsed_time_column_name=ELAPSED_TIME_COLUMN_NAME,
+            expected_regressor_values=[
+                x.regressor_value
+                for x in DATA_SIZE_LIST_SECTIONAL_MAXIMAL
+                if not x.debugging_only
+            ],
+            strategies=[
+                ChallengeStrategyRegistration(
+                    language=LANGUAGE,
+                    engine=ENGINE,
+                    challenge=CHALLENGE,
+                    interface=x.interface,
+                    strategy_name=x.strategy_name,
+                    numerical_tolerance=NumericalToleranceExpectations.NOT_APPLICABLE.value,
+                    requires_gpu=x.requires_gpu,
+                )
+                for x in SECTIONAL_STRATEGY_REGISTRY_PYSPARK
+            ]
+        ),
+    )
+
+
+def spark_configs(
+        default_parallelism: int,
+) -> dict[str, str | int]:
+    return {
+        "spark.default.parallelism": default_parallelism,
+        "spark.driver.memory": "2g",
+        "spark.executor.heartbeatInterval": "3600s",
+        "spark.executor.memory": "3g",
+        "spark.executor.memoryOverhead": "1g",
+        "spark.network.timeout": "36000s",
+        "spark.port.maxRetries": "1",
+        "spark.reducer.maxReqsInFlight": "1",
+        "spark.shuffle.io.maxRetries": "10",
+        "spark.shuffle.io.retryWait": "600s",
+        "spark.sql.execution.arrow.pyspark.enabled": "true",
+        "spark.sql.shuffle.partitions": default_parallelism,
+        "spark.worker.cleanup.enabled": "true",
+    }
+
+
+def main() -> None:
+    logger.info(f"Running {__file__}")
+    args = parse_args()
+    update_challenge_registration()
+    if args.num_runs == 0:
+        logger.info("--runs 0: registry updated, skipping Spark session")
+        return
+    with TidySparkSession(
+        config_dict=spark_configs(args.exec_params.default_parallelism),
+        enable_hive_support=False,
+    ) as spark_session:
+        do_test_runs(
+            args=args,
+            spark_session=spark_session,
+        )
+    logger.info("Done!")
+
+
+if __name__ == "__main__":
+    setup_logging(
+        include_debug=False,
+    )
+    try:
+        main()
+    except KeyboardInterrupt:
+        logger.warning("Interrupted!")

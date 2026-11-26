@@ -13,7 +13,7 @@ from spark_agg_methods_common_python.perf_test_runner_common import (
     ChallengeRunner, parse_request, run_challenges_in_process,
 )
 from spark_agg_methods_common_python.utils.platform import setup_logging
-from src.challenges.bi_level import bi_level_runner_dask
+from src.challenges.bilevel import bilevel_runner_dask
 from src.challenges.conditional import conditional_runner_dask
 from src.challenges.vanilla import vanilla_runner_dask
 
@@ -21,17 +21,15 @@ logger = logging.getLogger(__name__)
 
 CHALLENGE_RUNNERS = [
     ChallengeRunner(
-        module=bi_level_runner_dask,
-        size_list_name="DATA_SIZE_LIST_BI_LEVEL_MAXIMAL",
-        writer_class_name="BiLevelDaskRunResultFileWriter",
+        module=bilevel_runner_dask,
+        size_list_name="DATA_SIZE_LIST_BILEVEL_MAXIMAL",
+        writer_class_name="BilevelDaskRunResultFileWriter",
     ),
     ChallengeRunner(
         module=conditional_runner_dask,
         size_list_name="DATA_SIZE_LIST_CONDITIONAL_MAXIMAL",
         writer_class_name="ConditionalDaskRunResultFileWriter",
     ),
-    # dedupe_runner_dask  TODO: Implement this
-    # sectional_runner_dask TODO: Implement this
     ChallengeRunner(
         module=vanilla_runner_dask,
         size_list_name="DATA_SIZE_LIST_VANILLA_MAXIMAL",

@@ -14,8 +14,8 @@ def vanilla_py_st_pd_prog_numpy(
         exec_params: SixTestExecutionParameters,
         data_set: SixDataSetPythonST,
 ) -> TChallengePythonSTAnswer:
-    df_result = calculate_solutions_progressively(
+    result_df = calculate_solutions_progressively(
         data_size=data_set.data_description,
         challenges=[CHALLENGE],
     )[CHALLENGE]
-    return df_result
+    return result_df

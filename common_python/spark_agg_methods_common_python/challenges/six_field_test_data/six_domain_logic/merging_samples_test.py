@@ -16,7 +16,7 @@ MAX_BATCH_SIZE: int = 3*3*1000
 
 
 @pytest.fixture
-def df_full():
+def full_df():
     num_grp_1 = num_grp_2 = 3
     repetition = 1000
     full_range = range(0, MAX_BATCH_SIZE)
@@ -39,17 +39,17 @@ def df_full():
 
 @pytest.fixture
 def reference_answer(
-    df_full: pd.DataFrame,
+    full_df: pd.DataFrame,
 ) -> pd.DataFrame:
     rows: list[dict[str, int | float]] = []
-    for np_key, df_group in df_full.groupby(by=["grp", "subgrp"]):
+    for np_key, group_df in full_df.groupby(by=["grp", "subgrp"]):
         grp, subgrp = np_key  # type: ignore
-        df_group_c = df_group.loc[:, "C"]
-        df_group_d = df_group.loc[:, "D"]
-        cond_df_group_e = df_group.loc[df_group["E"] < 0, "E"]
-        uncond_df_group_e = df_group.loc[:, "E"]
-        mean_c: float = df_group_c.mean()
-        max_d: float = df_group_d.max()
+        group_c_df = group_df.loc[:, "C"]
+        group_d_df = group_df.loc[:, "D"]
+        cond_df_group_e = group_df.loc[group_df["E"] < 0, "E"]
+        uncond_df_group_e = group_df.loc[:, "E"]
+        mean_c: float = group_c_df.mean()
+        max_d: float = group_d_df.max()
         cond_var_e = cast(float, cond_df_group_e.var(ddof=0))
         uncond_var_e = cast(float, uncond_df_group_e.var(ddof=0))
         rows.append({
@@ -64,22 +64,22 @@ def reference_answer(
 
 
 def test_different_batch_sizes_should_produce_similar_answers(
-        df_full: pd.DataFrame,
+        full_df: pd.DataFrame,
         reference_answer: pd.DataFrame,
 ):
     for batch_size in [1, 2, 3, 1000, MAX_BATCH_SIZE-3, MAX_BATCH_SIZE-2, MAX_BATCH_SIZE-1, MAX_BATCH_SIZE]:
-        chunk_iterable = (df_full[i:i + batch_size] for i in range(0, MAX_BATCH_SIZE, batch_size))
-        num_data_points_visited, df_summary = calculate_solution_progressively_from_iterable(
+        chunk_iterable = (full_df[i:i + batch_size] for i in range(0, MAX_BATCH_SIZE, batch_size))
+        num_data_points_visited, summary_df = calculate_solution_progressively_from_iterable(
             include_conditional=True,
             include_unconditional=True,
             chunk_iterable=chunk_iterable,
         )
         assert num_data_points_visited == MAX_BATCH_SIZE
         abs_diff = float(
-            (reference_answer - df_summary)
+            (reference_answer - summary_df)
             .abs().max().max())
         if abs_diff > 1e-12:
             logger.error(f"batch_size: {batch_size}")
-            logger.error(df_summary)
+            logger.error(summary_df)
             logger.error(reference_answer)
-            assert df_summary.equals(reference_answer)
+            assert summary_df.equals(reference_answer)

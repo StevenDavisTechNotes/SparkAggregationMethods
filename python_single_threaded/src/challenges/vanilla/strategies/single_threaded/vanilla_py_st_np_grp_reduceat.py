@@ -32,7 +32,7 @@ def vanilla_py_st_np_grp_reduceat(
     mean_of_E = np.add.reduceat(E, starts) / n
     # two-pass (centered) variance avoids cancellation in sum(E**2) / n - mean**2
     deviation = E - np.repeat(mean_of_E, n)
-    df_result = pd.DataFrame({
+    result_df = pd.DataFrame({
         "grp": present // stride,
         "subgrp": present % stride,
         "mean_of_C": np.add.reduceat(C, starts) / n,
@@ -40,4 +40,4 @@ def vanilla_py_st_np_grp_reduceat(
         "var_of_E": np.add.reduceat(deviation * deviation, starts) / n,
         "var_of_E2": np.add.reduceat(E * E, starts) / n - mean_of_E ** 2,
     })
-    return df_result
+    return result_df

@@ -44,11 +44,11 @@ def run_one_step_in_python_single_threaded_itinerary(
             data_set=data_set,
         ):
             case pd.DataFrame() as pandas_df:
-                df_answer = pandas_df
+                answer_df = pandas_df
                 finished_time = time.time()
             case pl.DataFrame() as polars_df:
                 finished_time = time.time()
-                df_answer = polars_df.to_pandas()
+                answer_df = polars_df.to_pandas()
             case ("infeasible", reason):
                 return "infeasible", reason
             case answer:
@@ -59,7 +59,7 @@ def run_one_step_in_python_single_threaded_itinerary(
             correct_answer=correct_answer,
             numerical_tolerance=numerical_tolerance,
             started_time=started_time,
-            df_answer=df_answer,
+            answer_df=answer_df,
             finished_time=finished_time,
         )
         return result

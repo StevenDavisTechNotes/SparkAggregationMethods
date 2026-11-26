@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 # cSpell: ignore arange
 
 
-SIX_TEST_CHALLENGES = [Challenge.BI_LEVEL, Challenge.CONDITIONAL, Challenge.VANILLA]
+SIX_TEST_CHALLENGES = [Challenge.BILEVEL, Challenge.CONDITIONAL, Challenge.VANILLA]
 TARGET_PARQUET_BATCH_SIZE = 65536
 
 
@@ -55,7 +55,7 @@ class TotalDC():
     var_of_E2: float
 
 
-BI_LEVEL_RESULT_PANDAS_SCHEMA = pd.DataFrame({
+BILEVEL_RESULT_PANDAS_SCHEMA = pd.DataFrame({
     "grp": pd.Series(dtype="int32"),
     "subgrp": pd.Series(dtype="int32"),
     "n": pd.Series(dtype="float64"),
@@ -112,7 +112,7 @@ class SixTestDataSetDescription(DataSetDescriptionBase):
 
 @dataclass(frozen=True)
 class SixTestDataSetAnswers():
-    bi_level_answer: pd.DataFrame
+    bilevel_answer: pd.DataFrame
     conditional_answer: pd.DataFrame
     vanilla_answer: pd.DataFrame
 
@@ -123,8 +123,8 @@ class SixTestDataSetAnswers():
         match challenge:
             case Challenge.VANILLA:
                 return self.vanilla_answer
-            case Challenge.BI_LEVEL:
-                return self.bi_level_answer
+            case Challenge.BILEVEL:
+                return self.bilevel_answer
             case Challenge.CONDITIONAL:
                 return self.conditional_answer
             case _:
@@ -142,7 +142,7 @@ class SixTestDataSetWAnswers():
     src_num_partitions: int
     tgt_num_partitions_1_level: int
     tgt_num_partitions_2_level: int
-    df_src: pd.DataFrame
+    src_df: pd.DataFrame
     vanilla_answer: pd.DataFrame
     bilevel_answer: pd.DataFrame
     conditional_answer: pd.DataFrame

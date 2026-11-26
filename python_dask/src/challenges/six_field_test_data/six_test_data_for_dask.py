@@ -39,17 +39,17 @@ class SixTestDataSetDataDask:
 
     def open_source_data_as_ddf(self) -> DaskDataFrame:
         read_parquet = dask.dataframe.read_parquet
-        df_src = cast(DaskDataFrame, read_parquet(
+        src_df = cast(DaskDataFrame, read_parquet(
             self.source_file_path_parquet,
             engine="pyarrow",
         ))
-        df_src = df_src.set_index("id", npartitions=self.src_num_partitions)
-        return df_src
+        src_df = src_df.set_index("id", npartitions=self.src_num_partitions)
+        return src_df
 
 
 def pick_agg_tgt_num_partitions_dask(data: SixTestDataSetDataDask, challenge: Challenge) -> int:
     match challenge:
-        case Challenge.BI_LEVEL | Challenge.CONDITIONAL:
+        case Challenge.BILEVEL | Challenge.CONDITIONAL:
             return data.agg_tgt_num_partitions_1_level
         case Challenge.VANILLA:
             return data.agg_tgt_num_partitions_2_level

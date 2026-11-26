@@ -78,5 +78,6 @@ class SectionChallengeMethodPysparkRegistration(
     SectionChallengeMethodRegistrationBase[SolutionInterfacePySpark, ISectionChallengeMethodPythonPyspark]
 ):
     strategy_name_2018: str
+    strategy_name_2023: str | None
     interface: SolutionInterfacePySpark
     delegate: ISectionChallengeMethodPythonPyspark

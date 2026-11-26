@@ -118,7 +118,7 @@ def extract_student_summary(
                 student.add_trimester(trimester)
                 trimester = None
             case _:
-                raise Exception(
+                raise TypeError(
                     f"Unknown parsed row type {rec.__class__.__name__} on line {lineno}"
                 )
     if student is not None:

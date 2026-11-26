@@ -110,7 +110,7 @@ def vanilla_dask_actors_accumulate(
         client.cancel(actor_futures)
     # Keys are disjoint across actors (one actor per grp), so concatenation is the full merged aggregate
     acc = pl.concat([state for state in states if state is not None])
-    df_result = (
+    result_df = (
         acc
         .select(
             *KEYS,
@@ -121,4 +121,4 @@ def vanilla_dask_actors_accumulate(
         )
         .sort(KEYS)
     )
-    return df_result.to_pandas()
+    return result_df.to_pandas()

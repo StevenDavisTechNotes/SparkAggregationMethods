@@ -118,7 +118,7 @@ def accumulate_one_line(
         student.add_trimester(trimester)
         trimester = None
     else:
-        raise Exception("Unknown parsed row type")
+        raise TypeError("Unknown parsed row type")
     return complete_student, student, trimester
 
 

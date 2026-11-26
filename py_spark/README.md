@@ -6,6 +6,48 @@ This directory explores how the aggregation challenges can be solved using PySpa
 
 ## Helpful Notes
 
+### Installing PySpark on Linux / WSL
+
+The `pyspark` package installed by `uv sync` already bundles Spark, so the only hard prerequisite is a JDK 17. A separate Spark download is optional (needed only for the `pyspark` and `spark-submit` command-line tools).
+
+- Java JDK 17
+  - Debian/Ubuntu: `sudo apt update && sudo apt install -y openjdk-17-jdk-headless`
+  - Other distributions: install the equivalent OpenJDK 17 package
+- Spark (optional)
+  - [Download](https://spark.apache.org/downloads.html) version 4.2.0, pre-built for Apache Hadoop 3.4 and later
+  - Unpack to `~/spark/spark-4.2.0-bin-hadoop3`
+
+```bash
+mkdir -p ~/spark
+tar -xzf spark-4.2.0-bin-hadoop3.tgz -C ~/spark
+```
+
+- Add to `~/.bashrc` (adjust `JAVA_HOME` to the output of `dirname $(dirname $(readlink -f $(which java)))`
+
+```bash
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+export PYSPARK_PYTHON=python
+export PYSPARK_DRIVER_PYTHON=python
+```
+
+- If you separately installed Spark, then add to `~/.bashrc`:
+
+```bash
+export SPARK_HOME="$HOME/spark/spark-4.2.0-bin-hadoop3"
+export PATH="$JAVA_HOME/bin:$SPARK_HOME/bin:$PATH"
+```
+
+- Python Environment Setup
+  - From the repository root run `uv sync`, then `cd py_spark && uv sync`.
+- Install Validation
+  - `java --version` (should report 17)
+  - `cd py_spark && uv run pyspark --version`
+  - To execute a runner, use `uv run python -m src.perf_test_runner_for_pyspark`.
+- WSL notes
+  - Keep the repository and the test data on the Linux filesystem (`~/src/...`), not under `/mnt/c`; Spark I/O
+    across the 9p mount is much slower and skews timings.
+  - Results are logged under `results/<year>/wsl/`.
+
 ### Installing PySpark on Windows
 
 Look to see what version of Spark and Dask you are going to use, and then work backwards to what supported Python/JDK you can use.

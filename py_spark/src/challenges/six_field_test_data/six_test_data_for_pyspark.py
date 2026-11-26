@@ -37,10 +37,10 @@ class SixFieldDataSetDataPyspark():
         data_set = self
         source_file_name_parquet = data_set.source_file_path_parquet
         spark_session.logger.info(f"Loading source data from {source_file_name_parquet}")
-        df_src = spark_session.spark.read.parquet(data_set.source_file_path_parquet)
+        src_df = spark_session.spark.read.parquet(data_set.source_file_path_parquet)
         src_num_partitions = src_num_partitions or data_set.src_num_partitions
-        df_src = df_src.repartition(src_num_partitions, df_src.id)
-        return df_src
+        src_df = src_df.repartition(src_num_partitions, src_df.id)
+        return src_df
 
     def open_source_data_as_rdd(
             self,
@@ -52,7 +52,7 @@ class SixFieldDataSetDataPyspark():
 
 def pick_agg_tgt_num_partitions_pyspark(data: SixFieldDataSetDataPyspark, challenge: Challenge) -> int:
     match challenge:
-        case Challenge.BI_LEVEL | Challenge.CONDITIONAL:
+        case Challenge.BILEVEL | Challenge.CONDITIONAL:
             return data.agg_tgt_num_partitions_1_level
         case Challenge.VANILLA:
             return data.agg_tgt_num_partitions_2_level
@@ -90,6 +90,7 @@ class SixFieldChallengeMethodPythonPysparkRegistration(
     ]
 ):
     strategy_name_2018: str | None
+    strategy_name_2023: str | None
     strategy_name: str
     language: SolutionLanguage
     engine: CalcEngine
@@ -112,6 +113,7 @@ class SixFieldChallengeMethodScalaSparkRegistration(
     ]
 ):
     strategy_name_2018: str | None
+    strategy_name_2023: str | None
     strategy_name: str
     language: SolutionLanguage
     engine: CalcEngine

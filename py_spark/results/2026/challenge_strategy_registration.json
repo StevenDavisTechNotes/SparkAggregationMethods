@@ -3,7 +3,8 @@
         "pyspark": {
             "bilevel": {
                 "result_file_path": {
-                    "windows": "results/2026/windows/bi_level_pyspark_runs.csv"
+                    "windows": "results/2026/windows/bilevel_pyspark_runs.csv",
+                    "wsl": "results/2026/wsl/bilevel_pyspark_runs.csv"
                 },
                 "regressor_column_name": "relative_cardinality_between_groupings",
                 "elapsed_time_column_name": "elapsed_time",
@@ -13,8 +14,8 @@
                         "engine": "pyspark",
                         "challenge": "bilevel",
                         "interface": "sql",
-                        "strategy_name": "bi_level_pyspark_sql_join",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "bilevel_pyspark_sql_join",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -22,8 +23,8 @@
                         "engine": "pyspark",
                         "challenge": "bilevel",
                         "interface": "fluent",
-                        "strategy_name": "bi_level_pyspark_df_join",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "bilevel_pyspark_df_join",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -31,8 +32,8 @@
                         "engine": "pyspark",
                         "challenge": "bilevel",
                         "interface": "pandas",
-                        "strategy_name": "bi_level_pyspark_df_grp_pandas",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "bilevel_pyspark_df_grp_pandas",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -40,8 +41,8 @@
                         "engine": "pyspark",
                         "challenge": "bilevel",
                         "interface": "pandas",
-                        "strategy_name": "bi_level_pyspark_df_grp_pandas_numba",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "bilevel_pyspark_df_grp_pandas_numba",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": true
                     },
                     {
@@ -49,8 +50,8 @@
                         "engine": "pyspark",
                         "challenge": "bilevel",
                         "interface": "pandas",
-                        "strategy_name": "bi_level_pyspark_df_grp_pandas_numpy",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "bilevel_pyspark_df_grp_pandas_numpy",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -58,8 +59,8 @@
                         "engine": "pyspark",
                         "challenge": "bilevel",
                         "interface": "sql",
-                        "strategy_name": "bi_level_pyspark_sql_nested",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "bilevel_pyspark_sql_nested",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -67,8 +68,8 @@
                         "engine": "pyspark",
                         "challenge": "bilevel",
                         "interface": "fluent",
-                        "strategy_name": "bi_level_pyspark_df_nested",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "bilevel_pyspark_df_nested",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -76,8 +77,8 @@
                         "engine": "pyspark",
                         "challenge": "bilevel",
                         "interface": "fluent",
-                        "strategy_name": "bi_level_pyspark_df_window",
-                        "numerical_tolerance": 1E-11,
+                        "strategy_name": "bilevel_pyspark_df_window",
+                        "numerical_tolerance": 1e-11,
                         "requires_gpu": false
                     },
                     {
@@ -85,8 +86,8 @@
                         "engine": "pyspark",
                         "challenge": "bilevel",
                         "interface": "rdd",
-                        "strategy_name": "bi_level_pyspark_rdd_grp_map",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "bilevel_pyspark_rdd_grp_map",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -94,8 +95,8 @@
                         "engine": "pyspark",
                         "challenge": "bilevel",
                         "interface": "rdd",
-                        "strategy_name": "bi_level_pyspark_rdd_reduce_1",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "bilevel_pyspark_rdd_reduce_1",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -103,8 +104,8 @@
                         "engine": "pyspark",
                         "challenge": "bilevel",
                         "interface": "rdd",
-                        "strategy_name": "bi_level_pyspark_rdd_reduce_2",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "bilevel_pyspark_rdd_reduce_2",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -112,8 +113,8 @@
                         "engine": "pyspark",
                         "challenge": "bilevel",
                         "interface": "rdd",
-                        "strategy_name": "bi_level_pyspark_rdd_map_part",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "bilevel_pyspark_rdd_map_part",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     }
                 ],
@@ -126,7 +127,8 @@
             },
             "conditional": {
                 "result_file_path": {
-                    "windows": "results/2026/windows/conditional_pyspark_runs.csv"
+                    "windows": "results/2026/windows/conditional_pyspark_runs.csv",
+                    "wsl": "results/2026/wsl/conditional_pyspark_runs.csv"
                 },
                 "regressor_column_name": "num_source_rows",
                 "elapsed_time_column_name": "elapsed_time",
@@ -136,8 +138,8 @@
                         "engine": "pyspark",
                         "challenge": "conditional",
                         "interface": "sql",
-                        "strategy_name": "cond_pyspark_sql_join",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "conditional_pyspark_sql_join",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -145,8 +147,8 @@
                         "engine": "pyspark",
                         "challenge": "conditional",
                         "interface": "fluent",
-                        "strategy_name": "cond_pyspark_df_join",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "conditional_pyspark_df_join",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -154,8 +156,8 @@
                         "engine": "pyspark",
                         "challenge": "conditional",
                         "interface": "sql",
-                        "strategy_name": "cond_pyspark_sql_null",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "conditional_pyspark_sql_null",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -163,8 +165,8 @@
                         "engine": "pyspark",
                         "challenge": "conditional",
                         "interface": "fluent",
-                        "strategy_name": "cond_pyspark_df_null",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "conditional_pyspark_df_null",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -172,8 +174,8 @@
                         "engine": "pyspark",
                         "challenge": "conditional",
                         "interface": "fluent",
-                        "strategy_name": "cond_pyspark_df_zero",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "conditional_pyspark_df_zero",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -181,8 +183,8 @@
                         "engine": "pyspark",
                         "challenge": "conditional",
                         "interface": "pandas",
-                        "strategy_name": "cond_pyspark_df_grp_pandas",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "conditional_pyspark_df_grp_pandas",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -190,8 +192,8 @@
                         "engine": "pyspark",
                         "challenge": "conditional",
                         "interface": "pandas",
-                        "strategy_name": "cond_pyspark_df_grp_pandas_numba",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "conditional_pyspark_df_grp_pandas_numba",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": true
                     },
                     {
@@ -199,8 +201,8 @@
                         "engine": "pyspark",
                         "challenge": "conditional",
                         "interface": "pandas",
-                        "strategy_name": "cond_pyspark_df_grp_pandas_numpy",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "conditional_pyspark_df_grp_pandas_numpy",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -208,8 +210,8 @@
                         "engine": "pyspark",
                         "challenge": "conditional",
                         "interface": "sql",
-                        "strategy_name": "cond_pyspark_sql_nested",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "conditional_pyspark_sql_nested",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -217,8 +219,8 @@
                         "engine": "pyspark",
                         "challenge": "conditional",
                         "interface": "fluent",
-                        "strategy_name": "cond_pyspark_df_nested",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "conditional_pyspark_df_nested",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -226,8 +228,8 @@
                         "engine": "pyspark",
                         "challenge": "conditional",
                         "interface": "fluent",
-                        "strategy_name": "cond_pyspark_df_window",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "conditional_pyspark_df_window",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -235,8 +237,8 @@
                         "engine": "pyspark",
                         "challenge": "conditional",
                         "interface": "rdd",
-                        "strategy_name": "cond_pyspark_rdd_grp_map",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "conditional_pyspark_rdd_grp_map",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -244,8 +246,8 @@
                         "engine": "pyspark",
                         "challenge": "conditional",
                         "interface": "rdd",
-                        "strategy_name": "cond_pyspark_rdd_reduce",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "conditional_pyspark_rdd_reduce",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -253,8 +255,8 @@
                         "engine": "pyspark",
                         "challenge": "conditional",
                         "interface": "rdd",
-                        "strategy_name": "cond_pyspark_rdd_map_part",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "conditional_pyspark_rdd_map_part",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     }
                 ],
@@ -270,9 +272,10 @@
                     900000000
                 ]
             },
-            "deduplication": {
+            "dedupe": {
                 "result_file_path": {
-                    "windows": "results/2026/windows/dedupe_pyspark_runs.csv"
+                    "windows": "results/2026/windows/dedupe_pyspark_runs.csv",
+                    "wsl": "results/2026/wsl/dedupe_pyspark_runs.csv"
                 },
                 "regressor_column_name": "num_source_rows",
                 "elapsed_time_column_name": "elapsed_time",
@@ -280,7 +283,7 @@
                     {
                         "language": "python",
                         "engine": "pyspark",
-                        "challenge": "deduplication",
+                        "challenge": "dedupe",
                         "interface": "pandas",
                         "strategy_name": "dedupe_pyspark_df_nested_pandas",
                         "numerical_tolerance": -1.0,
@@ -289,7 +292,7 @@
                     {
                         "language": "python",
                         "engine": "pyspark",
-                        "challenge": "deduplication",
+                        "challenge": "dedupe",
                         "interface": "fluent",
                         "strategy_name": "dedupe_pyspark_df_nested_python",
                         "numerical_tolerance": -1.0,
@@ -298,7 +301,7 @@
                     {
                         "language": "python",
                         "engine": "pyspark",
-                        "challenge": "deduplication",
+                        "challenge": "dedupe",
                         "interface": "fluent",
                         "strategy_name": "dedupe_pyspark_df_nested_w_col",
                         "numerical_tolerance": -1.0,
@@ -307,7 +310,7 @@
                     {
                         "language": "python",
                         "engine": "pyspark",
-                        "challenge": "deduplication",
+                        "challenge": "dedupe",
                         "interface": "fluent",
                         "strategy_name": "dedupe_pyspark_df_window",
                         "numerical_tolerance": -1.0,
@@ -316,7 +319,7 @@
                     {
                         "language": "python",
                         "engine": "pyspark",
-                        "challenge": "deduplication",
+                        "challenge": "dedupe",
                         "interface": "rdd",
                         "strategy_name": "dedupe_pyspark_rdd_grp",
                         "numerical_tolerance": -1.0,
@@ -325,7 +328,7 @@
                     {
                         "language": "python",
                         "engine": "pyspark",
-                        "challenge": "deduplication",
+                        "challenge": "dedupe",
                         "interface": "rdd",
                         "strategy_name": "dedupe_pyspark_rdd_map_part",
                         "numerical_tolerance": -1.0,
@@ -334,7 +337,7 @@
                     {
                         "language": "python",
                         "engine": "pyspark",
-                        "challenge": "deduplication",
+                        "challenge": "dedupe",
                         "interface": "rdd",
                         "strategy_name": "dedupe_pyspark_rdd_reduce",
                         "numerical_tolerance": -1.0,
@@ -361,7 +364,8 @@
             },
             "sectional": {
                 "result_file_path": {
-                    "windows": "results/2026/windows/section_pyspark_runs.csv"
+                    "windows": "results/2026/windows/section_pyspark_runs.csv",
+                    "wsl": "results/2026/wsl/section_pyspark_runs.csv"
                 },
                 "regressor_column_name": "num_students",
                 "elapsed_time_column_name": "elapsed_time",
@@ -461,7 +465,8 @@
             },
             "vanilla": {
                 "result_file_path": {
-                    "windows": "results/2026/windows/vanilla_pyspark_runs.csv"
+                    "windows": "results/2026/windows/vanilla_pyspark_runs.csv",
+                    "wsl": "results/2026/wsl/vanilla_pyspark_runs.csv"
                 },
                 "regressor_column_name": "num_source_rows",
                 "elapsed_time_column_name": "elapsed_time",
@@ -472,7 +477,7 @@
                         "challenge": "vanilla",
                         "interface": "sql",
                         "strategy_name": "vanilla_pyspark_sql",
-                        "numerical_tolerance": 1E-12,
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -481,7 +486,7 @@
                         "challenge": "vanilla",
                         "interface": "sql",
                         "strategy_name": "vanilla_pyspark_df_grp_builtin",
-                        "numerical_tolerance": 1E-11,
+                        "numerical_tolerance": 1e-11,
                         "requires_gpu": false
                     },
                     {
@@ -490,7 +495,7 @@
                         "challenge": "vanilla",
                         "interface": "pandas",
                         "strategy_name": "vanilla_pyspark_df_grp_pandas",
-                        "numerical_tolerance": 1E-11,
+                        "numerical_tolerance": 1e-11,
                         "requires_gpu": false
                     },
                     {
@@ -499,7 +504,7 @@
                         "challenge": "vanilla",
                         "interface": "pandas",
                         "strategy_name": "vanilla_pyspark_df_grp_numpy",
-                        "numerical_tolerance": 1E-11,
+                        "numerical_tolerance": 1e-11,
                         "requires_gpu": false
                     },
                     {
@@ -508,7 +513,7 @@
                         "challenge": "vanilla",
                         "interface": "pandas",
                         "strategy_name": "vanilla_pyspark_df_grp_numba",
-                        "numerical_tolerance": 1E-10,
+                        "numerical_tolerance": 1e-10,
                         "requires_gpu": true
                     },
                     {
@@ -517,7 +522,7 @@
                         "challenge": "vanilla",
                         "interface": "rdd",
                         "strategy_name": "vanilla_pyspark_rdd_grp_map",
-                        "numerical_tolerance": 1E-12,
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -526,7 +531,7 @@
                         "challenge": "vanilla",
                         "interface": "rdd",
                         "strategy_name": "vanilla_pyspark_rdd_reduce",
-                        "numerical_tolerance": 1E-11,
+                        "numerical_tolerance": 1e-11,
                         "requires_gpu": false
                     },
                     {
@@ -535,7 +540,7 @@
                         "challenge": "vanilla",
                         "interface": "rdd",
                         "strategy_name": "vanilla_pyspark_rdd_mappart",
-                        "numerical_tolerance": 1E-11,
+                        "numerical_tolerance": 1e-11,
                         "requires_gpu": false
                     }
                 ],

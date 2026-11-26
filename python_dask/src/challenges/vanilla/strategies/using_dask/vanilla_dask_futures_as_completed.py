@@ -68,7 +68,7 @@ def vanilla_dask_futures_as_completed(
             pl.concat([acc, partial])
         )
     assert acc is not None
-    df_result = (
+    result_df = (
         acc
         .select(
             *KEYS,
@@ -79,4 +79,4 @@ def vanilla_dask_futures_as_completed(
         )
         .sort(KEYS)
     )
-    return df_result.to_pandas()
+    return result_df.to_pandas()

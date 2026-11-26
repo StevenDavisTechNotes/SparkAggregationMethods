@@ -2,11 +2,11 @@ import typing
 from typing import Any
 
 import pytest
-from spark_agg_methods_common_python.challenges.bi_level.bi_level_test_data_types import BiLevelDataSetDescription
+from spark_agg_methods_common_python.challenges.bilevel.bilevel_test_data_types import BilevelDataSetDescription
 from spark_agg_methods_common_python.challenges.conditional.conditional_test_data_types import (
     ConditionalDataSetDescription,
 )
-from spark_agg_methods_common_python.challenges.deduplication.dedupe_test_data_types import DedupeDataSetDescription
+from spark_agg_methods_common_python.challenges.dedupe.dedupe_test_data_types import DedupeDataSetDescription
 from spark_agg_methods_common_python.challenges.sectional.section_test_data_types import SectionDataSetDescription
 from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types import VanillaDataSetDescription
 
@@ -14,7 +14,7 @@ from spark_agg_methods_common_python.challenges.vanilla.vanilla_test_data_types 
 @pytest.mark.parametrize(
     "description_type",
     [
-        BiLevelDataSetDescription,
+        BilevelDataSetDescription,
         ConditionalDataSetDescription,
         DedupeDataSetDescription,
         SectionDataSetDescription,

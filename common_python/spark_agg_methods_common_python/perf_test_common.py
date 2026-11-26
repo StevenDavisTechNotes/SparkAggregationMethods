@@ -56,14 +56,14 @@ ENGINE_FOLDER_MAP = {
 
 class Challenge(str, Enum):
     VANILLA = "vanilla"
-    BI_LEVEL = "bilevel"
+    BILEVEL = "bilevel"
     CONDITIONAL = "conditional"
     SECTIONAL = "sectional"
-    DEDUPLICATION = "deduplication"
+    DEDUPE = "dedupe"
 
 
 CHALLENGES_SIX_DATA = [
-    Challenge.BI_LEVEL,
+    Challenge.BILEVEL,
     Challenge.CONDITIONAL,
     Challenge.VANILLA,
 ]
@@ -149,6 +149,7 @@ TChallengeMethodDelegate = TypeVar("TChallengeMethodDelegate", bound=Callable)
 @dataclass(frozen=True)
 class ChallengeMethodRegistrationBase(Generic[TSolutionInterface, TChallengeMethodDelegate]):
     strategy_name_2018: str | None
+    strategy_name_2023: str | None
     strategy_name: str
     language: SolutionLanguage
     engine: CalcEngine

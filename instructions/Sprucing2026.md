@@ -18,10 +18,10 @@ To make these repositories approachable, professional, and functional for extern
   `py_spark\config_when_clustered\update_venv_executor.ps1` hardcodes the path `C:\program files\7-zip\7z.exe`. To be professional, it should either rely on the system `PATH` or use a standard native PowerShell compression command (such as `Compress-Archive`).
 
 - [ ] **6. Implement Missing Runners (`TODO: Implement this`)**
-  Core test runners are commented out with `# TODO: Implement this` in their respective test suites (e.g., `dedupe_runner_dask` and `sectional_runner_dask` in `perf_test_runner_for_dask.py`, as well as `dedupe_runner_py_st` in `perf_test_runner_for_py_st.py`). These need to be finished or explicitly documented as out of scope.
+  Some challenge runners do not exist yet: `dedupe_runner_dask` and `sectional_runner_dask` (the stub strategy directory and data-type files for Dask sectional were deleted), `dedupe_runner_py_st`, and the free-threaded bilevel, conditional, sectional and dedupe runners. Absent runners have no file and no commented-out placeholder. These need to be written or explicitly documented as out of scope.
 
-- [ ] **7. Complete Empty Modules**
-  `python_single_threaded\src\challenges\conditional\conditional_runner_py_st.py` contains only `# TODO: Implement the main function` and is completely empty otherwise. It should either be completed or entirely removed so it is not distracting to readers.
+- [x] **7. Complete Empty Modules**
+  Resolved: `python_single_threaded\src\challenges\conditional\conditional_runner_py_st.py` is implemented and launched by `perf_test_runner_for_py_st.py`.
 
 - [x] **8. Remove Lingering `DEBUG_ARGS` Blocks**
   Almost all runner files (e.g., `dedupe_runner_pyspark.py`, `vanilla_runner_py_ft.py`) contain an unprofessional `DEBUG_ARGS = None if True else (...)` block at the top. This debug harness should be removed in favor of standard CLI arguments or IDE launch configurations.
@@ -44,7 +44,7 @@ To make these repositories approachable, professional, and functional for extern
   Production code, such as `python_free_threaded\src\challenges\vanilla\strategies\queue_mediated\vanilla_py_ft_queue_pd_prog_numpy.py`, utilizes bare `print()` statements (e.g., `print(df_result)`, `print("Success!")`). These should be refactored to use the project's standard logger setup (`logger.info()`) to align with the rest of the codebase.
 
 - [x] **13. Clean Up Commented-Out Code**
-  Files like `bi_level_runner_dask.py` and `requirements_ide.txt` contain large blocks of commented-out logic (like `n_workers=LOCAL_NUM_EXECUTORS` configurations and `# pyspark==3.2.1`). This is visually distracting and gives the codebase an unfinished feel; it should be deleted prior to external release.
+  Files like `bilevel_runner_dask.py` and `requirements_ide.txt` contain large blocks of commented-out logic (like `n_workers=LOCAL_NUM_EXECUTORS` configurations and `# pyspark==3.2.1`). This is visually distracting and gives the codebase an unfinished feel; it should be deleted prior to external release.
 
 - [ ] **14. Generalize Installation Instructions**
   `py_spark\readme.md` instructs users to install dependencies to highly specific local drives (e.g., `D:\Programs\spark-3.4.3-bin-hadoop3`). These instructions should be generalized (e.g., `<YOUR_INSTALL_DIR>\spark...` or `C:\path\to\...`) to be universally applicable.

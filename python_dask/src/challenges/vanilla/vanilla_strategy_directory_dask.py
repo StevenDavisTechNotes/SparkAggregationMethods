@@ -20,6 +20,7 @@ from src.challenges.vanilla.strategies.using_dask.vanilla_dask_futures_as_comple
 VANILLA_STRATEGY_REGISTRY_DASK: list[ChallengeMethodPythonDaskRegistration] = [
     ChallengeMethodPythonDaskRegistration(
         strategy_name_2018=None,
+        strategy_name_2023="vanilla_dask_bag_accumulate",
         strategy_name=name_of_function(vanilla_dask_bag_accumulate),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.DASK,
@@ -30,6 +31,7 @@ VANILLA_STRATEGY_REGISTRY_DASK: list[ChallengeMethodPythonDaskRegistration] = [
     ),
     ChallengeMethodPythonDaskRegistration(
         strategy_name_2018=None,
+        strategy_name_2023="vanilla_dask_bag_fold",
         strategy_name=name_of_function(vanilla_dask_bag_fold),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.DASK,
@@ -40,6 +42,7 @@ VANILLA_STRATEGY_REGISTRY_DASK: list[ChallengeMethodPythonDaskRegistration] = [
     ),
     ChallengeMethodPythonDaskRegistration(
         strategy_name_2018=None,
+        strategy_name_2023="vanilla_dask_bag_foldby",
         strategy_name=name_of_function(vanilla_dask_bag_foldby),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.DASK,
@@ -50,6 +53,7 @@ VANILLA_STRATEGY_REGISTRY_DASK: list[ChallengeMethodPythonDaskRegistration] = [
     ),
     ChallengeMethodPythonDaskRegistration(
         strategy_name_2018=None,
+        strategy_name_2023="vanilla_dask_bag_map_partitions",
         strategy_name=name_of_function(vanilla_dask_bag_map_partitions),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.DASK,
@@ -60,6 +64,7 @@ VANILLA_STRATEGY_REGISTRY_DASK: list[ChallengeMethodPythonDaskRegistration] = [
     ),
     ChallengeMethodPythonDaskRegistration(
         strategy_name_2018=None,
+        strategy_name_2023="vanilla_dask_bag_reduction",
         strategy_name=name_of_function(vanilla_dask_bag_reduction),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.DASK,
@@ -70,6 +75,7 @@ VANILLA_STRATEGY_REGISTRY_DASK: list[ChallengeMethodPythonDaskRegistration] = [
     ),
     ChallengeMethodPythonDaskRegistration(
         strategy_name_2018=None,
+        strategy_name_2023="vanilla_dask_ddf_grp_apply",
         strategy_name=name_of_function(vanilla_dask_ddf_grp_apply),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.DASK,
@@ -80,6 +86,7 @@ VANILLA_STRATEGY_REGISTRY_DASK: list[ChallengeMethodPythonDaskRegistration] = [
     ),
     ChallengeMethodPythonDaskRegistration(
         strategy_name_2018=None,
+        strategy_name_2023="vanilla_dask_ddf_grp_udaf",
         strategy_name=name_of_function(vanilla_dask_ddf_grp_udaf),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.DASK,
@@ -90,6 +97,7 @@ VANILLA_STRATEGY_REGISTRY_DASK: list[ChallengeMethodPythonDaskRegistration] = [
     ),
     ChallengeMethodPythonDaskRegistration(
         strategy_name_2018=None,
+        strategy_name_2023=None,
         strategy_name=name_of_function(vanilla_dask_delayed_pl_chunks),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.DASK,
@@ -100,6 +108,7 @@ VANILLA_STRATEGY_REGISTRY_DASK: list[ChallengeMethodPythonDaskRegistration] = [
     ),
     ChallengeMethodPythonDaskRegistration(
         strategy_name_2018=None,
+        strategy_name_2023=None,
         strategy_name=name_of_function(vanilla_dask_ddf_shuffle_local),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.DASK,
@@ -111,6 +120,7 @@ VANILLA_STRATEGY_REGISTRY_DASK: list[ChallengeMethodPythonDaskRegistration] = [
     ),
     ChallengeMethodPythonDaskRegistration(
         strategy_name_2018=None,
+        strategy_name_2023=None,
         strategy_name=name_of_function(vanilla_dask_futures_as_completed),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.DASK,
@@ -122,6 +132,7 @@ VANILLA_STRATEGY_REGISTRY_DASK: list[ChallengeMethodPythonDaskRegistration] = [
     ),
     ChallengeMethodPythonDaskRegistration(
         strategy_name_2018=None,
+        strategy_name_2023=None,
         strategy_name=name_of_function(vanilla_dask_actors_accumulate),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.DASK,

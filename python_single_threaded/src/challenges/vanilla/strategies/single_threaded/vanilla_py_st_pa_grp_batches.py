@@ -61,10 +61,10 @@ def vanilla_py_st_pa_grp_batches(
         ]))
     merged = merge_partials(partials)
     n = merged["n"]
-    df_result = pd.DataFrame({
+    result_df = pd.DataFrame({
         "mean_of_C": merged["sum_C"] / n,
         "max_of_D": merged["max_D"],
         "var_of_E": merged["m2"] / n,
         "var_of_E2": merged["sum_E2"] / n - (merged["sum_E"] / n) ** 2,
     }).reset_index()
-    return df_result
+    return result_df

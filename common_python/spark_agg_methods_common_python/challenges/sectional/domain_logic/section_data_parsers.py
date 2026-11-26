@@ -21,7 +21,7 @@ def parse_line_to_types(
     if fields[0] == "TF":
         return TrimesterFooter(Major=int(fields[1]), GPA=float(
             fields[2]), Credits=int(fields[3]))
-    raise Exception("Malformed data " + line)
+    raise ValueError("Malformed data " + line)
 
 
 def identify_section_using_intermediate_file(

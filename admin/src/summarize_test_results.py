@@ -73,8 +73,8 @@ def read_run_result_file(
             return None
         # take the blank off the header
         segment[0] = segment[0].strip()
-        df_segment = pd.read_csv(io.StringIO("\n".join(segment)), header=0)
-        return df_segment
+        segment_df = pd.read_csv(io.StringIO("\n".join(segment)), header=0)
+        return segment_df
 
     with log_file_path.open("r") as f:
         segment: list[str] = []
@@ -90,15 +90,15 @@ def read_run_result_file(
                 match parse_segment(segment):
                     case None:
                         pass
-                    case df_segment:
-                        result_files.append(df_segment)
+                    case segment_df:
+                        result_files.append(segment_df)
                 segment.clear()
             segment.append(line)
         match parse_segment(segment):
             case None:
                 pass
-            case df_segment:
-                result_files.append(df_segment)
+            case segment_df:
+                result_files.append(segment_df)
     df = pd.concat(objs=result_files)
     df = (
         df
@@ -188,10 +188,10 @@ def summarize_environment_results(
         regressor_column=regressor_column_name,
         dependent_variable_column=elapsed_time_column_name,
     )
-    df_clean_regressor = df[regressor_column_name].round(0).astype(int)
-    if (df_clean_regressor - df[regressor_column_name]).abs().max() > 0:
+    clean_regressor_df = df[regressor_column_name].round(0).astype(int)
+    if (clean_regressor_df - df[regressor_column_name]).abs().max() > 0:
         logger.warning(f"Warning: regressor values in {result_file_path} are not integers")
-    df[regressor_column_name] = df_clean_regressor
+    df[regressor_column_name] = clean_regressor_df
     for key_field, expected_value in (("language", language), ("engine", engine), ("challenge", challenge)):
         df = clean_key_field(
             key_field=key_field,

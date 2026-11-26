@@ -16,14 +16,14 @@ def vanilla_py_st_pd_grp_numpy(
         data_set.data.source_file_path_parquet,
         engine="pyarrow",
     )
-    df_result = (
+    result_df = (
         df
         .groupby(by=["grp", "subgrp"])
         .apply(inner_agg_method)
         .sort_values(by=["grp", "subgrp"])  # pyright: ignore[reportCallIssue]
         .reset_index(drop=False)
     )
-    return df_result
+    return result_df
 
 
 def inner_agg_method(

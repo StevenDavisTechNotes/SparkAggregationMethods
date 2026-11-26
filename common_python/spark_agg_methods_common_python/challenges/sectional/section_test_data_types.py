@@ -186,10 +186,10 @@ def section_derive_expected_answer_data_file_path(
 
 def section_verify_correctness(
         data_set: SectionDataSetBase,
-        df_found_students: pd.DataFrame,
+        found_students_df: pd.DataFrame,
 ) -> str | None:
     correct_answer = data_set.correct_answer
-    if correct_answer.equals(df_found_students):
+    if correct_answer.equals(found_students_df):
         return None
-    diff = correct_answer.compare(df_found_students)
+    diff = correct_answer.compare(found_students_df)
     return str(diff)

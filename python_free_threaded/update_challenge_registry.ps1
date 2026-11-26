@@ -3,10 +3,7 @@
 
 $project = Split-Path -Leaf $PSScriptRoot
 $modules = @(
-    # 'src.challenges.bi_level.bi_level_runner_py_ft'
-    # 'src.challenges.conditional.conditional_runner_py_ft'
     'src.challenges.vanilla.vanilla_runner_py_ft'
-    # 'src.challenges.sectional.section_runner_py_ft'
 )
 
 . .\.venv\Scripts\activate.ps1

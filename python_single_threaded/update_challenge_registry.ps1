@@ -3,7 +3,7 @@
 
 $project = Split-Path -Leaf $PSScriptRoot
 $modules = @(
-    'src.challenges.bi_level.bi_level_runner_py_st'
+    'src.challenges.bilevel.bilevel_runner_py_st'
     'src.challenges.conditional.conditional_runner_py_st'
     'src.challenges.vanilla.vanilla_runner_py_st'
     'src.challenges.sectional.section_runner_py_st'

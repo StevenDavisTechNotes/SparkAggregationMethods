@@ -19,6 +19,7 @@ from src.challenges.vanilla.strategies.single_threaded.vanilla_py_st_pl_grp_stri
 VANILLA_STRATEGY_REGISTRY_PYTHON_SINGLE_THREADED: list[ChallengeMethodPythonSingleThreadedRegistration] = [
     ChallengeMethodPythonSingleThreadedRegistration(
         strategy_name_2018=None,
+        strategy_name_2023="vanilla_py_st_pd_grp_numba",
         strategy_name=name_of_function(vanilla_py_st_pd_grp_numba),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.SINGLE_THREADED,
@@ -29,6 +30,7 @@ VANILLA_STRATEGY_REGISTRY_PYTHON_SINGLE_THREADED: list[ChallengeMethodPythonSing
     ),
     ChallengeMethodPythonSingleThreadedRegistration(
         strategy_name_2018=None,
+        strategy_name_2023="vanilla_py_st_pd_grp_numpy",
         strategy_name=name_of_function(vanilla_py_st_pd_grp_numpy),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.SINGLE_THREADED,
@@ -39,6 +41,7 @@ VANILLA_STRATEGY_REGISTRY_PYTHON_SINGLE_THREADED: list[ChallengeMethodPythonSing
     ),
     ChallengeMethodPythonSingleThreadedRegistration(
         strategy_name_2018=None,
+        strategy_name_2023=None,
         strategy_name=name_of_function(vanilla_py_st_pl_grp_single),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.SINGLE_THREADED,
@@ -49,6 +52,7 @@ VANILLA_STRATEGY_REGISTRY_PYTHON_SINGLE_THREADED: list[ChallengeMethodPythonSing
     ),
     ChallengeMethodPythonSingleThreadedRegistration(
         strategy_name_2018=None,
+        strategy_name_2023=None,
         strategy_name=name_of_function(vanilla_py_st_pl_grp_scan),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.SINGLE_THREADED,
@@ -59,6 +63,7 @@ VANILLA_STRATEGY_REGISTRY_PYTHON_SINGLE_THREADED: list[ChallengeMethodPythonSing
     ),
     ChallengeMethodPythonSingleThreadedRegistration(
         strategy_name_2018=None,
+        strategy_name_2023=None,
         strategy_name=name_of_function(vanilla_py_st_pl_grp_stripe),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.SINGLE_THREADED,
@@ -69,6 +74,7 @@ VANILLA_STRATEGY_REGISTRY_PYTHON_SINGLE_THREADED: list[ChallengeMethodPythonSing
     ),
     ChallengeMethodPythonSingleThreadedRegistration(
         strategy_name_2018=None,
+        strategy_name_2023=None,
         strategy_name=name_of_function(vanilla_py_st_pd_grp_agg),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.SINGLE_THREADED,
@@ -79,6 +85,7 @@ VANILLA_STRATEGY_REGISTRY_PYTHON_SINGLE_THREADED: list[ChallengeMethodPythonSing
     ),
     ChallengeMethodPythonSingleThreadedRegistration(
         strategy_name_2018=None,
+        strategy_name_2023=None,
         strategy_name=name_of_function(vanilla_py_st_np_grp_reduceat),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.SINGLE_THREADED,
@@ -89,6 +96,7 @@ VANILLA_STRATEGY_REGISTRY_PYTHON_SINGLE_THREADED: list[ChallengeMethodPythonSing
     ),
     ChallengeMethodPythonSingleThreadedRegistration(
         strategy_name_2018=None,
+        strategy_name_2023=None,
         strategy_name=name_of_function(vanilla_py_st_nb_grp_kernel),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.SINGLE_THREADED,
@@ -99,6 +107,7 @@ VANILLA_STRATEGY_REGISTRY_PYTHON_SINGLE_THREADED: list[ChallengeMethodPythonSing
     ),
     ChallengeMethodPythonSingleThreadedRegistration(
         strategy_name_2018=None,
+        strategy_name_2023=None,
         strategy_name=name_of_function(vanilla_py_st_pa_grp_batches),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.SINGLE_THREADED,
@@ -109,6 +118,7 @@ VANILLA_STRATEGY_REGISTRY_PYTHON_SINGLE_THREADED: list[ChallengeMethodPythonSing
     ),
     ChallengeMethodPythonSingleThreadedRegistration(
         strategy_name_2018=None,
+        strategy_name_2023="vanilla_py_st_pd_prog_numpy",
         strategy_name=name_of_function(vanilla_py_st_pd_prog_numpy),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.SINGLE_THREADED,

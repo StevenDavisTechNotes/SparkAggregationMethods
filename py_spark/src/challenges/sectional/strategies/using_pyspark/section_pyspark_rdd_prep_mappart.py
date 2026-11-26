@@ -94,7 +94,7 @@ def parse_line_to_types_with_line_no(
                 TrimesterFooter(
                     Major=major, GPA=gpa, Credits=credits)
             )
-    raise Exception(
+    raise ValueError(
         f"Unknown parsed row type {row_type} on line {lineNumber} in file {filename}")
 
 

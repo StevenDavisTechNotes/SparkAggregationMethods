@@ -69,12 +69,12 @@ def vanilla_py_ft_queue_pd_prog_numpy_1_reader(
         queue_2=queue.Queue(maxsize=1),
         report_error=lambda msg: logger.error(msg),
     )
-    num_data_points_visited, df_summary = stage1_batch_accumulators[0].summary()
+    num_data_points_visited, summary_df = stage1_batch_accumulators[0].summary()
     solutions = calculate_solutions_from_summary(
         data_size=data_set.data_description,
         challenges=[CHALLENGE],
         num_data_points_visited=num_data_points_visited,
-        df_summary=df_summary,
+        summary_df=summary_df,
     )
     return solutions[CHALLENGE]
 
@@ -84,7 +84,7 @@ def test_main():
     source_file_names = six_derive_source_test_data_file_path(
         data_description=data_size,
     ).source_file_path_parquet_single_file
-    df_result = vanilla_py_ft_queue_pd_prog_numpy_1_reader(
+    result_df = vanilla_py_ft_queue_pd_prog_numpy_1_reader(
         exec_params=SixTestExecutionParameters(
             default_parallelism=0,
             num_executors=LOCAL_NUM_EXECUTORS,
@@ -96,7 +96,7 @@ def test_main():
             ),
         ),
     )
-    logger.info(df_result)
+    logger.info(result_df)
     logger.info("Success!")
 
 

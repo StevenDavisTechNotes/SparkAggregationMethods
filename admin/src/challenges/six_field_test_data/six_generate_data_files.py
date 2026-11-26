@@ -4,8 +4,8 @@ import shutil
 import numpy as np
 import pandas as pd
 import pyarrow.parquet
-from spark_agg_methods_common_python.challenges.bi_level.bi_level_test_data_types import (
-    DATA_SIZE_LIST_BI_LEVEL_MAXIMAL, DATA_SIZE_LIST_BI_LEVEL_MINIMAL,
+from spark_agg_methods_common_python.challenges.bilevel.bilevel_test_data_types import (
+    DATA_SIZE_LIST_BILEVEL_MAXIMAL, DATA_SIZE_LIST_BILEVEL_MINIMAL,
 )
 from spark_agg_methods_common_python.challenges.conditional.conditional_test_data_types import (
     DATA_SIZE_LIST_CONDITIONAL_MAXIMAL, DATA_SIZE_LIST_CONDITIONAL_MINIMAL,
@@ -202,14 +202,14 @@ def six_generate_data_files(
         six_generate_data_files_remove()
     data_descriptions = (
         [
-            *DATA_SIZE_LIST_BI_LEVEL_MINIMAL,
+            *DATA_SIZE_LIST_BILEVEL_MINIMAL,
             *DATA_SIZE_LIST_CONDITIONAL_MINIMAL,
             *DATA_SIZE_LIST_VANILLA_MINIMAL,
         ]
         if minimal else
         [
 
-            *DATA_SIZE_LIST_BI_LEVEL_MAXIMAL,
+            *DATA_SIZE_LIST_BILEVEL_MAXIMAL,
             *DATA_SIZE_LIST_CONDITIONAL_MAXIMAL,
             *DATA_SIZE_LIST_VANILLA_MAXIMAL,
         ]

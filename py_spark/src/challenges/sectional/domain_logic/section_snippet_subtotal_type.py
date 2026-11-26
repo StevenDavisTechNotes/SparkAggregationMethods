@@ -102,7 +102,7 @@ def student_snippet_from_typed_row_1(
                 LastLineIndex=lineIndex,
             )
         case _:
-            raise Exception("Unknown parsed row type")
+            raise TypeError("Unknown parsed row type")
 
 
 def student_snippet_from_typed_row_2(
@@ -167,7 +167,7 @@ def student_snippet_from_typed_row_2(
                 LastLineIndex=lineIndex,
             )
         case _:
-            raise Exception("Unknown parsed row type")
+            raise TypeError("Unknown parsed row type")
 
 
 def build_initial_snippet_2(

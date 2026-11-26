@@ -47,7 +47,7 @@ def vanilla_dask_delayed_pl_chunks(
     partials = pl.concat(compute(*tasks))
     # Chan et al.: pooled M2 = sum of chunk M2 plus the spread of chunk means around the pooled mean
     pooled_mean_E = pl.col("sum_E").sum().over(KEYS) / pl.col("n").sum().over(KEYS)
-    df_subgroup = (
+    subgroup_df = (
         partials
         .with_columns(spread=pl.col("n") * (pl.col("sum_E") / pl.col("n") - pooled_mean_E) ** 2)
         .group_by(KEYS)
@@ -60,8 +60,8 @@ def vanilla_dask_delayed_pl_chunks(
             m2_E=(pl.col("m2_E") + pl.col("spread")).sum(),
         )
     )
-    df_result = (
-        df_subgroup
+    result_df = (
+        subgroup_df
         .select(
             *KEYS,
             mean_of_C=pl.col("sum_C") / pl.col("n"),
@@ -71,4 +71,4 @@ def vanilla_dask_delayed_pl_chunks(
         )
         .sort(KEYS)
     )
-    return df_result.to_pandas()
+    return result_df.to_pandas()

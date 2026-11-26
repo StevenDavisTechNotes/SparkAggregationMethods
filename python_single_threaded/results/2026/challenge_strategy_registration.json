@@ -3,7 +3,8 @@
         "python_single_threaded": {
             "bilevel": {
                 "result_file_path": {
-                    "windows": "results/2026/windows/bi_level_python_single_threaded_runs.csv"
+                    "windows": "results/2026/windows/bilevel_python_single_threaded_runs.csv",
+                    "wsl": "results/2026/wsl/bilevel_python_single_threaded_runs.csv"
                 },
                 "regressor_column_name": "relative_cardinality_between_groupings",
                 "elapsed_time_column_name": "elapsed_time",
@@ -13,8 +14,8 @@
                         "engine": "python_single_threaded",
                         "challenge": "bilevel",
                         "interface": "pandas",
-                        "strategy_name": "bi_level_py_st_pd_grp_numba",
-                        "numerical_tolerance": 1E-10,
+                        "strategy_name": "bilevel_py_st_pd_grp_numba",
+                        "numerical_tolerance": 1e-10,
                         "requires_gpu": true
                     },
                     {
@@ -22,8 +23,8 @@
                         "engine": "python_single_threaded",
                         "challenge": "bilevel",
                         "interface": "pandas",
-                        "strategy_name": "bi_level_py_st_pd_grp_numpy",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "bilevel_py_st_pd_grp_numpy",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -31,8 +32,8 @@
                         "engine": "python_single_threaded",
                         "challenge": "bilevel",
                         "interface": "polars",
-                        "strategy_name": "bi_level_py_st_pl_grp_single",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "bilevel_py_st_pl_grp_single",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -40,8 +41,8 @@
                         "engine": "python_single_threaded",
                         "challenge": "bilevel",
                         "interface": "polars",
-                        "strategy_name": "bi_level_py_st_pl_grp_scan",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "bilevel_py_st_pl_grp_scan",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -49,8 +50,8 @@
                         "engine": "python_single_threaded",
                         "challenge": "bilevel",
                         "interface": "polars",
-                        "strategy_name": "bi_level_py_st_pl_grp_stripe",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "bilevel_py_st_pl_grp_stripe",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -58,8 +59,8 @@
                         "engine": "python_single_threaded",
                         "challenge": "bilevel",
                         "interface": "pandas",
-                        "strategy_name": "bi_level_py_st_pd_grp_agg",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "bilevel_py_st_pd_grp_agg",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -67,8 +68,8 @@
                         "engine": "python_single_threaded",
                         "challenge": "bilevel",
                         "interface": "numpy",
-                        "strategy_name": "bi_level_py_st_np_grp_reduceat",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "bilevel_py_st_np_grp_reduceat",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -76,8 +77,8 @@
                         "engine": "python_single_threaded",
                         "challenge": "bilevel",
                         "interface": "numba",
-                        "strategy_name": "bi_level_py_st_nb_grp_kernel",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "bilevel_py_st_nb_grp_kernel",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -85,8 +86,8 @@
                         "engine": "python_single_threaded",
                         "challenge": "bilevel",
                         "interface": "pyarrow",
-                        "strategy_name": "bi_level_py_st_pa_grp_batches",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "bilevel_py_st_pa_grp_batches",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -94,8 +95,8 @@
                         "engine": "python_single_threaded",
                         "challenge": "bilevel",
                         "interface": "progressive",
-                        "strategy_name": "bi_level_py_st_pd_prog_numpy",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "bilevel_py_st_pd_prog_numpy",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     }
                 ],
@@ -108,7 +109,8 @@
             },
             "vanilla": {
                 "result_file_path": {
-                    "windows": "results/2026/windows/vanilla_python_single_threaded_runs.csv"
+                    "windows": "results/2026/windows/vanilla_python_single_threaded_runs.csv",
+                    "wsl": "results/2026/wsl/vanilla_python_single_threaded_runs.csv"
                 },
                 "regressor_column_name": "num_source_rows",
                 "elapsed_time_column_name": "elapsed_time",
@@ -119,7 +121,7 @@
                         "challenge": "vanilla",
                         "interface": "pandas",
                         "strategy_name": "vanilla_py_st_pd_grp_numba",
-                        "numerical_tolerance": 1E-10,
+                        "numerical_tolerance": 1e-10,
                         "requires_gpu": true
                     },
                     {
@@ -128,7 +130,7 @@
                         "challenge": "vanilla",
                         "interface": "pandas",
                         "strategy_name": "vanilla_py_st_pd_grp_numpy",
-                        "numerical_tolerance": 1E-12,
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -137,7 +139,7 @@
                         "challenge": "vanilla",
                         "interface": "polars",
                         "strategy_name": "vanilla_py_st_pl_grp_single",
-                        "numerical_tolerance": 1E-12,
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -146,7 +148,7 @@
                         "challenge": "vanilla",
                         "interface": "polars",
                         "strategy_name": "vanilla_py_st_pl_grp_scan",
-                        "numerical_tolerance": 1E-12,
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -155,7 +157,7 @@
                         "challenge": "vanilla",
                         "interface": "polars",
                         "strategy_name": "vanilla_py_st_pl_grp_stripe",
-                        "numerical_tolerance": 1E-12,
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -164,7 +166,7 @@
                         "challenge": "vanilla",
                         "interface": "pandas",
                         "strategy_name": "vanilla_py_st_pd_grp_agg",
-                        "numerical_tolerance": 1E-12,
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -173,7 +175,7 @@
                         "challenge": "vanilla",
                         "interface": "numpy",
                         "strategy_name": "vanilla_py_st_np_grp_reduceat",
-                        "numerical_tolerance": 1E-12,
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -182,7 +184,7 @@
                         "challenge": "vanilla",
                         "interface": "numba",
                         "strategy_name": "vanilla_py_st_nb_grp_kernel",
-                        "numerical_tolerance": 1E-11,
+                        "numerical_tolerance": 1e-11,
                         "requires_gpu": false
                     },
                     {
@@ -191,7 +193,7 @@
                         "challenge": "vanilla",
                         "interface": "pyarrow",
                         "strategy_name": "vanilla_py_st_pa_grp_batches",
-                        "numerical_tolerance": 1E-12,
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -200,7 +202,7 @@
                         "challenge": "vanilla",
                         "interface": "progressive",
                         "strategy_name": "vanilla_py_st_pd_prog_numpy",
-                        "numerical_tolerance": 1E-12,
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     }
                 ],
@@ -218,7 +220,8 @@
             },
             "sectional": {
                 "result_file_path": {
-                    "windows": "results/2026/windows/section_python_single_threaded_runs.csv"
+                    "windows": "results/2026/windows/section_python_single_threaded_runs.csv",
+                    "wsl": "results/2026/wsl/section_python_single_threaded_runs.csv"
                 },
                 "regressor_column_name": "num_students",
                 "elapsed_time_column_name": "elapsed_time",
@@ -246,7 +249,8 @@
             },
             "conditional": {
                 "result_file_path": {
-                    "windows": "results/2026/windows/conditional_python_single_threaded_runs.csv"
+                    "windows": "results/2026/windows/conditional_python_single_threaded_runs.csv",
+                    "wsl": "results/2026/wsl/conditional_python_single_threaded_runs.csv"
                 },
                 "regressor_column_name": "num_source_rows",
                 "elapsed_time_column_name": "elapsed_time",
@@ -256,8 +260,8 @@
                         "engine": "python_single_threaded",
                         "challenge": "conditional",
                         "interface": "pandas",
-                        "strategy_name": "cond_py_st_pd_grp_numpy",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "conditional_py_st_pd_grp_numpy",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -265,8 +269,8 @@
                         "engine": "python_single_threaded",
                         "challenge": "conditional",
                         "interface": "pandas",
-                        "strategy_name": "cond_py_st_pd_grp_pandas",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "conditional_py_st_pd_grp_pandas",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -274,8 +278,8 @@
                         "engine": "python_single_threaded",
                         "challenge": "conditional",
                         "interface": "polars",
-                        "strategy_name": "cond_py_st_pl_grp_single",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "conditional_py_st_pl_grp_single",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -283,8 +287,8 @@
                         "engine": "python_single_threaded",
                         "challenge": "conditional",
                         "interface": "polars",
-                        "strategy_name": "cond_py_st_pl_grp_scan",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "conditional_py_st_pl_grp_scan",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -292,8 +296,8 @@
                         "engine": "python_single_threaded",
                         "challenge": "conditional",
                         "interface": "polars",
-                        "strategy_name": "cond_py_st_pl_grp_stripe",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "conditional_py_st_pl_grp_stripe",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -301,8 +305,8 @@
                         "engine": "python_single_threaded",
                         "challenge": "conditional",
                         "interface": "pandas",
-                        "strategy_name": "cond_py_st_pd_grp_agg",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "conditional_py_st_pd_grp_agg",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -310,8 +314,8 @@
                         "engine": "python_single_threaded",
                         "challenge": "conditional",
                         "interface": "numpy",
-                        "strategy_name": "cond_py_st_np_grp_reduceat",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "conditional_py_st_np_grp_reduceat",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -319,8 +323,8 @@
                         "engine": "python_single_threaded",
                         "challenge": "conditional",
                         "interface": "numba",
-                        "strategy_name": "cond_py_st_nb_grp_kernel",
-                        "numerical_tolerance": 5E-12,
+                        "strategy_name": "conditional_py_st_nb_grp_kernel",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -328,8 +332,8 @@
                         "engine": "python_single_threaded",
                         "challenge": "conditional",
                         "interface": "pyarrow",
-                        "strategy_name": "cond_py_st_pa_grp_batches",
-                        "numerical_tolerance": 1E-11,
+                        "strategy_name": "conditional_py_st_pa_grp_batches",
+                        "numerical_tolerance": 1e-11,
                         "requires_gpu": false
                     }
                 ],

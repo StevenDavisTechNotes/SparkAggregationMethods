@@ -24,9 +24,9 @@ from spark_agg_methods_common_python.perf_test_common import (
 )
 from spark_agg_methods_common_python.perf_test_runner_common import Cell, ChallengeRunner, missing_runs, parse_request
 from spark_agg_methods_common_python.utils.platform import setup_logging
-from src.challenges.bi_level import bi_level_runner_pyspark
+from src.challenges.bilevel import bilevel_runner_pyspark
 from src.challenges.conditional import conditional_runner_pyspark
-from src.challenges.deduplication import dedupe_runner_pyspark
+from src.challenges.dedupe import dedupe_runner_pyspark
 from src.challenges.sectional import section_runner_pyspark
 from src.challenges.vanilla import vanilla_runner_pyspark
 
@@ -47,10 +47,10 @@ class PysparkChallengeRunner(ChallengeRunner):
 
 CHALLENGE_RUNNERS = (
     PysparkChallengeRunner(
-        module=bi_level_runner_pyspark,
-        size_list_name="DATA_SIZE_LIST_BI_LEVEL_MAXIMAL",
-        writer_class_name="BiLevelPysparkRunResultFileWriter",
-        strategy_registry_name="BI_LEVEL_STRATEGY_REGISTRY_PYSPARK",
+        module=bilevel_runner_pyspark,
+        size_list_name="DATA_SIZE_LIST_BILEVEL_MAXIMAL",
+        writer_class_name="BilevelPysparkRunResultFileWriter",
+        strategy_registry_name="BILEVEL_STRATEGY_REGISTRY_PYSPARK",
     ),
     PysparkChallengeRunner(
         module=conditional_runner_pyspark,

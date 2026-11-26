@@ -3,7 +3,8 @@
         "python_free_threaded": {
             "vanilla": {
                 "result_file_path": {
-                    "windows": "results/2026/windows/vanilla_python_free_threaded_runs.csv"
+                    "windows": "results/2026/windows/vanilla_python_free_threaded_runs.csv",
+                    "wsl": "results/2026/wsl/vanilla_python_free_threaded_runs.csv"
                 },
                 "regressor_column_name": "num_source_rows",
                 "elapsed_time_column_name": "elapsed_time",
@@ -14,7 +15,7 @@
                         "challenge": "vanilla",
                         "interface": "queues",
                         "strategy_name": "vanilla_py_ft_queue_pd_prog_numpy",
-                        "numerical_tolerance": 5E-12,
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -23,7 +24,7 @@
                         "challenge": "vanilla",
                         "interface": "queues",
                         "strategy_name": "vanilla_py_ft_queue_pd_prog_numpy_1_reader",
-                        "numerical_tolerance": 5E-12,
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     }
                 ],

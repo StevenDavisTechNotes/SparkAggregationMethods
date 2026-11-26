@@ -44,6 +44,7 @@ class ChallengeMethodPythonFreeThreadedRegistration(
     ]
 ):
     strategy_name_2018: str | None
+    strategy_name_2023: str | None
     strategy_name: str
     language: SolutionLanguage
     engine: CalcEngine

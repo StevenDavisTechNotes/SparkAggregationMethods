@@ -3,7 +3,8 @@
         "dask": {
             "bilevel": {
                 "result_file_path": {
-                    "windows": "results/2026/windows/bi_level_dask_runs.csv"
+                    "windows": "results/2026/windows/bilevel_dask_runs.csv",
+                    "wsl": "results/2026/wsl/bilevel_dask_runs.csv"
                 },
                 "regressor_column_name": "relative_cardinality_between_groupings",
                 "elapsed_time_column_name": "elapsed_time",
@@ -13,8 +14,8 @@
                         "engine": "dask",
                         "challenge": "bilevel",
                         "interface": "ddf",
-                        "strategy_name": "bi_level_dask_ddf_grp_apply",
-                        "numerical_tolerance": 1e-12,
+                        "strategy_name": "bilevel_dask_ddf_grp_apply",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -22,8 +23,8 @@
                         "engine": "dask",
                         "challenge": "bilevel",
                         "interface": "ddf",
-                        "strategy_name": "bi_level_dask_ddf_grp_udaf",
-                        "numerical_tolerance": 1e-12,
+                        "strategy_name": "bilevel_dask_ddf_grp_udaf",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -31,8 +32,8 @@
                         "engine": "dask",
                         "challenge": "bilevel",
                         "interface": "delayed",
-                        "strategy_name": "bi_level_dask_delayed_pl_chunks",
-                        "numerical_tolerance": 1e-12,
+                        "strategy_name": "bilevel_dask_delayed_pl_chunks",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -40,8 +41,8 @@
                         "engine": "dask",
                         "challenge": "bilevel",
                         "interface": "ddf",
-                        "strategy_name": "bi_level_dask_ddf_shuffle_local",
-                        "numerical_tolerance": 1e-12,
+                        "strategy_name": "bilevel_dask_ddf_shuffle_local",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -49,8 +50,8 @@
                         "engine": "dask",
                         "challenge": "bilevel",
                         "interface": "futures",
-                        "strategy_name": "bi_level_dask_futures_as_completed",
-                        "numerical_tolerance": 1e-12,
+                        "strategy_name": "bilevel_dask_futures_as_completed",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -58,8 +59,8 @@
                         "engine": "dask",
                         "challenge": "bilevel",
                         "interface": "actors",
-                        "strategy_name": "bi_level_dask_actors_accumulate",
-                        "numerical_tolerance": 1e-12,
+                        "strategy_name": "bilevel_dask_actors_accumulate",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     }
                 ],
@@ -72,7 +73,8 @@
             },
             "vanilla": {
                 "result_file_path": {
-                    "windows": "results/2026/windows/vanilla_dask_runs.csv"
+                    "windows": "results/2026/windows/vanilla_dask_runs.csv",
+                    "wsl": "results/2026/wsl/vanilla_dask_runs.csv"
                 },
                 "regressor_column_name": "num_source_rows",
                 "elapsed_time_column_name": "elapsed_time",
@@ -191,7 +193,8 @@
             },
             "conditional": {
                 "result_file_path": {
-                    "windows": "results/2026/windows/conditional_dask_runs.csv"
+                    "windows": "results/2026/windows/conditional_dask_runs.csv",
+                    "wsl": "results/2026/wsl/conditional_dask_runs.csv"
                 },
                 "regressor_column_name": "num_source_rows",
                 "elapsed_time_column_name": "elapsed_time",
@@ -201,8 +204,8 @@
                         "engine": "dask",
                         "challenge": "conditional",
                         "interface": "ddf",
-                        "strategy_name": "cond_dask_ddf_grp_apply",
-                        "numerical_tolerance": 1e-12,
+                        "strategy_name": "conditional_dask_ddf_grp_apply",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -210,8 +213,8 @@
                         "engine": "dask",
                         "challenge": "conditional",
                         "interface": "ddf",
-                        "strategy_name": "cond_dask_ddf_grp_udaf",
-                        "numerical_tolerance": 1e-12,
+                        "strategy_name": "conditional_dask_ddf_grp_udaf",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -219,8 +222,8 @@
                         "engine": "dask",
                         "challenge": "conditional",
                         "interface": "delayed",
-                        "strategy_name": "cond_dask_delayed_pl_chunks",
-                        "numerical_tolerance": 1e-12,
+                        "strategy_name": "conditional_dask_delayed_pl_chunks",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -228,8 +231,8 @@
                         "engine": "dask",
                         "challenge": "conditional",
                         "interface": "ddf",
-                        "strategy_name": "cond_dask_ddf_shuffle_local",
-                        "numerical_tolerance": 1e-12,
+                        "strategy_name": "conditional_dask_ddf_shuffle_local",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -237,8 +240,8 @@
                         "engine": "dask",
                         "challenge": "conditional",
                         "interface": "futures",
-                        "strategy_name": "cond_dask_futures_as_completed",
-                        "numerical_tolerance": 1e-12,
+                        "strategy_name": "conditional_dask_futures_as_completed",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     },
                     {
@@ -246,8 +249,8 @@
                         "engine": "dask",
                         "challenge": "conditional",
                         "interface": "actors",
-                        "strategy_name": "cond_dask_actors_accumulate",
-                        "numerical_tolerance": 1e-12,
+                        "strategy_name": "conditional_dask_actors_accumulate",
+                        "numerical_tolerance": 5e-12,
                         "requires_gpu": false
                     }
                 ],

@@ -100,4 +100,4 @@ def parse_line_to_row_with_line_no(
             Date=None, WasAbroad=None,
             Dept=None, ClassCredits=None, ClassGrade=None,
             Major=int(fields[1]), TriGPA=float(fields[2]), TriCredits=int(fields[3]))
-    raise Exception("Malformed data " + line)
+    raise ValueError("Malformed data " + line)

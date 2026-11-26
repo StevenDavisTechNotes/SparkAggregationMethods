@@ -3,7 +3,7 @@ param([int]$Runs = 1)
 
 .\.venv\Scripts\activate.ps1
 $failed = $false
-python -m src.challenges.bi_level.bi_level_runner_dask --runs $Runs --no-shuffle --size 3_3_10 3_30_10k
+python -m src.challenges.bilevel.bilevel_runner_dask --runs $Runs --no-shuffle --size 3_3_10 3_30_10k
 if ($LASTEXITCODE -ne 0) { $failed = $true }
 python -m src.challenges.conditional.conditional_runner_dask --runs $Runs --no-shuffle --size 3_3_1 3_3_10
 if ($LASTEXITCODE -ne 0) { $failed = $true }

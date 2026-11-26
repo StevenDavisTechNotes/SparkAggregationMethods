@@ -39,10 +39,10 @@ def parse_line_to_row(
                    Date=None, WasAbroad=None,
                    Dept=None, ClassCredits=None, ClassGrade=None,
                    Major=int(fields[1]), TriGPA=float(fields[2]), TriCredits=int(fields[3]))
-    raise Exception("Malformed data " + line)
+    raise ValueError("Malformed data " + line)
 
 
-def df_sparse_rows_factory(
+def make_sparse_rows_df(
         spark_session: TidySparkSession,
         filename: Path,
         numPartitions: int | None = None

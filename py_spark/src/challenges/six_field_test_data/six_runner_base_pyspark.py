@@ -68,23 +68,23 @@ def six_run_one_step_in_pyspark_itinerary(
         case PySparkDataFrame() as spark_df:
             rdd_some = spark_df.rdd
             check_partitions(rdd_some)
-            df_answer = spark_df.toPandas()
+            answer_df = spark_df.toPandas()
             finished_time = time.time()
         case RDD() as rdd_some:
             check_partitions(rdd_some)
             answer = rdd_some.collect()
             finished_time = time.time()
             if len(answer) == 0:
-                df_answer = pd.DataFrame(
+                answer_df = pd.DataFrame(
                     data=[],
                     columns=cast(pd.Index, result_columns),
                 )
             else:
                 match answer[0]:
                     case Row():
-                        df_answer = pd.DataFrame.from_records([x.asDict() for x in answer])
+                        answer_df = pd.DataFrame.from_records([x.asDict() for x in answer])
                     case _:
-                        df_answer = pd.DataFrame.from_records([x._asdict() for x in answer])
+                        answer_df = pd.DataFrame.from_records([x._asdict() for x in answer])
         case ("infeasible", reason):
             return ("infeasible", reason)
         case other:
@@ -101,7 +101,7 @@ def six_run_one_step_in_pyspark_itinerary(
         correct_answer=correct_answer,
         numerical_tolerance=challenge_method_registration.numerical_tolerance,
         started_time=started_time,
-        df_answer=df_answer,
+        answer_df=answer_df,
         finished_time=finished_time,
     )
     return result

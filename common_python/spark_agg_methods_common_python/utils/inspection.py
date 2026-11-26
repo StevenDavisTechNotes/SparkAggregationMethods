@@ -13,7 +13,7 @@ def name_of(obj, callingLocals=locals()) -> str:
     for k, v in allLocals:
         if v is obj:
             return k
-    raise Exception("That variable is not defined!")
+    raise NameError("That variable is not defined!")
 
 
 def name_of_function(func: Callable) -> str:

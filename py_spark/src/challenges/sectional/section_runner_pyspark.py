@@ -242,14 +242,14 @@ def run_one_itinerary_step(
         findings = rdd.collect()
         logger.info(f"size={len(findings)}! {findings}")
         exit(1)
-    df_concrete_students: pd.DataFrame
+    concrete_students_df: pd.DataFrame
     match found_students:
         case pd.DataFrame() as df:
-            df_concrete_students = df
+            concrete_students_df = df
             finishedTime = time.time()
         case list() as concrete_students:
             finishedTime = time.time()
-            df_concrete_students = make_pd_dataframe_from_list_of_named_tuples(
+            concrete_students_df = make_pd_dataframe_from_list_of_named_tuples(
                 concrete_students,
                 row_type=StudentSummary,
             )
@@ -257,7 +257,7 @@ def run_one_itinerary_step(
             raise ValueError("Unexpected return type")
     error_message = section_verify_correctness(
         data_set,
-        df_concrete_students,
+        concrete_students_df,
     )
     status = "success" if error_message is None else "failure"
     if error_message is not None:
@@ -268,7 +268,7 @@ def run_one_itinerary_step(
         num_source_rows=data_description.num_source_rows,
         section_maximum=data_set.section_maximum,
         elapsed_time=finishedTime - startedTime,
-        num_output_rows=len(df_concrete_students),
+        num_output_rows=len(concrete_students_df),
         finished_at=dt.datetime.now().isoformat(),
     )
     logger.info("%s Took %f secs" % (challenge_method_registration.strategy_name, finishedTime - startedTime))

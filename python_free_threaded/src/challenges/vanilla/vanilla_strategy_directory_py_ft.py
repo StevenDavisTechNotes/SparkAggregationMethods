@@ -13,6 +13,7 @@ from src.challenges.vanilla.strategies.queue_mediated.vanilla_py_ft_queue_pd_pro
 VANILLA_STRATEGY_REGISTRY_PYTHON_FREE_THREADED: list[ChallengeMethodPythonFreeThreadedRegistration] = [
     ChallengeMethodPythonFreeThreadedRegistration(
         strategy_name_2018=None,
+        strategy_name_2023=None,
         strategy_name=name_of_function(vanilla_py_ft_queue_pd_prog_numpy),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.FREE_THREADED,
@@ -23,6 +24,7 @@ VANILLA_STRATEGY_REGISTRY_PYTHON_FREE_THREADED: list[ChallengeMethodPythonFreeTh
     ),
     ChallengeMethodPythonFreeThreadedRegistration(
         strategy_name_2018=None,
+        strategy_name_2023=None,
         strategy_name=name_of_function(vanilla_py_ft_queue_pd_prog_numpy_1_reader),
         language=SolutionLanguage.PYTHON,
         engine=CalcEngine.FREE_THREADED,

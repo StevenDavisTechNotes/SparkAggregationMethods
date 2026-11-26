@@ -17,7 +17,7 @@ one challenge on one engine — and keeping the surrounding registration and
 result-logging plumbing consistent.
 
 Challenges (`Challenge` enum in `perf_test_common.py`): `vanilla`, `bilevel`,
-`conditional`, `sectional`, `deduplication`.
+`conditional`, `sectional`, `dedupe`.
 
 ## Repository layout
 
@@ -202,6 +202,8 @@ new code. The rules below are the ones the tooling enforces or that are easy to 
   strategy function changes benchmark result identity.
 - `strategy_name_2018` links a strategy to its name in the original 2018 blog
   posts; it is `None` when there is no counterpart.
+  `strategy_name_2023` does the same for the 2023 results under `results/2023/`, which keep their original
+  names unmodified, so 2018, 2023 and 2026 results can be compared.
 - **Hardware-dependent tuning**: `TARGET_ROWS_PER_PARTITION` in `perf_test_common.py` is the one row budget (per
   Dask partition or chunk, per single-threaded batch). Derive any row-based sizing from it rather than adding a
   per-strategy constant, so result differences reflect architecture, not tuning. Re-tune it when the benchmark
@@ -248,10 +250,9 @@ current state is intentional:
   contain `*_test.py` files. The other projects are in the sweep but collect
   nothing, which `scripts/run_all.py --pytest` tolerates by accepting pytest exit
   code 5. New strategies mostly arrive untested.
-- Several runners are still unimplemented and commented out with
-  `# TODO: Implement this` (Dask dedupe and sectional, single-threaded dedupe,
-  single-threaded conditional). Leaving them alone is fine; finishing them is
-  tracked work, not incidental cleanup.
+- Some runners are deliberately not implemented, and have no file and no placeholder: Dask dedupe and
+  sectional, single-threaded dedupe, and free-threaded bilevel, conditional, sectional and dedupe.
+  Finishing them is tracked work (`instructions/Sprucing2026.md` item 6), not incidental cleanup.
 - Azure Data Lake support exists behind an `in_cloud_mode` flag
   (`--cloud-mode` on the PySpark dedupe runner, `IsCloudMode` in Scala). It was
   only briefly exercised and is not part of routine testing.

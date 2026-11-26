@@ -86,14 +86,14 @@ Because this repository tests against radically different Python capabilities (l
 
 ```bash
 (
-   uv sync && uv pip install --upgrade pip &&
-   cd common_python && uv sync && uv pip install --upgrade pip && cd .. && 
-   cd simple_queued_pipelines && uv sync && uv pip install --upgrade pip && cd .. &&
-   cd admin && uv sync && uv pip install --upgrade pip && cd .. && 
-   cd py_spark && uv sync && uv pip install --upgrade pip && cd .. && 
-   cd python_dask && uv sync && uv pip install --upgrade pip && cd .. && 
-   cd python_single_threaded && uv sync && uv pip install --upgrade pip && cd .. && 
-   cd python_free_threaded && uv sync && uv pip install --upgrade pip && cd .. && 
+   uv sync && 
+   cd common_python && uv sync &&  cd .. && 
+   cd simple_queued_pipelines && uv sync &&  cd .. &&
+   cd admin && uv sync &&  cd .. && 
+   cd py_spark && uv sync &&  cd .. && 
+   cd python_dask && uv sync &&  cd .. && 
+   cd python_single_threaded && uv sync &&  cd .. && 
+   cd python_free_threaded && uv sync &&  cd .. && 
    echo "Environments updated"
 )
 
@@ -102,14 +102,14 @@ uv run pyclean admin common_python py_spark python_dask python_free_threaded pyt
 ```
 
 ```ps1
-                                  ( uv sync ); ( uv pip install --upgrade pip );
-  ( cd common_python           ); ( uv sync ); ( uv pip install --upgrade pip ); ( cd .. );
-  ( cd simple_queued_pipelines ); ( uv sync ); ( uv pip install --upgrade pip ); ( cd .. );
-  ( cd admin                   ); ( uv sync ); ( uv pip install --upgrade pip ); ( cd .. );
-  ( cd py_spark                ); ( uv sync ); ( uv pip install --upgrade pip ); ( cd .. );
-  ( cd python_dask             ); ( uv sync ); ( uv pip install --upgrade pip ); ( cd .. );
-  ( cd python_single_threaded  ); ( uv sync ); ( uv pip install --upgrade pip ); ( cd .. );
-  ( cd python_free_threaded    ); ( uv sync ); ( uv pip install --upgrade pip ); ( cd .. );
+                                  ( uv sync );
+  ( cd common_python           ); ( uv sync ); ( cd .. );
+  ( cd simple_queued_pipelines ); ( uv sync ); ( cd .. );
+  ( cd admin                   ); ( uv sync ); ( cd .. );
+  ( cd py_spark                ); ( uv sync ); ( cd .. );
+  ( cd python_dask             ); ( uv sync ); ( cd .. );
+  ( cd python_single_threaded  ); ( uv sync ); ( cd .. );
+  ( cd python_free_threaded    ); ( uv sync ); ( cd .. );
 
 uv run pyclean admin common_python py_spark python_dask python_free_threaded python_single_threaded simple_queued_pipelines --debris
 
@@ -123,7 +123,7 @@ This automatically handles the different Python requirements across our projects
 
 ### 4. Building Scala Environment (`sbt`)
 
-* Install sbt from `https://www.scala-sbt.org/download/`
+* Install sbt and JDK 17 by following [`scala_spark/README.md`](scala_spark/README.md#installing-sbt).
 
 * The `scala_spark` directory contains our native Scala implementations.
 
@@ -132,7 +132,7 @@ cd scala_spark
 sbt compile
 sbt test  # no Scala test sources yet, so this passes vacuously
 sbt "runMain challenges.vanilla.Runner"
-sbt "runMain challenges.deduplication.IDERunner"
+sbt "runMain challenges.dedupe.IDERunner"
 ```
 
 ### 5. Code Standards (`pre-commit`)

@@ -13,9 +13,9 @@ from spark_agg_methods_common_python.perf_test_runner_common import (
     ChallengeRunner, parse_request, run_challenges_in_process,
 )
 from spark_agg_methods_common_python.utils.platform import setup_logging
-from src.challenges.bi_level import bi_level_runner_py_st
+from src.challenges.bilevel import bilevel_runner_py_st
 from src.challenges.conditional import conditional_runner_py_st
-# from src.challenges.deduplication import dedupe_runner_py_st
+# from src.challenges.dedupe import dedupe_runner_py_st
 from src.challenges.sectional import section_runner_py_st
 from src.challenges.vanilla import vanilla_runner_py_st
 
@@ -23,16 +23,15 @@ logger = logging.getLogger(__name__)
 
 CHALLENGE_RUNNERS = [
     ChallengeRunner(
-        module=bi_level_runner_py_st,
-        size_list_name="DATA_SIZE_LIST_BI_LEVEL_MAXIMAL",
-        writer_class_name="BiLevelPythonSTRunResultFileWriter",
+        module=bilevel_runner_py_st,
+        size_list_name="DATA_SIZE_LIST_BILEVEL_MAXIMAL",
+        writer_class_name="BilevelPythonSTRunResultFileWriter",
     ),
     ChallengeRunner(
         module=conditional_runner_py_st,
         size_list_name="DATA_SIZE_LIST_CONDITIONAL_MAXIMAL",
         writer_class_name="ConditionalPythonSTRunResultFileWriter",
     ),
-    # dedupe_runner_py_st  TODO: Implement this
     ChallengeRunner(
         module=section_runner_py_st,
         size_list_name="DATA_SIZE_LIST_SECTIONAL_MAXIMAL",

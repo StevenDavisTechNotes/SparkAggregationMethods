@@ -90,7 +90,7 @@ def vanilla_py_st_nb_grp_kernel(
     present = np.flatnonzero(acc[:, N])
     a = acc[present]
     n = a[:, N]
-    df_result = pd.DataFrame({
+    result_df = pd.DataFrame({
         "grp": present // stride,
         "subgrp": present % stride,
         "mean_of_C": a[:, SUM_C] / n,
@@ -98,4 +98,4 @@ def vanilla_py_st_nb_grp_kernel(
         "var_of_E": a[:, M2_E] / n,
         "var_of_E2": (a[:, SUM_E2] + a[:, COMP_E2]) / n - ((a[:, SUM_E] + a[:, COMP_E]) / n) ** 2,
     })
-    return df_result
+    return result_df

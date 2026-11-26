@@ -1,0 +1,76 @@
+{
+    "scala": {
+        "sc_spark": {
+            "vanilla": {
+                "result_file_path": {
+                    "wsl": "results/2026/wsl/vanilla_runs_scala.csv"
+                },
+                "regressor_column_name": "num_source_rows",
+                "elapsed_time_column_name": "elapsed_time",
+                "strategies": [
+                    {
+                        "language": "scala",
+                        "engine": "sc_spark",
+                        "challenge": "vanilla",
+                        "interface": "sql",
+                        "strategy_name": "vanilla_sc_spark_sql",
+                        "numerical_tolerance": 1e-10,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "scala",
+                        "engine": "sc_spark",
+                        "challenge": "vanilla",
+                        "interface": "sql",
+                        "strategy_name": "vanilla_sc_spark_fluent",
+                        "numerical_tolerance": 1e-10,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "scala",
+                        "engine": "sc_spark",
+                        "challenge": "vanilla",
+                        "interface": "sql",
+                        "strategy_name": "vanilla_sc_spark_udaf",
+                        "numerical_tolerance": 1e-10,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "scala",
+                        "engine": "sc_spark",
+                        "challenge": "vanilla",
+                        "interface": "rdd",
+                        "strategy_name": "vanilla_sc_spark_rdd_grpmap",
+                        "numerical_tolerance": 1e-10,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "scala",
+                        "engine": "sc_spark",
+                        "challenge": "vanilla",
+                        "interface": "rdd",
+                        "strategy_name": "vanilla_sc_spark_rdd_reduce",
+                        "numerical_tolerance": 1e-10,
+                        "requires_gpu": false
+                    },
+                    {
+                        "language": "scala",
+                        "engine": "sc_spark",
+                        "challenge": "vanilla",
+                        "interface": "rdd",
+                        "strategy_name": "vanilla_sc_spark_rdd_mappart",
+                        "numerical_tolerance": 1e-10,
+                        "requires_gpu": false
+                    }
+                ],
+                "expected_regressor_values": [
+                    90,
+                    900,
+                    9000,
+                    90000,
+                    900000
+                ]
+            }
+        }
+    }
+}

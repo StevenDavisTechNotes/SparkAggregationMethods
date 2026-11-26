@@ -17,12 +17,15 @@ object LogHolder extends Serializable {
  * Scala Spark port of the "vanilla" challenge, kept only as a performance comparison for the PySpark
  * implementations. It was run once, in 2018. It is not wired into the Python runner harness or registry
  * (see py_spark/src/challenges/vanilla/vanilla_strategy_directory_scala_spark.py), generates its own random
- * data, and appends one row per run to [[Runner.ResultsFile]]. Run it from the scala_spark directory.
+ * data, and appends one row per successful run to [[Runner.ResultsFile]], in the format the Python run logs use.
+ * Its strategies are listed, as data only, in scala_spark/results/2026/challenge_strategy_registration.json.
+ * Run it from the scala_spark directory.
  */
 object Runner {
   /** Same layout as the Python runners: results/<year>/<environment>/<challenge>_<engine>_runs.csv */
   val ResultsFile = "results/2026/wsl/vanilla_runs_scala.csv"
-  private val ResultsHeader = "outcome,rawmethod,interface,expectedSize,returnedSize,elapsedTime"
+  /** Column layout of the Python run logs: a leading blank marks a header, and every line ends with a comma. */
+  private val ResultsHeader = " strategy_name,interface,num_source_rows,elapsed_time,num_output_rows,finished_at,"
 
   def createSparkSession(): SparkSession = {
     val ss = SparkSession
@@ -57,12 +60,12 @@ object Runner {
     val sc = ss.sparkContext
 
     val methodList = List(
-      ComputationMethod("vanilla_sql", "sql", VanillaSQL.run),
-      ComputationMethod("vanilla_fluent", "sql", VanillaFluent.run),
-      ComputationMethod("vanilla_udaf", "sql", VanillaUDAF.run),
-      ComputationMethod("vanilla_rdd_grpmap", "rdd", VanillaRDDGrpMap.run),
-      ComputationMethod("vanilla_rdd_reduce", "rdd", VanillaRDDReduce.run),
-      ComputationMethod("vanilla_rdd_mappart", "rdd", VanillaRDDMapPart.run))
+      ComputationMethod("vanilla_sc_spark_sql", "sql", VanillaSQL.run),
+      ComputationMethod("vanilla_sc_spark_fluent", "sql", VanillaFluent.run),
+      ComputationMethod("vanilla_sc_spark_udaf", "sql", VanillaUDAF.run),
+      ComputationMethod("vanilla_sc_spark_rdd_grpmap", "rdd", VanillaRDDGrpMap.run),
+      ComputationMethod("vanilla_sc_spark_rdd_reduce", "rdd", VanillaRDDReduce.run),
+      ComputationMethod("vanilla_sc_spark_rdd_mappart", "rdd", VanillaRDDMapPart.run))
 
     val numGrp1 = 3
     val numGrp2 = 3
@@ -102,9 +105,11 @@ object Runner {
             true
           }
         val elapsedTime = (finishedTime - startedTime).toDouble / 1e+9
-        val outcome = if (success) "success" else "failure"
-        pw.println(s"$outcome,${method.name},${method.interface},${srcdata.length},$recordCount,$elapsedTime")
-        pw.flush()
+        if (success) {
+          val finishedAt = java.time.LocalDateTime.now.toString
+          pw.println(s"${method.name},${method.interface},${srcdata.length},$elapsedTime,$recordCount,$finishedAt,")
+          pw.flush()
+        }
         // Keep one run's garbage from being billed to the next run's timing.
         System.gc()
         Thread.sleep(1000)

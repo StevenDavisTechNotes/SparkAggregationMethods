@@ -106,12 +106,6 @@ class SolutionInterfacePySpark(str, Enum):
     PYSPARK_DATAFRAME_PANDAS = "pandas"
 
 
-class SolutionInterfaceScalaSpark(str, Enum):
-    SPARK_RDD = "rdd"
-    SPARK_SQL = "sql"
-    SPARK_DATAFRAME_PANDAS = "pandas"
-
-
 class NumericalToleranceExpectations(Enum):
     NOT_APPLICABLE = -1.0
     NUMPY = 5e-12
@@ -124,7 +118,6 @@ SolutionInterface = (
     | SolutionInterfaceDask
     | SolutionInterfacePythonST
     | SolutionInterfacePySpark
-    | SolutionInterfaceScalaSpark
 )
 
 SolutionInterfacePython = (
@@ -139,7 +132,6 @@ TSolutionInterface = TypeVar(
     SolutionInterfacePythonST,
     SolutionInterfacePythonFreeThreaded,
     SolutionInterfacePySpark,
-    SolutionInterfaceScalaSpark,
     SolutionInterfacePython,
     SolutionInterface,
 )

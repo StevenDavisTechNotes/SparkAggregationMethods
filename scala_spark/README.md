@@ -7,13 +7,30 @@ This directory contains the Scala implementations for the Spark aggregation chal
 ## Status: ported for comparison, run only in 2018
 
 The Scala code exists to give the PySpark implementations a native-Spark yardstick. It was run only in 2018 and
-is not part of the routine benchmark: it is not wired into the Python runner harness or strategy registry (the
-`vanilla_strategy_directory_scala_spark.py` entries are placeholders whose delegates raise
-`NotImplementedError`), generates its own random data, and covers fewer sizes than the Python runners.
-The `vanilla` runner (`challenges.vanilla.Runner`) would append its rows to
-`results/2026/wsl/vanilla_runs_scala.csv`, relative to the directory it is run from. The `dedupe` runner has its own
-settings and results handling. The variance in the naive strategies is population variance (divide
-by n), deliberately uncentered, to match the Python strategies.
+is not part of the routine benchmark. Scala was much faster than PySpark, because the Scala strategies never
+cross the JVM/Python boundary; PySpark pays that IPC cost except where no Python UDF is needed.
+
+Scala is a data-only engine in the Python harness:
+
+- There is no Python runner and no strategy directory. `results/2026/challenge_strategy_registration.json` is
+  **hand-written**, not generated, and lists the six `vanilla` strategies so `admin/src/summarize_test_results.py`
+  can summarize their run logs. Do not regenerate it with a runner.
+- The `vanilla` runner (`challenges.vanilla.Runner`), started from this directory, generates its own random data
+  (fewer sizes than the Python runners) and appends one row per successful run to
+  `results/2026/wsl/vanilla_runs_scala.csv`, in the same format as the Python run logs.
+- No 2026 numbers exist. Any that are produced would come from 2026 hardware and marginally maintained code, so
+  they must not be mixed with the 2018 results, if those are ever found, which came from different hardware.
+- The variance in the naive strategies is population variance (divide by n), deliberately uncentered, to match
+  the Python strategies.
+
+|Scala strategy|Name in the 2018 blog posts|
+|---|---|
+|`vanilla_sc_spark_sql`|`vanilla_pyspark_sql`|
+|`vanilla_sc_spark_fluent`|`vanilla_fluent`|
+|`vanilla_sc_spark_udaf`|`vanilla_udaf`|
+|`vanilla_sc_spark_rdd_grpmap`|`vanilla_rdd_grpmap`|
+|`vanilla_sc_spark_rdd_reduce`|`vanilla_rdd_reduce`|
+|`vanilla_sc_spark_rdd_mappart`|`vanilla_rdd_mappart`|
 
 ## 🛠 Getting Started
 

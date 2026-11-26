@@ -9,8 +9,7 @@ from spark_agg_methods_common_python.challenges.six_field_test_data.six_test_dat
     six_derive_source_test_data_file_path,
 )
 from spark_agg_methods_common_python.perf_test_common import (
-    CalcEngine, Challenge, NumericalToleranceExpectations, SolutionInterfacePySpark, SolutionInterfaceScalaSpark,
-    SolutionLanguage,
+    CalcEngine, Challenge, NumericalToleranceExpectations, SolutionInterfacePySpark, SolutionLanguage,
 )
 from spark_agg_methods_common_python.utils.utils import int_divide_round_up
 from src.utils.tidy_session_pyspark import TidySparkSession
@@ -98,29 +97,6 @@ class SixFieldChallengeMethodPythonPysparkRegistration(
     numerical_tolerance: NumericalToleranceExpectations
     requires_gpu: bool
     delegate: ISixFieldChallengeMethodPythonPyspark
-
-
-class ISixFieldChallengeMethodScalaSpark(Protocol):
-    def __call__(
-        self,
-    ) -> TSixFieldChallengePendingAnswerPythonPyspark: ...
-
-
-@dataclass(frozen=True)
-class SixFieldChallengeMethodScalaSparkRegistration(
-    SixTestDataChallengeMethodRegistrationBase[
-        SolutionInterfaceScalaSpark, ISixFieldChallengeMethodScalaSpark
-    ]
-):
-    strategy_name_2018: str | None
-    strategy_name_2023: str | None
-    strategy_name: str
-    language: SolutionLanguage
-    engine: CalcEngine
-    interface: SolutionInterfaceScalaSpark
-    numerical_tolerance: NumericalToleranceExpectations
-    requires_gpu: bool
-    delegate: ISixFieldChallengeMethodScalaSpark
 
 
 def six_prepare_data_set_pyspark(

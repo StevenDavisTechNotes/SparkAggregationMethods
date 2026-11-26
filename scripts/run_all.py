@@ -4,8 +4,8 @@ usage: uv run python scripts/run_all.py --ty --flake8 --autopep8 --pyright --pyt
 
 Select tools with --autopep8, --flake8, --ty, --pytest, --pyright, --quick-run, --register
 (default: all but pyright, quick-run and register when none is given).
---quick-run executes each challenge-bearing sub-project's quick_test_run.ps1 with -NumRuns 1.
---register does the same with -NumRuns 0, which only refreshes challenge_strategy_registration.json.
+--quick-run executes each challenge-bearing sub-project's quick_test_run.ps1 with -Runs 1.
+--register does the same with -Runs 0, which only refreshes challenge_strategy_registration.json.
 Skip sub-projects with --exclude <project_root> (repeatable).
 """
 
@@ -244,7 +244,7 @@ def _quick_test_run_command(num_runs: int) -> Callable[[PythonProject], list[str
             "Bypass",
             "-File",
             "quick_test_run.ps1",
-            "-NumRuns",
+            "-Runs",
             str(num_runs),
         ]
 

@@ -13,17 +13,16 @@
 # SQL strategies), and enough of them in one JVM exhaust the ephemeral ports ("No buffer space available"). So on
 # Windows every RDD step gets a child process of its own, and each challenge's remaining steps share one child.
 # Elsewhere (Linux, WSL) Spark forks workers from a daemon and does not leak, so each challenge runs in one child.
-import argparse
 import logging
 import subprocess
 import sys
 from collections import Counter
 from dataclasses import dataclass
-from types import ModuleType
 
 from spark_agg_methods_common_python.perf_test_common import (
-    RunnerArgumentsBase, SolutionInterfacePySpark, assemble_itinerary, construct_result_file_path,
+    RunnerArgumentsBase, SolutionInterfacePySpark, assemble_itinerary,
 )
+from spark_agg_methods_common_python.perf_test_runner_common import Cell, ChallengeRunner, missing_runs, parse_request
 from spark_agg_methods_common_python.utils.platform import setup_logging
 from src.challenges.bi_level import bi_level_runner_pyspark
 from src.challenges.conditional import conditional_runner_pyspark
@@ -33,19 +32,10 @@ from src.challenges.vanilla import vanilla_runner_pyspark
 
 logger = logging.getLogger(__name__)
 
-type Cell = tuple[str, str]  # (strategy name, size code)
-
 
 @dataclass(frozen=True)
-class ChallengeRunner:
-    module: ModuleType
-    strategy_registry_name: str  # module attributes holding what the runner registers and logs
-    size_list_name: str
-    writer_class_name: str
-
-    @property
-    def name(self) -> str:
-        return self.module.__name__.rsplit(".", 1)[-1]
+class PysparkChallengeRunner(ChallengeRunner):
+    strategy_registry_name: str  # module attribute holding what the runner registers
 
     def rdd_strategy_names(self) -> set[str]:
         return {
@@ -54,62 +44,43 @@ class ChallengeRunner:
             if x.interface == SolutionInterfacePySpark.PYSPARK_RDD
         }
 
-    def timed_size_codes(self) -> set[str]:
-        """The data sizes whose runs are logged; debugging-only sizes are run but never recorded."""
-        return {x.size_code for x in getattr(self.module, self.size_list_name) if not x.debugging_only}
-
-    def count_logged_runs(self) -> Counter[Cell]:
-        """How many timings each (strategy, size code) already has in this challenge's run log."""
-        sizes = [x for x in getattr(self.module, self.size_list_name) if not x.debugging_only]
-        regressor_column = sizes[0].regressor_field_name()
-        size_code_by_regressor = {str(x.regressor_value): x.size_code for x in sizes}
-        log_path = construct_result_file_path(getattr(self.module, self.writer_class_name).RUN_LOG_FILE_NAME)
-        counts: Counter[Cell] = Counter()
-        if not log_path.exists():
-            return counts
-        columns: list[str] = []
-        for line in log_path.read_text().splitlines():
-            if line.startswith(" "):  # a header; result lines never start with a blank
-                columns = line.strip().split(",")
-            elif columns and "," in line and not line.startswith("#"):
-                row = dict(zip(columns, line.split(",")))
-                size_code = size_code_by_regressor.get(row.get(regressor_column, ""))
-                if size_code is not None:
-                    counts[(row["strategy_name"], size_code)] += 1
-        return counts
-
 
 CHALLENGE_RUNNERS = (
-    ChallengeRunner(
-        bi_level_runner_pyspark, "BI_LEVEL_STRATEGY_REGISTRY_PYSPARK", "DATA_SIZE_LIST_BI_LEVEL_MAXIMAL",
-        "BiLevelPysparkRunResultFileWriter"),
-    ChallengeRunner(
-        conditional_runner_pyspark, "CONDITIONAL_STRATEGY_REGISTRY_PYSPARK", "DATA_SIZE_LIST_CONDITIONAL_MAXIMAL",
-        "ConditionalPysparkRunResultFileWriter"),
-    ChallengeRunner(
-        dedupe_runner_pyspark, "DEDUPE_STRATEGY_REGISTRY_PYSPARK", "DATA_SIZE_LIST_DEDUPE_MAXIMAL",
-        "DedupePysparkRunResultFileWriter"),
-    ChallengeRunner(
-        section_runner_pyspark, "SECTIONAL_STRATEGY_REGISTRY_PYSPARK", "DATA_SIZE_LIST_SECTIONAL_MAXIMAL",
-        "SectionPysparkRunResultFileWriter"),
-    ChallengeRunner(
-        vanilla_runner_pyspark, "VANILLA_STRATEGY_REGISTRY_PYSPARK", "DATA_SIZE_LIST_VANILLA_MAXIMAL",
-        "VanillaPysparkRunResultFileWriter"),
+    PysparkChallengeRunner(
+        module=bi_level_runner_pyspark,
+        size_list_name="DATA_SIZE_LIST_BI_LEVEL_MAXIMAL",
+        writer_class_name="BiLevelPysparkRunResultFileWriter",
+        strategy_registry_name="BI_LEVEL_STRATEGY_REGISTRY_PYSPARK",
+    ),
+    PysparkChallengeRunner(
+        module=conditional_runner_pyspark,
+        size_list_name="DATA_SIZE_LIST_CONDITIONAL_MAXIMAL",
+        writer_class_name="ConditionalPysparkRunResultFileWriter",
+        strategy_registry_name="CONDITIONAL_STRATEGY_REGISTRY_PYSPARK",
+    ),
+    PysparkChallengeRunner(
+        module=dedupe_runner_pyspark,
+        size_list_name="DATA_SIZE_LIST_DEDUPE_MAXIMAL",
+        writer_class_name="DedupePysparkRunResultFileWriter",
+        strategy_registry_name="DEDUPE_STRATEGY_REGISTRY_PYSPARK",
+    ),
+    PysparkChallengeRunner(
+        module=section_runner_pyspark,
+        size_list_name="DATA_SIZE_LIST_SECTIONAL_MAXIMAL",
+        writer_class_name="SectionPysparkRunResultFileWriter",
+        strategy_registry_name="SECTIONAL_STRATEGY_REGISTRY_PYSPARK",
+    ),
+    PysparkChallengeRunner(
+        module=vanilla_runner_pyspark,
+        size_list_name="DATA_SIZE_LIST_VANILLA_MAXIMAL",
+        writer_class_name="VanillaPysparkRunResultFileWriter",
+        strategy_registry_name="VANILLA_STRATEGY_REGISTRY_PYSPARK",
+    ),
 )
 
 
 def leaks_sockets_per_python_worker() -> bool:
     return sys.platform == "win32"  # WSL reports "linux"
-
-
-def missing_runs(args: RunnerArgumentsBase, timed_size_codes: set[str], logged: Counter[Cell]) -> dict[Cell, int]:
-    shortfalls = {
-        (strategy_name, size_code): args.num_runs - logged[(strategy_name, size_code)]
-        for strategy_name in args.strategy_names
-        for size_code in args.sizes
-        if size_code in timed_size_codes
-    }
-    return {cell: n for cell, n in shortfalls.items() if n > 0}
 
 
 def plan_children(
@@ -160,37 +131,6 @@ def run_child(challenge: ChallengeRunner, child_args: list[str]) -> bool:
         *child_args,
     ]
     return subprocess.run(command, check=False).returncode == 0
-
-
-@dataclass(frozen=True)
-class PerfRunnerRequest:
-    num_runs: int  # the exact number of runs per cell, or with ``top_up`` the number of timings to end up with
-    top_up: bool
-    runner_argv: list[str]  # what the challenge runners' own parse_args should see
-
-
-def parse_request(argv: list[str]) -> PerfRunnerRequest:
-    parser = argparse.ArgumentParser(allow_abbrev=False)
-    parser.add_argument("--runs", type=int, help="run every strategy and size exactly this many times (default 1)")
-    parser.add_argument(
-        "--target-num-samples", type=int,
-        help="run only what is missing so that every feasible strategy and size has at least this many logged timings")
-    args, runner_argv = parser.parse_known_args(argv)
-    if args.runs is not None and args.target_num_samples is not None:
-        parser.error("--runs and --target-num-samples cannot be specified together")
-    top_up = args.target_num_samples is not None
-    num_runs = (
-        args.target_num_samples if args.target_num_samples is not None else
-        args.runs if args.runs is not None else
-        1
-    )
-    if num_runs < 0:
-        parser.error("the number of runs or samples cannot be negative")
-    return PerfRunnerRequest(
-        num_runs=num_runs,
-        top_up=top_up,
-        runner_argv=[*runner_argv, "--runs", str(num_runs)],
-    )
 
 
 def main() -> None:

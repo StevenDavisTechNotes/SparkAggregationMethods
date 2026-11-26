@@ -1,4 +1,5 @@
-# usage: python -m src.summarize_test_results
+#!python
+# usage: uv run python -m src.summarize_test_results
 
 import io
 import logging

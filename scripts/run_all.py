@@ -4,8 +4,9 @@ usage: uv run python scripts/run_all.py --ty --flake8 --autopep8 --pyright --pyt
 
 Select tools with --autopep8, --flake8, --ty, --pytest, --pyright, --quick-run, --register
 (default: all but pyright, quick-run and register when none is given).
---quick-run executes each challenge-bearing sub-project's quick_test_run.ps1 with -Runs 1.
---register does the same with -Runs 0, which only refreshes challenge_strategy_registration.json.
+--quick-run runs each challenge-bearing sub-project's perf_test_runner_for_*.py with --quick (one run of each
+challenge's smallest sizes). --register runs it with --runs 0, which only refreshes
+challenge_strategy_registration.json.
 Skip sub-projects with --exclude <project_root> (repeatable).
 """
 
@@ -233,20 +234,20 @@ def _pyright_command(project: PythonProject) -> list[str]:
     ]
 
 
-def _quick_test_run_command(num_runs: int) -> Callable[[PythonProject], list[str]]:
-    shell = "powershell" if sys.platform == "win32" else "pwsh"
+def _launcher_module(project: PythonProject) -> str:
+    """The sub-project's ``src/perf_test_runner_for_<engine>.py``, which runs every challenge it has."""
+    launchers = [
+        path.stem for path in (REPO_ROOT / project.project_root / "src").glob("perf_test_runner_for_*.py")
+        if not path.stem.endswith("_test")
+    ]
+    if len(launchers) != 1:
+        raise FileNotFoundError(f"Expected one perf_test_runner_for_*.py in {project.project_root}, found {launchers}")
+    return f"src.{launchers[0]}"
 
+
+def _launcher_command(*launcher_args: str) -> Callable[[PythonProject], list[str]]:
     def build(project: PythonProject) -> list[str]:
-        return [
-            shell,
-            "-NoProfile",
-            "-ExecutionPolicy",
-            "Bypass",
-            "-File",
-            "quick_test_run.ps1",
-            "-Runs",
-            str(num_runs),
-        ]
+        return ["uv", "run", "python", "-m", _launcher_module(project), *launcher_args]
 
     return build
 
@@ -291,13 +292,13 @@ PYRIGHT = Tool(
 )
 QUICK_RUN = Tool(
     name="quick-run",
-    build_command=_quick_test_run_command(1),
+    build_command=_launcher_command("--quick"),
     ok_return_codes=(0,),
     challenges_only=True,
 )
 REGISTER = Tool(
     name="register",
-    build_command=_quick_test_run_command(0),
+    build_command=_launcher_command("--runs", "0"),
     ok_return_codes=(0,),
     challenges_only=True,
 )
@@ -322,13 +323,13 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--quick-run",
         action="store_true",
         default=False,
-        help="Run quick_test_run.ps1 in every sub-project that has challenges (opt-in, not a default)",
+        help="Smoke-test every sub-project that has challenges with its launcher --quick (opt-in, not a default)",
     )
     parser.add_argument(
         "--register",
         action="store_true",
         default=False,
-        help="Refresh challenge_strategy_registration.json by running every runner with --runs 0 (opt-in)",
+        help="Refresh challenge_strategy_registration.json by running every launcher with --runs 0 (opt-in)",
     )
     parser.add_argument(
         "--exclude",

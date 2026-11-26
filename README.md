@@ -185,7 +185,7 @@ uv run python scripts/run_all.py --flake8 --ty --exclude py_spark --exclude pyth
 uv run python scripts/run_all.py --pyright
 
 # Update the challenge registry JSON from code
-cd admin; . .\update_challenge_registry.ps1 ; cd ..
+uv run python scripts/run_all.py --register
 
 # Generate the data files used by the tests
 cd admin; uv run python -m src.generate_data_files ; cd ..

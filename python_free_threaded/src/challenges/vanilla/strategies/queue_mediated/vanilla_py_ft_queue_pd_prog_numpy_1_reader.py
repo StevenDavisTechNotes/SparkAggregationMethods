@@ -1,3 +1,6 @@
+#!python
+# usage: uv run python -m src.challenges.vanilla.strategies.queue_mediated.vanilla_py_ft_queue_pd_prog_numpy_1_reader
+
 import logging
 import queue
 from collections.abc import Generator
@@ -19,9 +22,6 @@ from src.challenges.six_field_test_data.six_test_data_for_py_ft import (
 from simple_queued_pipelines.single_channel.sc_execution_graph import (
     execute_single_channel_linear_execution_graph_with_four_stages,
 )
-
-# usage: python -m src.challenges.vanilla.strategies.queue_mediated.vanilla_py_ft_queue_pd_prog_numpy_1_reader
-
 
 CHALLENGE = Challenge.VANILLA
 

@@ -43,6 +43,7 @@
         "pyarrow",
         "pyclean",
         "pydantic",
+        "pyrightconfig",
         "pyspark",
         "PYTHONROOT",
         "sessionization",
@@ -51,7 +52,9 @@
         "uncond",
         "unnest",
         "unpersist",
-        "venv"
+        "unshuffled",
+        "venv",
+        "winutils"
     ],
     "ignoreWords": [],
     "import": []

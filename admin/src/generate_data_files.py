@@ -1,5 +1,5 @@
 #!python
-# usage: python -m src.generate_data_files [--overwrite | --no-overwrite] [--minimal | --no-minimal]
+# usage: uv run python -m src.generate_data_files [--overwrite | --no-overwrite] [--minimal | --no-minimal]
 
 import argparse
 import logging

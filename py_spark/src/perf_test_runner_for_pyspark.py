@@ -1,8 +1,10 @@
 #!python
-# usage: uv run python -O -m src.perf_test_runner_for_pyspark [--runs N | --target-num-samples N]
+# usage: uv run python -O -m src.perf_test_runner_for_pyspark [--runs N | --target-num-samples N | --quick]
 #            [--shuffle | --no-shuffle] [--random-seed S]
 #
-# --runs N runs every (strategy, data size) of every challenge exactly N times (default 1).
+# --runs N runs every (strategy, data size) of every challenge exactly N times (default 1); --runs 0 only refreshes
+# results/<year>/challenge_strategy_registration.json.
+# --quick runs each challenge's smallest sizes once, as a smoke test.
 # --target-num-samples N instead runs only what is missing so that every feasible one has at least N timings in
 # results/<year>/<environment>/<challenge>_pyspark_runs.csv, so an interrupted run can be repeated. Cells that return
 # "infeasible" never get rows, so they are always reported as short.
@@ -22,61 +24,27 @@ from dataclasses import dataclass
 from spark_agg_methods_common_python.perf_test_common import (
     RunnerArgumentsBase, SolutionInterfacePySpark, assemble_itinerary,
 )
-from spark_agg_methods_common_python.perf_test_runner_common import Cell, ChallengeRunner, missing_runs, parse_request
+from spark_agg_methods_common_python.perf_test_runner_common import (
+    Cell, ChallengeRunner, discover_challenge_runners, missing_runs, parse_request,
+)
 from spark_agg_methods_common_python.utils.platform import setup_logging
-from src.challenges.bilevel import bilevel_runner_pyspark
-from src.challenges.conditional import conditional_runner_pyspark
-from src.challenges.dedupe import dedupe_runner_pyspark
-from src.challenges.sectional import sectional_runner_pyspark
-from src.challenges.vanilla import vanilla_runner_pyspark
+from src import challenges
 
 logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
 class PysparkChallengeRunner(ChallengeRunner):
-    strategy_registry_name: str  # module attribute holding what the runner registers
-
+    # the runner's registry is, by convention, <CHALLENGE>_STRATEGY_REGISTRY_PYSPARK
     def rdd_strategy_names(self) -> set[str]:
         return {
             x.strategy_name
-            for x in getattr(self.module, self.strategy_registry_name)
+            for x in getattr(self.module, f"{self.challenge.name}_STRATEGY_REGISTRY_PYSPARK")
             if x.interface == SolutionInterfacePySpark.PYSPARK_RDD
         }
 
 
-CHALLENGE_RUNNERS = (
-    PysparkChallengeRunner(
-        module=bilevel_runner_pyspark,
-        size_list_name="DATA_SIZE_LIST_BILEVEL_MAXIMAL",
-        writer_class_name="BilevelPysparkRunResultFileWriter",
-        strategy_registry_name="BILEVEL_STRATEGY_REGISTRY_PYSPARK",
-    ),
-    PysparkChallengeRunner(
-        module=conditional_runner_pyspark,
-        size_list_name="DATA_SIZE_LIST_CONDITIONAL_MAXIMAL",
-        writer_class_name="ConditionalPysparkRunResultFileWriter",
-        strategy_registry_name="CONDITIONAL_STRATEGY_REGISTRY_PYSPARK",
-    ),
-    PysparkChallengeRunner(
-        module=dedupe_runner_pyspark,
-        size_list_name="DATA_SIZE_LIST_DEDUPE_MAXIMAL",
-        writer_class_name="DedupePysparkRunResultFileWriter",
-        strategy_registry_name="DEDUPE_STRATEGY_REGISTRY_PYSPARK",
-    ),
-    PysparkChallengeRunner(
-        module=sectional_runner_pyspark,
-        size_list_name="DATA_SIZE_LIST_SECTIONAL_MAXIMAL",
-        writer_class_name="SectionalPysparkRunResultFileWriter",
-        strategy_registry_name="SECTIONAL_STRATEGY_REGISTRY_PYSPARK",
-    ),
-    PysparkChallengeRunner(
-        module=vanilla_runner_pyspark,
-        size_list_name="DATA_SIZE_LIST_VANILLA_MAXIMAL",
-        writer_class_name="VanillaPysparkRunResultFileWriter",
-        strategy_registry_name="VANILLA_STRATEGY_REGISTRY_PYSPARK",
-    ),
-)
+CHALLENGE_RUNNERS = discover_challenge_runners(challenges, "pyspark", PysparkChallengeRunner)
 
 
 def leaks_sockets_per_python_worker() -> bool:
@@ -136,9 +104,12 @@ def run_child(challenge: ChallengeRunner, child_args: list[str]) -> bool:
 def main() -> None:
     logger.info(f"Running {__file__}")
     request = parse_request(sys.argv[1:])
-    sys.argv[1:] = request.runner_argv
     failures: list[str] = []
     for challenge in CHALLENGE_RUNNERS:
+        sys.argv[1:] = request.argv_for(challenge)
+        if request.num_runs == 0 and not request.top_up:
+            challenge.module.main()  # only refreshes the strategy registration, so needs no child process
+            continue
         args = challenge.module.parse_args()
         # an exact count ignores the run log; debugging-only sizes are never logged, so only top-up skips them
         timed_size_codes = challenge.timed_size_codes() if request.top_up else set(args.sizes)

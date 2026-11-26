@@ -88,11 +88,15 @@ cd admin; uv run python -m src.generate_data_files
 # Run every benchmark for one engine
 cd python_dask; uv run python -O -m src.perf_test_runner_for_dask
 
-# Run one challenge, small sizes, single pass (see quick_test_run.ps1)
-uv run python -m src.challenges.vanilla.vanilla_runner_dask --runs 1 --no-shuffle --size 3_3_1 3_3_10
+# Smoke test: every challenge of one engine, smallest sizes, single pass, unshuffled
+cd python_dask; uv run python -m src.perf_test_runner_for_dask --quick
 
-# Refresh the strategy registry without benchmarking (see update_challenge_registry.ps1)
-uv run python -m src.challenges.vanilla.vanilla_runner_dask --runs 0
+# Refresh the strategy registry without benchmarking (one engine, then all of them)
+cd python_dask; uv run python -m src.perf_test_runner_for_dask --runs 0
+uv run python scripts/run_all.py --register
+
+# Run one challenge, small sizes, single pass
+uv run python -m src.challenges.vanilla.vanilla_runner_dask --runs 1 --no-shuffle --size 3_3_1 3_3_10
 
 # Summarize accumulated results (all environments) into results/<year>/*.csv
 cd admin; uv run python -m src.summarize_test_results

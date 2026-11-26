@@ -1,3 +1,6 @@
+#!python
+# usage: uv run python -m src.challenges.dedupe.dedupe_generate_data_files
+
 import logging
 import shutil
 from pathlib import Path

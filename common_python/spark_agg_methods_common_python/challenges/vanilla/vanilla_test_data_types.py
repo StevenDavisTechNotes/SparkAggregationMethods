@@ -51,7 +51,7 @@ DATA_SIZE_LIST_VANILLA_MAXIMAL = [
         (10 ** 5, "3_3_100k"),
         (10 ** 6, "3_3_1m"),
         (10 ** 7, "3_3_10m"),
-        (10 ** 8, "3_3_100m"),
+        # (10 ** 8, "3_3_100m"),  removed due to test hardware capacity
     ]
 ]
 DATA_SIZE_LIST_VANILLA_MINIMAL = [

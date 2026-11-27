@@ -172,7 +172,8 @@ def _generate_answer_file(data_description: SixTestDataSetDescription) -> None:
     answer_file_paths = six_derive_expected_answer_data_file_paths_csv(data_description)
     if all(f.exists() for f in answer_file_paths.values()):
         return
-    for file_name in answer_file_paths.values():
+    temp_answer_file_paths = six_derive_expected_answer_data_file_paths_csv(data_description, temp_file=True)
+    for file_name in [*answer_file_paths.values(), *temp_answer_file_paths.values()]:
         file_name.unlink(missing_ok=True)
     num_grp_1 = data_description.num_grp_1
     num_grp_2 = data_description.num_grp_2
@@ -184,7 +185,9 @@ def _generate_answer_file(data_description: SixTestDataSetDescription) -> None:
     )
     for challenge in CHALLENGES_SIX_DATA:
         logger.info(f"Creating {answer_file_paths[challenge]}")
-        answer[challenge].to_csv(answer_file_paths[challenge], index=False)
+        # write under another name and rename, so an interrupted run never leaves a partial file under the final name
+        answer[challenge].to_csv(temp_answer_file_paths[challenge], index=False)
+        temp_answer_file_paths[challenge].replace(answer_file_paths[challenge])
 
 
 def six_generate_data_files_remove() -> None:

@@ -14,12 +14,12 @@ The `pyspark` package installed by `uv sync` already bundles Spark, so the only 
   - Debian/Ubuntu: `sudo apt update && sudo apt install -y openjdk-17-jdk-headless`
   - Other distributions: install the equivalent OpenJDK 17 package
 - Spark (optional)
-  - [Download](https://spark.apache.org/downloads.html) version 4.2.0, pre-built for Apache Hadoop 3.4 and later
-  - Unpack to `~/spark/spark-4.2.0-bin-hadoop3`
+  - [Download](https://spark.apache.org/downloads.html) version 4.2.1, pre-built for Apache Hadoop 3.4 and later
+  - Unpack to `~/spark/spark-4.2.1-bin-hadoop3`
 
 ```bash
 mkdir -p ~/spark
-tar -xzf spark-4.2.0-bin-hadoop3.tgz -C ~/spark
+tar -xzf spark-4.2.1-bin-hadoop3.tgz -C ~/spark
 ```
 
 - Add to `~/.bashrc` (adjust `JAVA_HOME` to the output of `dirname $(dirname $(readlink -f $(which java)))`
@@ -33,7 +33,7 @@ export PYSPARK_DRIVER_PYTHON=python
 - If you separately installed Spark, then add to `~/.bashrc`:
 
 ```bash
-export SPARK_HOME="$HOME/spark/spark-4.2.0-bin-hadoop3"
+export SPARK_HOME="$HOME/spark/spark-4.2.1-bin-hadoop3"
 export PATH="$JAVA_HOME/bin:$SPARK_HOME/bin:$PATH"
 ```
 
@@ -54,9 +54,9 @@ Look to see what version of Spark and Dask you are going to use, and then work b
 
 - Spark
   - [Download](https://spark.apache.org/downloads.html)
-    - Version 4.2.0
+    - Version 4.2.1
     - Pre-built for Apache Hadoop 3.4 and later
-    - Unzip to `C:\Programs\Spark\spark-4.2.0-bin-hadoop3`
+    - Unzip to `C:\Programs\Spark\spark-4.2.1-bin-hadoop3`
 - Java JDK 17
   - [Open JDK](https://learn.microsoft.com/en-us/java/openjdk/download#openjdk-17)
     - Install for all users
@@ -79,7 +79,7 @@ Copy-Item -Recurse -Force 'hadoop-3.4.0-win10-x64' 'C:\Programs\Spark\'
   - PYSPARK_DRIVER_PYTHON = python
   - PYSPARK_HADOOP_VERSION = 3
   - PYSPARK_PYTHON = python
-  - SPARK_HOME = C:\Programs\Spark\spark-4.2.0-bin-hadoop3
+  - SPARK_HOME = C:\Programs\Spark\spark-4.2.1-bin-hadoop3
   - Add to the PATH (`%PATH%;%SPARK_HOME%\bin;%HADOOP_HOME%\bin;%JAVA_HOME%\bin`)
     - %SPARK_HOME%\bin
     - %JAVA_HOME%\bin
